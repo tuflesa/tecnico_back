@@ -3,6 +3,6 @@ from rest_framework import routers
 from .views import EstructuraViewSet
 
 router = routers.DefaultRouter()
-router.register('estructura', EstructuraViewSet)
+router.register('empresa', EstructuraViewSet)
 
 urlpatterns = router.urls

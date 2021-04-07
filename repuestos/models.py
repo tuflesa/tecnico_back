@@ -1,6 +1,7 @@
 from django.db import models
 from estructura.models import Equipo
 from django.utils import timezone
+from django.contrib.auth.models import User
 
 class Proveedor(models.Model):
     nombre = models.CharField(max_length=100)
@@ -16,7 +17,7 @@ class Contacto(models.Model):
     departamento = models.CharField(max_length=100, null=True, blank=True)
     correo_electronico = models.CharField(max_length=100, null=True, blank=True)
     telefono = models.CharField(max_length=15, null=True, blank=True)
-    preveedor = models.ForeignKey(Proveedor, on_delete=models.CASCADE)
+    proveedor = models.ForeignKey(Proveedor, on_delete=models.CASCADE)
 
     def __str__(self):
         return self.nombre + ' ' + self.apellidos + ' ' + self.proveedor.nombre 
@@ -46,7 +47,15 @@ class LineaPedido(models.Model):
     cantidad = models.IntegerField()
     precio = models.DecimalField(max_digits=8, decimal_places=2, blank=True)
 
+    def pendiente(self):
+        sum = 0
+        movimientos = Movimiento.objects.filter(linea_pedido=self)
+        for movimiento in movimientos:
+            sum += movimiento.cantidad
+        return self.cantidad - sum
+
 class Movimiento(models.Model):
     fecha = models.DateField(default=timezone.now)
     cantidad = models.IntegerField()
     linea_pedido = models.ForeignKey(LineaPedido, on_delete=models.CASCADE, blank=True)
+    usuario = models.ForeignKey(User,on_delete=models.SET_NULL, null=True)
