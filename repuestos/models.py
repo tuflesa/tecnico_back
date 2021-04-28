@@ -56,7 +56,7 @@ class LineaPedido(models.Model):
 class Inventario(models.Model):
     fecha = models.DateField(default=timezone.now)
     cantidad = models.IntegerField()
-    usuario = models.ForeignKey(User, on_delete=models.SET_NULL)
+    usuario = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
 
 class Movimiento(models.Model):
     fecha = models.DateField(default=timezone.now)
