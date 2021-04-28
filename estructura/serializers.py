@@ -1,25 +1,31 @@
 from rest_framework import serializers
 from .models import Empresa, Zona, Seccion, Equipo
 
-class EquiposSerializer(serializers.ModelSerializer):
+class EquipoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Equipo
-        fields = '__all__'
-
-class SeccionSerializer(serializers.ModelSerializer):
-    equipos = EquiposSerializer(many=True)
-    class Meta:
-        model = Seccion
-        fields = ['nombre', 'equipos']
+        fields = ['id', 'nombre', 'siglas_zona', 'seccion', 'seccion_nombre', 'fabricante', 'modelo', 'numero', 'imagen', 'zona_id', 'empresa_id']
 
 class ZonaSerializer(serializers.ModelSerializer):
-    secciones = SeccionSerializer(many=True)
+    # secciones = SeccionSerializer(many=True)
     class Meta:
         model = Zona
-        fields = ['nombre', 'siglas', 'secciones']
+        fields = ['id','nombre', 'siglas', 'empresa'] #, 'secciones']
 
-class EmpresaSerializer(serializers.ModelSerializer):
+class SeccionSerializer(serializers.ModelSerializer):
+    # equipos = EquiposSerializer(many=True)
+    # zona  = ZonaSerializer(many=False)
+    class Meta:
+        model = Seccion
+        fields = ['id', 'nombre', 'zona', 'siglas_zona', 'empresa_id'] #, 'equipos']
+
+class EstructuraSerializer(serializers.ModelSerializer):
     zonas = ZonaSerializer(many=True)
     class Meta:
         model = Empresa
         fields = ['id', 'nombre', 'siglas', 'zonas']
+
+class EmpresaSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Empresa
+        fields = ['id', 'nombre', 'siglas']
