@@ -41,8 +41,10 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'django_filters',
     'corsheaders',
+    'cargas',
     'estructura',
-    'repuestos'
+    'repuestos',
+    'administracion'
 ]
 
 MIDDLEWARE = [
@@ -100,7 +102,7 @@ REST_FRAMEWORK = {
 }
 
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000"
+    "http://localhost:3000",
 ]
 
 # Password validation
@@ -127,7 +129,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Europe/Madrid' #'UTC'
 
 USE_I18N = True
 
@@ -140,5 +142,6 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 
 STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
