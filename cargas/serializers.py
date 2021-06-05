@@ -1,11 +1,16 @@
 from rest_framework import serializers
-from .models import Agencia, Carga
+from .models import Agencia, Bascula, Carga
 from estructura.serializers import EmpresaSerializer
 
 class AgenciaSerializer(serializers.ModelSerializer):
     class Meta:
         model = Agencia
         fields = ['id', 'nombre', 'telefono', 'contacto', 'observaciones']
+
+class BasculaSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Bascula
+        fields = ['id', 'nombre', 'empresa', 'url']
 
 class CargaSerializer(serializers.ModelSerializer):
     empresa = EmpresaSerializer(many=False)

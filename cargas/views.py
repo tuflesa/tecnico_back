@@ -1,9 +1,9 @@
 from django.shortcuts import render
 from rest_framework import viewsets, status
 from rest_framework.response import Response
-from .serializers import AgenciaSerializer, CargaSerializer, CargaSimpleSerializer
+from .serializers import AgenciaSerializer, CargaSerializer, CargaSimpleSerializer, BasculaSerializer
 from django_filters import rest_framework as filters
-from .models import Agencia, Carga
+from .models import Agencia, Carga, Bascula
 
 class AgenciaFilter(filters.FilterSet):
     class Meta:
@@ -17,6 +17,10 @@ class AgenciaViewSet(viewsets.ModelViewSet):
     serializer_class = AgenciaSerializer
     queryset = Agencia.objects.all()
     filterset_class = AgenciaFilter
+
+class BasculaViewSet(viewsets.ModelViewSet):
+    serializer_class = BasculaSerializer
+    queryset = Bascula.objects.all()
 
 class CargaFilter(filters.FilterSet):
     class Meta:

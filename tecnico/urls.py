@@ -25,5 +25,6 @@ urlpatterns = [
     path('api/administracion/', include('administracion.urls')),
     path('api/estructura/', include('estructura.urls')),
     path('api/cargas/', include('cargas.urls')),
+    path('api/velocidad/', include('velocidad.urls')),
     path('auth/', CustomAuthToken.as_view())
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

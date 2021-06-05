@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'django_filters',
     'corsheaders',
     'cargas',
+    'velocidad',
     'estructura',
     'repuestos',
     'administracion'
