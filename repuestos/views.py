@@ -11,9 +11,21 @@ class AlmacenFilter(filters.FilterSet):
             'empresa': ['exact']
         }
 
+class RepuestoListFilter(filters.FilterSet):
+    class Meta:
+        model = Repuesto
+        fields = {
+            'nombre': ['icontains'],
+            'fabricante': ['icontains'],
+            'modelo': ['icontains'],
+            'es_critico': ['exact'],
+            'descatalogado': ['exact']
+        }
+
 class RepuestoListViewSet(viewsets.ModelViewSet):
     serializer_class = RepuestoListSerializer
     queryset = Repuesto.objects.all()
+    filterset_class = RepuestoListFilter
 
 class RepuestoDetailViewSet(viewsets.ModelViewSet):
     serializer_class = RepuestoDetailSerializer

@@ -31,6 +31,7 @@ class Repuesto(models.Model):
     es_critico = models.BooleanField(default=False)
     equipos = models.ManyToManyField(Equipo, related_name='repuestos')
     proveedores = models.ManyToManyField(Proveedor, related_name='repuestos')
+    descatalogado = models.BooleanField(default=False)
 
     def stock(self):
         s = Movimiento.objects.values('almacen__id', 'almacen__nombre', 'almacen__empresa__siglas', 'almacen__empresa__id').filter(Q(linea_pedido__repuesto=self) | Q(linea_inventario__repuesto=self)).annotate(suma=Sum('cantidad')) #['suma'] or 0
