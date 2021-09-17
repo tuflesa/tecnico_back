@@ -1,5 +1,5 @@
 from django.db.models import fields
-from estructura.serializers import EquipoSerializer
+from estructura.serializers import EmpresaSerializer, EquipoSerializer
 from rest_framework import serializers
 from .models import Almacen, Inventario, Movimiento, Repuesto, Proveedor, StockMinimo, LineaInventario
 from estructura.serializers import EquipoSerializer
@@ -10,9 +10,10 @@ class ProveedorSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class AlmacenSerilizer(serializers.ModelSerializer):
+    # empresa = EmpresaSerializer(many=False, read_only=False)
     class Meta:
         model = Almacen
-        fields = '__all__'
+        fields = ['id', 'nombre', 'empresa', 'empresa_siglas']
 
 class StockMinimoSerializer(serializers.ModelSerializer):
     # almacen = AlmacenSerilizer(many=False, read_only=True)
@@ -31,7 +32,7 @@ class RepuestoDetailSerializer(serializers.ModelSerializer):
 class RepuestoListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Repuesto
-        fields = ['id', 'nombre', 'fabricante', 'modelo', 'es_critico', 'descatalogado']
+        fields = ['id', 'nombre', 'fabricante', 'modelo', 'es_critico', 'descatalogado', 'equipos', 'proveedores']
 
 class InventarioSerializer(serializers.ModelSerializer):
     class Meta:

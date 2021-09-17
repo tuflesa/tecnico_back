@@ -34,6 +34,7 @@ class Repuesto(models.Model):
     descatalogado = models.BooleanField(default=False)
 
     def stock(self):
+        # print('calcula stock ...')
         s = Movimiento.objects.values('almacen__id', 'almacen__nombre', 'almacen__empresa__siglas', 'almacen__empresa__id').filter(Q(linea_pedido__repuesto=self) | Q(linea_inventario__repuesto=self)).annotate(suma=Sum('cantidad')) #['suma'] or 0
         # ajustes = Movimiento.objects.filter(linea_inventario__repuesto=self).aggregate(suma=Sum('cantidad'))['suma'] or 0
         
@@ -71,6 +72,9 @@ class LineaPedido(models.Model):
 class Almacen(models.Model):
     nombre = models.CharField(max_length=100)
     empresa = models.ForeignKey(Empresa, on_delete=models.CASCADE)
+
+    def empresa_siglas(self):
+        return self.empresa.siglas
 
     def __str__(self):
         return self.nombre
