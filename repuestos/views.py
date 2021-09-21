@@ -8,7 +8,8 @@ class AlmacenFilter(filters.FilterSet):
     class Meta:
         model = Almacen
         fields = {
-            'empresa': ['exact']
+            'empresa': ['exact'],
+            'nombre': ['icontains']
         }
 
 class RepuestoListFilter(filters.FilterSet):
