@@ -1,7 +1,8 @@
 from rest_framework import viewsets
+from rest_framework import serializers
 from rest_framework.serializers import Serializer
-from .serializers import AlmacenSerilizer, InventarioSerializer, MovimientoSerializer, ProveedorSerializer, RepuestoListSerializer, RepuestoDetailSerializer, StockMinimoSerializer, LineaInventarioSerializer
-from .models import Almacen, Inventario, LineaInventario, Movimiento, Proveedor, Repuesto, StockMinimo
+from .serializers import AlmacenSerilizer, ContactoSerializer, InventarioSerializer, MovimientoSerializer, ProveedorSerializer, RepuestoListSerializer, RepuestoDetailSerializer, StockMinimoSerializer, LineaInventarioSerializer
+from .models import Almacen, Contacto, Inventario, LineaInventario, Movimiento, Proveedor, Repuesto, StockMinimo
 from django_filters import rest_framework as filters
 
 class AlmacenFilter(filters.FilterSet):
@@ -60,3 +61,6 @@ class MovimientoViewSet(viewsets.ModelViewSet):
 class ProveedorViewSet(viewsets.ModelViewSet):
     serializer_class = ProveedorSerializer
     queryset = Proveedor.objects.all()
+class ContactoProveedorViewSet(viewsets.ModelViewSet):
+    serializers_class = ContactoSerializer
+    queryset = Contacto.objects.all()
