@@ -22,8 +22,15 @@ class Contacto(models.Model):
     def __str__(self):
         return self.nombre + ' ' + self.proveedor.nombre 
 
+class TipoRepuesto(models.Model):
+    nombre = models.CharField(max_length=30)
+
+    def __str__(self):
+        return self.nombre
+
 class Repuesto(models.Model):
     nombre = models.CharField(max_length = 100)
+    tipo_repuesto = models.ForeignKey(TipoRepuesto, on_delete=models.CASCADE)
     fabricante = models.CharField(max_length=50, null=True, blank=True)
     modelo = models.CharField(max_length=50, null=True, blank=True)
     # stock = models.IntegerField(default=0)

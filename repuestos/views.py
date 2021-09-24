@@ -1,7 +1,7 @@
 from rest_framework import viewsets
 from rest_framework.serializers import Serializer
-from .serializers import AlmacenSerilizer, InventarioSerializer, MovimientoSerializer, ProveedorSerializer, RepuestoListSerializer, RepuestoDetailSerializer, StockMinimoSerializer, LineaInventarioSerializer
-from .models import Almacen, Inventario, LineaInventario, Movimiento, Proveedor, Repuesto, StockMinimo
+from .serializers import AlmacenSerilizer, InventarioSerializer, MovimientoSerializer, ProveedorSerializer, RepuestoListSerializer, RepuestoDetailSerializer, StockMinimoSerializer, LineaInventarioSerializer, TipoRepuestoSerilizer
+from .models import Almacen, Inventario, LineaInventario, Movimiento, Proveedor, Repuesto, StockMinimo, TipoRepuesto
 from django_filters import rest_framework as filters
 
 class AlmacenFilter(filters.FilterSet):
@@ -17,6 +17,7 @@ class RepuestoListFilter(filters.FilterSet):
         model = Repuesto
         fields = {
             'nombre': ['icontains'],
+            'tipo_repuesto': ['exact'],
             'fabricante': ['icontains'],
             'modelo': ['icontains'],
             'es_critico': ['exact'],
@@ -26,6 +27,10 @@ class RepuestoListFilter(filters.FilterSet):
             'equipos__seccion__id': ['exact'],
             'equipos__id': ['exact']
         }
+
+class TipoRepuestoViewSet(viewsets.ModelViewSet):
+    serializer_class = TipoRepuestoSerilizer
+    queryset = TipoRepuesto.objects.all()
 
 class RepuestoListViewSet(viewsets.ModelViewSet):
     serializer_class = RepuestoListSerializer

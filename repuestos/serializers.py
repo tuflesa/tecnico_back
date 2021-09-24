@@ -1,7 +1,7 @@
 from django.db.models import fields
 from estructura.serializers import EmpresaSerializer, EquipoSerializer
 from rest_framework import serializers
-from .models import Almacen, Inventario, Movimiento, Repuesto, Proveedor, StockMinimo, LineaInventario
+from .models import Almacen, Inventario, Movimiento, Repuesto, Proveedor, StockMinimo, LineaInventario, TipoRepuesto
 from estructura.serializers import EquipoSerializer
 
 class ProveedorSerializer(serializers.ModelSerializer):
@@ -27,12 +27,17 @@ class RepuestoDetailSerializer(serializers.ModelSerializer):
     stocks_minimos = StockMinimoSerializer(many=True, read_only=True)
     class Meta:
         model = Repuesto
-        fields = ['id', 'nombre', 'fabricante', 'modelo', 'stock', 'es_critico', 'equipos', 'proveedores', 'stocks_minimos', 'descatalogado']
+        fields = ['id', 'nombre', 'tipo_repuesto', 'fabricante', 'modelo', 'stock', 'es_critico', 'equipos', 'proveedores', 'stocks_minimos', 'descatalogado']
 
 class RepuestoListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Repuesto
-        fields = ['id', 'nombre', 'fabricante', 'modelo', 'es_critico', 'descatalogado', 'equipos', 'proveedores']
+        fields = ['id', 'nombre', 'tipo_repuesto','fabricante', 'modelo', 'es_critico', 'descatalogado', 'equipos', 'proveedores']
+
+class TipoRepuestoSerilizer(serializers.ModelSerializer):
+    class Meta:
+        model = TipoRepuesto
+        fields = ['id', 'nombre'] 
 
 class InventarioSerializer(serializers.ModelSerializer):
     class Meta:
