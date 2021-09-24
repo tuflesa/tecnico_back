@@ -1,9 +1,5 @@
 from rest_framework import routers
-<<<<<<< HEAD
-from .views import InventarioViewSet, MovimientoViewSet, ProveedorViewSet, RepuestoListViewSet, RepuestoDetailViewSet, StockMinimoViewSet, AlmacenViewSet, LineaInventarioViewSet, TipoRepuestoViewSet
-=======
-from .views import ContactoProveedorViewSet, InventarioViewSet, MovimientoViewSet, ProveedorViewSet, RepuestoListViewSet, RepuestoDetailViewSet, StockMinimoViewSet, AlmacenViewSet, LineaInventarioViewSet
->>>>>>> Merce_Back
+from .views import InventarioViewSet, ContactoProveedorViewSet, MovimientoViewSet, ProveedorViewSet, RepuestoListViewSet, RepuestoDetailViewSet, StockMinimoViewSet, AlmacenViewSet, LineaInventarioViewSet, TipoRepuestoViewSet
 
 router = routers.DefaultRouter()
 router.register('lista', RepuestoListViewSet)

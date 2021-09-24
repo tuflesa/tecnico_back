@@ -1,13 +1,8 @@
 from rest_framework import viewsets
 from rest_framework import serializers
 from rest_framework.serializers import Serializer
-<<<<<<< HEAD
-from .serializers import AlmacenSerilizer, InventarioSerializer, MovimientoSerializer, ProveedorSerializer, RepuestoListSerializer, RepuestoDetailSerializer, StockMinimoSerializer, LineaInventarioSerializer, TipoRepuestoSerilizer
-from .models import Almacen, Inventario, LineaInventario, Movimiento, Proveedor, Repuesto, StockMinimo, TipoRepuesto
-=======
-from .serializers import AlmacenSerilizer, ContactoSerializer, InventarioSerializer, MovimientoSerializer, ProveedorSerializer, RepuestoListSerializer, RepuestoDetailSerializer, StockMinimoSerializer, LineaInventarioSerializer
-from .models import Almacen, Contacto, Inventario, LineaInventario, Movimiento, Proveedor, Repuesto, StockMinimo
->>>>>>> Merce_Back
+from .serializers import AlmacenSerilizer, ContactoSerializer, InventarioSerializer, MovimientoSerializer, ProveedorSerializer, RepuestoListSerializer, RepuestoDetailSerializer, StockMinimoSerializer, LineaInventarioSerializer, TipoRepuestoSerilizer
+from .models import Almacen, Inventario, Contacto, LineaInventario, Movimiento, Proveedor, Repuesto, StockMinimo, TipoRepuesto
 from django_filters import rest_framework as filters
 
 class AlmacenFilter(filters.FilterSet):
