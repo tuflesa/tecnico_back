@@ -12,6 +12,12 @@ class AlmacenFilter(filters.FilterSet):
             'empresa': ['exact'],
             'nombre': ['icontains']
         }
+class ProveedorFilter(filters.FilterSet):
+    class Meta:
+        model = Proveedor
+        fields = {
+            'nombre': ['icontains']
+        }
 
 class RepuestoListFilter(filters.FilterSet):
     class Meta:
@@ -61,6 +67,7 @@ class MovimientoViewSet(viewsets.ModelViewSet):
 class ProveedorViewSet(viewsets.ModelViewSet):
     serializer_class = ProveedorSerializer
     queryset = Proveedor.objects.all()
+    filterset_class = ProveedorFilter
 class ContactoProveedorViewSet(viewsets.ModelViewSet):
     serializers_class = ContactoSerializer
     queryset = Contacto.objects.all()
