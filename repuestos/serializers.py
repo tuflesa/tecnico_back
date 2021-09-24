@@ -1,9 +1,19 @@
 from django.db.models import fields
+from django.db.models.base import Model
 from estructura.serializers import EmpresaSerializer, EquipoSerializer
 from rest_framework import serializers
+<<<<<<< HEAD
 from .models import Almacen, Inventario, Movimiento, Repuesto, Proveedor, StockMinimo, LineaInventario, TipoRepuesto
+=======
+from .models import Almacen, Contacto, Inventario, Movimiento, Repuesto, Proveedor, StockMinimo, LineaInventario
+>>>>>>> Merce_Back
 from estructura.serializers import EquipoSerializer
 
+class ContactoSerializer(serializers.ModelSerializer):
+    class Meta:
+        Model = Contacto
+        fields='__all__'
+        
 class ProveedorSerializer(serializers.ModelSerializer):
     class Meta:
         model = Proveedor
