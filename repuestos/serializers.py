@@ -15,6 +15,12 @@ class ProveedorSerializer(serializers.ModelSerializer):
         model = Proveedor
         fields = '__all__'
 
+class ProveedorDetailSerializer(serializers.ModelSerializer):
+    contactos = ContactoSerializer(many=True, read_only=True)
+    class Meta:
+        model = Proveedor
+        fields = ['id', 'nombre', 'telefono', 'direccion', 'contactos']
+
 class AlmacenSerilizer(serializers.ModelSerializer):
     # empresa = EmpresaSerializer(many=False, read_only=False)
     class Meta:

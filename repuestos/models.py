@@ -17,7 +17,7 @@ class Contacto(models.Model):
     departamento = models.CharField(max_length=100, null=True, blank=True)
     correo_electronico = models.CharField(max_length=100, null=True, blank=True)
     telefono = models.CharField(max_length=15, null=True, blank=True)
-    proveedor = models.ForeignKey(Proveedor, on_delete=models.CASCADE)
+    proveedor = models.ForeignKey(Proveedor, on_delete=models.CASCADE, related_name='contactos')
 
     def __str__(self):
         return self.nombre + ' ' + self.proveedor.nombre 
