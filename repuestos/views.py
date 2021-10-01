@@ -73,6 +73,7 @@ class ProveedorViewSet(viewsets.ModelViewSet):
     serializer_class = ProveedorSerializer
     queryset = Proveedor.objects.all()
     filterset_class = ProveedorFilter
+
 class ContactoProveedorViewSet(viewsets.ModelViewSet):
-    serializers_class = ContactoSerializer
+    serializer_class = ContactoSerializer
     queryset = Contacto.objects.all()

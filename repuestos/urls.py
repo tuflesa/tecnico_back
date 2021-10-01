@@ -11,6 +11,6 @@ router.register('inventario', InventarioViewSet)
 router.register('lineainventario', LineaInventarioViewSet)
 router.register('movimiento', MovimientoViewSet)
 router.register('proveedor', ProveedorViewSet)
-#router.register('contacto', ContactoProveedorViewSet)
+router.register('contacto', ContactoProveedorViewSet)
 
 urlpatterns = router.urls

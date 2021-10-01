@@ -7,7 +7,7 @@ from estructura.serializers import EquipoSerializer
 
 class ContactoSerializer(serializers.ModelSerializer):
     class Meta:
-        Model = Contacto
+        model = Contacto
         fields='__all__'
         
 class ProveedorSerializer(serializers.ModelSerializer):
