@@ -4,7 +4,8 @@ from django.db.models.deletion import SET_NULL
 from estructura.models import Equipo
 from django.contrib.auth.models import User
 
-class Notificacion(models.Model): # Notificación 5W+2H
+class Notificacion(models.Model): # Notificación 5W+2H Plus
+    # 5W+2H
     que = models.TextField(max_length=250) # What. Que sucede
     cuando = models.TextField(max_length=150) # When. Cuando sucede, en que momento del día
     donde = models.TextField(max_length=150) # Where. Donde está el problema
@@ -12,6 +13,7 @@ class Notificacion(models.Model): # Notificación 5W+2H
     como = models.TextField(max_length=250) # How. Como se distingue del estado normal
     cuanto = models.TextField(max_length=150) # How many. Cuantas veces ocurre el problema: Una vez al día, continuamente, ...
     porque = models.TextField(max_length=250) # Why. Por que cree que ocurre el problema.
+    # Plus
 
 
 class Especialidad(models.Model): # Electricidad, Electronica, Mecanica, Fontanería ...
@@ -48,6 +50,7 @@ class Tarea(models.Model):
 
 class ParteTrabajo(models.Model):
     nombre = models.CharField(max_length=150)
+    notificacion = models.ForeignKey(Notificacion, on_delete=models.CASCADE, null=True, blank=True)
     tipo = models.ForeignKey(TipoTarea, on_delete=models.CASCADE)
     creada_por = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='partes_creados')
     responsable = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='partes_responsable')
