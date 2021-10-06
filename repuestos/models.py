@@ -57,11 +57,12 @@ class Pedido(models.Model):
     
     def completo(self):
         lineas_pendientes = LineaPedido.objects.filter(pedido=self).filter(completo=False).count()
-        return lineas_pendientes == 0
+        lineas_adicionales_pendientes = LineaAdicional.objects.filter(pedido=self).filter(completo=False).count()
+        return (lineas_pendientes + lineas_adicionales_pendientes) == 0
 
 
 class LineaPedido(models.Model):
-    pedido = models.ForeignKey(Pedido, on_delete=models.CASCADE)
+    pedido = models.ForeignKey(Pedido, on_delete=models.CASCADE, related_name='lineas_pedido')
     repuesto = models.ForeignKey(Repuesto, on_delete=models.CASCADE)
     cantidad = models.IntegerField()
     precio = models.DecimalField(max_digits=8, decimal_places=2, blank=True, null=True)
@@ -75,6 +76,28 @@ class LineaPedido(models.Model):
 
     def completo(self):
         return self.pendiente() <= 0
+
+class LineaAdicional(models.Model):
+    pedido = models.ForeignKey(Pedido, on_delete=models.CASCADE, related_name='lineas_adicionales')
+    descripcion = models.CharField(max_length=250)
+    cantidad = models.IntegerField()
+    precio = models.DecimalField(max_digits=8, decimal_places=2, blank=True, null=True)
+
+    def pendiente(self):
+        sum = 0
+        entregas = Entregas.objects.filter(linea_adicional=self)
+        for entrega in entregas:
+            sum += entrega.cantidad
+        return self.cantidad - sum
+
+    def completo(self):
+        return self.pendiente() <= 0
+
+class Entregas(models.Model):
+    linea_adicional = models.ForeignKey(LineaAdicional, on_delete=models.CASCADE)
+    fecha = models.DateField(default=timezone.now)
+    cantidad = models.IntegerField()
+    usuario = models.ForeignKey(User, on_delete=models.SET_NULL, blank=True, null=True)
 
 class Almacen(models.Model):
     nombre = models.CharField(max_length=100)

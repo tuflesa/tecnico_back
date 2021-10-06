@@ -1,5 +1,7 @@
 from django.contrib import admin
 
-from .models import Notificacion
+from .models import LineaParteTrabajo, Notificacion, ParteTrabajo
 
 admin.site.register(Notificacion)
+admin.site.register(ParteTrabajo)
+admin.site.register(LineaParteTrabajo)
