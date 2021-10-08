@@ -1,8 +1,8 @@
 from rest_framework import viewsets
 from rest_framework import serializers
 from rest_framework.serializers import Serializer
-from .serializers import ProveedorDetailSerializer, AlmacenSerilizer, ContactoSerializer, InventarioSerializer, MovimientoSerializer, ProveedorSerializer, RepuestoListSerializer, RepuestoDetailSerializer, StockMinimoSerializer, LineaInventarioSerializer, TipoRepuestoSerilizer
-from .models import Almacen, Inventario, Contacto, LineaInventario, Movimiento, Proveedor, Repuesto, StockMinimo, TipoRepuesto
+from .serializers import PedidoListSerilizer, ProveedorDetailSerializer, AlmacenSerilizer, ContactoSerializer, InventarioSerializer, MovimientoSerializer, ProveedorSerializer, RepuestoListSerializer, RepuestoDetailSerializer, StockMinimoSerializer, LineaInventarioSerializer, TipoRepuestoSerilizer
+from .models import Almacen, Inventario, Contacto, LineaInventario, Movimiento, Pedido, Proveedor, Repuesto, StockMinimo, TipoRepuesto
 from django_filters import rest_framework as filters
 
 class AlmacenFilter(filters.FilterSet):
@@ -34,6 +34,14 @@ class RepuestoListFilter(filters.FilterSet):
             'equipos__seccion__zona__id': ['exact'],
             'equipos__seccion__id': ['exact'],
             'equipos__id': ['exact']
+        }
+
+class PedidoListFilter(filters.FilterSet):
+    class Meta:
+        model = Pedido
+        fields = {
+            'proveedor__nombre': ['icontains'],
+            'fecha_creacion': ['lte', 'gte']
         }
 
 class TipoRepuestoViewSet(viewsets.ModelViewSet):
@@ -82,4 +90,9 @@ class ProveedorDetailViewSet(viewsets.ModelViewSet):
 class ContactoViewSet(viewsets.ModelViewSet):
     serializer_class = ContactoSerializer
     queryset = Contacto.objects.all()
+
+class PedidoListViewSet(viewsets.ModelViewSet):
+    serializer_class = PedidoListSerilizer
+    queryset = Pedido.objects.all()
+    filterset_class = PedidoListFilter
 

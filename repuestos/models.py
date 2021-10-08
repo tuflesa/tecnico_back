@@ -50,6 +50,31 @@ class Repuesto(models.Model):
     def __str__(self):
         return self.nombre
 
+class ContadorPedidos(models.Model):
+    year = models.IntegerField()
+    contador = models.IntegerField(default=0)
+
+    def __str__(self):
+        return str(self.year) + '-' + str(self.contador)
+
+# def numeroPedido():
+#     currentDateTime = datetime.datetime.now()
+#     date = currentDateTime.date()
+#     year = date.strftime("%Y")
+
+#     contador = ContadorPedidos.objects.filter(year=year)
+#     if (len(contador)==0):
+#         contador = ContadorPedidos(year=year, contador=0)
+#         contador.save()
+#         numero=1
+#     else:
+#         numero=contador.contador+1
+
+#     contador.contador = numero
+#     contador.save()
+
+#     return year + '-' + str(numero)
+
 class Pedido(models.Model):
     proveedor = models.ForeignKey(Proveedor, on_delete=models.CASCADE)
     fecha_creacion = models.DateField(default=timezone.now)
