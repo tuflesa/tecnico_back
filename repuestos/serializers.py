@@ -2,7 +2,7 @@ from django.db.models import fields
 from django.db.models.base import Model
 from estructura.serializers import EmpresaSerializer, EquipoSerializer
 from rest_framework import serializers
-from .models import Almacen, Contacto, Inventario, Movimiento, Pedido, Repuesto, Proveedor, StockMinimo, LineaInventario, TipoRepuesto
+from .models import Almacen, Contacto, Inventario, LineaPedido, Movimiento, Pedido, Repuesto, Proveedor, StockMinimo, LineaInventario, TipoRepuesto
 from estructura.serializers import EquipoSerializer
 
 class ContactoSerializer(serializers.ModelSerializer):
@@ -71,3 +71,16 @@ class PedidoListSerilizer(serializers.ModelSerializer):
     class Meta:
         model = Pedido
         fields = ['id', 'proveedor', 'fecha_creacion', 'fecha_entrega', 'finalizado']
+
+class LineaPedidoSerilizer(serializers.ModelSerializer):
+    repuesto = RepuestoListSerializer(many=False, read_only=True)
+    class Meta:
+        model = LineaPedido
+        fields = ['id', 'pedido', 'repuesto', 'cantidad', 'precio']
+
+class PedidoDetailSerilizer(serializers.ModelSerializer):
+    proveedor = ProveedorSerializer(many=False, read_only=True)
+    lineas_pedido = LineaPedidoSerilizer(many=True, read_only=True)
+    class Meta:
+        model = Pedido
+        fields = ['id', 'proveedor', 'fecha_creacion', 'fecha_entrega', 'finalizado', 'lineas_pedido']

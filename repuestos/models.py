@@ -164,6 +164,7 @@ class Movimiento(models.Model):
     usuario = models.ForeignKey(User, on_delete=models.SET_NULL, blank=True, null=True)
     linea_pedido = models.ForeignKey(LineaPedido, on_delete=models.CASCADE, blank=True, null=True)
     linea_inventario = models.ForeignKey(LineaInventario, on_delete=models.CASCADE, blank=True, null=True)
+    albaran = models.CharField(max_length=50, null=True, blank=True, default='')
 
 class Foto(models.Model):
     imagen = models.ImageField(upload_to='equipos')

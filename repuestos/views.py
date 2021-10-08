@@ -1,7 +1,7 @@
 from rest_framework import viewsets
 from rest_framework import serializers
 from rest_framework.serializers import Serializer
-from .serializers import PedidoListSerilizer, ProveedorDetailSerializer, AlmacenSerilizer, ContactoSerializer, InventarioSerializer, MovimientoSerializer, ProveedorSerializer, RepuestoListSerializer, RepuestoDetailSerializer, StockMinimoSerializer, LineaInventarioSerializer, TipoRepuestoSerilizer
+from .serializers import PedidoListSerilizer, PedidoDetailSerilizer, ProveedorDetailSerializer, AlmacenSerilizer, ContactoSerializer, InventarioSerializer, MovimientoSerializer, ProveedorSerializer, RepuestoListSerializer, RepuestoDetailSerializer, StockMinimoSerializer, LineaInventarioSerializer, TipoRepuestoSerilizer
 from .models import Almacen, Inventario, Contacto, LineaInventario, Movimiento, Pedido, Proveedor, Repuesto, StockMinimo, TipoRepuesto
 from django_filters import rest_framework as filters
 
@@ -97,3 +97,6 @@ class PedidoListViewSet(viewsets.ModelViewSet):
     queryset = Pedido.objects.all()
     filterset_class = PedidoListFilter
 
+class PedidoDetailViewSet(viewsets.ModelViewSet):
+    serializer_class = PedidoDetailSerilizer
+    queryset = Pedido.objects.all()
