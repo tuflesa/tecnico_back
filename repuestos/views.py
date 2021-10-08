@@ -41,7 +41,8 @@ class PedidoListFilter(filters.FilterSet):
         model = Pedido
         fields = {
             'proveedor__nombre': ['icontains'],
-            'fecha_creacion': ['lte', 'gte']
+            'fecha_creacion': ['lte', 'gte'],
+            'finalizado': ['exact']
         }
 
 class TipoRepuestoViewSet(viewsets.ModelViewSet):

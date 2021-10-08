@@ -79,8 +79,9 @@ class Pedido(models.Model):
     proveedor = models.ForeignKey(Proveedor, on_delete=models.CASCADE)
     fecha_creacion = models.DateField(default=timezone.now)
     fecha_entrega = models.DateField(blank=True, null=True)
+    finalizado = models.BooleanField(default=False)
     
-    def completo(self):
+    def es_completo(self):
         lineas_pendientes = LineaPedido.objects.filter(pedido=self).filter(completo=False).count()
         lineas_adicionales_pendientes = LineaAdicional.objects.filter(pedido=self).filter(completo=False).count()
         return (lineas_pendientes + lineas_adicionales_pendientes) == 0
