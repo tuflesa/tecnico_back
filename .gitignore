@@ -2,4 +2,3 @@ venv
 .vscode
 media
 static
-*.pyc
