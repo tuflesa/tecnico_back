@@ -3,6 +3,7 @@ from django.db.models import Sum, Q
 from estructura.models import Empresa, Equipo
 from django.utils import timezone
 from django.contrib.auth.models import User
+import datetime
 
 class Proveedor(models.Model):
     nombre = models.CharField(max_length=100)
@@ -80,6 +81,30 @@ class Pedido(models.Model):
     fecha_creacion = models.DateField(default=timezone.now)
     fecha_entrega = models.DateField(blank=True, null=True)
     finalizado = models.BooleanField(default=False)
+    numero = models.CharField(max_length=12, null=True, blank=True, default=None)
+
+    def save(self, *args, **kwargs):
+        # Generar nuevo número si el campo numero es None (null)
+        if self.numero is None:
+            currentDateTime = datetime.datetime.now()
+            date = currentDateTime.date()
+            year = date.strftime("%Y")
+
+            contador = ContadorPedidos.objects.filter(year=year)
+            if (len(contador)==0):
+                contador = ContadorPedidos(year=year, contador=0)
+                contador.save()
+                numero=1
+            else:
+                contador = ContadorPedidos.objects.get(year=year)
+                numero=contador.contador+1
+
+            contador.contador = numero
+            contador.save()
+
+            self.numero = year + '-' + str(numero)
+        # Llamar al metodo save por defecto de la clase
+        super(Pedido,self).save(*args, **kwargs)
     
     def es_completo(self):
         lineas_pendientes = LineaPedido.objects.filter(pedido=self).filter(completo=False).count()
