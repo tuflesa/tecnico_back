@@ -53,28 +53,11 @@ class Repuesto(models.Model):
 
 class ContadorPedidos(models.Model):
     year = models.IntegerField()
+    empresa = models.ForeignKey(Empresa, on_delete=models.CASCADE)
     contador = models.IntegerField(default=0)
 
     def __str__(self):
         return str(self.year) + '-' + str(self.contador)
-
-# def numeroPedido():
-#     currentDateTime = datetime.datetime.now()
-#     date = currentDateTime.date()
-#     year = date.strftime("%Y")
-
-#     contador = ContadorPedidos.objects.filter(year=year)
-#     if (len(contador)==0):
-#         contador = ContadorPedidos(year=year, contador=0)
-#         contador.save()
-#         numero=1
-#     else:
-#         numero=contador.contador+1
-
-#     contador.contador = numero
-#     contador.save()
-
-#     return year + '-' + str(numero)
 
 class Pedido(models.Model):
     proveedor = models.ForeignKey(Proveedor, on_delete=models.CASCADE)
@@ -82,6 +65,7 @@ class Pedido(models.Model):
     fecha_entrega = models.DateField(blank=True, null=True)
     finalizado = models.BooleanField(default=False)
     numero = models.CharField(max_length=12, null=True, blank=True, default=None)
+    empresa = models.ForeignKey(Empresa, on_delete=models.CASCADE)
 
     def save(self, *args, **kwargs):
         # Generar nuevo número si el campo numero es None (null)
@@ -90,19 +74,19 @@ class Pedido(models.Model):
             date = currentDateTime.date()
             year = date.strftime("%Y")
 
-            contador = ContadorPedidos.objects.filter(year=year)
+            contador = ContadorPedidos.objects.filter(year=year, empresa=self.empresa)
             if (len(contador)==0):
-                contador = ContadorPedidos(year=year, contador=0)
+                contador = ContadorPedidos(year=year, contador=0, empresa=self.empresa)
                 contador.save()
                 numero=1
             else:
-                contador = ContadorPedidos.objects.get(year=year)
+                contador = ContadorPedidos.objects.get(year=year, empresa=self.empresa)
                 numero=contador.contador+1
 
             contador.contador = numero
             contador.save()
 
-            self.numero = year + '-' + str(numero)
+            self.numero = self.empresa.siglas + '-' + year + '-' + str(numero).zfill(3)
         # Llamar al metodo save por defecto de la clase
         super(Pedido,self).save(*args, **kwargs)
     
