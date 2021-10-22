@@ -1,8 +1,8 @@
 from rest_framework import viewsets
 from rest_framework import serializers
 from rest_framework.serializers import Serializer
-from .serializers import PedidoListSerilizer, PedidoDetailSerilizer, ProveedorDetailSerializer, AlmacenSerilizer, ContactoSerializer, InventarioSerializer, MovimientoSerializer, ProveedorSerializer, RepuestoListSerializer, RepuestoDetailSerializer, StockMinimoSerializer, LineaInventarioSerializer, TipoRepuestoSerilizer
-from .models import Almacen, Inventario, Contacto, LineaInventario, Movimiento, Pedido, Proveedor, Repuesto, StockMinimo, TipoRepuesto
+from .serializers import PedidoSerilizer, LineaPedidoSerilizer, PedidoListSerilizer, PedidoDetailSerilizer, ProveedorDetailSerializer, AlmacenSerilizer, ContactoSerializer, InventarioSerializer, MovimientoSerializer, ProveedorSerializer, RepuestoListSerializer, RepuestoDetailSerializer, StockMinimoSerializer, LineaInventarioSerializer, TipoRepuestoSerilizer
+from .models import Almacen, Inventario, Contacto, LineaInventario, LineaPedido, Movimiento, Pedido, Proveedor, Repuesto, StockMinimo, TipoRepuesto
 from django_filters import rest_framework as filters
 
 class AlmacenFilter(filters.FilterSet):
@@ -33,7 +33,8 @@ class RepuestoListFilter(filters.FilterSet):
             'equipos__seccion__zona__empresa__id' : ['exact'],
             'equipos__seccion__zona__id': ['exact'],
             'equipos__seccion__id': ['exact'],
-            'equipos__id': ['exact']
+            'equipos__id': ['exact'],
+            'proveedores__id':['exact']
         }
 
 class PedidoListFilter(filters.FilterSet):
@@ -42,7 +43,9 @@ class PedidoListFilter(filters.FilterSet):
         fields = {
             'proveedor__nombre': ['icontains'],
             'fecha_creacion': ['lte', 'gte'],
-            'finalizado': ['exact']
+            'finalizado': ['exact'],
+            'empresa': ['exact'],
+            'numero': ['icontains']
         }
 
 class TipoRepuestoViewSet(viewsets.ModelViewSet):
@@ -99,4 +102,12 @@ class PedidoListViewSet(viewsets.ModelViewSet):
 
 class PedidoDetailViewSet(viewsets.ModelViewSet):
     serializer_class = PedidoDetailSerilizer
+    queryset = Pedido.objects.all()
+
+class LineaPedidoViewSet(viewsets.ModelViewSet):
+    serializer_class = LineaPedidoSerilizer
+    queryset = LineaPedido.objects.all()
+
+class PedidoViewSet(viewsets.ModelViewSet):
+    serializer_class = PedidoSerilizer
     queryset = Pedido.objects.all()
