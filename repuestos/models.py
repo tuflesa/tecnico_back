@@ -66,6 +66,7 @@ class Pedido(models.Model):
     finalizado = models.BooleanField(default=False)
     numero = models.CharField(max_length=12, null=True, blank=True, default=None)
     empresa = models.ForeignKey(Empresa, on_delete=models.CASCADE)
+    creado_por = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
 
     def save(self, *args, **kwargs):
         # Generar nuevo número si el campo numero es None (null)

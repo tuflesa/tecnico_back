@@ -5,6 +5,7 @@ from rest_framework import serializers
 from .models import Almacen, Contacto, Inventario, LineaPedido, Movimiento, Pedido, Repuesto, Proveedor, StockMinimo, LineaInventario, TipoRepuesto
 from estructura.serializers import EquipoSerializer
 from estructura.serializers import EstructuraSerializer
+from administracion.serializers import UserSerializer
 
 class ContactoSerializer(serializers.ModelSerializer):
     class Meta:
@@ -77,7 +78,7 @@ class PedidoListSerilizer(serializers.ModelSerializer):
     proveedor = ProveedorSerializer(many=False, read_only=True)
     class Meta:
         model = Pedido
-        fields = ['id', 'proveedor','empresa', 'numero', 'fecha_creacion', 'fecha_entrega', 'finalizado']
+        fields = ['id', 'proveedor','empresa', 'numero', 'fecha_creacion', 'fecha_entrega', 'finalizado', 'creado_por']
 
 class LineaPedidoDetailSerilizer(serializers.ModelSerializer):
     repuesto = RepuestoListSerializer(many=False, read_only=True)
@@ -93,12 +94,13 @@ class LineaPedidoSerilizer(serializers.ModelSerializer):
 class PedidoDetailSerilizer(serializers.ModelSerializer):
     proveedor = ProveedorSerializer(many=False, read_only=True)
     lineas_pedido = LineaPedidoDetailSerilizer(many=True, read_only=True)
-    empresa = EstructuraSerializer(many=False, read_only=True) 
+    # empresa = EstructuraSerializer(many=False, read_only=True)
+    creado_por = UserSerializer(many=False, read_only=True)
     class Meta:
         model = Pedido
-        fields = ['id', 'proveedor', 'empresa', 'numero', 'fecha_creacion', 'fecha_entrega', 'finalizado', 'lineas_pedido']
+        fields = ['id', 'proveedor', 'empresa', 'numero', 'fecha_creacion', 'fecha_entrega', 'finalizado', 'lineas_pedido', 'creado_por']
 
 class PedidoSerilizer(serializers.ModelSerializer):
     class Meta:
         model = Pedido
-        fields = ['id', 'proveedor','empresa', 'numero', 'fecha_creacion', 'fecha_entrega', 'finalizado']
+        fields = ['id', 'proveedor','empresa', 'numero', 'fecha_creacion', 'fecha_entrega', 'finalizado', 'creado_por']
