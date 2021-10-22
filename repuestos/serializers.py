@@ -16,6 +16,11 @@ class ProveedorSerializer(serializers.ModelSerializer):
         model = Proveedor
         fields = '__all__'
 
+class ProveedorRepuSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Proveedor
+        fields = '__all__'
+
 class ProveedorDetailSerializer(serializers.ModelSerializer):
     contactos = ContactoSerializer(many=True, read_only=True)
     class Meta:
@@ -74,21 +79,20 @@ class PedidoListSerilizer(serializers.ModelSerializer):
         model = Pedido
         fields = ['id', 'proveedor','empresa', 'numero', 'fecha_creacion', 'fecha_entrega', 'finalizado']
 
-class LineaPedidoSerilizer(serializers.ModelSerializer):
+class LineaPedidoDetailSerilizer(serializers.ModelSerializer):
     repuesto = RepuestoListSerializer(many=False, read_only=True)
     class Meta:
         model = LineaPedido
         fields = ['id', 'pedido', 'repuesto', 'cantidad', 'precio']
 
-class LineaPSerilizer(serializers.ModelSerializer):
-    #repuesto = RepuestoListSerializer(many=False, read_only=True)
+class LineaPedidoSerilizer(serializers.ModelSerializer):
     class Meta:
         model = LineaPedido
         fields = ['id', 'pedido', 'repuesto', 'cantidad', 'precio']
 
 class PedidoDetailSerilizer(serializers.ModelSerializer):
     proveedor = ProveedorSerializer(many=False, read_only=True)
-    lineas_pedido = LineaPedidoSerilizer(many=True, read_only=True)
+    lineas_pedido = LineaPedidoDetailSerilizer(many=True, read_only=True)
     empresa = EstructuraSerializer(many=False, read_only=True) 
     class Meta:
         model = Pedido
