@@ -35,6 +35,12 @@ class AlmacenSerilizer(serializers.ModelSerializer):
         fields = ['id', 'nombre', 'empresa', 'empresa_siglas']
 
 class StockMinimoSerializer(serializers.ModelSerializer):
+    #almacen = AlmacenSerilizer(many=False, read_only=True)
+    class Meta:
+        model = StockMinimo
+        fields = ['id', 'repuesto', 'almacen', 'cantidad']
+
+class StockMinimoDetailSerializer(serializers.ModelSerializer):
     almacen = AlmacenSerilizer(many=False, read_only=True)
     class Meta:
         model = StockMinimo

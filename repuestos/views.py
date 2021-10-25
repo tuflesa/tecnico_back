@@ -2,7 +2,7 @@ from django.db.models import fields
 from rest_framework import viewsets
 from rest_framework import serializers
 from rest_framework.serializers import Serializer
-from .serializers import PedidoSerilizer, LineaPedidoSerilizer, PedidoListSerilizer, PedidoDetailSerilizer, ProveedorDetailSerializer, AlmacenSerilizer, ContactoSerializer, InventarioSerializer, MovimientoSerializer, ProveedorSerializer, RepuestoListSerializer, RepuestoDetailSerializer, StockMinimoSerializer, LineaInventarioSerializer, TipoRepuestoSerilizer
+from .serializers import StockMinimoDetailSerializer, PedidoSerilizer, LineaPedidoSerilizer, PedidoListSerilizer, PedidoDetailSerilizer, ProveedorDetailSerializer, AlmacenSerilizer, ContactoSerializer, InventarioSerializer, MovimientoSerializer, ProveedorSerializer, RepuestoListSerializer, RepuestoDetailSerializer, StockMinimoDetailSerializer, StockMinimoSerializer, LineaInventarioSerializer, TipoRepuestoSerilizer
 from .models import Almacen, Inventario, Contacto, LineaInventario, LineaPedido, Movimiento, Pedido, Proveedor, Repuesto, StockMinimo, TipoRepuesto
 from django_filters import filterset, rest_framework as filters
 
@@ -54,7 +54,8 @@ class StockMinimoFilter(filters.FilterSet):
         model = StockMinimo
         fields = {
             'almacen__empresa__id':['exact'],
-            'repuesto':['exact']
+            'repuesto':['exact'],
+            'almacen__nombre': ['exact']
         }
 
 class TipoRepuestoViewSet(viewsets.ModelViewSet):
@@ -72,6 +73,10 @@ class RepuestoDetailViewSet(viewsets.ModelViewSet):
 
 class StockMinimoViewSet(viewsets.ModelViewSet):
     serializer_class = StockMinimoSerializer
+    queryset = StockMinimo.objects.all()
+
+class StockMinimoDetailViewSet(viewsets.ModelViewSet):
+    serializer_class = StockMinimoDetailSerializer
     queryset = StockMinimo.objects.all()
     filterset_class = StockMinimoFilter
 
