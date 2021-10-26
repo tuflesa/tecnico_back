@@ -102,6 +102,7 @@ class LineaPedido(models.Model):
     repuesto = models.ForeignKey(Repuesto, on_delete=models.CASCADE)
     cantidad = models.IntegerField()
     precio = models.DecimalField(max_digits=8, decimal_places=2, blank=True, null=True)
+    por_recibir = models.IntegerField()
 
     def pendiente(self):
         sum = 0

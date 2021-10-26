@@ -38,7 +38,7 @@ class StockMinimoSerializer(serializers.ModelSerializer):
     #almacen = AlmacenSerilizer(many=False, read_only=True)
     class Meta:
         model = StockMinimo
-        fields = ['id', 'repuesto', 'almacen', 'cantidad']
+        fields = ['id', 'repuesto', 'almacen', 'cantidad', 'localizacion']
 
 class StockMinimoDetailSerializer(serializers.ModelSerializer):
     almacen = AlmacenSerilizer(many=False, read_only=True)
@@ -84,18 +84,18 @@ class PedidoListSerilizer(serializers.ModelSerializer):
     proveedor = ProveedorSerializer(many=False, read_only=True)
     class Meta:
         model = Pedido
-        fields = ['id', 'proveedor','empresa', 'numero', 'fecha_creacion', 'fecha_entrega', 'finalizado', 'creado_por']
+        fields = ['id','proveedor','empresa', 'numero', 'fecha_creacion', 'fecha_entrega', 'finalizado', 'creado_por']
 
 class LineaPedidoDetailSerilizer(serializers.ModelSerializer):
     repuesto = RepuestoListSerializer(many=False, read_only=True)
     class Meta:
         model = LineaPedido
-        fields = ['id', 'pedido', 'repuesto', 'cantidad', 'precio']
+        fields = ['id', 'por_recibir', 'pendiente', 'pedido', 'repuesto', 'cantidad', 'precio']
 
 class LineaPedidoSerilizer(serializers.ModelSerializer):
     class Meta:
         model = LineaPedido
-        fields = ['id', 'pedido', 'repuesto', 'cantidad', 'precio']
+        fields = ['id', 'pedido', 'por_recibir' ,'repuesto', 'cantidad', 'precio']
 
 class PedidoDetailSerilizer(serializers.ModelSerializer):
     proveedor = ProveedorSerializer(many=False, read_only=True)
