@@ -149,6 +149,7 @@ class StockMinimo(models.Model):
     repuesto = models.ForeignKey(Repuesto, on_delete=models.CASCADE, related_name='stocks_minimos')
     almacen = models.ForeignKey(Almacen, on_delete=models.CASCADE, related_name='stocks_minimos')
     cantidad = models.IntegerField()
+    localizacion = models.CharField(max_length=50, null=True, blank=True)
 
     def __str__(self):
         return self.repuesto.nombre

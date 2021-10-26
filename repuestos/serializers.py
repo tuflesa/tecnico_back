@@ -44,7 +44,7 @@ class StockMinimoDetailSerializer(serializers.ModelSerializer):
     almacen = AlmacenSerilizer(many=False, read_only=True)
     class Meta:
         model = StockMinimo
-        fields = ['id', 'repuesto', 'almacen', 'cantidad']
+        fields = ['id', 'repuesto', 'almacen', 'cantidad', 'localizacion']
 
 class RepuestoDetailSerializer(serializers.ModelSerializer):
     equipos = EquipoSerializer(many=True, read_only=True)
@@ -77,7 +77,7 @@ class LineaInventarioSerializer(serializers.ModelSerializer):
 class MovimientoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Movimiento
-        fields = ['id', 'fecha', 'cantidad', 'almacen', 'usuario', 'linea_pedido', 'linea_inventario']
+        fields = ['id', 'fecha', 'cantidad', 'almacen', 'usuario', 'linea_pedido', 'linea_inventario', 'albaran']
 
 class PedidoListSerilizer(serializers.ModelSerializer):
     empresa = EstructuraSerializer(many=False, read_only=True)
