@@ -21,6 +21,13 @@ class ProveedorFilter(filters.FilterSet):
             'nombre': ['icontains']
         }
 
+class MovimientoFilter(filters.FilterSet):
+    class Meta:
+        model = Movimiento
+        fields = {
+            'linea_pedido__id': ['exact']
+        }
+
 class RepuestoListFilter(filters.FilterSet):
     class Meta:
         model = Repuesto
@@ -96,6 +103,7 @@ class LineaInventarioViewSet(viewsets.ModelViewSet):
 class MovimientoViewSet(viewsets.ModelViewSet):
     serializer_class = MovimientoSerializer
     queryset = Movimiento.objects.all()
+    filterset_class = MovimientoFilter
 
 class ProveedorViewSet(viewsets.ModelViewSet):
     serializer_class = ProveedorSerializer
