@@ -2,7 +2,7 @@ from django.db.models import fields
 from rest_framework import viewsets
 from rest_framework import serializers
 from rest_framework.serializers import Serializer
-from .serializers import StockMinimoDetailSerializer, PedidoSerilizer, LineaPedidoSerilizer, PedidoListSerilizer, PedidoDetailSerilizer, ProveedorDetailSerializer, AlmacenSerilizer, ContactoSerializer, InventarioSerializer, MovimientoSerializer, ProveedorSerializer, RepuestoListSerializer, RepuestoDetailSerializer, StockMinimoDetailSerializer, StockMinimoSerializer, LineaInventarioSerializer, TipoRepuestoSerilizer
+from .serializers import MovimientoDetailSerializer, StockMinimoDetailSerializer, PedidoSerilizer, LineaPedidoSerilizer, PedidoListSerilizer, PedidoDetailSerilizer, ProveedorDetailSerializer, AlmacenSerilizer, ContactoSerializer, InventarioSerializer, MovimientoSerializer, ProveedorSerializer, RepuestoListSerializer, RepuestoDetailSerializer, StockMinimoDetailSerializer, StockMinimoSerializer, LineaInventarioSerializer, TipoRepuestoSerilizer
 from .models import Almacen, Inventario, Contacto, LineaInventario, LineaPedido, Movimiento, Pedido, Proveedor, Repuesto, StockMinimo, TipoRepuesto
 from django_filters import filterset, rest_framework as filters
 
@@ -26,6 +26,14 @@ class MovimientoFilter(filters.FilterSet):
         model = Movimiento
         fields = {
             'linea_pedido__id': ['exact']
+        }
+
+class MovimientoDetailFilter(filters.FilterSet):
+    class Meta:
+        model = Movimiento
+        fields = {
+            'linea_pedido__id': ['exact'],
+            'almacen__nombre' : ['exact']
         }
 
 class RepuestoListFilter(filters.FilterSet):
@@ -104,6 +112,11 @@ class MovimientoViewSet(viewsets.ModelViewSet):
     serializer_class = MovimientoSerializer
     queryset = Movimiento.objects.all()
     filterset_class = MovimientoFilter
+
+class MovimientoDetailViewSet(viewsets.ModelViewSet):
+    serializer_class = MovimientoDetailSerializer
+    queryset = Movimiento.objects.all()
+    filterset_class = MovimientoDetailFilter
 
 class ProveedorViewSet(viewsets.ModelViewSet):
     serializer_class = ProveedorSerializer

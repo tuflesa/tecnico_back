@@ -79,6 +79,12 @@ class MovimientoSerializer(serializers.ModelSerializer):
         model = Movimiento
         fields = ['id', 'fecha', 'cantidad', 'almacen', 'usuario', 'linea_pedido', 'linea_inventario', 'albaran']
 
+class MovimientoDetailSerializer(serializers.ModelSerializer):
+    almacen = AlmacenSerilizer(many=False, read_only=True)
+    class Meta:
+        model = Movimiento
+        fields = ['id', 'fecha', 'cantidad', 'almacen', 'usuario', 'linea_pedido', 'linea_inventario', 'albaran']        
+
 class PedidoListSerilizer(serializers.ModelSerializer):
     empresa = EstructuraSerializer(many=False, read_only=True)
     proveedor = ProveedorSerializer(many=False, read_only=True)
