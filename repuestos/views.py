@@ -2,8 +2,8 @@ from django.db.models import fields
 from rest_framework import viewsets
 from rest_framework import serializers
 from rest_framework.serializers import Serializer
-from .serializers import MovimientoDetailSerializer, StockMinimoDetailSerializer, PedidoSerilizer, LineaPedidoSerilizer, PedidoListSerilizer, PedidoDetailSerilizer, ProveedorDetailSerializer, AlmacenSerilizer, ContactoSerializer, InventarioSerializer, MovimientoSerializer, ProveedorSerializer, RepuestoListSerializer, RepuestoDetailSerializer, StockMinimoDetailSerializer, StockMinimoSerializer, LineaInventarioSerializer, TipoRepuestoSerilizer
-from .models import Almacen, Inventario, Contacto, LineaInventario, LineaPedido, Movimiento, Pedido, Proveedor, Repuesto, StockMinimo, TipoRepuesto
+from .serializers import EntregaSerializer, LineasAdicionalesSerilizer, MovimientoDetailSerializer, StockMinimoDetailSerializer, PedidoSerilizer, LineaPedidoSerilizer, PedidoListSerilizer, PedidoDetailSerilizer, ProveedorDetailSerializer, AlmacenSerilizer, ContactoSerializer, InventarioSerializer, MovimientoSerializer, ProveedorSerializer, RepuestoListSerializer, RepuestoDetailSerializer, StockMinimoDetailSerializer, StockMinimoSerializer, LineaInventarioSerializer, TipoRepuestoSerilizer
+from .models import Almacen, Entrega, Inventario, Contacto, LineaAdicional, LineaInventario, LineaPedido, Movimiento, Pedido, Proveedor, Repuesto, StockMinimo, TipoRepuesto
 from django_filters import filterset, rest_framework as filters
 
 class AlmacenFilter(filters.FilterSet):
@@ -26,6 +26,13 @@ class MovimientoFilter(filters.FilterSet):
         model = Movimiento
         fields = {
             'linea_pedido__id': ['exact']
+        }
+
+class EntregaFilter(filters.FilterSet):
+    class Meta:
+        model = Entrega
+        fields = {
+            'linea_adicional__id': ['exact']
         }
 
 class MovimientoDetailFilter(filters.FilterSet):
@@ -113,6 +120,11 @@ class MovimientoViewSet(viewsets.ModelViewSet):
     queryset = Movimiento.objects.all()
     filterset_class = MovimientoFilter
 
+class EntregaViewSet(viewsets.ModelViewSet):
+    serializer_class = EntregaSerializer
+    queryset = Entrega.objects.all()
+    filterset_class = EntregaFilter
+
 class MovimientoDetailViewSet(viewsets.ModelViewSet):
     serializer_class = MovimientoDetailSerializer
     queryset = Movimiento.objects.all()
@@ -143,6 +155,10 @@ class PedidoDetailViewSet(viewsets.ModelViewSet):
 class LineaPedidoViewSet(viewsets.ModelViewSet):
     serializer_class = LineaPedidoSerilizer
     queryset = LineaPedido.objects.all()
+
+class LineaAdicionalPedidoViewSet(viewsets.ModelViewSet):
+    serializer_class = LineasAdicionalesSerilizer
+    queryset = LineaAdicional.objects.all()
 
 class PedidoViewSet(viewsets.ModelViewSet):
     serializer_class = PedidoSerilizer

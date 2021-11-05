@@ -2,7 +2,7 @@ from django.db.models import fields
 from django.db.models.base import Model
 from estructura.serializers import EmpresaSerializer, EquipoSerializer
 from rest_framework import serializers
-from .models import Almacen, Contacto, Inventario, LineaPedido, Movimiento, Pedido, Repuesto, Proveedor, StockMinimo, LineaInventario, TipoRepuesto
+from .models import Entrega, LineaAdicional, Almacen, Contacto, Inventario, LineaPedido, Movimiento, Pedido, Repuesto, Proveedor, StockMinimo, LineaInventario, TipoRepuesto
 from estructura.serializers import EquipoSerializer
 from estructura.serializers import EstructuraSerializer
 from administracion.serializers import UserSerializer
@@ -79,6 +79,11 @@ class MovimientoSerializer(serializers.ModelSerializer):
         model = Movimiento
         fields = ['id', 'fecha', 'cantidad', 'almacen', 'usuario', 'linea_pedido', 'linea_inventario', 'albaran']
 
+class EntregaSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Entrega
+        fields = ['id', 'fecha', 'cantidad', 'usuario', 'linea_adicional', 'albaran']
+
 class MovimientoDetailSerializer(serializers.ModelSerializer):
     almacen = AlmacenSerilizer(many=False, read_only=True)
     class Meta:
@@ -103,14 +108,19 @@ class LineaPedidoSerilizer(serializers.ModelSerializer):
         model = LineaPedido
         fields = ['id', 'pedido', 'por_recibir' ,'repuesto', 'cantidad', 'precio']
 
+class LineasAdicionalesSerilizer(serializers.ModelSerializer):
+    class Meta:
+        model = LineaAdicional
+        fields = ['id', 'pedido', 'descripcion', 'cantidad', 'precio', 'por_recibir']
+
 class PedidoDetailSerilizer(serializers.ModelSerializer):
     proveedor = ProveedorSerializer(many=False, read_only=True)
     lineas_pedido = LineaPedidoDetailSerilizer(many=True, read_only=True)
-    # empresa = EstructuraSerializer(many=False, read_only=True)
+    lineas_adicionales = LineasAdicionalesSerilizer(many=True, read_only=True)
     creado_por = UserSerializer(many=False, read_only=True)
     class Meta:
         model = Pedido
-        fields = ['id', 'proveedor', 'empresa', 'numero', 'fecha_creacion', 'fecha_entrega', 'finalizado', 'lineas_pedido', 'creado_por']
+        fields = ['id', 'proveedor', 'empresa', 'numero', 'fecha_creacion', 'fecha_entrega', 'finalizado', 'lineas_pedido', 'creado_por', 'lineas_adicionales']
 
 class PedidoSerilizer(serializers.ModelSerializer):
     class Meta:

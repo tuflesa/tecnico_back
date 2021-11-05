@@ -119,10 +119,11 @@ class LineaAdicional(models.Model):
     descripcion = models.CharField(max_length=250)
     cantidad = models.IntegerField()
     precio = models.DecimalField(max_digits=8, decimal_places=2, blank=True, null=True)
+    por_recibir = models.IntegerField()
 
     def pendiente(self):
         sum = 0
-        entregas = Entregas.objects.filter(linea_adicional=self)
+        entregas = Entrega.objects.filter(linea_adicional=self)
         for entrega in entregas:
             sum += entrega.cantidad
         return self.cantidad - sum
@@ -130,11 +131,12 @@ class LineaAdicional(models.Model):
     def completo(self):
         return self.pendiente() <= 0
 
-class Entregas(models.Model):
+class Entrega(models.Model):
     linea_adicional = models.ForeignKey(LineaAdicional, on_delete=models.CASCADE)
     fecha = models.DateField(default=timezone.now)
     cantidad = models.IntegerField()
     usuario = models.ForeignKey(User, on_delete=models.SET_NULL, blank=True, null=True)
+    albaran = models.CharField(max_length=50, null=True, blank=True, default='')
 
 class Almacen(models.Model):
     nombre = models.CharField(max_length=100)
