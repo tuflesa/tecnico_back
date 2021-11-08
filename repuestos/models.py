@@ -91,10 +91,10 @@ class Pedido(models.Model):
         # Llamar al metodo save por defecto de la clase
         super(Pedido,self).save(*args, **kwargs)
     
-    def es_completo(self):
+    """ def es_completo(self):
         lineas_pendientes = LineaPedido.objects.filter(pedido=self).filter(completo=False).count()
         lineas_adicionales_pendientes = LineaAdicional.objects.filter(pedido=self).filter(completo=False).count()
-        return (lineas_pendientes + lineas_adicionales_pendientes) == 0
+        return (lineas_pendientes + lineas_adicionales_pendientes) == 0 """
 
 
 class LineaPedido(models.Model):
@@ -104,7 +104,7 @@ class LineaPedido(models.Model):
     precio = models.DecimalField(max_digits=8, decimal_places=2, blank=True, null=True)
     por_recibir = models.IntegerField()
 
-    def pendiente(self):
+    """ def pendiente(self):
         sum = 0
         movimientos = Movimiento.objects.filter(linea_pedido=self)
         for movimiento in movimientos:
@@ -112,7 +112,7 @@ class LineaPedido(models.Model):
         return self.cantidad - sum
 
     def completo(self):
-        return self.pendiente() <= 0
+        return self.pendiente() <= 0 """
 
 class LineaAdicional(models.Model):
     pedido = models.ForeignKey(Pedido, on_delete=models.CASCADE, related_name='lineas_adicionales')
