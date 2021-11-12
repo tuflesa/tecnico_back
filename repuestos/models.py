@@ -181,6 +181,17 @@ class Movimiento(models.Model):
     linea_inventario = models.ForeignKey(LineaInventario, on_delete=models.CASCADE, blank=True, null=True)
     albaran = models.CharField(max_length=50, null=True, blank=True, default='')
 
+    def save(self, *args, **kwargs):
+        if self.linea_pedido != None:
+            print(self.linea_pedido.id)
+            linea = LineaPedido.objects.get(id=self.linea_pedido.id)
+            print(linea.repuesto)
+            stock = StockMinimo.objects.get(repuesto=linea.repuesto, almacen=self.almacen)
+            stock.stock_act = stock.stock_act + self.cantidad
+            stock.save()
+        # Llamar al metodo save por defecto de la clase
+        super(Movimiento,self).save(*args, **kwargs)
+
 class Foto(models.Model):
     imagen = models.ImageField(upload_to='equipos')
     repuesto = models.ForeignKey(Repuesto, on_delete=models.CASCADE)
