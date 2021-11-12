@@ -77,7 +77,8 @@ class StockMinimoFilter(filters.FilterSet):
         fields = {
             'almacen__empresa__id':['exact'],
             'repuesto':['exact'],
-            'almacen__nombre': ['exact']
+            'almacen__nombre': ['exact'],
+            'almacen': ['exact']
         }
 
 class TipoRepuestoViewSet(viewsets.ModelViewSet):
