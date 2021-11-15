@@ -75,8 +75,17 @@ class StockMinimoFilter(filters.FilterSet):
     class Meta:
         model = StockMinimo
         fields = {
+            'almacen':['exact'],
+            'repuesto':['exact']
+        }
+
+class StockMinimoDetailFilter(filters.FilterSet):
+    class Meta:
+        model = StockMinimo
+        fields = {
             'almacen__empresa__id':['exact'],
             'repuesto':['exact'],
+            'almacen':['exact'],
             'almacen__nombre': ['exact']
         }
 
@@ -96,11 +105,12 @@ class RepuestoDetailViewSet(viewsets.ModelViewSet):
 class StockMinimoViewSet(viewsets.ModelViewSet):
     serializer_class = StockMinimoSerializer
     queryset = StockMinimo.objects.all()
+    filterset_class = StockMinimoFilter
 
 class StockMinimoDetailViewSet(viewsets.ModelViewSet):
     serializer_class = StockMinimoDetailSerializer
     queryset = StockMinimo.objects.all()
-    filterset_class = StockMinimoFilter
+    filterset_class = StockMinimoDetailFilter
 
 class AlmacenViewSet(viewsets.ModelViewSet):
     serializer_class = AlmacenSerilizer
