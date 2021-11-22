@@ -41,12 +41,12 @@ class Repuesto(models.Model):
     proveedores = models.ManyToManyField(Proveedor, related_name='repuestos')
     descatalogado = models.BooleanField(default=False)
 
-    def stock(self):
+    #def stock(self):
         # print('calcula stock ...')
-        s = Movimiento.objects.values('almacen__id', 'almacen__nombre', 'almacen__empresa__siglas', 'almacen__empresa__id').filter(Q(linea_pedido__repuesto=self) | Q(linea_inventario__repuesto=self)).annotate(suma=Sum('cantidad')) #['suma'] or 0
+        #s = Movimiento.objects.values('almacen__id', 'almacen__nombre', 'almacen__empresa__siglas', 'almacen__empresa__id').filter(Q(linea_pedido__repuesto=self) | Q(linea_inventario__repuesto=self)).annotate(suma=Sum('cantidad')) #['suma'] or 0
         # ajustes = Movimiento.objects.filter(linea_inventario__repuesto=self).aggregate(suma=Sum('cantidad'))['suma'] or 0
         
-        return s #entradas + ajustes
+        #return s #entradas + ajustes
 
     def __str__(self):
         return self.nombre
@@ -121,7 +121,7 @@ class LineaAdicional(models.Model):
     precio = models.DecimalField(max_digits=8, decimal_places=2, blank=True, null=True)
     por_recibir = models.IntegerField()
 
-    def pendiente(self):
+    """ def pendiente(self):
         sum = 0
         entregas = Entrega.objects.filter(linea_adicional=self)
         for entrega in entregas:
@@ -129,7 +129,7 @@ class LineaAdicional(models.Model):
         return self.cantidad - sum
 
     def completo(self):
-        return self.pendiente() <= 0
+        return self.pendiente() <= 0 """
 
 class Entrega(models.Model):
     linea_adicional = models.ForeignKey(LineaAdicional, on_delete=models.CASCADE)
@@ -151,9 +151,9 @@ class Almacen(models.Model):
 class StockMinimo(models.Model):
     repuesto = models.ForeignKey(Repuesto, on_delete=models.CASCADE, related_name='stocks_minimos')
     almacen = models.ForeignKey(Almacen, on_delete=models.CASCADE, related_name='stocks_minimos')
-    cantidad = models.IntegerField()
+    cantidad = models.IntegerField(default=0)
     localizacion = models.CharField(max_length=50, null=True, blank=True)
-    stock_act = models.IntegerField()
+    stock_act = models.IntegerField(default=0)
 
     def __str__(self):
         return self.repuesto.nombre
@@ -180,6 +180,24 @@ class Movimiento(models.Model):
     linea_pedido = models.ForeignKey(LineaPedido, on_delete=models.CASCADE, blank=True, null=True)
     linea_inventario = models.ForeignKey(LineaInventario, on_delete=models.CASCADE, blank=True, null=True)
     albaran = models.CharField(max_length=50, null=True, blank=True, default='')
+
+    def save(self, *args, **kwargs):
+        if self.linea_pedido != None:
+            print(self.linea_pedido.id)
+            linea = LineaPedido.objects.get(id=self.linea_pedido.id)
+            print(linea.repuesto)
+            stock = StockMinimo.objects.get(repuesto=linea.repuesto, almacen=self.almacen)
+            stock.stock_act = stock.stock_act + self.cantidad
+            stock.save()
+        """ if self.linea_inventario != None:
+            print(self.linea_inventario.id)
+            linea = LineaInventario.objects.get(id=self.linea_inventario.id)
+            print(linea.repuesto)
+            stock = StockMinimo.objects.get(repuesto=linea.repuesto, almacen=self.almacen)
+            stock.stock_act = stock.stock_act + self.cantidad
+            stock.save() """
+        # Llamar al metodo save por defecto de la clase
+        super(Movimiento,self).save(*args, **kwargs)
 
 class Foto(models.Model):
     imagen = models.ImageField(upload_to='equipos')
