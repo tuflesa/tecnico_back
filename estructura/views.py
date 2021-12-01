@@ -1,8 +1,11 @@
+from django.db.models import fields
 from django.shortcuts import render
 from rest_framework import viewsets
-from .serializers import EmpresaSerializer, ZonaSerializer, SeccionSerializer, EquipoSerializer
-from .models import Empresa, Zona, Seccion, Equipo
-from django_filters import rest_framework as filters
+
+from repuestos.models import Contacto
+from .serializers import DireccionesEmpresaSerializer, EmpresaSerializer, ZonaSerializer, SeccionSerializer, EquipoSerializer
+from .models import Direcciones, Empresa, Zona, Seccion, Equipo
+from django_filters import filterset, rest_framework as filters
 
 class ZonasFilter(filters.FilterSet):
     class Meta:
@@ -11,6 +14,13 @@ class ZonasFilter(filters.FilterSet):
             'empresa': ['exact'],
             'nombre': ['icontains'],
             'siglas': ['icontains']
+        }
+
+class DireccionesFilter(filters.FilterSet):
+    class Meta:
+        model = Direcciones
+        fields = {
+            'empresa': ['exact']
         }
 
 class SeccionFilter(filters.FilterSet):
@@ -38,6 +48,11 @@ class EquipoFilter(filters.FilterSet):
 class EmpresaViewSet(viewsets.ModelViewSet):
     serializer_class = EmpresaSerializer
     queryset = Empresa.objects.all()
+
+class DireccionesEmpresaViewSet(viewsets.ModelViewSet):
+    serializer_class = DireccionesEmpresaSerializer
+    queryset = Direcciones.objects.all()
+    filterset_class = DireccionesFilter
 
 class ZonaViewSet(viewsets.ModelViewSet):
     serializer_class = ZonaSerializer

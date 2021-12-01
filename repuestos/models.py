@@ -1,6 +1,7 @@
 from django.db import models
 from django.db.models import Sum, Q
-from estructura.models import Empresa, Equipo
+from django.db.models.deletion import CASCADE
+from estructura.models import Empresa, Equipo, Direcciones
 from django.utils import timezone
 from django.contrib.auth.models import User
 import datetime
@@ -67,6 +68,8 @@ class Pedido(models.Model):
     numero = models.CharField(max_length=12, null=True, blank=True, default=None)
     empresa = models.ForeignKey(Empresa, on_delete=models.CASCADE)
     creado_por = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    direccion_envio = models.ForeignKey(Direcciones, on_delete= models.SET_NULL, null= True, blank= True)
+    contacto = models.ForeignKey(Contacto, on_delete=models.SET_NULL, null= True, blank=True)
 
     def save(self, *args, **kwargs):
         # Generar nuevo número si el campo numero es None (null)
@@ -103,6 +106,7 @@ class LineaPedido(models.Model):
     cantidad = models.IntegerField()
     precio = models.DecimalField(max_digits=8, decimal_places=2, blank=True, null=True)
     por_recibir = models.IntegerField()
+    descuento = models.FloatField(default=0)
 
     """ def pendiente(self):
         sum = 0
@@ -120,6 +124,7 @@ class LineaAdicional(models.Model):
     cantidad = models.IntegerField()
     precio = models.DecimalField(max_digits=8, decimal_places=2, blank=True, null=True)
     por_recibir = models.IntegerField()
+    descuento = models.FloatField(default=0)
 
     """ def pendiente(self):
         sum = 0

@@ -1,6 +1,6 @@
 from django.db.models import fields
 from django.db.models.base import Model
-from estructura.serializers import EmpresaSerializer, EquipoSerializer
+from estructura.serializers import DireccionesEmpresaSerializer, EmpresaSerializer, EquipoSerializer
 from rest_framework import serializers
 from .models import Entrega, LineaAdicional, Almacen, Contacto, Inventario, LineaPedido, Movimiento, Pedido, Repuesto, Proveedor, StockMinimo, LineaInventario, TipoRepuesto
 from estructura.serializers import EquipoSerializer
@@ -11,7 +11,7 @@ class ContactoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Contacto
         fields='__all__'
-        
+
 class ProveedorSerializer(serializers.ModelSerializer):
     class Meta:
         model = Proveedor
@@ -118,11 +118,13 @@ class PedidoDetailSerilizer(serializers.ModelSerializer):
     lineas_pedido = LineaPedidoDetailSerilizer(many=True, read_only=True)
     lineas_adicionales = LineasAdicionalesSerilizer(many=True, read_only=True)
     creado_por = UserSerializer(many=False, read_only=True)
+    contacto = ContactoSerializer(many=False)
+    direccion_envio = DireccionesEmpresaSerializer(many=False)
     class Meta:
         model = Pedido
-        fields = ['id', 'proveedor', 'empresa', 'numero', 'fecha_creacion', 'fecha_entrega', 'finalizado', 'lineas_pedido', 'creado_por', 'lineas_adicionales']
+        fields = ['id', 'proveedor', 'empresa', 'numero', 'fecha_creacion', 'fecha_entrega', 'finalizado', 'lineas_pedido', 'creado_por', 'lineas_adicionales', 'contacto', 'direccion_envio']
 
 class PedidoSerilizer(serializers.ModelSerializer):
     class Meta:
         model = Pedido
-        fields = ['id', 'proveedor','empresa', 'numero', 'fecha_creacion', 'fecha_entrega', 'finalizado', 'creado_por']
+        fields = ['id', 'proveedor','empresa', 'numero', 'fecha_creacion', 'fecha_entrega', 'finalizado', 'creado_por','contacto','direccion_envio']

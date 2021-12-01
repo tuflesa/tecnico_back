@@ -82,6 +82,13 @@ class StockMinimoFilter(filters.FilterSet):
             'almacen__empresa__siglas': ['exact']
         }
 
+class ContactosFilter(filters.FilterSet):
+    class Meta:
+        model = Contacto
+        fields = {
+            'proveedor': ['exact']
+        }
+
 class TipoRepuestoViewSet(viewsets.ModelViewSet):
     serializer_class = TipoRepuestoSerilizer
     queryset = TipoRepuesto.objects.all()
@@ -144,6 +151,7 @@ class ProveedorDetailViewSet(viewsets.ModelViewSet):
 class ContactoViewSet(viewsets.ModelViewSet):
     serializer_class = ContactoSerializer
     queryset = Contacto.objects.all()
+    filterset_class = ContactosFilter
 
 class PedidoListViewSet(viewsets.ModelViewSet):
     serializer_class = PedidoListSerilizer

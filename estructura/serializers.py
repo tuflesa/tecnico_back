@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Empresa, Zona, Seccion, Equipo
+from .models import Direcciones, Empresa, Zona, Seccion, Equipo
 
 class EquipoSerializer(serializers.ModelSerializer):
     class Meta:
@@ -25,7 +25,14 @@ class EstructuraSerializer(serializers.ModelSerializer):
         model = Empresa
         fields = ['id', 'nombre', 'siglas', 'zonas']
 
+class DireccionesEmpresaSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Direcciones
+        fields = ['id', 'empresa', 'direccion', 'codpostal', 'poblacion', 'telefono']
+
 class EmpresaSerializer(serializers.ModelSerializer):
+    direcciones = DireccionesEmpresaSerializer(many=True)
     class Meta:
         model = Empresa
-        fields = ['id', 'nombre', 'siglas']
+        fields = ['id', 'nombre', 'siglas', 'direcciones', 'logo']
+
