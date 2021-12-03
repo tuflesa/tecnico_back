@@ -64,6 +64,7 @@ class Pedido(models.Model):
     proveedor = models.ForeignKey(Proveedor, on_delete=models.CASCADE)
     fecha_creacion = models.DateField(default=timezone.now)
     fecha_entrega = models.DateField(blank=True, null=True)
+    fecha_prevista_entrega = models.DateField(blank=True, null=True)
     finalizado = models.BooleanField(default=False)
     numero = models.CharField(max_length=12, null=True, blank=True, default=None)
     empresa = models.ForeignKey(Empresa, on_delete=models.CASCADE)
@@ -106,25 +107,17 @@ class LineaPedido(models.Model):
     cantidad = models.IntegerField()
     precio = models.DecimalField(max_digits=8, decimal_places=2, blank=True, null=True)
     por_recibir = models.IntegerField()
-    descuento = models.FloatField(default=0)
-
-    """ def pendiente(self):
-        sum = 0
-        movimientos = Movimiento.objects.filter(linea_pedido=self)
-        for movimiento in movimientos:
-            sum += movimiento.cantidad
-        return self.cantidad - sum
-
-    def completo(self):
-        return self.pendiente() <= 0 """
-
+    descuento = models.DecimalField(max_digits=4, decimal_places=2, blank= True, null=True)
+    total = models.DecimalField(max_digits=8, decimal_places=2, blank=True, null=True)
+   
 class LineaAdicional(models.Model):
     pedido = models.ForeignKey(Pedido, on_delete=models.CASCADE, related_name='lineas_adicionales')
     descripcion = models.CharField(max_length=250)
     cantidad = models.IntegerField()
     precio = models.DecimalField(max_digits=8, decimal_places=2, blank=True, null=True)
     por_recibir = models.IntegerField()
-    descuento = models.FloatField(default=0)
+    descuento = models.DecimalField(max_digits=4, decimal_places=2, blank= True, null=True)
+    total = models.DecimalField(max_digits=8, decimal_places=2, blank=True, null=True)
 
     """ def pendiente(self):
         sum = 0

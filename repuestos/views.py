@@ -66,6 +66,7 @@ class PedidoListFilter(filters.FilterSet):
         fields = {
             'proveedor__nombre': ['icontains'],
             'fecha_creacion': ['lte', 'gte'],
+            'fecha_prevista_entrega': ['lte', 'gte'],
             'finalizado': ['exact'],
             'empresa': ['exact'],
             'numero': ['icontains']
