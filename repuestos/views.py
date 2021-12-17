@@ -47,6 +47,7 @@ class RepuestoListFilter(filters.FilterSet):
     class Meta:
         model = Repuesto
         fields = {
+            'id': ['exact'],
             'nombre': ['icontains'],
             'tipo_repuesto': ['exact'],
             'fabricante': ['icontains'],
@@ -57,7 +58,8 @@ class RepuestoListFilter(filters.FilterSet):
             'equipos__seccion__zona__id': ['exact'],
             'equipos__seccion__id': ['exact'],
             'equipos__id': ['exact'],
-            'proveedores__id':['exact']
+            'proveedores__id':['exact'],
+            'stocks_minimos__almacen__id':['exact']
         }
 
 class PedidoListFilter(filters.FilterSet):
@@ -79,6 +81,7 @@ class StockMinimoFilter(filters.FilterSet):
             'almacen__empresa__id':['exact'],
             'repuesto':['exact'],
             'almacen__nombre': ['exact'],
+            'almacen__id': ['exact'],
             'almacen': ['exact'],
             'almacen__empresa__siglas': ['exact']
         }
@@ -102,10 +105,12 @@ class RepuestoListViewSet(viewsets.ModelViewSet):
 class RepuestoDetailViewSet(viewsets.ModelViewSet):
     serializer_class = RepuestoDetailSerializer
     queryset = Repuesto.objects.all()
+    filterset_class = RepuestoListFilter
 
 class StockMinimoViewSet(viewsets.ModelViewSet):
     serializer_class = StockMinimoSerializer
     queryset = StockMinimo.objects.all()
+    filterset_class = StockMinimoFilter
 
 class StockMinimoDetailViewSet(viewsets.ModelViewSet):
     serializer_class = StockMinimoDetailSerializer
