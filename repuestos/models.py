@@ -170,6 +170,20 @@ class LineaInventario(models.Model):
     almacen = models.ForeignKey(Almacen, on_delete=models.CASCADE)
     cantidad = models.IntegerField(default=0)
 
+class Salida(models.Model):
+    nombre = models.CharField(max_length = 100, default='Salida almacén')
+    fecha_creacion = models.DateField(default=timezone.now)
+    responsable = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+
+    def __str__(self):
+        return self.nombre + ' - ' + str(self.fecha_creacion)
+
+class LineaSalida(models.Model):
+    salida = models.ForeignKey(Salida, on_delete=models.CASCADE)
+    repuesto = models.ForeignKey(Repuesto, on_delete=models.CASCADE)
+    almacen = models.ForeignKey(Almacen, on_delete=models.CASCADE)
+    cantidad = models.IntegerField(default=0)
+
 class Movimiento(models.Model):
     fecha = models.DateField(default=timezone.now)
     cantidad = models.IntegerField()
@@ -177,6 +191,7 @@ class Movimiento(models.Model):
     usuario = models.ForeignKey(User, on_delete=models.SET_NULL, blank=True, null=True)
     linea_pedido = models.ForeignKey(LineaPedido, on_delete=models.CASCADE, blank=True, null=True)
     linea_inventario = models.ForeignKey(LineaInventario, on_delete=models.CASCADE, blank=True, null=True)
+    linea_salida = models.ForeignKey(LineaSalida, on_delete=models.CASCADE, blank=True, null=True)
     albaran = models.CharField(max_length=50, null=True, blank=True, default='')
 
     def save(self, *args, **kwargs):
@@ -184,16 +199,22 @@ class Movimiento(models.Model):
             print(self.linea_pedido.id)
             linea = LineaPedido.objects.get(id=self.linea_pedido.id)
             print(linea.repuesto)
-            stock = StockMinimo.objects.get(repuesto=linea.repuesto, almacen=self.almacen)
-            stock.stock_act = stock.stock_act + self.cantidad
-            stock.save()
-        """ if self.linea_inventario != None:
+            
+        elif self.linea_inventario != None:
             print(self.linea_inventario.id)
             linea = LineaInventario.objects.get(id=self.linea_inventario.id)
             print(linea.repuesto)
-            stock = StockMinimo.objects.get(repuesto=linea.repuesto, almacen=self.almacen)
-            stock.stock_act = stock.stock_act + self.cantidad
-            stock.save() """
+    
+        elif self.linea_salida != None:
+            print(self.linea_salida.id)
+            linea = LineaSalida.objects.get(id=self.linea_salida.id)
+            print(linea.repuesto)
+
+        stock = StockMinimo.objects.get(repuesto=linea.repuesto, almacen=self.almacen)
+        stock.stock_act = stock.stock_act + self.cantidad
+        stock.save()
+        
+
         # Llamar al metodo save por defecto de la clase
         super(Movimiento,self).save(*args, **kwargs)
 
