@@ -1,5 +1,5 @@
 from rest_framework import routers
-from .views import EntregaViewSet, LineaAdicionalPedidoViewSet, MovimientoDetailViewSet, PedidoViewSet, InventarioViewSet, LineaPedidoViewSet, PedidoDetailViewSet, ContactoViewSet, MovimientoViewSet, PedidoListViewSet, ProveedorDetailViewSet, ProveedorViewSet, RepuestoListViewSet, RepuestoDetailViewSet, StockMinimoDetailViewSet, StockMinimoViewSet, AlmacenViewSet, LineaInventarioViewSet, TipoRepuestoViewSet
+from .views import EntregaViewSet, LineaAdicionalPedidoViewSet, LineasSalidaVieSet, MovimientoDetailViewSet, PedidoViewSet, InventarioViewSet, LineaPedidoViewSet, PedidoDetailViewSet, ContactoViewSet, MovimientoViewSet, PedidoListViewSet, ProveedorDetailViewSet, ProveedorViewSet, RepuestoListViewSet, RepuestoDetailViewSet, SalidaVieSet, StockMinimoDetailViewSet, StockMinimoViewSet, AlmacenViewSet, LineaInventarioViewSet, TipoRepuestoViewSet
 
 router = routers.DefaultRouter()
 router.register('pedido', PedidoViewSet)
@@ -21,6 +21,8 @@ router.register('contacto', ContactoViewSet)
 router.register('lista_pedidos', PedidoListViewSet)
 router.register('pedido_detalle', PedidoDetailViewSet)
 router.register('stocks_minimo_detalle', StockMinimoDetailViewSet)
+router.register('salida', SalidaVieSet)
+router.register('lineasalida', LineasSalidaVieSet)
 
 
 urlpatterns = router.urls

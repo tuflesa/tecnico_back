@@ -172,20 +172,20 @@ class LineaInventario(models.Model):
 
 class Salida(models.Model):
     nombre = models.CharField(max_length = 100, default='Salida almacén')
-    fecha_creacion = models.DateField(default=timezone.now)
+    fecha_creacion = models.DateField(default=datetime.date.today)
     responsable = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
 
     def __str__(self):
         return self.nombre + ' - ' + str(self.fecha_creacion)
 
 class LineaSalida(models.Model):
-    salida = models.ForeignKey(Salida, on_delete=models.CASCADE)
+    salida = models.ForeignKey(Salida, on_delete=models.CASCADE, related_name='lineas')
     repuesto = models.ForeignKey(Repuesto, on_delete=models.CASCADE)
     almacen = models.ForeignKey(Almacen, on_delete=models.CASCADE)
     cantidad = models.IntegerField(default=0)
 
 class Movimiento(models.Model):
-    fecha = models.DateField(default=timezone.now)
+    fecha = models.DateField(default=datetime.date.today)
     cantidad = models.IntegerField()
     almacen = models.ForeignKey(Almacen, on_delete=models.CASCADE, blank=True, null=True)
     usuario = models.ForeignKey(User, on_delete=models.SET_NULL, blank=True, null=True)
@@ -196,19 +196,19 @@ class Movimiento(models.Model):
 
     def save(self, *args, **kwargs):
         if self.linea_pedido != None:
-            print(self.linea_pedido.id)
+            # print(self.linea_pedido.id)
             linea = LineaPedido.objects.get(id=self.linea_pedido.id)
-            print(linea.repuesto)
+            # print(linea.repuesto)
             
-        elif self.linea_inventario != None:
-            print(self.linea_inventario.id)
+        if self.linea_inventario != None:
+            # print(self.linea_inventario.id)
             linea = LineaInventario.objects.get(id=self.linea_inventario.id)
-            print(linea.repuesto)
+            #print(linea.repuesto)
     
-        elif self.linea_salida != None:
-            print(self.linea_salida.id)
+        if self.linea_salida != None:
+            # print(self.linea_salida.id)
             linea = LineaSalida.objects.get(id=self.linea_salida.id)
-            print(linea.repuesto)
+            # print(linea.repuesto)
 
         stock = StockMinimo.objects.get(repuesto=linea.repuesto, almacen=self.almacen)
         stock.stock_act = stock.stock_act + self.cantidad

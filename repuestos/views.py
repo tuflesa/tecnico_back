@@ -2,8 +2,8 @@ from django.db.models import fields
 from rest_framework import viewsets
 from rest_framework import serializers
 from rest_framework.serializers import Serializer
-from .serializers import EntregaSerializer, LineasAdicionalesSerilizer, MovimientoDetailSerializer, StockMinimoDetailSerializer, PedidoSerilizer, LineaPedidoSerilizer, PedidoListSerilizer, PedidoDetailSerilizer, ProveedorDetailSerializer, AlmacenSerilizer, ContactoSerializer, InventarioSerializer, MovimientoSerializer, ProveedorSerializer, RepuestoListSerializer, RepuestoDetailSerializer, StockMinimoDetailSerializer, StockMinimoSerializer, LineaInventarioSerializer, TipoRepuestoSerilizer
-from .models import Almacen, Entrega, Inventario, Contacto, LineaAdicional, LineaInventario, LineaPedido, Movimiento, Pedido, Proveedor, Repuesto, StockMinimo, TipoRepuesto
+from .serializers import EntregaSerializer, LineasAdicionalesSerilizer, MovimientoDetailSerializer, SalidasSerializer, StockMinimoDetailSerializer, PedidoSerilizer, LineaPedidoSerilizer, PedidoListSerilizer, PedidoDetailSerilizer, ProveedorDetailSerializer, AlmacenSerilizer, ContactoSerializer, InventarioSerializer, MovimientoSerializer, ProveedorSerializer, RepuestoListSerializer, RepuestoDetailSerializer, StockMinimoDetailSerializer, StockMinimoSerializer, LineaInventarioSerializer, TipoRepuestoSerilizer, LineaSalidaSerializer
+from .models import Almacen, Entrega, Inventario, Contacto, LineaAdicional, LineaInventario, LineaPedido, Movimiento, Pedido, Proveedor, Repuesto, StockMinimo, TipoRepuesto, Salida, LineaSalida
 from django_filters import filterset, rest_framework as filters
 
 class AlmacenFilter(filters.FilterSet):
@@ -179,3 +179,11 @@ class LineaAdicionalPedidoViewSet(viewsets.ModelViewSet):
 class PedidoViewSet(viewsets.ModelViewSet):
     serializer_class = PedidoSerilizer
     queryset = Pedido.objects.all()
+
+class SalidaVieSet(viewsets.ModelViewSet):
+    serializer_class = SalidasSerializer
+    queryset = Salida.objects.all()
+
+class LineasSalidaVieSet(viewsets.ModelViewSet):
+    serializer_class = LineaSalidaSerializer
+    queryset = LineaSalida.objects.all()

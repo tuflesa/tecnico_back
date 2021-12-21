@@ -2,7 +2,7 @@ from django.db.models import fields
 from django.db.models.base import Model
 from estructura.serializers import DireccionesEmpresaSerializer, EmpresaSerializer, EquipoSerializer
 from rest_framework import serializers
-from .models import Entrega, LineaAdicional, Almacen, Contacto, Inventario, LineaPedido, Movimiento, Pedido, Repuesto, Proveedor, StockMinimo, LineaInventario, TipoRepuesto
+from .models import Entrega, LineaAdicional, Almacen, Contacto, Inventario, LineaPedido, LineaSalida, Movimiento, Pedido, Repuesto, Proveedor, Salida, StockMinimo, LineaInventario, TipoRepuesto
 from estructura.serializers import EquipoSerializer
 from estructura.serializers import EstructuraSerializer
 from administracion.serializers import UserSerializer
@@ -77,7 +77,7 @@ class LineaInventarioSerializer(serializers.ModelSerializer):
 class MovimientoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Movimiento
-        fields = ['id', 'fecha', 'cantidad', 'almacen', 'usuario', 'linea_pedido', 'linea_inventario', 'albaran']
+        fields = ['id', 'fecha', 'cantidad', 'almacen', 'usuario', 'linea_pedido', 'linea_inventario', 'linea_salida', 'albaran']
 
 class EntregaSerializer(serializers.ModelSerializer):
     class Meta:
@@ -88,7 +88,7 @@ class MovimientoDetailSerializer(serializers.ModelSerializer):
     almacen = AlmacenSerilizer(many=False, read_only=True)
     class Meta:
         model = Movimiento
-        fields = ['id', 'fecha', 'cantidad', 'almacen', 'usuario', 'linea_pedido', 'linea_inventario', 'albaran']        
+        fields = ['id', 'fecha', 'cantidad', 'almacen', 'usuario', 'linea_pedido', 'linea_inventario', 'linea_salida', 'albaran']        
 
 class PedidoListSerilizer(serializers.ModelSerializer):
     empresa = EstructuraSerializer(many=False, read_only=True)
@@ -128,3 +128,13 @@ class PedidoSerilizer(serializers.ModelSerializer):
     class Meta:
         model = Pedido
         fields = ['id', 'proveedor','empresa', 'numero', 'fecha_creacion', 'fecha_entrega', 'fecha_prevista_entrega', 'finalizado', 'creado_por','contacto','direccion_envio']
+
+class LineaSalidaSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = LineaSalida
+        fields = ['id', 'salida', 'repuesto', 'almacen', 'cantidad']
+
+class SalidasSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Salida
+        fields = ['id', 'nombre', 'fecha_creacion', 'responsable']
