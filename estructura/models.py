@@ -14,6 +14,7 @@ class Direcciones(models.Model):
     poblacion = models.CharField(max_length=30, blank=True, null=True)
     codpostal = models.CharField(max_length=5, blank=True, null=True)
     telefono = models.CharField(max_length=9, blank=True, null=True)
+    provincia = models.CharField(max_length=30, blank=True, null=True)
 
 class Zona(models.Model):
     nombre = models.CharField(max_length=50)

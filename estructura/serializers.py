@@ -28,7 +28,7 @@ class EstructuraSerializer(serializers.ModelSerializer):
 class DireccionesEmpresaSerializer(serializers.ModelSerializer):
     class Meta:
         model = Direcciones
-        fields = ['id', 'empresa', 'direccion', 'codpostal', 'poblacion', 'telefono']
+        fields = ['id', 'empresa', 'direccion', 'codpostal', 'poblacion', 'telefono', 'provincia']
 
 class EmpresaSerializer(serializers.ModelSerializer):
     direcciones = DireccionesEmpresaSerializer(many=True)
