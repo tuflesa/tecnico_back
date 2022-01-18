@@ -10,11 +10,11 @@ class Empresa(models.Model):
 
 class Direcciones(models.Model):
     empresa = models.ForeignKey(Empresa, on_delete=models.CASCADE, related_name= 'direcciones')
-    direccion = models.CharField(max_length=20, blank=True, null=True)
-    poblacion = models.CharField(max_length=30, blank=True, null=True)
-    codpostal = models.CharField(max_length=5, blank=True, null=True)
-    telefono = models.CharField(max_length=9, blank=True, null=True)
-    provincia = models.CharField(max_length=30, blank=True, null=True)
+    direccion = models.CharField(max_length=80, blank=True, null=True)
+    poblacion = models.CharField(max_length=50, blank=True, null=True)
+    codpostal = models.CharField(max_length=8, blank=True, null=True)
+    telefono = models.CharField(max_length=15, blank=True, null=True)
+    provincia = models.CharField(max_length=50, blank=True, null=True)
 
 class Zona(models.Model):
     nombre = models.CharField(max_length=50)

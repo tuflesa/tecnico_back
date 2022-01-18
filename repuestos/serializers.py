@@ -52,12 +52,12 @@ class RepuestoDetailSerializer(serializers.ModelSerializer):
     stocks_minimos = StockMinimoDetailSerializer(many=True, read_only=True)
     class Meta:
         model = Repuesto
-        fields = ['id', 'nombre', 'tipo_repuesto', 'fabricante', 'modelo', 'es_critico', 'equipos', 'proveedores', 'stocks_minimos', 'descatalogado']
+        fields = ['id', 'nombre', 'tipo_repuesto', 'fabricante', 'modelo', 'es_critico', 'equipos', 'proveedores', 'stocks_minimos', 'descatalogado', 'observaciones']
 
 class RepuestoListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Repuesto
-        fields = ['id', 'nombre', 'tipo_repuesto','fabricante', 'modelo', 'es_critico', 'descatalogado', 'equipos', 'proveedores']
+        fields = ['id', 'nombre', 'tipo_repuesto','fabricante', 'modelo', 'es_critico', 'descatalogado', 'equipos', 'proveedores', 'observaciones']
 
 class TipoRepuestoSerilizer(serializers.ModelSerializer):
     class Meta:
