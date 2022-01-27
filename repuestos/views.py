@@ -71,7 +71,20 @@ class PedidoListFilter(filters.FilterSet):
             'fecha_prevista_entrega': ['lte', 'gte'],
             'finalizado': ['exact'],
             'empresa': ['exact'],
-            'numero': ['icontains']
+            'numero': ['icontains'],
+            'lineas_pedido':['exact'],
+            'lineas_pedido__cantidad':['exact'],
+            'numero': ['exact']
+        }
+
+class LineaPedidoFilter(filters.FilterSet):
+    class Meta:
+        model = LineaPedido
+        fields = {
+            'por_recibir': ['exact'],
+            'cantidad': ['exact'],
+            'pedido__finalizado': ['exact'],
+            'pedido__numero': ['exact'],
         }
 
 class StockMinimoFilter(filters.FilterSet):
@@ -83,7 +96,9 @@ class StockMinimoFilter(filters.FilterSet):
             'almacen__nombre': ['exact'],
             'almacen__id': ['exact'],
             'almacen': ['exact'],
-            'almacen__empresa__siglas': ['exact']
+            'almacen__empresa__siglas': ['exact'],
+            'stock_act': ['exact'],
+            'cantidad': ['exact']
         }
 
 class ContactosFilter(filters.FilterSet):
@@ -167,10 +182,12 @@ class PedidoListViewSet(viewsets.ModelViewSet):
 class PedidoDetailViewSet(viewsets.ModelViewSet):
     serializer_class = PedidoDetailSerilizer
     queryset = Pedido.objects.all()
+    filterset_class = PedidoListFilter
 
 class LineaPedidoViewSet(viewsets.ModelViewSet):
     serializer_class = LineaPedidoSerilizer
     queryset = LineaPedido.objects.all()
+    filterset_class = LineaPedidoFilter
 
 class LineaAdicionalPedidoViewSet(viewsets.ModelViewSet):
     serializer_class = LineasAdicionalesSerilizer
