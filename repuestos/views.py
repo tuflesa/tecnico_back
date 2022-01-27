@@ -85,6 +85,7 @@ class LineaPedidoFilter(filters.FilterSet):
             'cantidad': ['exact'],
             'pedido__finalizado': ['exact'],
             'pedido__numero': ['exact'],
+            'pedido__empresa': ['exact']
         }
 
 class StockMinimoFilter(filters.FilterSet):
