@@ -1,11 +1,12 @@
 from rest_framework import routers
-from .views import EntregaViewSet, LineaAdicionalPedidoViewSet, LineasSalidaVieSet, MovimientoDetailViewSet, PedidoViewSet, InventarioViewSet, LineaPedidoViewSet, PedidoDetailViewSet, ContactoViewSet, MovimientoViewSet, PedidoListViewSet, ProveedorDetailViewSet, ProveedorViewSet, RepuestoListViewSet, RepuestoDetailViewSet, SalidaVieSet, StockMinimoDetailViewSet, StockMinimoViewSet, AlmacenViewSet, LineaInventarioViewSet, TipoRepuestoViewSet
+from .views import LineaPedidoPendViewSet, EntregaViewSet, LineaAdicionalPedidoViewSet, LineasSalidaVieSet, MovimientoDetailViewSet, PedidoViewSet, InventarioViewSet, LineaPedidoViewSet, PedidoDetailViewSet, ContactoViewSet, MovimientoViewSet, PedidoListViewSet, ProveedorDetailViewSet, ProveedorViewSet, RepuestoListViewSet, RepuestoDetailViewSet, SalidaVieSet, StockMinimoDetailViewSet, StockMinimoViewSet, AlmacenViewSet, LineaInventarioViewSet, TipoRepuestoViewSet
 
 router = routers.DefaultRouter()
 router.register('pedido', PedidoViewSet)
 router.register('linea_adicional_pedido', LineaAdicionalPedidoViewSet)
 router.register('movimiento', MovimientoViewSet)
 router.register('entrega', EntregaViewSet)
+router.register('linea_pedido_pend', LineaPedidoPendViewSet)
 router.register('linea_pedido', LineaPedidoViewSet)
 router.register('lista', RepuestoListViewSet)
 router.register('detalle', RepuestoDetailViewSet)

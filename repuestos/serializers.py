@@ -105,6 +105,12 @@ class LineaPedidoDetailSerilizer(serializers.ModelSerializer):
         fields = ['id', 'por_recibir', 'pedido', 'repuesto', 'cantidad', 'precio', 'descuento', 'total']
 
 class LineaPedidoSerilizer(serializers.ModelSerializer):
+    #pedido = PedidoListSerilizer(many=False, read_only=True)
+    class Meta:
+        model = LineaPedido
+        fields = ['id', 'pedido', 'por_recibir' ,'repuesto', 'cantidad', 'precio', 'descuento', 'total']
+
+class LineaPedidoPendSerilizer(serializers.ModelSerializer):
     pedido = PedidoListSerilizer(many=False, read_only=True)
     class Meta:
         model = LineaPedido

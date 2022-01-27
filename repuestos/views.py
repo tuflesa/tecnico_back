@@ -2,7 +2,7 @@ from django.db.models import fields
 from rest_framework import viewsets
 from rest_framework import serializers
 from rest_framework.serializers import Serializer
-from .serializers import EntregaSerializer, LineasAdicionalesSerilizer, MovimientoDetailSerializer, SalidasSerializer, StockMinimoDetailSerializer, PedidoSerilizer, LineaPedidoSerilizer, PedidoListSerilizer, PedidoDetailSerilizer, ProveedorDetailSerializer, AlmacenSerilizer, ContactoSerializer, InventarioSerializer, MovimientoSerializer, ProveedorSerializer, RepuestoListSerializer, RepuestoDetailSerializer, StockMinimoDetailSerializer, StockMinimoSerializer, LineaInventarioSerializer, TipoRepuestoSerilizer, LineaSalidaSerializer
+from .serializers import LineaPedidoPendSerilizer, EntregaSerializer, LineasAdicionalesSerilizer, MovimientoDetailSerializer, SalidasSerializer, StockMinimoDetailSerializer, PedidoSerilizer, LineaPedidoSerilizer, PedidoListSerilizer, PedidoDetailSerilizer, ProveedorDetailSerializer, AlmacenSerilizer, ContactoSerializer, InventarioSerializer, MovimientoSerializer, ProveedorSerializer, RepuestoListSerializer, RepuestoDetailSerializer, StockMinimoDetailSerializer, StockMinimoSerializer, LineaInventarioSerializer, TipoRepuestoSerilizer, LineaSalidaSerializer
 from .models import Almacen, Entrega, Inventario, Contacto, LineaAdicional, LineaInventario, LineaPedido, Movimiento, Pedido, Proveedor, Repuesto, StockMinimo, TipoRepuesto, Salida, LineaSalida
 from django_filters import filterset, rest_framework as filters
 
@@ -186,6 +186,11 @@ class PedidoDetailViewSet(viewsets.ModelViewSet):
 
 class LineaPedidoViewSet(viewsets.ModelViewSet):
     serializer_class = LineaPedidoSerilizer
+    queryset = LineaPedido.objects.all()
+    filterset_class = LineaPedidoFilter
+
+class LineaPedidoPendViewSet(viewsets.ModelViewSet):
+    serializer_class = LineaPedidoPendSerilizer
     queryset = LineaPedido.objects.all()
     filterset_class = LineaPedidoFilter
 
