@@ -1,6 +1,7 @@
 from django.db.models import fields
 from rest_framework import viewsets
 from rest_framework import serializers
+from django.db.models import F
 from rest_framework.serializers import Serializer
 from .serializers import LineaPedidoPendSerilizer, EntregaSerializer, LineasAdicionalesSerilizer, MovimientoDetailSerializer, SalidasSerializer, StockMinimoDetailSerializer, PedidoSerilizer, LineaPedidoSerilizer, PedidoListSerilizer, PedidoDetailSerilizer, ProveedorDetailSerializer, AlmacenSerilizer, ContactoSerializer, InventarioSerializer, MovimientoSerializer, ProveedorSerializer, RepuestoListSerializer, RepuestoDetailSerializer, StockMinimoDetailSerializer, StockMinimoSerializer, LineaInventarioSerializer, TipoRepuestoSerilizer, LineaSalidaSerializer
 from .models import Almacen, Entrega, Inventario, Contacto, LineaAdicional, LineaInventario, LineaPedido, Movimiento, Pedido, Proveedor, Repuesto, StockMinimo, TipoRepuesto, Salida, LineaSalida
@@ -98,8 +99,8 @@ class StockMinimoFilter(filters.FilterSet):
             'almacen__id': ['exact'],
             'almacen': ['exact'],
             'almacen__empresa__siglas': ['exact'],
-            'stock_act': ['exact'],
-            'cantidad': ['exact']
+            'stock_act': ['lt', 'gt'],
+            'cantidad': ['exact'],
         }
 
 class ContactosFilter(filters.FilterSet):
@@ -131,6 +132,11 @@ class StockMinimoViewSet(viewsets.ModelViewSet):
 class StockMinimoDetailViewSet(viewsets.ModelViewSet):
     serializer_class = StockMinimoDetailSerializer
     queryset = StockMinimo.objects.all()
+    filterset_class = StockMinimoFilter
+
+class ArticulosFueraStockViewSet(viewsets.ModelViewSet):
+    serializer_class = StockMinimoDetailSerializer
+    queryset = StockMinimo.objects.filter(stock_act__lt=F('cantidad'))
     filterset_class = StockMinimoFilter
 
 class AlmacenViewSet(viewsets.ModelViewSet):
