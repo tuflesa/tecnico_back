@@ -3,7 +3,7 @@ from rest_framework import viewsets
 from rest_framework import serializers
 from django.db.models import F
 from rest_framework.serializers import Serializer
-from .serializers import LineaPedidoPendSerilizer, EntregaSerializer, LineasAdicionalesSerilizer, MovimientoDetailSerializer, SalidasSerializer, StockMinimoDetailSerializer, PedidoSerilizer, LineaPedidoSerilizer, PedidoListSerilizer, PedidoDetailSerilizer, ProveedorDetailSerializer, AlmacenSerilizer, ContactoSerializer, InventarioSerializer, MovimientoSerializer, ProveedorSerializer, RepuestoListSerializer, RepuestoDetailSerializer, StockMinimoDetailSerializer, StockMinimoSerializer, LineaInventarioSerializer, TipoRepuestoSerilizer, LineaSalidaSerializer
+from .serializers import MovimientoTrazabilidadSerializer, LineaPedidoPendSerilizer, EntregaSerializer, LineasAdicionalesSerilizer, MovimientoDetailSerializer, SalidasSerializer, StockMinimoDetailSerializer, PedidoSerilizer, LineaPedidoSerilizer, PedidoListSerilizer, PedidoDetailSerilizer, ProveedorDetailSerializer, AlmacenSerilizer, ContactoSerializer, InventarioSerializer, MovimientoSerializer, ProveedorSerializer, RepuestoListSerializer, RepuestoDetailSerializer, StockMinimoDetailSerializer, StockMinimoSerializer, LineaInventarioSerializer, TipoRepuestoSerilizer, LineaSalidaSerializer
 from .models import Almacen, Entrega, Inventario, Contacto, LineaAdicional, LineaInventario, LineaPedido, Movimiento, Pedido, Proveedor, Repuesto, StockMinimo, TipoRepuesto, Salida, LineaSalida
 from django_filters import filterset, rest_framework as filters
 
@@ -42,6 +42,16 @@ class MovimientoDetailFilter(filters.FilterSet):
         fields = {
             'linea_pedido__id': ['exact'],
             'almacen__nombre' : ['exact']
+        }
+
+class MovimientoTrazabilidadFilter(filters.FilterSet):
+    class Meta:
+        model = Movimiento
+        fields = {            
+            'linea_salida__repuesto' : ['exact'],
+            'linea_inventario__repuesto':['exact'],
+            'linea_pedido__repuesto':['exact'],
+            'almacen__empresa': ['exact'],
         }
 
 class RepuestoListFilter(filters.FilterSet):
@@ -216,3 +226,8 @@ class SalidaVieSet(viewsets.ModelViewSet):
 class LineasSalidaVieSet(viewsets.ModelViewSet):
     serializer_class = LineaSalidaSerializer
     queryset = LineaSalida.objects.all()
+
+class MovimientoTrazabilidadViewSet(viewsets.ModelViewSet):
+    serializer_class = MovimientoTrazabilidadSerializer
+    queryset = Movimiento.objects.all()
+    filterset_class = MovimientoTrazabilidadFilter

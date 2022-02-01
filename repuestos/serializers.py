@@ -146,3 +146,12 @@ class SalidasSerializer(serializers.ModelSerializer):
     class Meta:
         model = Salida
         fields = ['id', 'nombre', 'fecha_creacion', 'responsable']
+
+class MovimientoTrazabilidadSerializer(serializers.ModelSerializer):
+    almacen = AlmacenSerilizer(many=False, read_only=True)
+    linea_salida = LineaSalidaSerializer(many=False, read_only=True)
+    linea_inventario = LineaInventarioSerializer(many=False, read_only=True)
+    linea_pedido = LineaPedidoDetailSerilizer(many=False, read_only=True)
+    class Meta:
+        model = Movimiento
+        fields = ['id', 'fecha', 'cantidad', 'almacen', 'usuario', 'linea_pedido', 'linea_inventario', 'linea_salida', 'albaran']        

@@ -1,5 +1,5 @@
 from rest_framework import routers
-from .views import ArticulosFueraStockViewSet, LineaPedidoPendViewSet, EntregaViewSet, LineaAdicionalPedidoViewSet, LineasSalidaVieSet, MovimientoDetailViewSet, PedidoViewSet, InventarioViewSet, LineaPedidoViewSet, PedidoDetailViewSet, ContactoViewSet, MovimientoViewSet, PedidoListViewSet, ProveedorDetailViewSet, ProveedorViewSet, RepuestoListViewSet, RepuestoDetailViewSet, SalidaVieSet, StockMinimoDetailViewSet, StockMinimoViewSet, AlmacenViewSet, LineaInventarioViewSet, TipoRepuestoViewSet
+from .views import MovimientoTrazabilidadViewSet, ArticulosFueraStockViewSet, LineaPedidoPendViewSet, EntregaViewSet, LineaAdicionalPedidoViewSet, LineasSalidaVieSet, MovimientoDetailViewSet, PedidoViewSet, InventarioViewSet, LineaPedidoViewSet, PedidoDetailViewSet, ContactoViewSet, MovimientoViewSet, PedidoListViewSet, ProveedorDetailViewSet, ProveedorViewSet, RepuestoListViewSet, RepuestoDetailViewSet, SalidaVieSet, StockMinimoDetailViewSet, StockMinimoViewSet, AlmacenViewSet, LineaInventarioViewSet, TipoRepuestoViewSet
 
 router = routers.DefaultRouter()
 router.register('pedido', PedidoViewSet)
@@ -15,6 +15,7 @@ router.register('stocks_minimos', StockMinimoViewSet)
 router.register('almacen', AlmacenViewSet)
 router.register('inventario', InventarioViewSet)
 router.register('lineainventario', LineaInventarioViewSet)
+router.register('movimiento_trazabilidad', MovimientoTrazabilidadViewSet)
 router.register('movimiento_detalle', MovimientoDetailViewSet)
 router.register('proveedor', ProveedorViewSet)
 router.register('proveedor_detalle', ProveedorDetailViewSet)
