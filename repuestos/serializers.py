@@ -75,6 +75,12 @@ class LineaInventarioSerializer(serializers.ModelSerializer):
         model = LineaInventario
         fields = ['id', 'inventario', 'repuesto', 'almacen', 'cantidad']
 
+class LineaInventarioTrazaSerializer(serializers.ModelSerializer):
+    inventario = InventarioSerializer(many=False, read_only=True)
+    class Meta:
+        model = LineaInventario
+        fields = ['id', 'inventario', 'repuesto', 'almacen', 'cantidad']
+
 class MovimientoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Movimiento
@@ -100,6 +106,13 @@ class PedidoListSerilizer(serializers.ModelSerializer):
 
 class LineaPedidoDetailSerilizer(serializers.ModelSerializer):
     repuesto = RepuestoListSerializer(many=False, read_only=True)    
+    class Meta:
+        model = LineaPedido
+        fields = ['id', 'por_recibir', 'pedido', 'repuesto', 'cantidad', 'precio', 'descuento', 'total']
+
+class LineaPedidoTrazaSerilizer(serializers.ModelSerializer):
+    repuesto = RepuestoListSerializer(many=False, read_only=True)    
+    pedido = PedidoListSerilizer(many=False, read_only=True)
     class Meta:
         model = LineaPedido
         fields = ['id', 'por_recibir', 'pedido', 'repuesto', 'cantidad', 'precio', 'descuento', 'total']
@@ -147,11 +160,17 @@ class SalidasSerializer(serializers.ModelSerializer):
         model = Salida
         fields = ['id', 'nombre', 'fecha_creacion', 'responsable']
 
+class LineaSalidaSerializer(serializers.ModelSerializer):
+    salida = SalidasSerializer(many=False, read_only=True)
+    class Meta:
+        model = LineaSalida
+        fields = ['id', 'salida', 'repuesto', 'almacen', 'cantidad']
+
 class MovimientoTrazabilidadSerializer(serializers.ModelSerializer):
     almacen = AlmacenSerilizer(many=False, read_only=True)
     linea_salida = LineaSalidaSerializer(many=False, read_only=True)
-    linea_inventario = LineaInventarioSerializer(many=False, read_only=True)
-    linea_pedido = LineaPedidoDetailSerilizer(many=False, read_only=True)
+    linea_inventario = LineaInventarioTrazaSerializer(many=False, read_only=True)
+    linea_pedido = LineaPedidoTrazaSerilizer(many=False, read_only=True)
     class Meta:
         model = Movimiento
         fields = ['id', 'fecha', 'cantidad', 'almacen', 'usuario', 'linea_pedido', 'linea_inventario', 'linea_salida', 'albaran']        
