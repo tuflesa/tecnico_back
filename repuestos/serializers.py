@@ -172,6 +172,7 @@ class MovimientoTrazabilidadSerializer(serializers.ModelSerializer):
     linea_salida = LineaSalidaTrazaSerializer(many=False, read_only=True)
     linea_inventario = LineaInventarioTrazaSerializer(many=False, read_only=True)
     linea_pedido = LineaPedidoTrazaSerilizer(many=False, read_only=True)
+    usuario = UserSerializer(many=False, read_only=True)
     class Meta:
         model = Movimiento
         fields = ['id', 'fecha', 'cantidad', 'almacen', 'usuario', 'linea_pedido', 'linea_inventario', 'linea_salida', 'albaran']        

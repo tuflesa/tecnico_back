@@ -51,7 +51,7 @@ class MovimientoTrazabilidadFilter(filters.FilterSet):
             'linea_salida__repuesto' : ['exact'],
             'linea_inventario__repuesto':['exact'],
             'linea_pedido__repuesto':['exact'],
-            'almacen__empresa': ['exact'],
+            'almacen__id': ['exact'],
         }
 
 class RepuestoListFilter(filters.FilterSet):
