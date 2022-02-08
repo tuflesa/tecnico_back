@@ -111,7 +111,10 @@ class StockMinimoFilter(filters.FilterSet):
             'almacen__empresa__siglas': ['exact'],
             'stock_act': ['lt', 'gt'],
             'cantidad': ['exact'],
-            'repuesto__descatalogado' : ['exact']
+            'repuesto__descatalogado' : ['exact'],
+            'repuesto__nombre' : ['icontains'],
+            'repuesto__fabricante' : ['icontains'],
+            'almacen__nombre' : ['icontains']
         }
 
 class ContactosFilter(filters.FilterSet):

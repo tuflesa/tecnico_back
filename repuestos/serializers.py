@@ -150,17 +150,18 @@ class PedidoSerilizer(serializers.ModelSerializer):
         model = Pedido
         fields = ['id', 'proveedor','empresa', 'numero', 'fecha_creacion', 'fecha_entrega', 'fecha_prevista_entrega', 'finalizado', 'creado_por','contacto','direccion_envio', 'observaciones']
 
-class LineaSalidaSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = LineaSalida
-        fields = ['id', 'salida', 'repuesto', 'almacen', 'cantidad']
-
 class SalidasSerializer(serializers.ModelSerializer):
     class Meta:
         model = Salida
         fields = ['id', 'nombre', 'fecha_creacion', 'responsable']
 
 class LineaSalidaSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = LineaSalida
+        fields = ['id', 'salida', 'repuesto', 'almacen', 'cantidad']
+
+
+class LineaSalidaTrazaSerializer(serializers.ModelSerializer):
     salida = SalidasSerializer(many=False, read_only=True)
     class Meta:
         model = LineaSalida
@@ -168,7 +169,7 @@ class LineaSalidaSerializer(serializers.ModelSerializer):
 
 class MovimientoTrazabilidadSerializer(serializers.ModelSerializer):
     almacen = AlmacenSerilizer(many=False, read_only=True)
-    linea_salida = LineaSalidaSerializer(many=False, read_only=True)
+    linea_salida = LineaSalidaTrazaSerializer(many=False, read_only=True)
     linea_inventario = LineaInventarioTrazaSerializer(many=False, read_only=True)
     linea_pedido = LineaPedidoTrazaSerilizer(many=False, read_only=True)
     class Meta:
