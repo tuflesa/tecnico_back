@@ -70,7 +70,8 @@ class RepuestoListFilter(filters.FilterSet):
             'equipos__seccion__id': ['exact'],
             'equipos__id': ['exact'],
             'proveedores__id':['exact'],
-            'stocks_minimos__almacen__id':['exact']
+            'stocks_minimos__almacen__id':['exact'],
+            'nombre_comun':['icontains'],
         }
 
 class PedidoListFilter(filters.FilterSet):
@@ -114,7 +115,8 @@ class StockMinimoFilter(filters.FilterSet):
             'repuesto__descatalogado' : ['exact'],
             'repuesto__nombre' : ['icontains'],
             'repuesto__fabricante' : ['icontains'],
-            'almacen__nombre' : ['icontains']
+            'almacen__nombre' : ['icontains'],
+            'repuesto__nombre_comun' : ['icontains'],
         }
 
 class ContactosFilter(filters.FilterSet):
