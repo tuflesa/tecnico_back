@@ -8,7 +8,7 @@ import datetime
 
 class Proveedor(models.Model):
     nombre = models.CharField(max_length=100)
-    telefono = models.CharField(max_length=15, blank=True, null=True)
+    telefono = models.CharField(max_length=30, blank=True, null=True)
     direccion = models.TextField(max_length=250, blank=True, null=True)
 
     def __str__(self):
@@ -18,7 +18,7 @@ class Contacto(models.Model):
     nombre = models.CharField(max_length=100)
     departamento = models.CharField(max_length=100, null=True, blank=True)
     correo_electronico = models.CharField(max_length=100, null=True, blank=True)
-    telefono = models.CharField(max_length=15, null=True, blank=True)
+    telefono = models.CharField(max_length=30, null=True, blank=True)
     proveedor = models.ForeignKey(Proveedor, on_delete=models.CASCADE, related_name='contactos')
 
     def __str__(self):
