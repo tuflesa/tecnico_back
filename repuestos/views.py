@@ -3,8 +3,8 @@ from rest_framework import viewsets
 from rest_framework import serializers
 from django.db.models import F
 from rest_framework.serializers import Serializer
-from .serializers import MovimientoTrazabilidadSerializer, LineaPedidoPendSerilizer, EntregaSerializer, LineasAdicionalesSerilizer, MovimientoDetailSerializer, SalidasSerializer, StockMinimoDetailSerializer, PedidoSerilizer, LineaPedidoSerilizer, PedidoListSerilizer, PedidoDetailSerilizer, ProveedorDetailSerializer, AlmacenSerilizer, ContactoSerializer, InventarioSerializer, MovimientoSerializer, ProveedorSerializer, RepuestoListSerializer, RepuestoDetailSerializer, StockMinimoDetailSerializer, StockMinimoSerializer, LineaInventarioSerializer, TipoRepuestoSerilizer, LineaSalidaSerializer
-from .models import Almacen, Entrega, Inventario, Contacto, LineaAdicional, LineaInventario, LineaPedido, Movimiento, Pedido, Proveedor, Repuesto, StockMinimo, TipoRepuesto, Salida, LineaSalida
+from .serializers import MovimientoTrazabilidadSerializer, LineaPedidoPendSerilizer, EntregaSerializer, LineasAdicionalesSerilizer, MovimientoDetailSerializer, SalidasSerializer, StockMinimoDetailSerializer, PedidoSerilizer, LineaPedidoSerilizer, PedidoListSerilizer, PedidoDetailSerilizer, ProveedorDetailSerializer, AlmacenSerilizer, ContactoSerializer, InventarioSerializer, MovimientoSerializer, ProveedorSerializer, RepuestoListSerializer, RepuestoDetailSerializer, StockMinimoDetailSerializer, StockMinimoSerializer, LineaInventarioSerializer, TipoRepuestoSerilizer, TipoUnidadSerilizer, LineaSalidaSerializer
+from .models import Almacen, Entrega, Inventario, Contacto, LineaAdicional, LineaInventario, LineaPedido, Movimiento, Pedido, Proveedor, Repuesto, StockMinimo, TipoRepuesto, TipoUnidad, Salida, LineaSalida
 from django_filters import filterset, rest_framework as filters
 
 class AlmacenFilter(filters.FilterSet):
@@ -128,6 +128,10 @@ class ContactosFilter(filters.FilterSet):
 class TipoRepuestoViewSet(viewsets.ModelViewSet):
     serializer_class = TipoRepuestoSerilizer
     queryset = TipoRepuesto.objects.all()
+
+class TipoUnidadViewSet(viewsets.ModelViewSet):
+    serializer_class = TipoUnidadSerilizer
+    queryset = TipoUnidad.objects.all()
 
 class RepuestoListViewSet(viewsets.ModelViewSet):
     serializer_class = RepuestoListSerializer

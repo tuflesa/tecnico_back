@@ -30,9 +30,16 @@ class TipoRepuesto(models.Model):
     def __str__(self):
         return self.nombre
 
+class TipoUnidad(models.Model):
+    nombre = models.CharField(max_length=30)
+
+    def __str__(self):
+        return self.nombre
+
 class Repuesto(models.Model):
     nombre = models.CharField(max_length = 100)
     tipo_repuesto = models.ForeignKey(TipoRepuesto, on_delete=models.CASCADE)
+    tipo_unidad = models.ForeignKey(TipoUnidad, on_delete=models.PROTECT, null=True, blank=True)
     fabricante = models.CharField(max_length=50, null=True, blank=True)
     modelo = models.CharField(max_length=50, null=True, blank=True)
     # stock = models.IntegerField(default=0)
