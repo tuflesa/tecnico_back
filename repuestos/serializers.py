@@ -20,7 +20,7 @@ class ProveedorSerializer(serializers.ModelSerializer):
 class TipoUnidadSerilizer(serializers.ModelSerializer):
     class Meta:
         model = TipoUnidad
-        fields = ['id', 'nombre'] 
+        fields = ['id', 'nombre', 'siglas'] 
 
 class ProveedorRepuSerializer(serializers.ModelSerializer):
     class Meta:
@@ -42,7 +42,7 @@ class AlmacenSerilizer(serializers.ModelSerializer):
 class RepuestoListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Repuesto
-        fields = ['id', 'nombre', 'unidad_nombre', 'tipo_repuesto', 'tipo_unidad','fabricante', 'modelo', 'es_critico', 'descatalogado', 'equipos', 'proveedores', 'observaciones', 'nombre_comun']
+        fields = ['id', 'nombre', 'unidad_nombre', 'unidad_siglas', 'tipo_repuesto', 'tipo_unidad','fabricante', 'modelo', 'es_critico', 'descatalogado', 'equipos', 'proveedores', 'observaciones', 'nombre_comun']
 
 class StockMinimoSerializer(serializers.ModelSerializer):
     #almacen = AlmacenSerilizer(many=False, read_only=True)

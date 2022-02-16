@@ -32,6 +32,7 @@ class TipoRepuesto(models.Model):
 
 class TipoUnidad(models.Model):
     nombre = models.CharField(max_length=30)
+    siglas = models.CharField(max_length=30)
 
     def __str__(self):
         return self.nombre
@@ -59,6 +60,9 @@ class Repuesto(models.Model):
         #return s #entradas + ajustes
     def unidad_nombre(self):
             return self.tipo_unidad.nombre
+
+    def unidad_siglas(self):
+            return self.tipo_unidad.siglas
 
     def __str__(self):
         return self.nombre
