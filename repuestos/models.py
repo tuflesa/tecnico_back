@@ -57,6 +57,8 @@ class Repuesto(models.Model):
         # ajustes = Movimiento.objects.filter(linea_inventario__repuesto=self).aggregate(suma=Sum('cantidad'))['suma'] or 0
         
         #return s #entradas + ajustes
+    def unidad_nombre(self):
+            return self.tipo_unidad.nombre
 
     def __str__(self):
         return self.nombre
