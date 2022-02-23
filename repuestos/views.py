@@ -86,6 +86,7 @@ class PedidoListFilter(filters.FilterSet):
             'numero': ['icontains'],
             'lineas_pedido':['exact'],
             'lineas_pedido__cantidad':['exact'],
+            'creado_por':['exact']
         }
 
 class LineaPedidoFilter(filters.FilterSet):

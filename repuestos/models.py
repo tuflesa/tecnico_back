@@ -110,6 +110,7 @@ class Pedido(models.Model):
             self.numero = self.empresa.siglas + '-' + year + '-' + str(numero).zfill(3)
         # Llamar al metodo save por defecto de la clase
         super(Pedido,self).save(*args, **kwargs)
+
     
     """ def es_completo(self):
         lineas_pendientes = LineaPedido.objects.filter(pedido=self).filter(completo=False).count()

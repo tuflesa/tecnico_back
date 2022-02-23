@@ -105,6 +105,7 @@ class MovimientoDetailSerializer(serializers.ModelSerializer):
 class PedidoListSerilizer(serializers.ModelSerializer):
     empresa = EstructuraSerializer(many=False, read_only=True)
     proveedor = ProveedorSerializer(many=False, read_only=True)
+    creado_por = UserSerializer(many=False, read_only=True)
     class Meta:
         model = Pedido
         fields = ['id','proveedor','empresa', 'numero', 'fecha_creacion', 'fecha_entrega', 'fecha_prevista_entrega', 'finalizado', 'creado_por', 'direccion_envio', 'contacto', 'observaciones']

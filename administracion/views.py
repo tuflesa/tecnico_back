@@ -5,6 +5,14 @@ from rest_framework.response import Response
 from .serializers import AplicacionSerializer, UserSerializer
 from django.contrib.auth.models import User
 from .models import Aplicacion
+from django_filters import filterset, rest_framework as filters
+
+class UserFilter(filters.FilterSet):
+    class Meta:
+        model = User
+        fields = {
+            'perfil__empresa__id': ['exact']
+        }
 
 class AplicacionViewSet(viewsets.ModelViewSet):
     serializer_class = AplicacionSerializer
@@ -19,6 +27,7 @@ class AplicacionViewSet(viewsets.ModelViewSet):
 class UserViewSet(viewsets.ModelViewSet):
     serializer_class = UserSerializer
     queryset = User.objects.all()
+    filterset_class = UserFilter
 
 class CustomAuthToken(ObtainAuthToken):
     def post(self, request, *args, **kwargs):
