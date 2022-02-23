@@ -40,7 +40,7 @@ class TipoUnidad(models.Model):
 class Repuesto(models.Model):
     nombre = models.CharField(max_length = 100)
     tipo_repuesto = models.ForeignKey(TipoRepuesto, on_delete=models.CASCADE)
-    tipo_unidad = models.ForeignKey(TipoUnidad, on_delete=models.PROTECT, null=True, blank=True)
+    tipo_unidad = models.ForeignKey(TipoUnidad, on_delete=models.PROTECT, default=1)
     fabricante = models.CharField(max_length=50, null=True, blank=True)
     modelo = models.CharField(max_length=50, null=True, blank=True)
     # stock = models.IntegerField(default=0)

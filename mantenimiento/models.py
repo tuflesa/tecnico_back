@@ -100,15 +100,25 @@ class Tarea(models.Model):
     prioridad = models.IntegerField(default=50) # Número de 0 a 100. 100 máxima prioridad
     observaciones = models.TextField()
 
+    def equipo_nombre(self):
+        return self.equipo.nombre
+
+    def especialidad_nombre(self):
+        return self.especialidad.nombre
+    
+    def tipo_nombre(self):
+        return self.tipo.nombre    
+    
     def __str__(self):
         return self.nombre
+    
 
 class ParteTrabajo(models.Model):
     nombre = models.CharField(max_length=150)
-    notificacion = models.ForeignKey(Notificacion, on_delete=models.CASCADE, null=True, blank=True, related_name='partes')
+    #notificacion = models.ForeignKey(Notificacion, on_delete=models.CASCADE, null=True, blank=True, related_name='partes')
     tipo = models.ForeignKey(TipoTarea, on_delete=models.CASCADE)
     creada_por = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='partes_creados')
-    responsable = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='partes_responsable')
+    #responsable = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='partes_responsable')
     # finalizado = models.BooleanField(default=False)
     observaciones = models.TextField()
 
@@ -137,7 +147,7 @@ class LineaParteTrabajo(models.Model):
     tarea = models.ForeignKey(Tarea, on_delete=models.CASCADE)
     fecha_inicio = models.DateField(blank=True, null=True)
     fecha_fin = models.DateField(blank=True, null=True)
-    responsables = models.ManyToManyField(User, related_name='lineas_parte_trabajo')
+    #responsables = models.ManyToManyField(User, related_name='lineas_parte_trabajo')
 
     def __str__(self):
         return self.tarea.nombre
