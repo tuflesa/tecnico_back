@@ -1,3 +1,4 @@
+from xmlrpc.client import boolean
 from django.db import models
 from django.db.models.base import Model
 from django.db.models.deletion import SET_NULL
@@ -92,16 +93,17 @@ class TipoPeriodo(models.Model): # Anual, Mensual, Semanal ...
 
 class Tarea(models.Model): 
     nombre = models.CharField(max_length=150)
-    equipo = models.ForeignKey(Equipo, on_delete=models.CASCADE)
+    #equipo = models.ForeignKey(Equipo, on_delete=models.CASCADE)
     tipo = models.ForeignKey(TipoTarea, on_delete=models.CASCADE)
     especialidad = models.ForeignKey(Especialidad, on_delete=models.CASCADE)
-    tipo_periodo = models.ForeignKey(TipoPeriodo, on_delete=models.CASCADE)
-    periodo = models.IntegerField()
+    tipo_periodo = models.ForeignKey(TipoPeriodo, on_delete=models.CASCADE, null=True, blank=True)
+    periodo = models.IntegerField(null=True, blank=True)
     prioridad = models.IntegerField(default=50) # Número de 0 a 100. 100 máxima prioridad
     observaciones = models.TextField()
+    pendiente = models.BooleanField()
 
-    def equipo_nombre(self):
-        return self.equipo.nombre
+    """ def equipo_nombre(self):
+        return self.equipo.nombre """
 
     def especialidad_nombre(self):
         return self.especialidad.nombre
@@ -119,25 +121,37 @@ class ParteTrabajo(models.Model):
     tipo = models.ForeignKey(TipoTarea, on_delete=models.CASCADE)
     creada_por = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='partes_creados')
     #responsable = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='partes_responsable')
-    # finalizado = models.BooleanField(default=False)
+    finalizado = models.BooleanField(default=False)
     observaciones = models.TextField()
+    fecha_creacion = models.DateField(default=timezone.now)
+    fecha_finalizacion = models.DateField(blank=True, null=True)
+    equipo = models.ForeignKey(Equipo, on_delete=models.CASCADE, related_name='partes_creados')
 
-    def finalizado(self):
+    """ def finalizado(self):
         fin = True
         for linea in self.lineas:
             if linea.fecha_fin is None:
                 fin = False
                 break
-        return fin
+        return fin """
 
-    def fecha_fin(self):
+    """ def fecha_fin(self):
         fecha = None
         if not self.finalizado:
             return fecha
         for linea in self.lineas:
             if fecha < linea.fecha_fin:
                 fecha = linea.fecha_fin
-        return fecha
+        return fecha """
+    
+    def equipo_nombre(self):
+        return self.equipo.nombre
+
+    def tipo_nombre(self):
+        return self.tipo.nombre  
+    
+    def creado_nombre(self):
+        return self.creada_por.get_full_name() 
 
     def __str__(self):
         return self.nombre
