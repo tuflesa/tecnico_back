@@ -37,7 +37,9 @@ class TipoPeriodoSerializer(serializers.ModelSerializer):
         fields = ['id', 'nombre']
 
 class ParteTrabajoSerializer(serializers.ModelSerializer):
+    equipo = EquipoSerializer(many=False, read_only=True)
+    creada_por = UserSerializer(many=False, read_only=True)
     class Meta:
         model = ParteTrabajo
-        fields = ['id', 'nombre', 'tipo', 'creada_por', 'observaciones', 'tipo_nombre', 'creado_nombre', 'finalizado', 'fecha_creacion', 'fecha_finalizacion', 'equipo', 'equipo_nombre']
+        fields = ['id', 'nombre', 'tipo', 'creada_por', 'observaciones', 'finalizado', 'fecha_creacion', 'fecha_finalizacion', 'equipo', 'tipo_nombre', 'creado_nombre']
 
