@@ -122,10 +122,10 @@ class ParteTrabajo(models.Model):
     creada_por = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='partes_creados')
     #responsable = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='partes_responsable')
     finalizado = models.BooleanField(default=False)
-    observaciones = models.TextField()
+    observaciones = models.TextField(blank=True, null=True)
     fecha_creacion = models.DateField(default=timezone.now)
     fecha_finalizacion = models.DateField(blank=True, null=True)
-    equipo = models.ForeignKey(Equipo, on_delete=models.CASCADE, related_name='partes_creados')
+    equipo = models.ForeignKey(Equipo, on_delete=models.CASCADE, blank=True, null=True, related_name='partes_creados')
 
     """ def finalizado(self):
         fin = True
@@ -144,8 +144,8 @@ class ParteTrabajo(models.Model):
                 fecha = linea.fecha_fin
         return fecha """
     
-    def equipo_nombre(self):
-        return self.equipo.nombre
+    """ def equipo_nombre(self):
+        return self.equipo.nombre """
 
     def tipo_nombre(self):
         return self.tipo.nombre  
