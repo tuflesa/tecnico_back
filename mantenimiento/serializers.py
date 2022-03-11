@@ -1,5 +1,7 @@
 from rest_framework import serializers
-from mantenimiento.models import Especialidad, Notificacion, ParteTrabajo, Tarea, TipoPeriodo, TipoTarea
+from django.db.models import fields
+from django.db.models.base import Model
+from mantenimiento.models import Especialidad, Notificacion, ParteTrabajo, Tarea, TipoPeriodo, TipoTarea, LineaParteTrabajo
 from administracion.serializers import UserSerializer
 from estructura.serializers import EquipoSerializer
 
@@ -11,15 +13,14 @@ class NotificacionSerializer(serializers.ModelSerializer):
         fields = ['id', 'numero', 'que', 'cuando', 'donde', 'quien', 'como', 'cuanto', 'porque', 'empresa', 'fecha_creacion', 'para', 'revisado', 'descartado', 'finalizado', 'conclusion']
 
 class TareaSerializer(serializers.ModelSerializer):
-    #equipo = EquipoSerializer(many=False, read_only=False)
     class Meta:
         model = Tarea
-        fields = ['id', 'nombre', 'tipo', 'especialidad', 'tipo_periodo', 'periodo', 'prioridad', 'observaciones', 'tipo_nombre', 'especialidad_nombre', 'pendiente']
+        fields = ['id', 'nombre', 'especialidad', 'prioridad', 'observaciones', 'especialidad_nombre']
 
 class TareaNuevaSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tarea
-        fields = ['id', 'nombre', 'tipo', 'especialidad', 'tipo_periodo', 'periodo', 'prioridad', 'observaciones', 'tipo_nombre', 'especialidad_nombre', 'pendiente']
+        fields = ['id', 'nombre', 'especialidad', 'prioridad', 'observaciones', 'especialidad_nombre']
 
 class EspecialidadSerializer(serializers.ModelSerializer):
     class Meta:
@@ -37,9 +38,31 @@ class TipoPeriodoSerializer(serializers.ModelSerializer):
         fields = ['id', 'nombre']
 
 class ParteTrabajoSerializer(serializers.ModelSerializer):
-    equipo = EquipoSerializer(many=False, read_only=True)
-    creada_por = UserSerializer(many=False, read_only=True)
     class Meta:
         model = ParteTrabajo
-        fields = ['id', 'nombre', 'tipo', 'creada_por', 'observaciones', 'finalizado', 'fecha_creacion', 'fecha_finalizacion', 'equipo', 'tipo_nombre', 'creado_nombre']
+        fields = ['id', 'nombre', 'tipo', 'creado_por', 'observaciones', 'finalizado', 'fecha_creacion', 'fecha_finalizacion', 'equipo', 'tipo_nombre', 'tipo_periodo', 'periodo', 'fecha_prevista_inicio', 'zona', 'seccion', 'empresa']
 
+class ParteTrabajoDetalleSerializer(serializers.ModelSerializer):
+    #equipo = EquipoSerializer(many=False, read_only=True)
+    creado_por = UserSerializer(many=False, read_only=True)
+    #tareas = LineaParteTrabajoSerializer(many=True, read_only=True)
+    class Meta:
+        model = ParteTrabajo
+        fields = ['id', 'nombre', 'tipo', 'creado_por', 'observaciones', 'finalizado', 'fecha_creacion', 'fecha_finalizacion', 'equipo', 'tipo_nombre', 'tipo_periodo', 'periodo', 'fecha_prevista_inicio', 'zona', 'seccion', 'empresa']
+
+class LineaParteTrabajoSerializer(serializers.ModelSerializer):
+    #parte = ParteTrabajoDetalleSerializer(many=False, read_only=True)
+    tarea = TareaSerializer(many=False, read_only=True)
+    class Meta:
+        model = LineaParteTrabajo
+        fields = ['id', 'parte', 'tarea', 'fecha_inicio', 'fecha_fin']
+
+class LineaParteTrabajoMovSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = LineaParteTrabajo
+        fields = ['id', 'parte', 'tarea', 'fecha_inicio', 'fecha_fin']
+
+class LineaParteTrabajoNuevaSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = LineaParteTrabajo
+        fields = ['id', 'parte', 'tarea', 'fecha_inicio', 'fecha_fin']
