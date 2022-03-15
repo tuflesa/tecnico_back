@@ -125,6 +125,7 @@ class ParteTrabajo(models.Model):
     seccion = models.ForeignKey(Seccion, on_delete=models.CASCADE, blank=True, null=True, related_name='partes_creados')
     tipo_periodo = models.ForeignKey(TipoPeriodo, on_delete=models.CASCADE, null=True, blank=True)
     periodo = models.IntegerField(default=0)
+    tarea = models.ManyToManyField(Tarea, blank=True, null=True, related_name='partes')
 
     """ def finalizado(self):
         fin = True

@@ -67,7 +67,7 @@ class EspecialidadViewSet(viewsets.ModelViewSet):
 
 class TareaViewSet(viewsets.ModelViewSet):
     serializer_class = TareaSerializer
-    queryset = Tarea.objects.all()
+    queryset = Tarea.objects.all().distinct()
     filterset_class = TareaFilter
 
 class TareaNuevaViewSet(viewsets.ModelViewSet):
@@ -85,7 +85,7 @@ class TipoPeriodoViewSet(viewsets.ModelViewSet):
 
 class LineaParteTrabajoViewSet(viewsets.ModelViewSet):
     serializer_class = LineaParteTrabajoSerializer
-    queryset = LineaParteTrabajo.objects.all().distinct()
+    queryset = LineaParteTrabajo.objects.all()
     filterset_class = LineasFilter
 
 class LineaParteTrabajoMovViewSet(viewsets.ModelViewSet):
