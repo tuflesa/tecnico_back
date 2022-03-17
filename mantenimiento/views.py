@@ -1,6 +1,6 @@
 from rest_framework import viewsets
 from mantenimiento.models import Notificacion, ParteTrabajo, Tarea, Especialidad, TipoPeriodo, TipoTarea, LineaParteTrabajo
-from mantenimiento.serializers import NotificacionSerializer, TareaSerializer, EspecialidadSerializer, TipoTareaSerializer, TipoPeriodoSerializer, TareaNuevaSerializer, ParteTrabajoSerializer, ParteTrabajoDetalleSerializer, LineaParteTrabajoSerializer, LineaParteTrabajoNuevaSerializer, LineaParteTrabajoMovSerializer
+from mantenimiento.serializers import NotificacionSerializer, TareaSerializer, EspecialidadSerializer, TipoTareaSerializer, TipoPeriodoSerializer, TareaNuevaSerializer, ParteTrabajoSerializer, ParteTrabajoDetalleSerializer, LineaParteTrabajoSerializer, LineaParteTrabajoNuevaSerializer, LineaParteTrabajoMovSerializer, ListadoLineasPartesSerializer
 from django_filters import rest_framework as filters
 from django.db.models import Count, F, Value
 
@@ -95,6 +95,10 @@ class LineaParteTrabajoMovViewSet(viewsets.ModelViewSet):
 
 class LineaParteTrabajoNuevaViewSet(viewsets.ModelViewSet):
     serializer_class = LineaParteTrabajoNuevaSerializer
+    queryset = LineaParteTrabajo.objects.all()
+
+class ListadoLineaParteViewSet(viewsets.ModelViewSet):
+    serializer_class = ListadoLineasPartesSerializer
     queryset = LineaParteTrabajo.objects.all()
 
 class ParteTrabajoViewSet(viewsets.ModelViewSet):
