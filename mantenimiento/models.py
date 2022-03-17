@@ -161,6 +161,7 @@ class LineaParteTrabajo(models.Model):
     tarea = models.ForeignKey(Tarea, on_delete=models.CASCADE)
     fecha_inicio = models.DateField(blank=True, null=True)
     fecha_fin = models.DateField(blank=True, null=True)
+    finalizada = models.BooleanField(default=False)
     #responsables = models.ManyToManyField(User, related_name='lineas_parte_trabajo')
 
     def __str__(self):

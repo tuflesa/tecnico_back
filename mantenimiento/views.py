@@ -21,7 +21,7 @@ class TareaFilter(filters.FilterSet):
         fields = {
             'nombre': ['icontains'],
             'especialidad': ['exact'],
-            'prioridad': ['lte', 'gte'],
+            'prioridad': ['lte', 'gte'],            
         }
 
 class LineasFilter(filters.FilterSet):
@@ -29,7 +29,19 @@ class LineasFilter(filters.FilterSet):
         model = LineaParteTrabajo
         fields = {
             'parte': ['exact'],
-            'tarea': ['exact'],
+            'tarea': ['exact'],            
+            'tarea__nombre': ['icontains'],
+            'tarea__especialidad': ['exact'],
+            'tarea__prioridad': ['lte', 'gte'],
+            'parte__tipo': ['exact'],
+            'parte__empresa__id' : ['exact'],
+            'parte__zona__id': ['exact'],
+            'parte__seccion__id': ['exact'],
+            'parte__equipo__id': ['exact'],
+            'finalizada': ['exact'],
+            'parte__nombre': ['icontains'],
+            'fecha_inicio': ['lte', 'gte'],
+            'fecha_fin': ['lte', 'gte'],
         }
 
 class EspecialidadFilter(filters.FilterSet):
@@ -100,6 +112,7 @@ class LineaParteTrabajoNuevaViewSet(viewsets.ModelViewSet):
 class ListadoLineaParteViewSet(viewsets.ModelViewSet):
     serializer_class = ListadoLineasPartesSerializer
     queryset = LineaParteTrabajo.objects.all()
+    filterset_class = LineasFilter
 
 class ParteTrabajoViewSet(viewsets.ModelViewSet):
     serializer_class = ParteTrabajoSerializer

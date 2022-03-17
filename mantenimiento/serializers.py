@@ -55,21 +55,21 @@ class LineaParteTrabajoSerializer(serializers.ModelSerializer):
     tarea = TareaSerializer(many=False, read_only=True)
     class Meta:
         model = LineaParteTrabajo
-        fields = ['id', 'parte', 'tarea', 'fecha_inicio', 'fecha_fin']
+        fields = ['id', 'parte', 'tarea', 'fecha_inicio', 'fecha_fin', 'finalizada']
 
 class LineaParteTrabajoMovSerializer(serializers.ModelSerializer):
     class Meta:
         model = LineaParteTrabajo
-        fields = ['id', 'parte', 'tarea', 'fecha_inicio', 'fecha_fin']
+        fields = ['id', 'parte', 'tarea', 'fecha_inicio', 'fecha_fin', 'finalizada']
 
 class LineaParteTrabajoNuevaSerializer(serializers.ModelSerializer):
     class Meta:
         model = LineaParteTrabajo
-        fields = ['id', 'parte', 'tarea', 'fecha_inicio', 'fecha_fin']
+        fields = ['id', 'parte', 'tarea', 'fecha_inicio', 'fecha_fin', 'finalizada']
 
 class ListadoLineasPartesSerializer(serializers.ModelSerializer):
     parte = ParteTrabajoSerializer(many=False, read_only=True)
     tarea = TareaSerializer(many=False, read_only=True)
     class Meta:
         model = LineaParteTrabajo
-        fields = ['id', 'parte', 'tarea', 'fecha_inicio', 'fecha_fin']
+        fields = ['id', 'parte', 'tarea', 'fecha_inicio', 'fecha_fin', 'finalizada']
