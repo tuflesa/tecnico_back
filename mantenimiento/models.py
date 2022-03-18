@@ -159,6 +159,7 @@ class ParteTrabajo(models.Model):
 class LineaParteTrabajo(models.Model):
     parte = models.ForeignKey(ParteTrabajo, on_delete=models.CASCADE, related_name='lineas')
     tarea = models.ForeignKey(Tarea, on_delete=models.CASCADE)
+    fecha_plan = models.DateField(blank=True, null=True)
     fecha_inicio = models.DateField(blank=True, null=True)
     fecha_fin = models.DateField(blank=True, null=True)
     finalizada = models.BooleanField(default=False)
