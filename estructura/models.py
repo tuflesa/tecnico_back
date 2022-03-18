@@ -23,6 +23,8 @@ class Zona(models.Model):
 
     def __str__(self):
         return self.empresa.siglas + '-' + self.nombre
+    def empresa_id(self):
+        return self.empresa.id
 
 class Seccion(models.Model):
     nombre = models.CharField(max_length=50)

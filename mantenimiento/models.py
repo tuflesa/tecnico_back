@@ -2,7 +2,8 @@ from xmlrpc.client import boolean
 from django.db import models
 from django.db.models.base import Model
 from django.db.models.deletion import SET_NULL
-from estructura.models import Empresa, Equipo
+#from django.db.models.deletion import CASCADE
+from estructura.models import Empresa, Equipo, Seccion, Zona
 from django.contrib.auth.models import User
 from django.utils import timezone
 import datetime
@@ -93,23 +94,15 @@ class TipoPeriodo(models.Model): # Anual, Mensual, Semanal ...
 
 class Tarea(models.Model): 
     nombre = models.CharField(max_length=150)
-    #equipo = models.ForeignKey(Equipo, on_delete=models.CASCADE)
-    tipo = models.ForeignKey(TipoTarea, on_delete=models.CASCADE)
-    especialidad = models.ForeignKey(Especialidad, on_delete=models.CASCADE)
-    tipo_periodo = models.ForeignKey(TipoPeriodo, on_delete=models.CASCADE, null=True, blank=True)
-    periodo = models.IntegerField(null=True, blank=True)
+    especialidad = models.ForeignKey(Especialidad, on_delete=models.CASCADE)    
     prioridad = models.IntegerField(default=50) # Número de 0 a 100. 100 máxima prioridad
-    observaciones = models.TextField()
-    pendiente = models.BooleanField()
+    observaciones = models.TextField(blank=True, null=True)
 
     """ def equipo_nombre(self):
         return self.equipo.nombre """
 
     def especialidad_nombre(self):
         return self.especialidad.nombre
-    
-    def tipo_nombre(self):
-        return self.tipo.nombre    
     
     def __str__(self):
         return self.nombre
@@ -119,13 +112,20 @@ class ParteTrabajo(models.Model):
     nombre = models.CharField(max_length=150)
     #notificacion = models.ForeignKey(Notificacion, on_delete=models.CASCADE, null=True, blank=True, related_name='partes')
     tipo = models.ForeignKey(TipoTarea, on_delete=models.CASCADE)
-    creada_por = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='partes_creados')
+    creado_por = models.ForeignKey(User, on_delete=models.SET_NULL, blank=True, null=True)
     #responsable = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='partes_responsable')
     finalizado = models.BooleanField(default=False)
     observaciones = models.TextField(blank=True, null=True)
     fecha_creacion = models.DateField(default=timezone.now)
+    fecha_prevista_inicio = models.DateField(blank=True, null=True)
     fecha_finalizacion = models.DateField(blank=True, null=True)
     equipo = models.ForeignKey(Equipo, on_delete=models.CASCADE, blank=True, null=True, related_name='partes_creados')
+    zona = models.ForeignKey(Zona, on_delete=models.CASCADE, blank=True, null=True, related_name='partes_creados')
+    empresa = models.ForeignKey(Empresa, on_delete=models.CASCADE, blank=True, null=True, related_name='partes_creados')
+    seccion = models.ForeignKey(Seccion, on_delete=models.CASCADE, blank=True, null=True, related_name='partes_creados')
+    tipo_periodo = models.ForeignKey(TipoPeriodo, on_delete=models.CASCADE, null=True, blank=True)
+    periodo = models.IntegerField(default=0)
+    tarea = models.ManyToManyField(Tarea, blank=True, related_name='partes')
 
     """ def finalizado(self):
         fin = True
@@ -150,8 +150,8 @@ class ParteTrabajo(models.Model):
     def tipo_nombre(self):
         return self.tipo.nombre  
     
-    def creado_nombre(self):
-        return self.creada_por.get_full_name() 
+    """ def creado_nombre(self):
+        return self.creada_por.get_full_name()  """
 
     def __str__(self):
         return self.nombre
@@ -161,6 +161,7 @@ class LineaParteTrabajo(models.Model):
     tarea = models.ForeignKey(Tarea, on_delete=models.CASCADE)
     fecha_inicio = models.DateField(blank=True, null=True)
     fecha_fin = models.DateField(blank=True, null=True)
+    finalizada = models.BooleanField(default=False)
     #responsables = models.ManyToManyField(User, related_name='lineas_parte_trabajo')
 
     def __str__(self):
