@@ -42,6 +42,7 @@ class LineasFilter(filters.FilterSet):
             'parte__nombre': ['icontains'],
             'fecha_inicio': ['lte', 'gte'],
             'fecha_fin': ['lte', 'gte'],
+            'fecha_plan': ['lte', 'gte'],
         }
 
 class EspecialidadFilter(filters.FilterSet):
