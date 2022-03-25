@@ -122,6 +122,7 @@ class LineaParteTrabajoMovViewSet(viewsets.ModelViewSet):
 class LineaParteTrabajoNuevaViewSet(viewsets.ModelViewSet):
     serializer_class = LineaParteTrabajoNuevaSerializer
     queryset = LineaParteTrabajo.objects.all()
+    filterset_class = LineasFilter
 
 class ListadoLineaParteViewSet(viewsets.ModelViewSet):
     serializer_class = ListadoLineasPartesSerializer

@@ -60,6 +60,13 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+CORS_ORIGIN_WHITELIST = ["http://localhost:3000"]
+CORS_EXPOSE_HEADERS = ['X-CSRFToken', 'csrftoken']
+CORS_ALLOW_CREDENTIALS = True
+CSRF_COOKIE_SAMESITE = None
+CSRF_COOKIE_HTTPONLY = True
+CSRF_COOKIE_SECURE = True
+
 ROOT_URLCONF = 'tecnico.urls'
 
 TEMPLATES = [
