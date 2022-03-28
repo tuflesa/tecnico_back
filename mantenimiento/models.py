@@ -106,7 +106,12 @@ class Tarea(models.Model):
     
     def __str__(self):
         return self.nombre
-    
+
+class EstadoLineasTareas(models.Model): # Planificadas, En Ejecución, Finalizadas ... 
+    nombre = models.CharField(max_length=25)
+
+    def __str__(self):
+        return self.nombre 
 
 class ParteTrabajo(models.Model):
     nombre = models.CharField(max_length=150)
@@ -126,6 +131,7 @@ class ParteTrabajo(models.Model):
     tipo_periodo = models.ForeignKey(TipoPeriodo, on_delete=models.CASCADE, null=True, blank=True)
     periodo = models.IntegerField(default=0)
     tarea = models.ManyToManyField(Tarea, blank=True, related_name='partes')
+    estado = models.ForeignKey(EstadoLineasTareas, on_delete=models.SET_NULL, blank=True, null=True)
 
     """ def finalizado(self):
         fin = True
@@ -152,12 +158,6 @@ class ParteTrabajo(models.Model):
     
     """ def creado_nombre(self):
         return self.creada_por.get_full_name()  """
-
-    def __str__(self):
-        return self.nombre
-
-class EstadoLineasTareas(models.Model): # Planificadas, En Ejecución, Finalizadas ... 
-    nombre = models.CharField(max_length=25)
 
     def __str__(self):
         return self.nombre

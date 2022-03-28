@@ -67,6 +67,7 @@ class PartesFilter(filters.FilterSet):
             'seccion__id': ['exact'],
             'equipo__id': ['exact'],
             'fecha_prevista_inicio': ['lte', 'gte'],
+            'estado': ['exact'],
         }
 
 class EstadoLineasTareasFilter(filters.FilterSet):
