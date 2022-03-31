@@ -155,6 +155,9 @@ class ParteTrabajo(models.Model):
 
     def tipo_nombre(self):
         return self.tipo.nombre  
+
+    def estado_nombre(self):
+        return self.estado.nombre 
     
     """ def creado_nombre(self):
         return self.creada_por.get_full_name()  """

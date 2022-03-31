@@ -21,7 +21,8 @@ class TareaFilter(filters.FilterSet):
         fields = {
             'nombre': ['icontains'],
             'especialidad': ['exact'],
-            'prioridad': ['lte', 'gte'],            
+            'prioridad': ['lte', 'gte'],  
+            'id': ['exact'],          
         }
 
 class LineasFilter(filters.FilterSet):
