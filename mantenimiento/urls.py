@@ -1,7 +1,8 @@
 from rest_framework import routers
-from .views import NotificacionViewSet, TareaViewSet, EspecialidadViewSet, TipoTareaViewSet, TipoPeriodoViewSet, TareaNuevaViewSet, ParteTrabajoViewSet, ParteTrabajoDetalleViewSet, LineaParteTrabajoViewSet, LineaParteTrabajoNuevaViewSet, LineaParteTrabajoMovViewSet, ListadoLineaParteViewSet
+from .views import NotificacionViewSet, TareaViewSet, EspecialidadViewSet, TipoTareaViewSet, TipoPeriodoViewSet, TareaNuevaViewSet, ParteTrabajoViewSet, ParteTrabajoDetalleViewSet, LineaParteTrabajoViewSet, LineaParteTrabajoNuevaViewSet, LineaParteTrabajoMovViewSet, ListadoLineaParteViewSet, EstadoLineasTareasViewSet
 
 router = routers.DefaultRouter()
+router.register('estados', EstadoLineasTareasViewSet)
 router.register('linea_nueva', LineaParteTrabajoNuevaViewSet)
 router.register('lineas_parte_trabajo', LineaParteTrabajoViewSet)
 router.register('listado_lineas_partes', ListadoLineaParteViewSet)
