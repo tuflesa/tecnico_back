@@ -1,6 +1,6 @@
 from rest_framework import viewsets
-from mantenimiento.models import Notificacion, ParteTrabajo, Tarea, Especialidad, TipoPeriodo, TipoTarea, LineaParteTrabajo, EstadoLineasTareas
-from mantenimiento.serializers import NotificacionSerializer, TareaSerializer, EspecialidadSerializer, TipoTareaSerializer, TipoPeriodoSerializer, TareaNuevaSerializer, ParteTrabajoSerializer, ParteTrabajoDetalleSerializer, LineaParteTrabajoSerializer, LineaParteTrabajoNuevaSerializer, LineaParteTrabajoMovSerializer, ListadoLineasPartesSerializer, EstadoLineasTareasSerializer
+from mantenimiento.models import Notificacion, ParteTrabajo, Tarea, Especialidad, TipoPeriodo, TipoTarea, LineaParteTrabajo, EstadoLineasTareas, TrabajadoresLineaParte
+from mantenimiento.serializers import NotificacionSerializer, TareaSerializer, EspecialidadSerializer, TipoTareaSerializer, TipoPeriodoSerializer, TareaNuevaSerializer, ParteTrabajoSerializer, ParteTrabajoDetalleSerializer, LineaParteTrabajoSerializer, LineaParteTrabajoNuevaSerializer, LineaParteTrabajoMovSerializer, ListadoLineasPartesSerializer, EstadoLineasTareasSerializer, TrabajadoresLineaParteSerializer, ListadoLineasActivasSerializer
 from django_filters import rest_framework as filters
 from django.db.models import Count, F, Value
 
@@ -78,6 +78,13 @@ class EstadoLineasTareasFilter(filters.FilterSet):
             'nombre': ['exact'],
         }
 
+class TrabajadoresLineaParteFilter(filters.FilterSet):
+    class Meta:
+        model = TrabajadoresLineaParte
+        fields = {
+            'trabajador': ['exact'],
+        }
+
 class NotificacionViewSet(viewsets.ModelViewSet):
     serializer_class = NotificacionSerializer
     queryset = Notificacion.objects.all()
@@ -131,6 +138,12 @@ class ListadoLineaParteViewSet(viewsets.ModelViewSet):
     queryset = LineaParteTrabajo.objects.all()
     filterset_class = LineasFilter
 
+#excluimos de la busqueda aquellas con estado 3 = finalizadas y 4 = pendientes
+class ListadoLineaActivasViewSet(viewsets.ModelViewSet):
+    serializer_class = ListadoLineasActivasSerializer
+    queryset = LineaParteTrabajo.objects.all().exclude(estado=3).exclude(estado=4)
+    filterset_class = LineasFilter
+
 class ParteTrabajoViewSet(viewsets.ModelViewSet):
     serializer_class = ParteTrabajoSerializer
     #queryset = ParteTrabajo.objects.filter(tareas__gt=0)
@@ -141,3 +154,8 @@ class ParteTrabajoDetalleViewSet(viewsets.ModelViewSet):
     serializer_class = ParteTrabajoDetalleSerializer
     queryset = ParteTrabajo.objects.all()
     filterset_class = PartesFilter
+
+class TrabajadoresLineaParteViewSet(viewsets.ModelViewSet):
+    serializer_class = TrabajadoresLineaParteSerializer
+    queryset = TrabajadoresLineaParte.objects.all()
+    filterset_class = TrabajadoresLineaParteFilter

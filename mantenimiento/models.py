@@ -176,6 +176,13 @@ class LineaParteTrabajo(models.Model):
 
     def __str__(self):
         return self.tarea.nombre
+        
+class TrabajadoresLineaParte(models.Model):
+    linea = models.ForeignKey(LineaParteTrabajo, on_delete=models.CASCADE, related_name='lineas')
+    fecha_inicio = models.DateField(blank=True, null=True)
+    fecha_fin = models.DateField(blank=True, null=True)
+    trabajador = models.ForeignKey(User, on_delete=models.SET_NULL, blank=True, null=True)
+
 
 
 

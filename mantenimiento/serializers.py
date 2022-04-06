@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from django.db.models import fields
 from django.db.models.base import Model
-from mantenimiento.models import Especialidad, Notificacion, ParteTrabajo, Tarea, TipoPeriodo, TipoTarea, LineaParteTrabajo, EstadoLineasTareas
+from mantenimiento.models import Especialidad, Notificacion, ParteTrabajo, Tarea, TipoPeriodo, TipoTarea, LineaParteTrabajo, EstadoLineasTareas, TrabajadoresLineaParte
 from administracion.serializers import UserSerializer
 from estructura.serializers import EquipoSerializer
 
@@ -78,3 +78,15 @@ class ListadoLineasPartesSerializer(serializers.ModelSerializer):
     class Meta:
         model = LineaParteTrabajo
         fields = ['id', 'parte', 'tarea', 'fecha_inicio', 'fecha_fin', 'estado', 'fecha_plan']
+
+class ListadoLineasActivasSerializer(serializers.ModelSerializer):
+    parte = ParteTrabajoSerializer(many=False, read_only=True)
+    tarea = TareaSerializer(many=False, read_only=True)
+    class Meta:
+        model = LineaParteTrabajo
+        fields = ['id', 'parte', 'tarea', 'fecha_inicio', 'fecha_fin', 'estado', 'fecha_plan']
+
+class TrabajadoresLineaParteSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TrabajadoresLineaParte
+        fields = ['id', 'linea', 'fecha_inicio', 'fecha_fin', 'trabajador']
