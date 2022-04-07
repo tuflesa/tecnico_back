@@ -1,6 +1,6 @@
 from rest_framework import viewsets
 from mantenimiento.models import Notificacion, ParteTrabajo, Tarea, Especialidad, TipoPeriodo, TipoTarea, LineaParteTrabajo, EstadoLineasTareas, TrabajadoresLineaParte
-from mantenimiento.serializers import NotificacionSerializer, TareaSerializer, EspecialidadSerializer, TipoTareaSerializer, TipoPeriodoSerializer, TareaNuevaSerializer, ParteTrabajoSerializer, ParteTrabajoDetalleSerializer, LineaParteTrabajoSerializer, LineaParteTrabajoNuevaSerializer, LineaParteTrabajoMovSerializer, ListadoLineasPartesSerializer, EstadoLineasTareasSerializer, TrabajadoresLineaParteSerializer, ListadoLineasActivasSerializer
+from mantenimiento.serializers import NotificacionSerializer, TareaSerializer, EspecialidadSerializer, TipoTareaSerializer, TipoPeriodoSerializer, TareaNuevaSerializer, ParteTrabajoSerializer, ParteTrabajoDetalleSerializer, LineaParteTrabajoSerializer, LineaParteTrabajoNuevaSerializer, LineaParteTrabajoMovSerializer, ListadoLineasPartesSerializer, EstadoLineasTareasSerializer, TrabajadoresLineaParteSerializer, ListadoLineasActivasSerializer, TrabajadoresEnLineaSerializer
 from django_filters import rest_framework as filters
 from django.db.models import Count, F, Value
 
@@ -83,6 +83,7 @@ class TrabajadoresLineaParteFilter(filters.FilterSet):
         model = TrabajadoresLineaParte
         fields = {
             'trabajador': ['exact'],
+            'linea': ['exact'],
         }
 
 class NotificacionViewSet(viewsets.ModelViewSet):
@@ -157,5 +158,10 @@ class ParteTrabajoDetalleViewSet(viewsets.ModelViewSet):
 
 class TrabajadoresLineaParteViewSet(viewsets.ModelViewSet):
     serializer_class = TrabajadoresLineaParteSerializer
+    queryset = TrabajadoresLineaParte.objects.all()
+    filterset_class = TrabajadoresLineaParteFilter
+
+class TrabajadoresEnLineaViewSet(viewsets.ModelViewSet):
+    serializer_class = TrabajadoresEnLineaSerializer
     queryset = TrabajadoresLineaParte.objects.all()
     filterset_class = TrabajadoresLineaParteFilter

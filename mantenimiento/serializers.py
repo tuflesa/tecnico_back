@@ -90,3 +90,9 @@ class TrabajadoresLineaParteSerializer(serializers.ModelSerializer):
     class Meta:
         model = TrabajadoresLineaParte
         fields = ['id', 'linea', 'fecha_inicio', 'fecha_fin', 'trabajador']
+
+class TrabajadoresEnLineaSerializer(serializers.ModelSerializer):
+    trabajador = UserSerializer(many=False, read_only=True)
+    class Meta:
+        model = TrabajadoresLineaParte
+        fields = ['id', 'linea', 'fecha_inicio', 'fecha_fin', 'trabajador']
