@@ -44,6 +44,7 @@ class LineasFilter(filters.FilterSet):
             'fecha_fin': ['lte', 'gte'],
             'fecha_plan': ['lte', 'gte'],
             'estado': ['exact'],
+            'id': ['exact'],
 
         }
 
