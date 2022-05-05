@@ -108,7 +108,7 @@ class PedidoListSerilizer(serializers.ModelSerializer):
     creado_por = UserSerializer(many=False, read_only=True)
     class Meta:
         model = Pedido
-        fields = ['id','proveedor','empresa', 'numero', 'fecha_creacion', 'fecha_entrega', 'fecha_prevista_entrega', 'finalizado', 'creado_por', 'direccion_envio', 'contacto', 'observaciones']
+        fields = ['id','proveedor','empresa', 'numero', 'fecha_creacion', 'fecha_entrega', 'fecha_prevista_entrega', 'finalizado', 'creado_por', 'direccion_envio', 'contacto', 'observaciones', 'observaciones2']
 
 class LineaPedidoDetailSerilizer(serializers.ModelSerializer):
     repuesto = RepuestoListSerializer(many=False, read_only=True)    
@@ -149,12 +149,12 @@ class PedidoDetailSerilizer(serializers.ModelSerializer):
     direccion_envio = DireccionesEmpresaSerializer(many=False)
     class Meta:
         model = Pedido
-        fields = ['id', 'proveedor', 'empresa', 'numero', 'fecha_creacion', 'fecha_entrega', 'fecha_prevista_entrega', 'finalizado', 'contacto', 'direccion_envio', 'lineas_pedido', 'creado_por', 'lineas_adicionales', 'observaciones']
+        fields = ['id', 'proveedor', 'empresa', 'numero', 'fecha_creacion', 'fecha_entrega', 'fecha_prevista_entrega', 'finalizado', 'contacto', 'direccion_envio', 'lineas_pedido', 'creado_por', 'lineas_adicionales', 'observaciones', 'observaciones2']
 
 class PedidoSerilizer(serializers.ModelSerializer):
     class Meta:
         model = Pedido
-        fields = ['id', 'proveedor','empresa', 'numero', 'fecha_creacion', 'fecha_entrega', 'fecha_prevista_entrega', 'finalizado', 'creado_por','contacto','direccion_envio', 'observaciones']
+        fields = ['id', 'proveedor','empresa', 'numero', 'fecha_creacion', 'fecha_entrega', 'fecha_prevista_entrega', 'finalizado', 'creado_por','contacto','direccion_envio', 'observaciones', 'observaciones2']
 
 class SalidasSerializer(serializers.ModelSerializer):
     class Meta:
