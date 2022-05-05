@@ -96,6 +96,7 @@ class Tarea(models.Model):
     nombre = models.CharField(max_length=150)
     especialidad = models.ForeignKey(Especialidad, on_delete=models.CASCADE)    
     prioridad = models.IntegerField(default=50) # Número de 0 a 100. 100 máxima prioridad
+    trabajo = models.TextField(blank=True, null=True) #trabajo a realizar, detalles
     observaciones = models.TextField(blank=True, null=True)
 
     """ def equipo_nombre(self):

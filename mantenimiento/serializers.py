@@ -15,12 +15,12 @@ class NotificacionSerializer(serializers.ModelSerializer):
 class TareaSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tarea
-        fields = ['id', 'nombre', 'especialidad', 'prioridad', 'observaciones', 'especialidad_nombre']
+        fields = ['id', 'nombre', 'especialidad', 'prioridad', 'observaciones', 'especialidad_nombre', 'trabajo']
 
 class TareaNuevaSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tarea
-        fields = ['id', 'nombre', 'especialidad', 'prioridad', 'observaciones', 'especialidad_nombre']
+        fields = ['id', 'nombre', 'especialidad', 'prioridad', 'observaciones', 'especialidad_nombre', 'trabajo']
 
 class EspecialidadSerializer(serializers.ModelSerializer):
     class Meta:
