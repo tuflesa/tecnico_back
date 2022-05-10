@@ -112,7 +112,8 @@ class EstadoLineasTareas(models.Model): # Planificadas, En Ejecución, Finalizad
     nombre = models.CharField(max_length=25)
 
     def __str__(self):
-        return self.nombre 
+        return self.nombre
+
 
 class ParteTrabajo(models.Model):
     nombre = models.CharField(max_length=150)
