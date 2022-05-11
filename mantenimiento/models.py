@@ -114,6 +114,13 @@ class EstadoLineasTareas(models.Model): # Planificadas, En Ejecución, Finalizad
     def __str__(self):
         return self.nombre
 
+class ContadorPartes(models.Model):
+    year = models.IntegerField()
+    empresa = models.ForeignKey(Empresa, on_delete=models.CASCADE)
+    contador_parte = models.IntegerField(default=0)
+
+    def __str__(self):
+        return str(self.year) + '-' + str(self.contador_parte)
 
 class ParteTrabajo(models.Model):
     nombre = models.CharField(max_length=150)
@@ -134,6 +141,30 @@ class ParteTrabajo(models.Model):
     periodo = models.IntegerField(default=0)
     tarea = models.ManyToManyField(Tarea, blank=True, related_name='partes')
     estado = models.ForeignKey(EstadoLineasTareas, on_delete=models.SET_NULL, blank=True, null=True)
+    num_parte = models.CharField(max_length=16, null=True, blank=True, default=None)
+
+    def save(self, *args, **kwargs):
+        # Generar nuevo número si el campo num_parte es None (null)
+        if self.num_parte is None:
+            currentDateTime = datetime.datetime.now()
+            date = currentDateTime.date()
+            year = date.strftime("%Y")
+
+            contador_parte = ContadorPartes.objects.filter(year=year, empresa=self.empresa)
+            if (len(contador_parte)==0):
+                contador_parte = ContadorPartes(year=year, contador_parte=0, empresa=self.empresa)
+                contador_parte.save()
+                num_parte=1
+            else:
+                contador_parte = ContadorPartes.objects.get(year=year, empresa=self.empresa)
+                num_parte=contador_parte.contador_parte+1
+
+            contador_parte.contador_parte = num_parte
+            contador_parte.save()
+
+            self.num_parte = self.empresa.siglas + '-' + year + '-N-' + str(num_parte).zfill(3)
+        # Llamar al metodo save por defecto de la clase
+        super(ParteTrabajo,self).save(*args, **kwargs)
 
     """ def finalizado(self):
         fin = True

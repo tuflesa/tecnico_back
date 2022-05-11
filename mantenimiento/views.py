@@ -72,6 +72,7 @@ class PartesFilter(filters.FilterSet):
             'fecha_prevista_inicio': ['lte', 'gte'],
             'estado': ['exact'],
             'tipo_periodo__nombre': ['exact'],
+            'num_parte': ['icontains'],
         }
 
 class EstadoLineasTareasFilter(filters.FilterSet):
