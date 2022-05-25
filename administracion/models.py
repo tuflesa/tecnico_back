@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 from estructura.models import Empresa, Zona, Seccion
+from mantenimiento.models import Especialidad
 
 class Aplicacion(models.Model):
     nombre = models.CharField(max_length=50)
@@ -31,6 +32,7 @@ class Perfil(models.Model):
     seccion = models.ForeignKey(Seccion, null=True, blank=True, on_delete=models.CASCADE)
     puesto = models.ForeignKey(Puesto, on_delete=models.CASCADE)
     nivel_acceso = models.ForeignKey(NivelAcceso, on_delete=models.CASCADE)
+    destrezas = models.ManyToManyField(Especialidad, blank=True, related_name='operarios')
 
     def __str__(self):
         return self.usuario.get_full_name() 

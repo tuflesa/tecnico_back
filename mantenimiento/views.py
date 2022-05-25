@@ -1,6 +1,6 @@
 from rest_framework import viewsets
 from mantenimiento.models import Notificacion, ParteTrabajo, Tarea, Especialidad, TipoPeriodo, TipoTarea, LineaParteTrabajo, EstadoLineasTareas, TrabajadoresLineaParte
-from mantenimiento.serializers import NotificacionSerializer, TareaSerializer, EspecialidadSerializer, TipoTareaSerializer, TipoPeriodoSerializer, TareaNuevaSerializer, ParteTrabajoSerializer, ParteTrabajoDetalleSerializer, LineaParteTrabajoSerializer, LineaParteTrabajoNuevaSerializer, LineaParteTrabajoMovSerializer, ListadoLineasPartesSerializer, EstadoLineasTareasSerializer, TrabajadoresLineaParteSerializer, ListadoLineasActivasSerializer, TrabajadoresEnLineaSerializer
+from mantenimiento.serializers import ParteTrabajoEditarSerializer, NotificacionSerializer, NotificacionNuevaSerializer, TareaSerializer, EspecialidadSerializer, TipoTareaSerializer, TipoPeriodoSerializer, TareaNuevaSerializer, ParteTrabajoSerializer, ParteTrabajoDetalleSerializer, LineaParteTrabajoSerializer, LineaParteTrabajoNuevaSerializer, LineaParteTrabajoMovSerializer, ListadoLineasPartesSerializer, EstadoLineasTareasSerializer, TrabajadoresLineaParteSerializer, ListadoLineasActivasSerializer, TrabajadoresEnLineaSerializer
 from django_filters import rest_framework as filters
 from django.db.models import Count, F, Value
 
@@ -8,12 +8,13 @@ class NotificacionFilter(filters.FilterSet):
     class Meta:
         model = Notificacion
         fields = {
-            'empresa': ['exact'],
+            'empresa__id': ['exact'],
             'que': ['icontains'],
             'revisado': ['exact'],
             'descartado': ['exact'],
             'finalizado': ['exact'],
-            
+            'quien' :['exact'],
+            'fecha_creacion' : ['lte', 'gte'], 
         }
 class TareaFilter(filters.FilterSet):
     class Meta:
@@ -22,7 +23,8 @@ class TareaFilter(filters.FilterSet):
             'nombre': ['icontains'],
             'especialidad': ['exact'],
             'prioridad': ['lte', 'gte'],  
-            'id': ['exact'],          
+            'id': ['exact'],
+            'tipo_periodo' : ['exact'],     
         }
 
 class LineasFilter(filters.FilterSet):
@@ -45,13 +47,22 @@ class LineasFilter(filters.FilterSet):
             'fecha_plan': ['lte', 'gte'],
             'estado': ['exact'],
             'id': ['exact'],
-            'parte__tipo_periodo': ['exact']
+            'parte__zona' : ['exact'],
+            'parte__seccion' : ['exact'],
+            'parte__equipo' : ['exact'],
 
         }
 
 class EspecialidadFilter(filters.FilterSet):
     class Meta:
         model = Especialidad
+        fields = {
+            'nombre': ['icontains'],
+        }
+
+class TipoPeriodoFilter(filters.FilterSet):
+    class Meta:
+        model = TipoPeriodo
         fields = {
             'nombre': ['icontains'],
         }
@@ -71,7 +82,6 @@ class PartesFilter(filters.FilterSet):
             'equipo__id': ['exact'],
             'fecha_prevista_inicio': ['lte', 'gte'],
             'estado': ['exact'],
-            'tipo_periodo__nombre': ['exact'],
             'num_parte': ['icontains'],
         }
 
@@ -95,10 +105,19 @@ class NotificacionViewSet(viewsets.ModelViewSet):
     queryset = Notificacion.objects.all()
     filterset_class = NotificacionFilter
 
+class NotificacionNuevaViewSet(viewsets.ModelViewSet):
+    serializer_class = NotificacionNuevaSerializer
+    queryset = Notificacion.objects.all()
+    filterset_class = NotificacionFilter
+
 class EspecialidadViewSet(viewsets.ModelViewSet):
     serializer_class = EspecialidadSerializer
     queryset = Especialidad.objects.all()
     filterset_class = EspecialidadFilter
+class TipoPeriodoViewSet(viewsets.ModelViewSet):
+    serializer_class = TipoPeriodoSerializer
+    queryset = TipoPeriodo.objects.all()
+    filterset_class = TipoPeriodoFilter
 
 class EstadoLineasTareasViewSet(viewsets.ModelViewSet):
     serializer_class = EstadoLineasTareasSerializer
@@ -118,11 +137,6 @@ class TareaNuevaViewSet(viewsets.ModelViewSet):
 class TipoTareaViewSet(viewsets.ModelViewSet):
     serializer_class = TipoTareaSerializer
     queryset = TipoTarea.objects.all()
-
-class TipoPeriodoViewSet(viewsets.ModelViewSet):
-    serializer_class = TipoPeriodoSerializer
-    queryset = TipoPeriodo.objects.all()
-
 class LineaParteTrabajoViewSet(viewsets.ModelViewSet):
     serializer_class = LineaParteTrabajoSerializer
     queryset = LineaParteTrabajo.objects.all()
@@ -157,6 +171,11 @@ class ParteTrabajoViewSet(viewsets.ModelViewSet):
 
 class ParteTrabajoDetalleViewSet(viewsets.ModelViewSet):
     serializer_class = ParteTrabajoDetalleSerializer
+    queryset = ParteTrabajo.objects.all()
+    filterset_class = PartesFilter
+
+class ParteTrabajoEditarViewSet(viewsets.ModelViewSet):
+    serializer_class = ParteTrabajoEditarSerializer
     queryset = ParteTrabajo.objects.all()
     filterset_class = PartesFilter
 
