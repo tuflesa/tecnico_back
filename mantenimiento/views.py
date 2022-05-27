@@ -37,6 +37,7 @@ class LineasFilter(filters.FilterSet):
             'tarea__especialidad': ['exact'],
             'tarea__prioridad': ['lte', 'gte'],
             'parte__tipo': ['exact'],
+            'parte__empresa' : ['exact'],
             'parte__empresa__id' : ['exact'],
             'parte__zona__id': ['exact'],
             'parte__seccion__id': ['exact'],

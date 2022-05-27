@@ -42,7 +42,7 @@ class EquipoFilter(filters.FilterSet):
             'nombre': ['icontains'],
             'fabricante': ['icontains'],
             'modelo': ['icontains'],
-            'numero': ['icontains']
+            'numero': ['icontains'],
         }
 
 class EmpresaViewSet(viewsets.ModelViewSet):
