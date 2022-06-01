@@ -95,7 +95,7 @@ class LineaParteTrabajoNuevaSerializer(serializers.ModelSerializer):
         fields = ['id', 'parte', 'tarea', 'fecha_inicio', 'fecha_fin', 'estado', 'fecha_plan']
 
 class ListadoLineasPartesSerializer(serializers.ModelSerializer):
-    parte = ParteTrabajoSerializer(many=False, read_only=True)
+    parte = ParteTrabajoDetalleSerializer(many=False, read_only=True)
     tarea = TareaSerializer(many=False, read_only=True)
     class Meta:
         model = LineaParteTrabajo
