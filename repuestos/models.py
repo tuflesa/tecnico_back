@@ -42,7 +42,7 @@ class Repuesto(models.Model):
     tipo_repuesto = models.ForeignKey(TipoRepuesto, on_delete=models.CASCADE)
     tipo_unidad = models.ForeignKey(TipoUnidad, on_delete=models.PROTECT, default=1)
     fabricante = models.CharField(max_length=50, null=True, blank=True)
-    modelo = models.CharField(max_length=50, null=True, blank=True)
+    modelo = models.CharField(max_length=90, null=True, blank=True)
     # stock = models.IntegerField(default=0)
     # stock_minimo = models.IntegerField(default=0)
     es_critico = models.BooleanField(default=False)
@@ -87,6 +87,7 @@ class Pedido(models.Model):
     direccion_envio = models.ForeignKey(Direcciones, on_delete= models.SET_NULL, null= True, blank= True)
     contacto = models.ForeignKey(Contacto, on_delete=models.SET_NULL, null= True, blank=True)
     observaciones = models.CharField(max_length=80, null=True, blank=True)
+    observaciones2 = models.CharField(max_length=80, null=True, blank=True)
 
     def save(self, *args, **kwargs):
         # Generar nuevo número si el campo numero es None (null)

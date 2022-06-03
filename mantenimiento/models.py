@@ -29,7 +29,7 @@ class Notificacion(models.Model): # Notificación 5W+2H Plus
     numero = models.CharField(max_length=16, null=True, blank=True, default=None)
     empresa = models.ForeignKey(Empresa, on_delete=models.CASCADE)
     fecha_creacion = models.DateField(default=timezone.now)
-    para = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='notificaciones_recividas') # A quien se informa del problema
+    #para = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='notificaciones_recividas') # A quien se informa del problema
     revisado = models.BooleanField(default=False)
     descartado = models.BooleanField(default=False)
     finalizado = models.BooleanField(default=False)
@@ -57,21 +57,9 @@ class Notificacion(models.Model): # Notificación 5W+2H Plus
             self.numero = self.empresa.siglas + '-' + year + '-N-' + str(numero).zfill(3)
         # Llamar al metodo save por defecto de la clase
         super(Notificacion,self).save(*args, **kwargs)
-
-    # def abierto(self):
-    #     cerrado = False
-    #     if self.descartado:
-    #         return cerrado
-    #     # Si todos los partes de esta notificación están cerrados False sino True
-    #     for parte in self.partes:
-    #         if not parte.finalizado:
-    #             break
-    #     return not cerrado
         
     def __str__(self):
         return self.que
-
-
 
 class Especialidad(models.Model): # Electricidad, Electronica, Mecanica, Fontanería ...
     nombre = models.CharField(max_length=50)
@@ -96,7 +84,10 @@ class Tarea(models.Model):
     nombre = models.CharField(max_length=150)
     especialidad = models.ForeignKey(Especialidad, on_delete=models.CASCADE)    
     prioridad = models.IntegerField(default=50) # Número de 0 a 100. 100 máxima prioridad
+    #trabajo = models.TextField(blank=True, null=True) #trabajo a realizar, detalles
     observaciones = models.TextField(blank=True, null=True)
+    tipo_periodo = models.ForeignKey(TipoPeriodo, on_delete=models.CASCADE, null=True, blank=True)
+    periodo = models.IntegerField(default=0)
 
     """ def equipo_nombre(self):
         return self.equipo.nombre """
@@ -111,7 +102,15 @@ class EstadoLineasTareas(models.Model): # Planificadas, En Ejecución, Finalizad
     nombre = models.CharField(max_length=25)
 
     def __str__(self):
-        return self.nombre 
+        return self.nombre
+
+class ContadorPartes(models.Model):
+    year = models.IntegerField()
+    empresa = models.ForeignKey(Empresa, on_delete=models.CASCADE)
+    contador_parte = models.IntegerField(default=0)
+
+    def __str__(self):
+        return str(self.year) + '-' + str(self.contador_parte)
 
 class ParteTrabajo(models.Model):
     nombre = models.CharField(max_length=150)
@@ -125,13 +124,35 @@ class ParteTrabajo(models.Model):
     fecha_prevista_inicio = models.DateField(blank=True, null=True)
     fecha_finalizacion = models.DateField(blank=True, null=True)
     equipo = models.ForeignKey(Equipo, on_delete=models.CASCADE, blank=True, null=True, related_name='partes_creados')
-    zona = models.ForeignKey(Zona, on_delete=models.CASCADE, blank=True, null=True, related_name='partes_creados')
+    zona = models.ForeignKey(Zona, on_delete=models.CASCADE, blank=True, related_name='partes_creados')
     empresa = models.ForeignKey(Empresa, on_delete=models.CASCADE, blank=True, null=True, related_name='partes_creados')
-    seccion = models.ForeignKey(Seccion, on_delete=models.CASCADE, blank=True, null=True, related_name='partes_creados')
-    tipo_periodo = models.ForeignKey(TipoPeriodo, on_delete=models.CASCADE, null=True, blank=True)
-    periodo = models.IntegerField(default=0)
+    seccion = models.ForeignKey(Seccion, on_delete=models.CASCADE, blank=True,related_name='partes_creados')
     tarea = models.ManyToManyField(Tarea, blank=True, related_name='partes')
     estado = models.ForeignKey(EstadoLineasTareas, on_delete=models.SET_NULL, blank=True, null=True)
+    num_parte = models.CharField(max_length=16, null=True, blank=True, default=None)
+
+    def save(self, *args, **kwargs):
+        # Generar nuevo número si el campo num_parte es None (null)
+        if self.num_parte is None:
+            currentDateTime = datetime.datetime.now()
+            date = currentDateTime.date()
+            year = date.strftime("%Y")
+
+            contador_parte = ContadorPartes.objects.filter(year=year, empresa=self.empresa)
+            if (len(contador_parte)==0):
+                contador_parte = ContadorPartes(year=year, contador_parte=0, empresa=self.empresa)
+                contador_parte.save()
+                num_parte=1
+            else:
+                contador_parte = ContadorPartes.objects.get(year=year, empresa=self.empresa)
+                num_parte=contador_parte.contador_parte+1
+
+            contador_parte.contador_parte = num_parte
+            contador_parte.save()
+
+            self.num_parte = self.empresa.siglas + '-' + year + '-N-' + str(num_parte).zfill(3)
+        # Llamar al metodo save por defecto de la clase
+        super(ParteTrabajo,self).save(*args, **kwargs)
 
     """ def finalizado(self):
         fin = True
@@ -176,6 +197,12 @@ class LineaParteTrabajo(models.Model):
 
     def __str__(self):
         return self.tarea.nombre
+        
+class TrabajadoresLineaParte(models.Model):
+    linea = models.ForeignKey(LineaParteTrabajo, on_delete=models.CASCADE, related_name='lineas')
+    fecha_inicio = models.DateField(blank=True, null=True)
+    fecha_fin = models.DateField(blank=True, null=True)
+    trabajador = models.ForeignKey(User, on_delete=models.SET_NULL, blank=True, null=True)
 
 
 
