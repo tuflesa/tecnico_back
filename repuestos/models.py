@@ -46,7 +46,7 @@ class Repuesto(models.Model):
     # stock = models.IntegerField(default=0)
     # stock_minimo = models.IntegerField(default=0)
     es_critico = models.BooleanField(default=False)
-    equipos = models.ManyToManyField(Equipo, related_name='repuestos', null=True)
+    equipos = models.ManyToManyField(Equipo, related_name='repuestos')
     proveedores = models.ManyToManyField(Proveedor, related_name='repuestos')
     descatalogado = models.BooleanField(default=False)
     observaciones = models.CharField(max_length=80, null=True, blank=True)
