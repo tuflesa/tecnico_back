@@ -51,6 +51,7 @@ class LineasFilter(filters.FilterSet):
             'parte__zona' : ['exact'],
             'parte__seccion' : ['exact'],
             'parte__equipo' : ['exact'],
+            'tarea__id' : ['exact'],
 
         }
 
@@ -84,6 +85,7 @@ class PartesFilter(filters.FilterSet):
             'fecha_prevista_inicio': ['lte', 'gte'],
             'estado': ['exact'],
             'num_parte': ['icontains'],
+            'tarea__id': ['exact'],
         }
 
 class EstadoLineasTareasFilter(filters.FilterSet):

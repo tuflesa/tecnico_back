@@ -11,7 +11,9 @@ class UserFilter(filters.FilterSet):
     class Meta:
         model = User
         fields = {
-            'perfil__empresa__id': ['exact']
+            'perfil__empresa__id': ['exact'],
+            'perfil__puesto__nombre':['exact'],
+            'perfil__puesto__id': ['exact'],
         }
 
 class AplicacionViewSet(viewsets.ModelViewSet):
