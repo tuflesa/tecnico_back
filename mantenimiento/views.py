@@ -1,6 +1,7 @@
+from asyncio.windows_events import NULL
 from rest_framework import viewsets
 from mantenimiento.models import Notificacion, ParteTrabajo, Tarea, Especialidad, TipoPeriodo, TipoTarea, LineaParteTrabajo, EstadoLineasTareas, TrabajadoresLineaParte
-from mantenimiento.serializers import ParteTrabajoEditarSerializer, NotificacionSerializer, NotificacionNuevaSerializer, TareaSerializer, EspecialidadSerializer, TipoTareaSerializer, TipoPeriodoSerializer, TareaNuevaSerializer, ParteTrabajoSerializer, ParteTrabajoDetalleSerializer, LineaParteTrabajoSerializer, LineaParteTrabajoNuevaSerializer, LineaParteTrabajoMovSerializer, ListadoLineasPartesSerializer, EstadoLineasTareasSerializer, TrabajadoresLineaParteSerializer, ListadoLineasActivasSerializer, TrabajadoresEnLineaSerializer
+from mantenimiento.serializers import PartesFiltradosSerializer, ParteTrabajoEditarSerializer, NotificacionSerializer, NotificacionNuevaSerializer, TareaSerializer, EspecialidadSerializer, TipoTareaSerializer, TipoPeriodoSerializer, TareaNuevaSerializer, ParteTrabajoSerializer, ParteTrabajoDetalleSerializer, LineaParteTrabajoSerializer, LineaParteTrabajoNuevaSerializer, LineaParteTrabajoMovSerializer, ListadoLineasPartesSerializer, EstadoLineasTareasSerializer, TrabajadoresLineaParteSerializer, ListadoLineasActivasSerializer, TrabajadoresEnLineaSerializer
 from django_filters import rest_framework as filters
 from django.db.models import Count, F, Value
 
@@ -52,6 +53,7 @@ class LineasFilter(filters.FilterSet):
             'parte__seccion' : ['exact'],
             'parte__equipo' : ['exact'],
             'tarea__id' : ['exact'],
+            'fecha_fin': ['exact'],
 
         }
 
@@ -86,6 +88,8 @@ class PartesFilter(filters.FilterSet):
             'estado': ['exact'],
             'num_parte': ['icontains'],
             'tarea__id': ['exact'],
+            'fecha_finalizacion': ['exact'],
+            'fecha_finalizacion': ['lte', 'gte'],
         }
 
 class EstadoLineasTareasFilter(filters.FilterSet):
@@ -175,6 +179,11 @@ class ParteTrabajoViewSet(viewsets.ModelViewSet):
 class ParteTrabajoDetalleViewSet(viewsets.ModelViewSet):
     serializer_class = ParteTrabajoDetalleSerializer
     queryset = ParteTrabajo.objects.all()
+    filterset_class = PartesFilter
+
+class PartesFiltradosViewSet(viewsets.ModelViewSet):
+    serializer_class = PartesFiltradosSerializer
+    queryset = ParteTrabajo.objects.filter(estado=3).filter(fecha_finalizacion=None)
     filterset_class = PartesFilter
 
 class ParteTrabajoEditarViewSet(viewsets.ModelViewSet):

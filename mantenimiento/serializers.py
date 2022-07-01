@@ -68,6 +68,15 @@ class ParteTrabajoDetalleSerializer(serializers.ModelSerializer):
         model = ParteTrabajo
         fields = ['id', 'nombre', 'tipo', 'creado_por', 'observaciones', 'finalizado', 'fecha_creacion', 'fecha_finalizacion', 'equipo', 'tipo_nombre', 'fecha_prevista_inicio', 'zona', 'seccion', 'empresa', 'tarea', 'estado', 'estado_nombre', 'num_parte']
 
+class PartesFiltradosSerializer(serializers.ModelSerializer):
+    equipo = EquipoSerializer(many=False, read_only=True)
+    seccion = SeccionSerializer(many=False, read_only=True)
+    creado_por = UserSerializer(many=False, read_only=True)
+    tarea = TareaSerializer(many=True, read_only=True)
+    class Meta:
+        model = ParteTrabajo
+        fields = ['id', 'nombre', 'tipo', 'creado_por', 'observaciones', 'finalizado', 'fecha_creacion', 'fecha_finalizacion', 'equipo', 'tipo_nombre', 'fecha_prevista_inicio', 'zona', 'seccion', 'empresa', 'tarea', 'estado', 'estado_nombre', 'num_parte']
+
 class ParteTrabajoEditarSerializer(serializers.ModelSerializer):
     equipo = EquipoSerializer(many=False, read_only=True)
     seccion = SeccionSerializer(many=False, read_only=True)
