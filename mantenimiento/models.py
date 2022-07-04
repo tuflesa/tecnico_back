@@ -76,7 +76,7 @@ class TipoTarea(models.Model): # Correctiva, Preventiva, Mejora, PRL ...
 
 class TipoPeriodo(models.Model): # Anual, Mensual, Semanal ... 
     nombre = models.CharField(max_length=50)
-    cantidad_dias = models.IntegerField()
+    cantidad_dias = models.IntegerField(default=1)
 
     def __str__(self):
         return self.nombre
