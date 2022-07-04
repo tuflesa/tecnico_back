@@ -23,7 +23,7 @@ class NotificacionNuevaSerializer(serializers.ModelSerializer):
 class TipoPeriodoSerializer(serializers.ModelSerializer):
     class Meta:
         model = TipoPeriodo
-        fields = ['id', 'nombre']
+        fields = ['id', 'nombre', 'cantidad_dias']
 class TareaSerializer(serializers.ModelSerializer):
     tipo_periodo = TipoPeriodoSerializer()
     class Meta:

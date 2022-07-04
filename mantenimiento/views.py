@@ -54,6 +54,7 @@ class LineasFilter(filters.FilterSet):
             'parte__equipo' : ['exact'],
             'tarea__id' : ['exact'],
             'fecha_fin': ['exact'],
+            'tarea__tipo_periodo__cantidad_dias' : ['exact'],
 
         }
 
