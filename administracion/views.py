@@ -14,6 +14,7 @@ class UserFilter(filters.FilterSet):
             'perfil__empresa__id': ['exact'],
             'perfil__puesto__nombre':['exact'],
             'perfil__puesto__id': ['exact'],
+            'perfil__destrezas__nombre' : ['exact'],
         }
 
 class AplicacionViewSet(viewsets.ModelViewSet):
