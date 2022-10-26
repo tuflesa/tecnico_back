@@ -1,7 +1,7 @@
 # from asyncio.windows_events import NULL
 from rest_framework import viewsets
 from mantenimiento.models import Notificacion, ParteTrabajo, Tarea, Especialidad, TipoPeriodo, TipoTarea, LineaParteTrabajo, EstadoLineasTareas, TrabajadoresLineaParte
-from mantenimiento.serializers import PartesFiltradosSerializer, ParteTrabajoEditarSerializer, NotificacionSerializer, NotificacionNuevaSerializer, TareaSerializer, EspecialidadSerializer, TipoTareaSerializer, TipoPeriodoSerializer, TareaNuevaSerializer, ParteTrabajoSerializer, ParteTrabajoDetalleSerializer, LineaParteTrabajoSerializer, LineaParteTrabajoNuevaSerializer, LineaParteTrabajoMovSerializer, ListadoLineasPartesSerializer, EstadoLineasTareasSerializer, TrabajadoresLineaParteSerializer, ListadoLineasActivasSerializer, TrabajadoresEnLineaSerializer
+from mantenimiento.serializers import LineasDeUnTrabajadorSerializer, PartesFiltradosSerializer, ParteTrabajoEditarSerializer, NotificacionSerializer, NotificacionNuevaSerializer, TareaSerializer, EspecialidadSerializer, TipoTareaSerializer, TipoPeriodoSerializer, TareaNuevaSerializer, ParteTrabajoSerializer, ParteTrabajoDetalleSerializer, LineaParteTrabajoSerializer, LineaParteTrabajoNuevaSerializer, LineaParteTrabajoMovSerializer, ListadoLineasPartesSerializer, EstadoLineasTareasSerializer, TrabajadoresLineaParteSerializer, ListadoLineasActivasSerializer, TrabajadoresEnLineaSerializer
 from django_filters import rest_framework as filters
 from django.db.models import Count, F, Value
 
@@ -63,6 +63,8 @@ class EspecialidadFilter(filters.FilterSet):
         model = Especialidad
         fields = {
             'nombre': ['icontains'],
+            'nombre': ['exact'],
+            'id': ['exact'],
         }
 
 class TipoPeriodoFilter(filters.FilterSet):
@@ -106,6 +108,8 @@ class TrabajadoresLineaParteFilter(filters.FilterSet):
         fields = {
             'trabajador': ['exact'],
             'linea': ['exact'],
+            'fecha_inicio': ['lte', 'gte'],
+            'fecha_fin': ['lte', 'gte'],
         }
 
 class NotificacionViewSet(viewsets.ModelViewSet):
@@ -197,7 +201,17 @@ class TrabajadoresLineaParteViewSet(viewsets.ModelViewSet):
     queryset = TrabajadoresLineaParte.objects.all()
     filterset_class = TrabajadoresLineaParteFilter
 
+class TrabajadoresLineaParteFechaNullViewSet(viewsets.ModelViewSet):
+    serializer_class = TrabajadoresLineaParteSerializer
+    queryset = TrabajadoresLineaParte.objects.filter(fecha_fin=None)
+    filterset_class = TrabajadoresLineaParteFilter
+
 class TrabajadoresEnLineaViewSet(viewsets.ModelViewSet):
     serializer_class = TrabajadoresEnLineaSerializer
+    queryset = TrabajadoresLineaParte.objects.all()
+    filterset_class = TrabajadoresLineaParteFilter
+
+class LineasdeunTrabajadorViewSet(viewsets.ModelViewSet):
+    serializer_class = LineasDeUnTrabajadorSerializer
     queryset = TrabajadoresLineaParte.objects.all()
     filterset_class = TrabajadoresLineaParteFilter

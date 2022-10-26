@@ -28,7 +28,7 @@ class TareaSerializer(serializers.ModelSerializer):
     tipo_periodo = TipoPeriodoSerializer()
     class Meta:
         model = Tarea
-        fields = ['id', 'nombre', 'especialidad', 'prioridad', 'observaciones', 'especialidad_nombre', 'periodo', 'tipo_periodo']
+        fields = ['id', 'nombre', 'especialidad', 'prioridad', 'observaciones', 'especialidad_nombre', 'periodo', 'tipo_periodo', 'observaciones_trab']
 
 class TareaEditarSerializer(serializers.ModelSerializer):
     class Meta:
@@ -38,7 +38,7 @@ class TareaEditarSerializer(serializers.ModelSerializer):
 class TareaNuevaSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tarea
-        fields = ['id', 'nombre', 'especialidad', 'prioridad', 'observaciones', 'especialidad_nombre', 'tipo_periodo', 'periodo']
+        fields = ['id', 'nombre', 'especialidad', 'prioridad', 'observaciones', 'especialidad_nombre', 'tipo_periodo', 'periodo', 'observaciones_trab']
 
 class EspecialidadSerializer(serializers.ModelSerializer):
     class Meta:
@@ -124,6 +124,12 @@ class TrabajadoresLineaParteSerializer(serializers.ModelSerializer):
 
 class TrabajadoresEnLineaSerializer(serializers.ModelSerializer):
     trabajador = UserSerializer(many=False, read_only=True)
+    class Meta:
+        model = TrabajadoresLineaParte
+        fields = ['id', 'linea', 'fecha_inicio', 'fecha_fin', 'trabajador']
+
+class LineasDeUnTrabajadorSerializer(serializers.ModelSerializer):
+    linea = ListadoLineasPartesSerializer(many=False, read_only=True)
     class Meta:
         model = TrabajadoresLineaParte
         fields = ['id', 'linea', 'fecha_inicio', 'fecha_fin', 'trabajador']
