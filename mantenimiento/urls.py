@@ -1,8 +1,10 @@
 from rest_framework import routers
-from .views import PartesFiltradosViewSet, ParteTrabajoEditarViewSet, NotificacionViewSet, NotificacionNuevaViewSet, TareaViewSet, EspecialidadViewSet, TipoTareaViewSet, TipoPeriodoViewSet, TareaNuevaViewSet, ParteTrabajoViewSet, ParteTrabajoDetalleViewSet, LineaParteTrabajoViewSet, LineaParteTrabajoNuevaViewSet, LineaParteTrabajoMovViewSet, ListadoLineaParteViewSet, EstadoLineasTareasViewSet, TrabajadoresLineaParteViewSet, ListadoLineaActivasViewSet, TrabajadoresEnLineaViewSet
+from .views import LineasdeunTrabajadorViewSet, TrabajadoresLineaParteFechaNullViewSet, PartesFiltradosViewSet, ParteTrabajoEditarViewSet, NotificacionViewSet, NotificacionNuevaViewSet, TareaViewSet, EspecialidadViewSet, TipoTareaViewSet, TipoPeriodoViewSet, TareaNuevaViewSet, ParteTrabajoViewSet, ParteTrabajoDetalleViewSet, LineaParteTrabajoViewSet, LineaParteTrabajoNuevaViewSet, LineaParteTrabajoMovViewSet, ListadoLineaParteViewSet, EstadoLineasTareasViewSet, TrabajadoresLineaParteViewSet, ListadoLineaActivasViewSet, TrabajadoresEnLineaViewSet
 
 router = routers.DefaultRouter()
 router.register('estados', EstadoLineasTareasViewSet)
+router.register('lineas_de_un_trabajador', LineasdeunTrabajadorViewSet)
+router.register('trabajadores_linea_filtro', TrabajadoresLineaParteFechaNullViewSet)
 router.register('partes_filtrados', PartesFiltradosViewSet)
 router.register('parte_trabajo_editar', ParteTrabajoEditarViewSet)
 router.register('notificacion_nueva', NotificacionNuevaViewSet)
