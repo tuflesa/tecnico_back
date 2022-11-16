@@ -47,7 +47,7 @@ class Repuesto(models.Model):
     # stock_minimo = models.IntegerField(default=0)
     es_critico = models.BooleanField(default=False)
     equipos = models.ManyToManyField(Equipo, related_name='repuestos')
-    proveedores = models.ManyToManyField(Proveedor, related_name='repuestos')
+    proveedores = models.ManyToManyField(Proveedor, blank=True, related_name='repuestos')
     descatalogado = models.BooleanField(default=False)
     observaciones = models.CharField(max_length=80, null=True, blank=True)
     nombre_comun = models.CharField(max_length = 100, null=True, blank=True)
@@ -239,3 +239,8 @@ class Movimiento(models.Model):
 class Foto(models.Model):
     imagen = models.ImageField(upload_to='equipos')
     repuesto = models.ForeignKey(Repuesto, on_delete=models.CASCADE)
+
+class PrecioRepuesto(models.Model):
+    repuesto = models.ForeignKey(Repuesto, on_delete=models.CASCADE)
+    proveedor = models.ForeignKey(Proveedor, blank=True, null=True, on_delete=models.CASCADE)
+    precio = models.DecimalField(max_digits=8, decimal_places=4, blank=True, null=True)
