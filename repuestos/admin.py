@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Entrega, LineaAdicional, ContadorPedidos, LineaSalida, Repuesto, Proveedor, Contacto, Pedido, LineaPedido, Movimiento, Almacen, Inventario, LineaInventario, Salida, StockMinimo, TipoRepuesto, TipoUnidad
+from .models import PrecioRepuesto, Entrega, LineaAdicional, ContadorPedidos, LineaSalida, Repuesto, Proveedor, Contacto, Pedido, LineaPedido, Movimiento, Almacen, Inventario, LineaInventario, Salida, StockMinimo, TipoRepuesto, TipoUnidad
 
 admin.site.register(Repuesto)
 admin.site.register(TipoUnidad)
@@ -18,3 +18,4 @@ admin.site.register(LineaAdicional)
 admin.site.register(Entrega)
 admin.site.register(Salida)
 admin.site.register(LineaSalida)
+admin.site.register(PrecioRepuesto)

@@ -2,7 +2,7 @@ from django.db.models import fields
 from django.db.models.base import Model
 from estructura.serializers import DireccionesEmpresaSerializer, EmpresaSerializer, EquipoSerializer
 from rest_framework import serializers
-from .models import Entrega, LineaAdicional, Almacen, Contacto, Inventario, LineaPedido, LineaSalida, Movimiento, Pedido, Repuesto, Proveedor, Salida, StockMinimo, LineaInventario, TipoRepuesto, TipoUnidad
+from .models import PrecioRepuesto, Entrega, LineaAdicional, Almacen, Contacto, Inventario, LineaPedido, LineaSalida, Movimiento, Pedido, Repuesto, Proveedor, Salida, StockMinimo, LineaInventario, TipoRepuesto, TipoUnidad
 from estructura.serializers import EquipoSerializer
 from estructura.serializers import EstructuraSerializer
 from administracion.serializers import UserSerializer
@@ -182,3 +182,14 @@ class MovimientoTrazabilidadSerializer(serializers.ModelSerializer):
     class Meta:
         model = Movimiento
         fields = ['id', 'fecha', 'cantidad', 'almacen', 'usuario', 'linea_pedido', 'linea_inventario', 'linea_salida', 'albaran']        
+
+class PrecioRepuestoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PrecioRepuesto
+        fields = ['id', 'proveedor', 'repuesto', 'precio']
+
+class RepuestoConPrecioSerializer(serializers.ModelSerializer):
+    repuesto = RepuestoListSerializer(many=False, read_only=True) 
+    class Meta:
+        model = PrecioRepuesto
+        fields = ['id', 'proveedor', 'repuesto', 'precio']

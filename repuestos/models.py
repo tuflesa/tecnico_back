@@ -47,7 +47,7 @@ class Repuesto(models.Model):
     # stock_minimo = models.IntegerField(default=0)
     es_critico = models.BooleanField(default=False)
     equipos = models.ManyToManyField(Equipo, related_name='repuestos')
-    proveedores = models.ManyToManyField(Proveedor, related_name='repuestos')
+    proveedores = models.ManyToManyField(Proveedor, blank=True, related_name='repuestos')
     descatalogado = models.BooleanField(default=False)
     observaciones = models.CharField(max_length=80, null=True, blank=True)
     nombre_comun = models.CharField(max_length = 100, null=True, blank=True)
@@ -122,20 +122,20 @@ class Pedido(models.Model):
 class LineaPedido(models.Model):
     pedido = models.ForeignKey(Pedido, on_delete=models.CASCADE, related_name='lineas_pedido')
     repuesto = models.ForeignKey(Repuesto, on_delete=models.CASCADE)
-    cantidad = models.IntegerField()
-    precio = models.DecimalField(max_digits=8, decimal_places=2, blank=True, null=True)
-    por_recibir = models.IntegerField()
+    cantidad = models.IntegerField(default=0)
+    precio = models.DecimalField(max_digits=8, decimal_places=4, blank=True, null=True)
+    por_recibir = models.IntegerField(default=0)
     descuento = models.DecimalField(max_digits=4, decimal_places=2, blank= True, null=True)
-    total = models.DecimalField(max_digits=8, decimal_places=2, blank=True, null=True)
+    total = models.DecimalField(max_digits=8, decimal_places=4, blank=True, null=True)
    
 class LineaAdicional(models.Model):
     pedido = models.ForeignKey(Pedido, on_delete=models.CASCADE, related_name='lineas_adicionales')
     descripcion = models.CharField(max_length=250)
     cantidad = models.IntegerField()
-    precio = models.DecimalField(max_digits=8, decimal_places=2, blank=True, null=True)
+    precio = models.DecimalField(max_digits=8, decimal_places=4, blank=True, null=True)
     por_recibir = models.IntegerField()
     descuento = models.DecimalField(max_digits=4, decimal_places=2, blank= True, null=True)
-    total = models.DecimalField(max_digits=8, decimal_places=2, blank=True, null=True)
+    total = models.DecimalField(max_digits=8, decimal_places=4, blank=True, null=True)
 
     """ def pendiente(self):
         sum = 0
@@ -239,3 +239,8 @@ class Movimiento(models.Model):
 class Foto(models.Model):
     imagen = models.ImageField(upload_to='equipos')
     repuesto = models.ForeignKey(Repuesto, on_delete=models.CASCADE)
+
+class PrecioRepuesto(models.Model):
+    repuesto = models.ForeignKey(Repuesto, on_delete=models.CASCADE)
+    proveedor = models.ForeignKey(Proveedor, blank=True, null=True, on_delete=models.CASCADE)
+    precio = models.DecimalField(max_digits=8, decimal_places=4, blank=True, null=True)
