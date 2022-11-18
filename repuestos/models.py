@@ -122,20 +122,20 @@ class Pedido(models.Model):
 class LineaPedido(models.Model):
     pedido = models.ForeignKey(Pedido, on_delete=models.CASCADE, related_name='lineas_pedido')
     repuesto = models.ForeignKey(Repuesto, on_delete=models.CASCADE)
-    cantidad = models.IntegerField()
-    precio = models.DecimalField(max_digits=8, decimal_places=2, blank=True, null=True)
-    por_recibir = models.IntegerField()
+    cantidad = models.IntegerField(default=0)
+    precio = models.DecimalField(max_digits=8, decimal_places=4, blank=True, null=True)
+    por_recibir = models.IntegerField(default=0)
     descuento = models.DecimalField(max_digits=4, decimal_places=2, blank= True, null=True)
-    total = models.DecimalField(max_digits=8, decimal_places=2, blank=True, null=True)
+    total = models.DecimalField(max_digits=8, decimal_places=4, blank=True, null=True)
    
 class LineaAdicional(models.Model):
     pedido = models.ForeignKey(Pedido, on_delete=models.CASCADE, related_name='lineas_adicionales')
     descripcion = models.CharField(max_length=250)
     cantidad = models.IntegerField()
-    precio = models.DecimalField(max_digits=8, decimal_places=2, blank=True, null=True)
+    precio = models.DecimalField(max_digits=8, decimal_places=4, blank=True, null=True)
     por_recibir = models.IntegerField()
     descuento = models.DecimalField(max_digits=4, decimal_places=2, blank= True, null=True)
-    total = models.DecimalField(max_digits=8, decimal_places=2, blank=True, null=True)
+    total = models.DecimalField(max_digits=8, decimal_places=4, blank=True, null=True)
 
     """ def pendiente(self):
         sum = 0
