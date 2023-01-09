@@ -86,7 +86,8 @@ class PedidoListFilter(filters.FilterSet):
             'numero': ['icontains'],
             'lineas_pedido':['exact'],
             'lineas_pedido__cantidad':['exact'],
-            'creado_por':['exact']
+            'creado_por':['exact'],
+            'descripcion':['icontains'],
         }
 
 class LineaPedidoFilter(filters.FilterSet):
@@ -99,6 +100,10 @@ class LineaPedidoFilter(filters.FilterSet):
             'pedido__numero': ['exact'],
             'pedido__empresa': ['exact'],
             'pedido__creado_por': ['exact'],
+            'repuesto': ['exact'],
+            'pedido__proveedor': ['exact'],
+            'pedido__fecha_prevista_entrega': ['exact'],
+            'pedido__empresa__id': ['exact'],
         }
 
 class StockMinimoFilter(filters.FilterSet):
@@ -107,6 +112,7 @@ class StockMinimoFilter(filters.FilterSet):
         fields = {
             'almacen__empresa__id':['exact'],
             'repuesto':['exact'],
+            'repuesto__id': ['exact'],
             'almacen__nombre': ['exact'],
             'almacen__id': ['exact'],
             'almacen': ['exact'],
@@ -118,6 +124,7 @@ class StockMinimoFilter(filters.FilterSet):
             'repuesto__fabricante' : ['icontains'],
             'almacen__nombre' : ['icontains'],
             'repuesto__nombre_comun' : ['icontains'],
+            'repuesto__nombre' : ['exact'],
         }
 
 class ContactosFilter(filters.FilterSet):
