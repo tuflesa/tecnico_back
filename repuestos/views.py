@@ -100,6 +100,10 @@ class LineaPedidoFilter(filters.FilterSet):
             'pedido__numero': ['exact'],
             'pedido__empresa': ['exact'],
             'pedido__creado_por': ['exact'],
+            'repuesto': ['exact'],
+            'pedido__proveedor': ['exact'],
+            'pedido__fecha_prevista_entrega': ['exact'],
+            'pedido__empresa__id': ['exact'],
         }
 
 class StockMinimoFilter(filters.FilterSet):
