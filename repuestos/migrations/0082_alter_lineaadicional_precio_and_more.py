@@ -11,11 +11,6 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.AlterField(
-            model_name='lineaadicional',
-            name='precio',
-            field=models.DecimalField(blank=True, decimal_places=4, max_digits=8, null=True),
-        ),
-        migrations.AlterField(
             model_name='lineapedido',
             name='cantidad',
             field=models.IntegerField(blank=True, null=True),

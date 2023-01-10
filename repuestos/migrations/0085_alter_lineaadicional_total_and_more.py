@@ -11,11 +11,6 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.AlterField(
-            model_name='lineaadicional',
-            name='total',
-            field=models.DecimalField(blank=True, decimal_places=4, max_digits=8, null=True),
-        ),
-        migrations.AlterField(
             model_name='lineapedido',
             name='cantidad',
             field=models.IntegerField(default=0),
@@ -24,10 +19,5 @@ class Migration(migrations.Migration):
             model_name='lineapedido',
             name='por_recibir',
             field=models.IntegerField(default=0),
-        ),
-        migrations.AlterField(
-            model_name='lineapedido',
-            name='total',
-            field=models.DecimalField(blank=True, decimal_places=4, max_digits=8, null=True),
         ),
     ]
