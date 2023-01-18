@@ -10,34 +10,4 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.AlterField(
-            model_name='lineaadicional',
-            name='descuento',
-            field=models.DecimalField(blank=True, decimal_places=2, max_digits=5, null=True),
-        ),
-        migrations.AlterField(
-            model_name='lineaadicional',
-            name='precio',
-            field=models.DecimalField(blank=True, decimal_places=4, max_digits=13, null=True),
-        ),
-        migrations.AlterField(
-            model_name='lineaadicional',
-            name='total',
-            field=models.DecimalField(blank=True, decimal_places=4, max_digits=13, null=True),
-        ),
-        migrations.AlterField(
-            model_name='lineapedido',
-            name='descuento',
-            field=models.DecimalField(blank=True, decimal_places=2, max_digits=5, null=True),
-        ),
-        migrations.AlterField(
-            model_name='preciorepuesto',
-            name='descuento',
-            field=models.DecimalField(blank=True, decimal_places=2, max_digits=5, null=True),
-        ),
-        migrations.AlterField(
-            model_name='preciorepuesto',
-            name='precio',
-            field=models.DecimalField(blank=True, decimal_places=4, max_digits=13, null=True),
-        ),
     ]
