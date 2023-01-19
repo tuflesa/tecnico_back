@@ -3,7 +3,7 @@ from rest_framework import viewsets
 from rest_framework import serializers
 from django.db.models import F
 from rest_framework.serializers import Serializer
-from .serializers import RepuestoConPrecioSerializer, PrecioRepuestoSerializer, MovimientoTrazabilidadSerializer, LineaPedidoPendSerilizer, EntregaSerializer, LineasAdicionalesSerilizer, MovimientoDetailSerializer, SalidasSerializer, StockMinimoDetailSerializer, PedidoSerilizer, LineaPedidoSerilizer, PedidoListSerilizer, PedidoDetailSerilizer, ProveedorDetailSerializer, AlmacenSerilizer, ContactoSerializer, InventarioSerializer, MovimientoSerializer, ProveedorSerializer, RepuestoListSerializer, RepuestoDetailSerializer, StockMinimoDetailSerializer, StockMinimoSerializer, LineaInventarioSerializer, TipoRepuestoSerilizer, TipoUnidadSerilizer, LineaSalidaSerializer
+from .serializers import LineasAdicionalesDetalleSerilizer, RepuestoConPrecioSerializer, PrecioRepuestoSerializer, MovimientoTrazabilidadSerializer, LineaPedidoPendSerilizer, EntregaSerializer, LineasAdicionalesSerilizer, MovimientoDetailSerializer, SalidasSerializer, StockMinimoDetailSerializer, PedidoSerilizer, LineaPedidoSerilizer, PedidoListSerilizer, PedidoDetailSerilizer, ProveedorDetailSerializer, AlmacenSerilizer, ContactoSerializer, InventarioSerializer, MovimientoSerializer, ProveedorSerializer, RepuestoListSerializer, RepuestoDetailSerializer, StockMinimoDetailSerializer, StockMinimoSerializer, LineaInventarioSerializer, TipoRepuestoSerilizer, TipoUnidadSerilizer, LineaSalidaSerializer
 from .models import PrecioRepuesto, Almacen, Entrega, Inventario, Contacto, LineaAdicional, LineaInventario, LineaPedido, Movimiento, Pedido, Proveedor, Repuesto, StockMinimo, TipoRepuesto, TipoUnidad, Salida, LineaSalida
 from django_filters import filterset, rest_framework as filters
 
@@ -106,6 +106,22 @@ class LineaPedidoFilter(filters.FilterSet):
             'pedido__empresa__id': ['exact'],
         }
 
+class LineaAdicionalFilter(filters.FilterSet):
+    class Meta:
+        model = LineaAdicional
+        fields = {
+            'por_recibir': ['exact'],
+            'cantidad': ['exact'],
+            'pedido__finalizado': ['exact'],
+            'pedido__numero': ['icontains'],
+            'pedido__empresa__id': ['exact'],
+            'precio': ['exact'],
+            'descuento': ['exact'],
+            'total': ['exact'],
+            'descripcion': ['icontains'],
+            'pedido__proveedor__nombre':['icontains'],
+        }
+
 class StockMinimoFilter(filters.FilterSet):
     class Meta:
         model = StockMinimo
@@ -125,6 +141,7 @@ class StockMinimoFilter(filters.FilterSet):
             'almacen__nombre' : ['icontains'],
             'repuesto__nombre_comun' : ['icontains'],
             'repuesto__nombre' : ['exact'],
+            'almacen__empresa':['exact'],
         }
 
 class ContactosFilter(filters.FilterSet):
@@ -244,6 +261,11 @@ class LineaPedidoPendViewSet(viewsets.ModelViewSet):
 class LineaAdicionalPedidoViewSet(viewsets.ModelViewSet):
     serializer_class = LineasAdicionalesSerilizer
     queryset = LineaAdicional.objects.all()
+
+class LineaAdicionalDetalleViewSet(viewsets.ModelViewSet):
+    serializer_class = LineasAdicionalesDetalleSerilizer
+    queryset = LineaAdicional.objects.all()
+    filterset_class = LineaAdicionalFilter
 
 class PedidoViewSet(viewsets.ModelViewSet):
     serializer_class = PedidoSerilizer

@@ -1,5 +1,5 @@
 from rest_framework import routers
-from .views import RepuestoConPrecioViewSet, PrecioRepuestoViewSet, MovimientoTrazabilidadViewSet, ArticulosFueraStockViewSet, LineaPedidoPendViewSet, EntregaViewSet, LineaAdicionalPedidoViewSet, LineasSalidaVieSet, MovimientoDetailViewSet, PedidoViewSet, InventarioViewSet, LineaPedidoViewSet, PedidoDetailViewSet, ContactoViewSet, MovimientoViewSet, PedidoListViewSet, ProveedorDetailViewSet, ProveedorViewSet, RepuestoListViewSet, RepuestoDetailViewSet, SalidaVieSet, StockMinimoDetailViewSet, StockMinimoViewSet, AlmacenViewSet, LineaInventarioViewSet, TipoRepuestoViewSet, TipoUnidadViewSet
+from .views import LineaAdicionalDetalleViewSet, RepuestoConPrecioViewSet, PrecioRepuestoViewSet, MovimientoTrazabilidadViewSet, ArticulosFueraStockViewSet, LineaPedidoPendViewSet, EntregaViewSet, LineaAdicionalPedidoViewSet, LineasSalidaVieSet, MovimientoDetailViewSet, PedidoViewSet, InventarioViewSet, LineaPedidoViewSet, PedidoDetailViewSet, ContactoViewSet, MovimientoViewSet, PedidoListViewSet, ProveedorDetailViewSet, ProveedorViewSet, RepuestoListViewSet, RepuestoDetailViewSet, SalidaVieSet, StockMinimoDetailViewSet, StockMinimoViewSet, AlmacenViewSet, LineaInventarioViewSet, TipoRepuestoViewSet, TipoUnidadViewSet
 
 router = routers.DefaultRouter()
 router.register('pedido', PedidoViewSet)
@@ -7,6 +7,7 @@ router.register('linea_pedido_pend', LineaPedidoPendViewSet)
 router.register('repuesto_precio', RepuestoConPrecioViewSet)
 router.register('precio', PrecioRepuestoViewSet)
 router.register('tipo_unidad', TipoUnidadViewSet)
+router.register('linea_adicional_detalle', LineaAdicionalDetalleViewSet)
 router.register('linea_adicional_pedido', LineaAdicionalPedidoViewSet)
 router.register('movimiento', MovimientoViewSet)
 router.register('entrega', EntregaViewSet)

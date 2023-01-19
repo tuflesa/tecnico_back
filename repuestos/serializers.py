@@ -140,6 +140,12 @@ class LineasAdicionalesSerilizer(serializers.ModelSerializer):
         model = LineaAdicional
         fields = ['id', 'pedido', 'descripcion', 'cantidad', 'precio', 'por_recibir', 'descuento', 'total']
 
+class LineasAdicionalesDetalleSerilizer(serializers.ModelSerializer):
+    pedido = PedidoListSerilizer(many=False, read_only=True)
+    class Meta:
+        model = LineaAdicional
+        fields = ['id', 'pedido', 'descripcion', 'cantidad', 'precio', 'por_recibir', 'descuento', 'total']
+
 class PedidoDetailSerilizer(serializers.ModelSerializer):
     proveedor = ProveedorSerializer(many=False, read_only=True)
     lineas_pedido = LineaPedidoDetailSerilizer(many=True, read_only=True)
