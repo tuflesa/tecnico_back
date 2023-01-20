@@ -129,6 +129,7 @@ class StockMinimoFilter(filters.FilterSet):
             'almacen__empresa__id':['exact'],
             'repuesto':['exact'],
             'repuesto__id': ['exact'],
+            'repuesto__nombre' : ['exact'],
             'almacen__nombre': ['exact'],
             'almacen__id': ['exact'],
             'almacen': ['exact'],
@@ -140,7 +141,6 @@ class StockMinimoFilter(filters.FilterSet):
             'repuesto__fabricante' : ['icontains'],
             'almacen__nombre' : ['icontains'],
             'repuesto__nombre_comun' : ['icontains'],
-            'repuesto__nombre' : ['exact'],
             'almacen__empresa':['exact'],
         }
 
