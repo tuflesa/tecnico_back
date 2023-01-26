@@ -6,6 +6,9 @@ from rest_framework.serializers import Serializer
 from .serializers import LineasAdicionalesDetalleSerilizer, RepuestoConPrecioSerializer, PrecioRepuestoSerializer, MovimientoTrazabilidadSerializer, LineaPedidoPendSerilizer, EntregaSerializer, LineasAdicionalesSerilizer, MovimientoDetailSerializer, SalidasSerializer, StockMinimoDetailSerializer, PedidoSerilizer, LineaPedidoSerilizer, PedidoListSerilizer, PedidoDetailSerilizer, ProveedorDetailSerializer, AlmacenSerilizer, ContactoSerializer, InventarioSerializer, MovimientoSerializer, ProveedorSerializer, RepuestoListSerializer, RepuestoDetailSerializer, StockMinimoDetailSerializer, StockMinimoSerializer, LineaInventarioSerializer, TipoRepuestoSerilizer, TipoUnidadSerilizer, LineaSalidaSerializer
 from .models import PrecioRepuesto, Almacen, Entrega, Inventario, Contacto, LineaAdicional, LineaInventario, LineaPedido, Movimiento, Pedido, Proveedor, Repuesto, StockMinimo, TipoRepuesto, TipoUnidad, Salida, LineaSalida
 from django_filters import filterset, rest_framework as filters
+#from django.core.paginator import Paginator
+from rest_framework.pagination import PageNumberPagination
+
 
 class AlmacenFilter(filters.FilterSet):
     class Meta:
@@ -73,6 +76,12 @@ class RepuestoListFilter(filters.FilterSet):
             'stocks_minimos__almacen__id':['exact'],
             'nombre_comun':['icontains'],
         }
+
+class StandardResultsSetPagination(PageNumberPagination):
+    page_size = 3
+    page_size_query_param = 'page_size'
+    paginator=1
+    max_page_size = 1000 
 
 class PedidoListFilter(filters.FilterSet):
     class Meta:
@@ -178,9 +187,10 @@ class RepuestoListViewSet(viewsets.ModelViewSet):
 
 class RepuestoDetailViewSet(viewsets.ModelViewSet):
     serializer_class = RepuestoDetailSerializer
-    queryset = Repuesto.objects.all()
+    queryset = Repuesto.objects.all().order_by('nombre')
     filterset_class = RepuestoListFilter
-
+    pagination_class = StandardResultsSetPagination
+  
 class StockMinimoViewSet(viewsets.ModelViewSet):
     serializer_class = StockMinimoSerializer
     queryset = StockMinimo.objects.all()
