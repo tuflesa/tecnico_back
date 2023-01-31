@@ -6,7 +6,6 @@ from rest_framework.serializers import Serializer
 from .serializers import LineasAdicionalesDetalleSerilizer, RepuestoConPrecioSerializer, PrecioRepuestoSerializer, MovimientoTrazabilidadSerializer, LineaPedidoPendSerilizer, EntregaSerializer, LineasAdicionalesSerilizer, MovimientoDetailSerializer, SalidasSerializer, StockMinimoDetailSerializer, PedidoSerilizer, LineaPedidoSerilizer, PedidoListSerilizer, PedidoDetailSerilizer, ProveedorDetailSerializer, AlmacenSerilizer, ContactoSerializer, InventarioSerializer, MovimientoSerializer, ProveedorSerializer, RepuestoListSerializer, RepuestoDetailSerializer, StockMinimoDetailSerializer, StockMinimoSerializer, LineaInventarioSerializer, TipoRepuestoSerilizer, TipoUnidadSerilizer, LineaSalidaSerializer
 from .models import PrecioRepuesto, Almacen, Entrega, Inventario, Contacto, LineaAdicional, LineaInventario, LineaPedido, Movimiento, Pedido, Proveedor, Repuesto, StockMinimo, TipoRepuesto, TipoUnidad, Salida, LineaSalida
 from django_filters import filterset, rest_framework as filters
-#from django.core.paginator import Paginator
 from rest_framework.pagination import PageNumberPagination
 
 
@@ -76,12 +75,6 @@ class RepuestoListFilter(filters.FilterSet):
             'stocks_minimos__almacen__id':['exact'],
             'nombre_comun':['icontains'],
         }
-
-class StandardResultsSetPagination(PageNumberPagination):
-    page_size = 3
-    page_size_query_param = 'page_size'
-    paginator=1
-    max_page_size = 1000 
 
 class PedidoListFilter(filters.FilterSet):
     class Meta:
@@ -172,6 +165,12 @@ class PrecioRepuestoFilter(filters.FilterSet):
             'repuesto__id':['exact'],
         }
 
+class StandardResultsSetPagination(PageNumberPagination):
+    page_size = 3
+    page_size_query_param = 'page_size'
+    paginator=1
+    max_page_size = 1000 
+
 class TipoRepuestoViewSet(viewsets.ModelViewSet):
     serializer_class = TipoRepuestoSerilizer
     queryset = TipoRepuesto.objects.all()
@@ -182,8 +181,9 @@ class TipoUnidadViewSet(viewsets.ModelViewSet):
 
 class RepuestoListViewSet(viewsets.ModelViewSet):
     serializer_class = RepuestoListSerializer
-    queryset = Repuesto.objects.all().distinct()
+    queryset = Repuesto.objects.all().distinct().order_by('nombre')
     filterset_class = RepuestoListFilter
+    pagination_class = StandardResultsSetPagination
 
 class RepuestoDetailViewSet(viewsets.ModelViewSet):
     serializer_class = RepuestoDetailSerializer
@@ -198,7 +198,7 @@ class StockMinimoViewSet(viewsets.ModelViewSet):
 
 class StockMinimoDetailViewSet(viewsets.ModelViewSet):
     serializer_class = StockMinimoDetailSerializer
-    queryset = StockMinimo.objects.all()
+    queryset = StockMinimo.objects.all().order_by('repuesto__nombre')
     filterset_class = StockMinimoFilter
 
 class ArticulosFueraStockViewSet(viewsets.ModelViewSet):
@@ -208,7 +208,7 @@ class ArticulosFueraStockViewSet(viewsets.ModelViewSet):
 
 class AlmacenViewSet(viewsets.ModelViewSet):
     serializer_class = AlmacenSerilizer
-    queryset = Almacen.objects.all()
+    queryset = Almacen.objects.all().order_by('nombre')
     filterset_class = AlmacenFilter
 
 class InventarioViewSet(viewsets.ModelViewSet):
@@ -236,7 +236,7 @@ class MovimientoDetailViewSet(viewsets.ModelViewSet):
 
 class ProveedorViewSet(viewsets.ModelViewSet):
     serializer_class = ProveedorSerializer
-    queryset = Proveedor.objects.all()
+    queryset = Proveedor.objects.all().order_by('nombre')
     filterset_class = ProveedorFilter
 
 class ProveedorDetailViewSet(viewsets.ModelViewSet):
@@ -250,7 +250,7 @@ class ContactoViewSet(viewsets.ModelViewSet):
 
 class PedidoListViewSet(viewsets.ModelViewSet):
     serializer_class = PedidoListSerilizer
-    queryset = Pedido.objects.all()
+    queryset = Pedido.objects.all().order_by('numero')
     filterset_class = PedidoListFilter
 
 class PedidoDetailViewSet(viewsets.ModelViewSet):
@@ -274,7 +274,7 @@ class LineaAdicionalPedidoViewSet(viewsets.ModelViewSet):
 
 class LineaAdicionalDetalleViewSet(viewsets.ModelViewSet):
     serializer_class = LineasAdicionalesDetalleSerilizer
-    queryset = LineaAdicional.objects.all()
+    queryset = LineaAdicional.objects.all().order_by('descripcion')
     filterset_class = LineaAdicionalFilter
 
 class PedidoViewSet(viewsets.ModelViewSet):

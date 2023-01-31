@@ -66,5 +66,5 @@ class SeccionViewSet(viewsets.ModelViewSet):
 
 class EquipoViewSet(viewsets.ModelViewSet):
     serializer_class = EquipoSerializer
-    queryset = Equipo.objects.all()
+    queryset = Equipo.objects.all().order_by('nombre')
     filterset_class = EquipoFilter

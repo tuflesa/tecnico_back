@@ -49,7 +49,7 @@ class Repuesto(models.Model):
     equipos = models.ManyToManyField(Equipo, related_name='repuestos')
     proveedores = models.ManyToManyField(Proveedor, blank=True, related_name='repuestos')
     descatalogado = models.BooleanField(default=False)
-    observaciones = models.CharField(max_length=80, null=True, blank=True)
+    observaciones = models.CharField(max_length=300, null=True, blank=True)
     nombre_comun = models.CharField(max_length = 100, null=True, blank=True)
 
     #def stock(self):
