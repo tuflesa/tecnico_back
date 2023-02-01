@@ -163,10 +163,11 @@ class PrecioRepuestoFilter(filters.FilterSet):
             'repuesto__nombre':['icontains'],
             'proveedor__id':['exact'],
             'repuesto__id':['exact'],
+            'repuesto__modelo':['icontains'],
         }
 
 class StandardResultsSetPagination(PageNumberPagination):
-    page_size = 3
+    page_size = 20
     page_size_query_param = 'page_size'
     paginator=1
     max_page_size = 1000 
@@ -301,5 +302,5 @@ class PrecioRepuestoViewSet(viewsets.ModelViewSet):
 
 class RepuestoConPrecioViewSet(viewsets.ModelViewSet):
     serializer_class = RepuestoConPrecioSerializer
-    queryset = PrecioRepuesto.objects.all()
+    queryset = PrecioRepuesto.objects.all().order_by('repuesto__nombre')
     filterset_class = PrecioRepuestoFilter
