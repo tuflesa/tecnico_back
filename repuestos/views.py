@@ -277,6 +277,7 @@ class LineaAdicionalDetalleViewSet(viewsets.ModelViewSet):
     serializer_class = LineasAdicionalesDetalleSerilizer
     queryset = LineaAdicional.objects.all().order_by('descripcion')
     filterset_class = LineaAdicionalFilter
+    pagination_class = StandardResultsSetPagination
 
 class PedidoViewSet(viewsets.ModelViewSet):
     serializer_class = PedidoSerilizer
