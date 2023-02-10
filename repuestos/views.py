@@ -204,7 +204,7 @@ class StockMinimoDetailViewSet(viewsets.ModelViewSet):
 
 class ArticulosFueraStockViewSet(viewsets.ModelViewSet):
     serializer_class = StockMinimoDetailSerializer
-    queryset = StockMinimo.objects.filter(stock_act__lt=F('cantidad'))
+    queryset = StockMinimo.objects.filter(stock_act__lt=F('cantidad')).order_by('repuesto__nombre')
     filterset_class = StockMinimoFilter
 
 class AlmacenViewSet(viewsets.ModelViewSet):
@@ -242,7 +242,7 @@ class ProveedorViewSet(viewsets.ModelViewSet):
 
 class ProveedorDetailViewSet(viewsets.ModelViewSet):
     serializer_class = ProveedorDetailSerializer
-    queryset = Proveedor.objects.all()
+    queryset = Proveedor.objects.all().order_by('nombre')
 
 class ContactoViewSet(viewsets.ModelViewSet):
     serializer_class = ContactoSerializer
@@ -256,22 +256,22 @@ class PedidoListViewSet(viewsets.ModelViewSet):
 
 class PedidoDetailViewSet(viewsets.ModelViewSet):
     serializer_class = PedidoDetailSerilizer
-    queryset = Pedido.objects.all()
+    queryset = Pedido.objects.all().order_by('numero')
     filterset_class = PedidoListFilter
 
 class LineaPedidoViewSet(viewsets.ModelViewSet):
     serializer_class = LineaPedidoSerilizer
-    queryset = LineaPedido.objects.all()
+    queryset = LineaPedido.objects.all().order_by('id')
     filterset_class = LineaPedidoFilter
 
 class LineaPedidoPendViewSet(viewsets.ModelViewSet):
     serializer_class = LineaPedidoPendSerilizer
-    queryset = LineaPedido.objects.all()
+    queryset = LineaPedido.objects.all().order_by('id')
     filterset_class = LineaPedidoFilter
 
 class LineaAdicionalPedidoViewSet(viewsets.ModelViewSet):
     serializer_class = LineasAdicionalesSerilizer
-    queryset = LineaAdicional.objects.all()
+    queryset = LineaAdicional.objects.all().order_by('id')
 
 class LineaAdicionalDetalleViewSet(viewsets.ModelViewSet):
     serializer_class = LineasAdicionalesDetalleSerilizer
@@ -281,7 +281,7 @@ class LineaAdicionalDetalleViewSet(viewsets.ModelViewSet):
 
 class PedidoViewSet(viewsets.ModelViewSet):
     serializer_class = PedidoSerilizer
-    queryset = Pedido.objects.all()
+    queryset = Pedido.objects.all().order_by('numero')
 
 class SalidaVieSet(viewsets.ModelViewSet):
     serializer_class = SalidasSerializer
@@ -298,7 +298,7 @@ class MovimientoTrazabilidadViewSet(viewsets.ModelViewSet):
 
 class PrecioRepuestoViewSet(viewsets.ModelViewSet):
     serializer_class = PrecioRepuestoSerializer
-    queryset = PrecioRepuesto.objects.all()
+    queryset = PrecioRepuesto.objects.all().order_by('repuesto__nombre')
     filterset_class = PrecioRepuestoFilter
 
 class RepuestoConPrecioViewSet(viewsets.ModelViewSet):
