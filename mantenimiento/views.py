@@ -4,6 +4,7 @@ from mantenimiento.models import Notificacion, ParteTrabajo, Tarea, Especialidad
 from mantenimiento.serializers import LineasDeUnTrabajadorSerializer, PartesFiltradosSerializer, ParteTrabajoEditarSerializer, NotificacionSerializer, NotificacionNuevaSerializer, TareaSerializer, EspecialidadSerializer, TipoTareaSerializer, TipoPeriodoSerializer, TareaNuevaSerializer, ParteTrabajoSerializer, ParteTrabajoDetalleSerializer, LineaParteTrabajoSerializer, LineaParteTrabajoNuevaSerializer, LineaParteTrabajoMovSerializer, ListadoLineasPartesSerializer, EstadoLineasTareasSerializer, TrabajadoresLineaParteSerializer, ListadoLineasActivasSerializer, TrabajadoresEnLineaSerializer
 from django_filters import rest_framework as filters
 from django.db.models import Count, F, Value
+from rest_framework.pagination import PageNumberPagination
 
 class NotificacionFilter(filters.FilterSet):
     class Meta:
@@ -112,6 +113,12 @@ class TrabajadoresLineaParteFilter(filters.FilterSet):
             'fecha_fin': ['lte', 'gte'],
         }
 
+class StandardResultsSetPagination(PageNumberPagination):
+    page_size = 20
+    page_size_query_param = 'page_size'
+    paginator=1
+    max_page_size = 1000 
+
 class NotificacionViewSet(viewsets.ModelViewSet):
     serializer_class = NotificacionSerializer
     queryset = Notificacion.objects.all()
@@ -172,7 +179,7 @@ class ListadoLineaParteViewSet(viewsets.ModelViewSet):
 #excluimos de la busqueda aquellas con estado 3 = finalizadas y 4 = pendientes
 class ListadoLineaActivasViewSet(viewsets.ModelViewSet):
     serializer_class = ListadoLineasActivasSerializer
-    queryset = LineaParteTrabajo.objects.all().exclude(estado=3).exclude(estado=4)
+    queryset = LineaParteTrabajo.objects.all().exclude(estado=3).exclude(estado=4).order_by('-tarea__prioridad')
     filterset_class = LineasFilter
 
 class ParteTrabajoViewSet(viewsets.ModelViewSet):
@@ -213,5 +220,6 @@ class TrabajadoresEnLineaViewSet(viewsets.ModelViewSet):
 
 class LineasdeunTrabajadorViewSet(viewsets.ModelViewSet):
     serializer_class = LineasDeUnTrabajadorSerializer
-    queryset = TrabajadoresLineaParte.objects.all()
+    queryset = TrabajadoresLineaParte.objects.all().order_by('-linea__parte')
     filterset_class = TrabajadoresLineaParteFilter
+    pagination_class = StandardResultsSetPagination

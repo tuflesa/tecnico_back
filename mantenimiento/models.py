@@ -28,6 +28,7 @@ class Notificacion(models.Model): # Notificación 5W+2H Plus
     # Plus
     numero = models.CharField(max_length=16, null=True, blank=True, default=None)
     empresa = models.ForeignKey(Empresa, on_delete=models.CASCADE)
+    zona = models.ForeignKey(Zona, on_delete=models.CASCADE, blank=True, null=True, related_name='notificaciones_creadas')
     fecha_creacion = models.DateField(default=timezone.now)
     #para = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='notificaciones_recividas') # A quien se informa del problema
     revisado = models.BooleanField(default=False)
