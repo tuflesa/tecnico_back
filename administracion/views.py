@@ -12,6 +12,7 @@ class UserFilter(filters.FilterSet):
         model = User
         fields = {
             'perfil__empresa__id': ['exact'],
+            'perfil__zona__id': ['exact'],
             'perfil__puesto__nombre':['exact'],
             'perfil__puesto__id': ['exact'],
             'perfil__destrezas__nombre' : ['exact'],

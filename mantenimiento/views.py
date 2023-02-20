@@ -179,7 +179,7 @@ class ListadoLineaParteViewSet(viewsets.ModelViewSet):
 #excluimos de la busqueda aquellas con estado 3 = finalizadas y 4 = pendientes
 class ListadoLineaActivasViewSet(viewsets.ModelViewSet):
     serializer_class = ListadoLineasActivasSerializer
-    queryset = LineaParteTrabajo.objects.all().exclude(estado=3).exclude(estado=4).order_by('-tarea__prioridad')
+    queryset = LineaParteTrabajo.objects.exclude(estado=3).exclude(estado=4).order_by('-tarea__prioridad')
     filterset_class = LineasFilter
 
 class ParteTrabajoViewSet(viewsets.ModelViewSet):
