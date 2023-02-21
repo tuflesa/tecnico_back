@@ -155,7 +155,7 @@ class TareaNuevaViewSet(viewsets.ModelViewSet):
 
 class TipoTareaViewSet(viewsets.ModelViewSet):
     serializer_class = TipoTareaSerializer
-    queryset = TipoTarea.objects.all()
+    queryset = TipoTarea.objects.all().order_by('nombre')
 class LineaParteTrabajoViewSet(viewsets.ModelViewSet):
     serializer_class = LineaParteTrabajoSerializer
     queryset = LineaParteTrabajo.objects.all()
@@ -173,14 +173,16 @@ class LineaParteTrabajoNuevaViewSet(viewsets.ModelViewSet):
 
 class ListadoLineaParteViewSet(viewsets.ModelViewSet):
     serializer_class = ListadoLineasPartesSerializer
-    queryset = LineaParteTrabajo.objects.all()
+    queryset = LineaParteTrabajo.objects.all().order_by('-tarea__prioridad')
     filterset_class = LineasFilter
+    pagination_class = StandardResultsSetPagination
 
 #excluimos de la busqueda aquellas con estado 3 = finalizadas y 4 = pendientes
 class ListadoLineaActivasViewSet(viewsets.ModelViewSet):
     serializer_class = ListadoLineasActivasSerializer
     queryset = LineaParteTrabajo.objects.exclude(estado=3).exclude(estado=4).order_by('-tarea__prioridad')
     filterset_class = LineasFilter
+    pagination_class = StandardResultsSetPagination
 
 class ParteTrabajoViewSet(viewsets.ModelViewSet):
     serializer_class = ParteTrabajoSerializer
