@@ -184,6 +184,13 @@ class ListadoLineaActivasViewSet(viewsets.ModelViewSet):
     filterset_class = LineasFilter
     pagination_class = StandardResultsSetPagination
 
+
+#excluimos de la busqueda aquellas con estado 3 = finalizadas y 4 = pendientes
+class ListadoLineaActivasSinPaginarViewSet(viewsets.ModelViewSet):
+    serializer_class = ListadoLineasActivasSerializer
+    queryset = LineaParteTrabajo.objects.exclude(estado=3).exclude(estado=4).order_by('-tarea__prioridad')
+    filterset_class = LineasFilter
+
 class ParteTrabajoViewSet(viewsets.ModelViewSet):
     serializer_class = ParteTrabajoSerializer
     #queryset = ParteTrabajo.objects.filter(tareas__gt=0)
