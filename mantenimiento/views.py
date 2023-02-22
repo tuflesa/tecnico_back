@@ -111,6 +111,7 @@ class TrabajadoresLineaParteFilter(filters.FilterSet):
             'linea': ['exact'],
             'fecha_inicio': ['lte', 'gte'],
             'fecha_fin': ['lte', 'gte'],
+            'linea__parte__empresa': ['exact'],
         }
 
 class StandardResultsSetPagination(PageNumberPagination):
