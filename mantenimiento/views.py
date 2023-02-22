@@ -192,8 +192,16 @@ class ParteTrabajoViewSet(viewsets.ModelViewSet):
 
 class ParteTrabajoDetalleViewSet(viewsets.ModelViewSet):
     serializer_class = ParteTrabajoDetalleSerializer
-    queryset = ParteTrabajo.objects.all()
+    queryset = ParteTrabajo.objects.all().order_by('id')
     filterset_class = PartesFilter
+    pagination_class = StandardResultsSetPagination
+    
+#excluimos de la busqueda aquellas con estado 3 = finalizadas y 4 = pendientes
+class ParteActivosTrabajoViewSet(viewsets.ModelViewSet):
+    serializer_class = ParteTrabajoDetalleSerializer
+    queryset = ParteTrabajo.objects.exclude(estado=3).exclude(estado=4).order_by('-id')
+    filterset_class = PartesFilter
+    pagination_class = StandardResultsSetPagination
 
 class PartesFiltradosViewSet(viewsets.ModelViewSet):
     serializer_class = PartesFiltradosSerializer
