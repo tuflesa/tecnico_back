@@ -17,6 +17,8 @@ class NotificacionFilter(filters.FilterSet):
             'finalizado': ['exact'],
             'quien' :['exact'],
             'fecha_creacion' : ['lte', 'gte'], 
+            'zona__id' : ['exact'],
+            'numero' : ['icontains'],
         }
 class TareaFilter(filters.FilterSet):
     class Meta:
