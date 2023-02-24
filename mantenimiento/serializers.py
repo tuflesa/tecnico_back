@@ -8,7 +8,7 @@ from estructura.serializers import EquipoSerializer, SeccionSerializer, ZonaSeri
 
 class NotificacionSerializer(serializers.ModelSerializer):
     quien = UserSerializer(many=False)
-    #para = UserSerializer(many=False)
+    zona = ZonaSerializer(many=False, read_only=True)
     #fecha_creacion = serializers.DateField(format="%d-%m-%Y")
     class Meta:
         model = Notificacion
