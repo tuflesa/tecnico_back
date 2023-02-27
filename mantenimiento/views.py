@@ -125,8 +125,9 @@ class StandardResultsSetPagination(PageNumberPagination):
 
 class NotificacionViewSet(viewsets.ModelViewSet):
     serializer_class = NotificacionSerializer
-    queryset = Notificacion.objects.all()
+    queryset = Notificacion.objects.all().order_by('-id')
     filterset_class = NotificacionFilter
+    pagination_class = StandardResultsSetPagination
 
 class NotificacionNuevaViewSet(viewsets.ModelViewSet):
     serializer_class = NotificacionNuevaSerializer
