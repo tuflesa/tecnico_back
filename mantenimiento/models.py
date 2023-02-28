@@ -153,7 +153,7 @@ class ParteTrabajo(models.Model):
             contador_parte.contador_parte = num_parte
             contador_parte.save()
 
-            self.num_parte = self.empresa.siglas + '-' + year + '-N-' + str(num_parte).zfill(3)
+            self.num_parte = self.empresa.siglas + '-' + year + '-P-' + str(num_parte).zfill(3)
         # Llamar al metodo save por defecto de la clase
         super(ParteTrabajo,self).save(*args, **kwargs)
 
