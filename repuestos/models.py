@@ -246,3 +246,4 @@ class PrecioRepuesto(models.Model):
     proveedor = models.ForeignKey(Proveedor, blank=True, null=True, on_delete=models.CASCADE)
     precio = models.DecimalField(max_digits=13, decimal_places=4, blank=True, null=True)
     descuento = models.DecimalField(max_digits=5, decimal_places=2, blank= True, null=True)
+    descripcion_proveedor = models.CharField(max_length = 150, blank= True, null=True)

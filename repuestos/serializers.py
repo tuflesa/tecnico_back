@@ -192,10 +192,10 @@ class MovimientoTrazabilidadSerializer(serializers.ModelSerializer):
 class PrecioRepuestoSerializer(serializers.ModelSerializer):
     class Meta:
         model = PrecioRepuesto
-        fields = ['id', 'proveedor', 'repuesto', 'precio', 'descuento']
+        fields = ['id', 'proveedor', 'repuesto', 'precio', 'descuento', 'descripcion_proveedor']
 
 class RepuestoConPrecioSerializer(serializers.ModelSerializer):
     repuesto = RepuestoListSerializer(many=False, read_only=True) 
     class Meta:
         model = PrecioRepuesto
-        fields = ['id', 'proveedor', 'repuesto', 'precio', 'descuento']
+        fields = ['id', 'proveedor', 'repuesto', 'precio', 'descuento' , 'descripcion_proveedor']
