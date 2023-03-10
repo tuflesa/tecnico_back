@@ -5,6 +5,7 @@ from mantenimiento.models import Especialidad, EstadoLineasTareas, LineaParteTra
 class ParteTrabajoAdmin(admin.ModelAdmin):
     list_filter=("estado",)
     search_fields=("num_parte",)
+    list_display=("nombre", "num_parte",)
 
 admin.site.register(Notificacion)
 admin.site.register(ParteTrabajo, ParteTrabajoAdmin)
