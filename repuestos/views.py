@@ -3,7 +3,7 @@ from rest_framework import viewsets
 from rest_framework import serializers
 from django.db.models import F
 from rest_framework.serializers import Serializer
-from .serializers import LineasAdicionalesDetalleSerilizer, RepuestoConPrecioSerializer, PrecioRepuestoSerializer, MovimientoTrazabilidadSerializer, LineaPedidoPendSerilizer, EntregaSerializer, LineasAdicionalesSerilizer, MovimientoDetailSerializer, SalidasSerializer, StockMinimoDetailSerializer, PedidoSerilizer, LineaPedidoSerilizer, PedidoListSerilizer, PedidoDetailSerilizer, ProveedorDetailSerializer, AlmacenSerilizer, ContactoSerializer, InventarioSerializer, MovimientoSerializer, ProveedorSerializer, RepuestoListSerializer, RepuestoDetailSerializer, StockMinimoDetailSerializer, StockMinimoSerializer, LineaInventarioSerializer, TipoRepuestoSerilizer, TipoUnidadSerilizer, LineaSalidaSerializer
+from .serializers import LineaPedidoDetailSerilizer, LineasAdicionalesDetalleSerilizer, RepuestoConPrecioSerializer, PrecioRepuestoSerializer, MovimientoTrazabilidadSerializer, LineaPedidoPendSerilizer, EntregaSerializer, LineasAdicionalesSerilizer, MovimientoDetailSerializer, SalidasSerializer, StockMinimoDetailSerializer, PedidoSerilizer, LineaPedidoSerilizer, PedidoListSerilizer, PedidoDetailSerilizer, ProveedorDetailSerializer, AlmacenSerilizer, ContactoSerializer, InventarioSerializer, MovimientoSerializer, ProveedorSerializer, RepuestoListSerializer, RepuestoDetailSerializer, StockMinimoDetailSerializer, StockMinimoSerializer, LineaInventarioSerializer, TipoRepuestoSerilizer, TipoUnidadSerilizer, LineaSalidaSerializer
 from .models import PrecioRepuesto, Almacen, Entrega, Inventario, Contacto, LineaAdicional, LineaInventario, LineaPedido, Movimiento, Pedido, Proveedor, Repuesto, StockMinimo, TipoRepuesto, TipoUnidad, Salida, LineaSalida
 from django_filters import filterset, rest_framework as filters
 from rest_framework.pagination import PageNumberPagination
@@ -265,6 +265,11 @@ class PedidoDetailViewSet(viewsets.ModelViewSet):
 
 class LineaPedidoViewSet(viewsets.ModelViewSet):
     serializer_class = LineaPedidoSerilizer
+    queryset = LineaPedido.objects.all().order_by('id')
+    filterset_class = LineaPedidoFilter
+
+class LineaPedidoDetalleViewSet(viewsets.ModelViewSet):
+    serializer_class = LineaPedidoDetailSerilizer
     queryset = LineaPedido.objects.all().order_by('id')
     filterset_class = LineaPedidoFilter
 
