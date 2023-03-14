@@ -107,6 +107,7 @@ class LineaPedidoFilter(filters.FilterSet):
             'pedido__proveedor': ['exact'],
             'pedido__fecha_prevista_entrega': ['exact'],
             'pedido__empresa__id': ['exact'],
+            'descripcion_proveedor': ['icontains'],
         }
 
 class LineaAdicionalFilter(filters.FilterSet):

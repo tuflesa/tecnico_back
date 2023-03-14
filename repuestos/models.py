@@ -123,6 +123,7 @@ class Pedido(models.Model):
 class LineaPedido(models.Model):
     pedido = models.ForeignKey(Pedido, on_delete=models.CASCADE, related_name='lineas_pedido')
     repuesto = models.ForeignKey(Repuesto, on_delete=models.CASCADE)
+    descripcion_proveedor = models.CharField(max_length = 150, blank= True, null=True)
     cantidad = models.IntegerField(default=0)
     precio = models.DecimalField(max_digits=13, decimal_places=4, blank=True, null=True)
     por_recibir = models.IntegerField(default=0)
