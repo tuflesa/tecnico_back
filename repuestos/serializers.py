@@ -114,26 +114,26 @@ class LineaPedidoDetailSerilizer(serializers.ModelSerializer):
     repuesto = RepuestoListSerializer(many=False, read_only=True)    
     class Meta:
         model = LineaPedido
-        fields = ['id', 'por_recibir', 'pedido', 'repuesto', 'cantidad', 'precio', 'descuento', 'total', 'descripcion_proveedor']
+        fields = ['id', 'por_recibir', 'pedido', 'repuesto', 'cantidad', 'precio', 'descuento', 'total', 'descripcion_proveedor', 'modelo_proveedor']
 
 class LineaPedidoTrazaSerilizer(serializers.ModelSerializer):
     repuesto = RepuestoListSerializer(many=False, read_only=True)    
     pedido = PedidoListSerilizer(many=False, read_only=True)
     class Meta:
         model = LineaPedido
-        fields = ['id', 'por_recibir', 'pedido', 'repuesto', 'cantidad', 'precio', 'descuento', 'total', 'descripcion_proveedor']
+        fields = ['id', 'por_recibir', 'pedido', 'repuesto', 'cantidad', 'precio', 'descuento', 'total', 'descripcion_proveedor', 'modelo_proveedor']
 
 class LineaPedidoSerilizer(serializers.ModelSerializer):
     #pedido = PedidoListSerilizer(many=False, read_only=True)
     class Meta:
         model = LineaPedido
-        fields = ['id', 'pedido', 'por_recibir' ,'repuesto', 'cantidad', 'precio', 'descuento', 'total', 'descripcion_proveedor']
+        fields = ['id', 'pedido', 'por_recibir' ,'repuesto', 'cantidad', 'precio', 'descuento', 'total', 'descripcion_proveedor', 'modelo_proveedor']
 
 class LineaPedidoPendSerilizer(serializers.ModelSerializer):
     pedido = PedidoListSerilizer(many=False, read_only=True)
     class Meta:
         model = LineaPedido
-        fields = ['id', 'pedido', 'por_recibir' ,'repuesto', 'cantidad', 'precio', 'descuento', 'total', 'descripcion_proveedor']
+        fields = ['id', 'pedido', 'por_recibir' ,'repuesto', 'cantidad', 'precio', 'descuento', 'total', 'descripcion_proveedor', 'modelo_proveedor']
 
 class LineasAdicionalesSerilizer(serializers.ModelSerializer):
     class Meta:
@@ -192,10 +192,10 @@ class MovimientoTrazabilidadSerializer(serializers.ModelSerializer):
 class PrecioRepuestoSerializer(serializers.ModelSerializer):
     class Meta:
         model = PrecioRepuesto
-        fields = ['id', 'proveedor', 'repuesto', 'precio', 'descuento', 'descripcion_proveedor']
+        fields = ['id', 'proveedor', 'repuesto', 'precio', 'descuento', 'descripcion_proveedor', 'modelo_proveedor']
 
 class RepuestoConPrecioSerializer(serializers.ModelSerializer):
     repuesto = RepuestoListSerializer(many=False, read_only=True) 
     class Meta:
         model = PrecioRepuesto
-        fields = ['id', 'proveedor', 'repuesto', 'precio', 'descuento' , 'descripcion_proveedor']
+        fields = ['id', 'proveedor', 'repuesto', 'precio', 'descuento' , 'descripcion_proveedor', 'modelo_proveedor']

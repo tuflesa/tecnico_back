@@ -167,6 +167,7 @@ class PrecioRepuestoFilter(filters.FilterSet):
             'repuesto__id':['exact'],
             'repuesto__modelo':['icontains'],
             'descripcion_proveedor': ['icontains'],
+            'modelo_proveedor': ['icontains'],
             'repuesto__descatalogado':['exact'],
         }
 
