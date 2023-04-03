@@ -1,10 +1,11 @@
 from rest_framework import routers
-from .views import LineaPedidoDetalleViewSet, LineaAdicionalDetalleViewSet, RepuestoConPrecioViewSet, PrecioRepuestoViewSet, MovimientoTrazabilidadViewSet, ArticulosFueraStockViewSet, LineaPedidoPendViewSet, EntregaViewSet, LineaAdicionalPedidoViewSet, LineasSalidaVieSet, MovimientoDetailViewSet, PedidoViewSet, InventarioViewSet, LineaPedidoViewSet, PedidoDetailViewSet, ContactoViewSet, MovimientoViewSet, PedidoListViewSet, ProveedorDetailViewSet, ProveedorViewSet, RepuestoListViewSet, RepuestoDetailViewSet, SalidaVieSet, StockMinimoDetailViewSet, StockMinimoViewSet, AlmacenViewSet, LineaInventarioViewSet, TipoRepuestoViewSet, TipoUnidadViewSet
+from .views import RepuestoListSinPaginarViewSet, Filtro_RepuestoConPrecioViewSet, LineaPedidoDetalleViewSet, LineaAdicionalDetalleViewSet, RepuestoConPrecioViewSet, PrecioRepuestoViewSet, MovimientoTrazabilidadViewSet, ArticulosFueraStockViewSet, LineaPedidoPendViewSet, EntregaViewSet, LineaAdicionalPedidoViewSet, LineasSalidaVieSet, MovimientoDetailViewSet, PedidoViewSet, InventarioViewSet, LineaPedidoViewSet, PedidoDetailViewSet, ContactoViewSet, MovimientoViewSet, PedidoListViewSet, ProveedorDetailViewSet, ProveedorViewSet, RepuestoListViewSet, RepuestoDetailViewSet, SalidaVieSet, StockMinimoDetailViewSet, StockMinimoViewSet, AlmacenViewSet, LineaInventarioViewSet, TipoRepuestoViewSet, TipoUnidadViewSet
 
 router = routers.DefaultRouter()
 router.register('pedido', PedidoViewSet)
 router.register('linea_pedido_pend', LineaPedidoPendViewSet)
 router.register('repuesto_precio', RepuestoConPrecioViewSet)
+router.register('filtro_repuesto_precio', Filtro_RepuestoConPrecioViewSet)
 router.register('precio_detalle', PrecioRepuestoViewSet)
 router.register('precio', PrecioRepuestoViewSet)
 router.register('tipo_unidad', TipoUnidadViewSet)
@@ -14,6 +15,7 @@ router.register('movimiento', MovimientoViewSet)
 router.register('entrega', EntregaViewSet)
 router.register('linea_pedido_detalle', LineaPedidoDetalleViewSet)
 router.register('linea_pedido', LineaPedidoViewSet)
+router.register('lista_repuestos', RepuestoListSinPaginarViewSet)
 router.register('lista', RepuestoListViewSet)
 router.register('detalle', RepuestoDetailViewSet)
 router.register('tipo_repuesto', TipoRepuestoViewSet)

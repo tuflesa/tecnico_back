@@ -19,6 +19,11 @@ class MovimientoAdmin(admin.ModelAdmin):
     list_filter =("almacen","usuario",)
     date_hierarchy = "fecha"
 
+class PrecioProveedorAdmin(admin.ModelAdmin):
+    list_filter=("proveedor",)
+    search_fields=("descripcion_proveedor",)
+    list_display =("repuesto", "descripcion_proveedor","proveedor",)
+
 admin.site.register(Repuesto)
 admin.site.register(TipoUnidad)
 admin.site.register(TipoRepuesto)
@@ -36,4 +41,4 @@ admin.site.register(LineaAdicional)
 admin.site.register(Entrega)
 admin.site.register(Salida)
 admin.site.register(LineaSalida)
-admin.site.register(PrecioRepuesto)
+admin.site.register(PrecioRepuesto, PrecioProveedorAdmin)

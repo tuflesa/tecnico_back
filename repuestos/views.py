@@ -169,6 +169,15 @@ class PrecioRepuestoFilter(filters.FilterSet):
             'descripcion_proveedor': ['icontains'],
             'modelo_proveedor': ['icontains'],
             'repuesto__descatalogado':['exact'],
+            'repuesto__tipo_repuesto': ['exact'],
+            'repuesto__fabricante': ['icontains'],
+            'repuesto__es_critico': ['exact'],
+            'repuesto__equipos__seccion__zona__empresa__id' : ['exact'],
+            'repuesto__equipos__seccion__zona__id': ['exact'],
+            'repuesto__equipos__seccion__id': ['exact'],
+            'repuesto__equipos__id': ['exact'],
+            'repuesto__proveedores__id':['exact'],
+            'repuesto__nombre_comun':['icontains'],
         }
 
 class StandardResultsSetPagination(PageNumberPagination):
@@ -187,9 +196,14 @@ class TipoUnidadViewSet(viewsets.ModelViewSet):
 
 class RepuestoListViewSet(viewsets.ModelViewSet):
     serializer_class = RepuestoListSerializer
-    queryset = Repuesto.objects.all().distinct().order_by('nombre')
+    queryset = Repuesto.objects.all().order_by('nombre')
     filterset_class = RepuestoListFilter
     pagination_class = StandardResultsSetPagination
+
+class RepuestoListSinPaginarViewSet(viewsets.ModelViewSet):
+    serializer_class = RepuestoListSerializer
+    queryset = Repuesto.objects.all().order_by('nombre')
+    filterset_class = RepuestoListFilter
 
 class RepuestoDetailViewSet(viewsets.ModelViewSet):
     serializer_class = RepuestoDetailSerializer
@@ -315,3 +329,9 @@ class RepuestoConPrecioViewSet(viewsets.ModelViewSet):
     serializer_class = RepuestoConPrecioSerializer
     queryset = PrecioRepuesto.objects.all().order_by('repuesto__nombre')
     filterset_class = PrecioRepuestoFilter
+
+class Filtro_RepuestoConPrecioViewSet(viewsets.ModelViewSet):
+    serializer_class = RepuestoConPrecioSerializer
+    queryset = PrecioRepuesto.objects.all().order_by('repuesto__nombre')
+    filterset_class = PrecioRepuestoFilter
+    pagination_class = StandardResultsSetPagination
