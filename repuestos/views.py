@@ -161,6 +161,7 @@ class PrecioRepuestoFilter(filters.FilterSet):
         fields = {
             'proveedor': ['exact'],
             'repuesto':['exact'],
+            'proveedor__nombre':['exact'],
             'proveedor__nombre':['icontains'],
             'repuesto__nombre':['icontains'],
             'proveedor__id':['exact'],
