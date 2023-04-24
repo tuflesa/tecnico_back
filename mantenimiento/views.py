@@ -1,7 +1,7 @@
 # from asyncio.windows_events import NULL
 from rest_framework import viewsets
-from mantenimiento.models import Notificacion, ParteTrabajo, Tarea, Especialidad, TipoPeriodo, TipoTarea, LineaParteTrabajo, EstadoLineasTareas, TrabajadoresLineaParte
-from mantenimiento.serializers import LineasDeUnTrabajadorSerializer, PartesFiltradosSerializer, ParteTrabajoEditarSerializer, NotificacionSerializer, NotificacionNuevaSerializer, TareaSerializer, EspecialidadSerializer, TipoTareaSerializer, TipoPeriodoSerializer, TareaNuevaSerializer, ParteTrabajoSerializer, ParteTrabajoDetalleSerializer, LineaParteTrabajoSerializer, LineaParteTrabajoNuevaSerializer, LineaParteTrabajoMovSerializer, ListadoLineasPartesSerializer, EstadoLineasTareasSerializer, TrabajadoresLineaParteSerializer, ListadoLineasActivasSerializer, TrabajadoresEnLineaSerializer
+from mantenimiento.models import Notificacion, ParteTrabajo, Tarea, Especialidad, TipoPeriodo, TipoTarea, LineaParteTrabajo, EstadoLineasTareas, TrabajadoresLineaParte, Reclamo
+from mantenimiento.serializers import LineasDeUnTrabajadorSerializer, PartesFiltradosSerializer, ParteTrabajoEditarSerializer, NotificacionSerializer, NotificacionNuevaSerializer, TareaSerializer, EspecialidadSerializer, TipoTareaSerializer, TipoPeriodoSerializer, TareaNuevaSerializer, ParteTrabajoSerializer, ParteTrabajoDetalleSerializer, LineaParteTrabajoSerializer, LineaParteTrabajoNuevaSerializer, LineaParteTrabajoMovSerializer, ListadoLineasPartesSerializer, EstadoLineasTareasSerializer, TrabajadoresLineaParteSerializer, ListadoLineasActivasSerializer, TrabajadoresEnLineaSerializer,  ReclamoSerializer
 from django_filters import rest_framework as filters
 from django.db.models import Count, F, Value
 from rest_framework.pagination import PageNumberPagination
@@ -115,6 +115,15 @@ class TrabajadoresLineaParteFilter(filters.FilterSet):
             'fecha_inicio': ['lte', 'gte'],
             'fecha_fin': ['lte', 'gte'],
             'linea__parte__empresa': ['exact'],
+        }
+
+class ReclamoFilter(filters.FilterSet):
+    class Meta:
+        model = Reclamo
+        fields = {
+            'notificacion': ['exact'],
+            'trabajador': ['exact'],
+            'fecha': ['lte', 'gte'],
         }
 
 class StandardResultsSetPagination(PageNumberPagination):
@@ -250,3 +259,8 @@ class LineasdeunTrabajadorViewSet(viewsets.ModelViewSet):
     queryset = TrabajadoresLineaParte.objects.all().order_by('-linea__parte')
     filterset_class = TrabajadoresLineaParteFilter
     pagination_class = StandardResultsSetPagination
+
+class ReclamoViewSet(viewsets.ModelViewSet):
+    serializer_class = ReclamoSerializer
+    queryset = Reclamo.objects.all()
+    filterset_class = ReclamoFilter
