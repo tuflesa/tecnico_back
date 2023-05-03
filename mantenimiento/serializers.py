@@ -134,6 +134,12 @@ class LineasDeUnTrabajadorSerializer(serializers.ModelSerializer):
         model = TrabajadoresLineaParte
         fields = ['id', 'linea', 'fecha_inicio', 'fecha_fin', 'trabajador']
 
+class ReclamoDetalleSerializer(serializers.ModelSerializer):
+    trabajador = UserSerializer(many=False, read_only=True)
+    class Meta:
+        model = Reclamo
+        fields = ['id', 'notificacion', 'fecha', 'trabajador']
+
 class ReclamoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Reclamo

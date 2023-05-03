@@ -1,8 +1,9 @@
 from rest_framework import routers
-from .views import Notificacion_sinpaginarViewSet, ListadoLineaActivasSinPaginarViewSet, ParteActivosTrabajoViewSet, LineasdeunTrabajadorViewSet, TrabajadoresLineaParteFechaNullViewSet, PartesFiltradosViewSet, ParteTrabajoEditarViewSet, NotificacionViewSet, NotificacionNuevaViewSet, TareaViewSet, EspecialidadViewSet, TipoTareaViewSet, TipoPeriodoViewSet, TareaNuevaViewSet, ParteTrabajoViewSet, ParteTrabajoDetalleViewSet, LineaParteTrabajoViewSet, LineaParteTrabajoNuevaViewSet, LineaParteTrabajoMovViewSet, ListadoLineaParteViewSet, EstadoLineasTareasViewSet, TrabajadoresLineaParteViewSet, ListadoLineaActivasViewSet, TrabajadoresEnLineaViewSet, ReclamoViewSet
+from .views import Notificacion_sinpaginarViewSet, ListadoLineaActivasSinPaginarViewSet, ParteActivosTrabajoViewSet, LineasdeunTrabajadorViewSet, TrabajadoresLineaParteFechaNullViewSet, PartesFiltradosViewSet, ParteTrabajoEditarViewSet, NotificacionViewSet, NotificacionNuevaViewSet, TareaViewSet, EspecialidadViewSet, TipoTareaViewSet, TipoPeriodoViewSet, TareaNuevaViewSet, ParteTrabajoViewSet, ParteTrabajoDetalleViewSet, LineaParteTrabajoViewSet, LineaParteTrabajoNuevaViewSet, LineaParteTrabajoMovViewSet, ListadoLineaParteViewSet, EstadoLineasTareasViewSet, TrabajadoresLineaParteViewSet, ListadoLineaActivasViewSet, TrabajadoresEnLineaViewSet, ReclamoDetalleViewSet, ReclamoViewSet
 
 router = routers.DefaultRouter()
 router.register('reclamos', ReclamoViewSet)
+router.register('reclamos_detalle', ReclamoDetalleViewSet)
 router.register('estados', EstadoLineasTareasViewSet)
 router.register('lineas_de_un_trabajador', LineasdeunTrabajadorViewSet)
 router.register('trabajadores_linea_filtro', TrabajadoresLineaParteFechaNullViewSet)
