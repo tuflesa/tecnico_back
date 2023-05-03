@@ -207,5 +207,11 @@ class TrabajadoresLineaParte(models.Model):
     fecha_fin = models.DateField(blank=True, null=True)
     trabajador = models.ForeignKey(User, on_delete=models.SET_NULL, blank=True, null=True)
 
+class Reclamo(models.Model):
+    notificacion = models.ForeignKey(Notificacion, on_delete=models.CASCADE, related_name='notificaciones')
+    fecha = models.DateField(blank=True, null=True)
+    trabajador = models.ForeignKey(User, on_delete=models.SET_NULL, blank=True, null=True)
 
+    def __str__(self):
+        return self.notificacion.numero
 

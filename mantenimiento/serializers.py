@@ -2,7 +2,7 @@ from estructura.models import Seccion
 from rest_framework import serializers
 from django.db.models import fields
 from django.db.models.base import Model
-from mantenimiento.models import Especialidad, Notificacion, ParteTrabajo, Tarea, TipoPeriodo, TipoTarea, LineaParteTrabajo, EstadoLineasTareas, TrabajadoresLineaParte
+from mantenimiento.models import Especialidad, Notificacion, ParteTrabajo, Tarea, TipoPeriodo, TipoTarea, LineaParteTrabajo, EstadoLineasTareas, TrabajadoresLineaParte, Reclamo
 from administracion.serializers import UserSerializer
 from estructura.serializers import EquipoSerializer, SeccionSerializer, ZonaSerializer
 
@@ -133,3 +133,14 @@ class LineasDeUnTrabajadorSerializer(serializers.ModelSerializer):
     class Meta:
         model = TrabajadoresLineaParte
         fields = ['id', 'linea', 'fecha_inicio', 'fecha_fin', 'trabajador']
+
+class ReclamoDetalleSerializer(serializers.ModelSerializer):
+    trabajador = UserSerializer(many=False, read_only=True)
+    class Meta:
+        model = Reclamo
+        fields = ['id', 'notificacion', 'fecha', 'trabajador']
+
+class ReclamoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Reclamo
+        fields = ['id', 'notificacion', 'fecha', 'trabajador']
