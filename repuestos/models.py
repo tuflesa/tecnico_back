@@ -250,3 +250,4 @@ class PrecioRepuesto(models.Model):
     descuento = models.DecimalField(max_digits=5, decimal_places=2, blank= True, null=True)
     descripcion_proveedor = models.CharField(max_length = 150, blank= True, null=True)
     modelo_proveedor = models.CharField(max_length=90, null=True, blank=True)
+    fabricante = models.CharField(max_length=50, null=True, blank=True)
