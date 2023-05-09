@@ -64,7 +64,7 @@ class RepuestoListFilter(filters.FilterSet):
             'nombre': ['icontains'],
             'tipo_repuesto': ['exact'],
             'fabricante': ['icontains'],
-            'modelo': ['icontains'],
+            'precios__modelo_proveedor': ['icontains'],
             'es_critico': ['exact'],
             'descatalogado': ['exact'],
             'equipos__seccion__zona__empresa__id' : ['exact'],
