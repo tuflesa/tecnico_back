@@ -197,7 +197,7 @@ class TipoUnidadViewSet(viewsets.ModelViewSet):
 
 class RepuestoListViewSet(viewsets.ModelViewSet):
     serializer_class = RepuestoListSerializer
-    queryset = Repuesto.objects.all().order_by('nombre')
+    queryset = Repuesto.objects.all().order_by('nombre').distinct()
     filterset_class = RepuestoListFilter
     pagination_class = StandardResultsSetPagination
 
