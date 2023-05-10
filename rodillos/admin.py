@@ -1,3 +1,6 @@
 from django.contrib import admin
+from .models import Seccion, Operacion, Posicion
 
-# Register your models here.
+admin.site.register(Seccion)
+admin.site.register(Operacion)
+admin.site.register(Posicion)
