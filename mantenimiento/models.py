@@ -35,6 +35,7 @@ class Notificacion(models.Model): # Notificación 5W+2H Plus
     descartado = models.BooleanField(default=False)
     finalizado = models.BooleanField(default=False)
     conclusion = models.TextField(max_length=800, blank=True, null=True) # Explicación de si queda resuelto o motivos por los que se descarta
+    peligrosidad = models.BooleanField(default=False)
 
     def save(self, *args, **kwargs):
         # Generar nuevo número si el campo numero es None (null)
