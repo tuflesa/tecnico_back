@@ -197,6 +197,7 @@ class LineaParteTrabajo(models.Model):
     fecha_inicio = models.DateField(blank=True, null=True)
     fecha_fin = models.DateField(blank=True, null=True)
     estado = models.ForeignKey(EstadoLineasTareas, on_delete=models.SET_NULL, blank=True, null=True)
+    observaciones_trab = models.TextField(blank=True, null=True)
     #responsables = models.ManyToManyField(User, related_name='lineas_parte_trabajo')
 
     def __str__(self):

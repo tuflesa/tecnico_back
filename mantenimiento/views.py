@@ -204,7 +204,6 @@ class ListadoLineaActivasViewSet(viewsets.ModelViewSet):
     filterset_class = LineasFilter
     pagination_class = StandardResultsSetPagination
 
-
 #excluimos de la busqueda aquellas con estado 3 = finalizadas y 4 = pendientes
 class ListadoLineaActivasSinPaginarViewSet(viewsets.ModelViewSet):
     serializer_class = ListadoLineasActivasSerializer
