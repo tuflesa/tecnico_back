@@ -65,6 +65,8 @@ class RepuestoListFilter(filters.FilterSet):
             'tipo_repuesto': ['exact'],
             'precios__fabricante': ['icontains'],
             'precios__modelo_proveedor': ['icontains'],
+            'precios__proveedor':['exact'], 
+            'precios__descripcion_proveedor':['icontains'],
             'es_critico': ['exact'],
             'descatalogado': ['exact'],
             'equipos__seccion__zona__empresa__id' : ['exact'],
@@ -328,7 +330,7 @@ class PrecioRepuestoViewSet(viewsets.ModelViewSet):
 
 class RepuestoConPrecioViewSet(viewsets.ModelViewSet):
     serializer_class = RepuestoConPrecioSerializer
-    queryset = PrecioRepuesto.objects.all().order_by('repuesto__nombre')
+    queryset = PrecioRepuesto.objects.all().order_by('repuesto__nombre').distinct()
     filterset_class = PrecioRepuestoFilter
 
 class Filtro_RepuestoConPrecioViewSet(viewsets.ModelViewSet):

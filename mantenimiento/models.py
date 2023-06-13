@@ -34,7 +34,8 @@ class Notificacion(models.Model): # Notificación 5W+2H Plus
     revisado = models.BooleanField(default=False)
     descartado = models.BooleanField(default=False)
     finalizado = models.BooleanField(default=False)
-    conclusion = models.TextField(max_length=250, blank=True, null=True) # Explicación de si queda resuelto o motivos por los que se descarta
+    conclusion = models.TextField(max_length=800, blank=True, null=True) # Explicación de si queda resuelto o motivos por los que se descarta
+    peligrosidad = models.BooleanField(default=False)
 
     def save(self, *args, **kwargs):
         # Generar nuevo número si el campo numero es None (null)
@@ -196,6 +197,7 @@ class LineaParteTrabajo(models.Model):
     fecha_inicio = models.DateField(blank=True, null=True)
     fecha_fin = models.DateField(blank=True, null=True)
     estado = models.ForeignKey(EstadoLineasTareas, on_delete=models.SET_NULL, blank=True, null=True)
+    observaciones_trab = models.TextField(blank=True, null=True)
     #responsables = models.ManyToManyField(User, related_name='lineas_parte_trabajo')
 
     def __str__(self):

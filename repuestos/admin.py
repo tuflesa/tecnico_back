@@ -24,7 +24,11 @@ class PrecioProveedorAdmin(admin.ModelAdmin):
     search_fields=("descripcion_proveedor",)
     list_display =("repuesto", "descripcion_proveedor","proveedor",)
 
-admin.site.register(Repuesto)
+class RepuestoAdmin(admin.ModelAdmin):
+    search_fields=("nombre",)
+    list_display =("id","nombre", "nombre_comun",)
+
+admin.site.register(Repuesto, RepuestoAdmin)
 admin.site.register(TipoUnidad)
 admin.site.register(TipoRepuesto)
 admin.site.register(Proveedor)
