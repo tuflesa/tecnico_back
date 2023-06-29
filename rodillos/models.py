@@ -1,5 +1,5 @@
 from django.db import models
-from estructura.models import Empresa, Zona
+from estructura.models import Zona
 
 # Secciones de una máquina: Formadora, cuchillas, calibradora, etc
 class Seccion(models.Model):
@@ -19,15 +19,6 @@ class Operacion(models.Model):
     def __str__(self):
         return self.seccion.maquina.siglas + '-' + self.seccion.nombre + '-' + self.nombre
 
-# Posición dentro de una operación
-class Posicion(models.Model):
-    nombre = models.CharField(max_length=50) # Ejemplos: superior, inferior, lateral, ...
-    operacion = models.ForeignKey(Operacion, on_delete=models.CASCADE, related_name='posiciones')
-    cantidad = models.IntegerField(default=1)
-
-    def __str__(self):
-        return self.operacion.seccion.maquina.siglas + '-' + self.operacion.seccion.nombre + '-' +   self.operacion.nombre + ' - ' + self.nombre
-
 # Materiales de los que están hechos los rodillos: Ejemplos 1.2379, AMPCO, Ceramica, etc
 class Material(models.Model):
     nombre = models.CharField(max_length=20)
@@ -35,10 +26,38 @@ class Material(models.Model):
     def __str__(self) -> str:
         return self.nombre
 
+# Tipo de rodillo: Superior, Inferior, Sup/Inf, Lateral 
+class Tipo_rodillo(models.Model):
+    nombre = models.CharField(max_length=20)
+
+    def __str__(self) -> str:
+        return self.nombre
+    
+# Ejes de una operación
+class Eje(models.Model):
+    nombre = models.CharField(max_length=50) # Ejemplos: superior, inferior, lateral, ...
+    operacion = models.ForeignKey(Operacion, on_delete=models.CASCADE, related_name='posiciones')
+    tipo = models.ForeignKey(Tipo_rodillo, on_delete=models.CASCADE)
+    diametro = models.FloatField(blank=True, null=True)
+
+    def __str__(self):
+        return self.operacion.seccion.maquina.siglas + '-' + self.operacion.seccion.nombre + '-' +   self.operacion.nombre + ' - ' + self.nombre
+
+# Grupo
+class Grupo(models.Model):
+    nombre = models.CharField(max_length=50)
+    maquina = models.ForeignKey(Zona, on_delete=models.CASCADE)
+    tubo_madre = models.FloatField()
+
+    def __str__(self) -> str:
+        return self.nombre
+
 # Rodillos de una posición
 class Rodillo(models.Model):
     nombre = models.CharField(max_length=50)
-    posicion = models.ForeignKey(Posicion, on_delete=models.CASCADE, related_name='rodillos')
+    operacion = models.ForeignKey(Operacion, on_delete=models.CASCADE, related_name='rodillos')
+    grupo = models.ForeignKey(Grupo, on_delete=models.CASCADE, null=True, blank=True)
+    tipo = models.ForeignKey(Tipo_rodillo, on_delete=models.CASCADE)
     material = models.ForeignKey(Material, on_delete=models.CASCADE)
 
     def __str__(self) -> str:
@@ -53,11 +72,20 @@ class Ficheros(models.Model):
     def __str__(self) -> str:
         return self.nombre
 
-# Conjuntos de rodillos de una sección. Ejemplo: Formadores 48, Cabeza de turno 40x40, etc
+# Bancadas de una sección
+class Bancada(models.Model):
+    nombre = models.CharField(max_length=50)
+    seccion = models.ForeignKey(Seccion, on_delete=models.CASCADE)
+    grupos = models.ManyToManyField(Grupo,related_name='bancadas')
+
+    def __str__(self) -> str:
+        return self.nombre
+
+# Conjuntos de rodillos de una operación. 
 class Conjunto(models.Model):
     nombre = models.CharField(max_length=50)
-    seccion = models.ForeignKey(Seccion, on_delete=models.CASCADE, related_name='conjuntos')
-    tubo_madre = models.FloatField(blank=True, null=True)
+    bancada = models.ForeignKey(Bancada, on_delete=models.CASCADE)
+    operacion = models.ForeignKey(Operacion, on_delete=models.CASCADE, related_name='conjuntos')
 
     def __str__(self) -> str:
         return self.nombre
@@ -66,17 +94,8 @@ class Conjunto(models.Model):
 class Elemento(models.Model):
     nombre = models.CharField(max_length=50)
     conjunto = models.ForeignKey(Conjunto, on_delete=models.CASCADE, related_name='elementos')
-    posicion = models.ForeignKey(Posicion, on_delete=models.CASCADE)
+    eje = models.ForeignKey(Eje, on_delete=models.CASCADE)
     rodillo = models.ForeignKey(Rodillo, on_delete=models.CASCADE)
-
-    def __str__(self) -> str:
-        return self.nombre
-
-class Grupo(models.Model):
-    nombre = models.CharField(max_length=50)
-    maquina = models.ForeignKey(Zona, on_delete=models.CASCADE)
-    conjuntos = models.ManyToManyField(Conjunto,related_name='grupos')
-    tubo_madre = models.FloatField()
 
     def __str__(self) -> str:
         return self.nombre
@@ -86,7 +105,7 @@ class Montaje(models.Model):
     nombre = models.CharField(max_length=50)
     maquina = models.ForeignKey(Zona, on_delete=models.CASCADE, related_name='montajes')
     grupo = models.ForeignKey(Grupo, on_delete=models.CASCADE)
-    conjuntos = models.ManyToManyField(Conjunto, related_name='montajes')
+    bancadas = models.ManyToManyField(Bancada, related_name='montajes')
 
     def __str__(self) -> str:
         return self.nombre

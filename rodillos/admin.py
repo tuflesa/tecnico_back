@@ -1,13 +1,15 @@
 from django.contrib import admin
-from .models import Seccion, Operacion, Posicion, Rodillo, Conjunto, Elemento, Ficheros, Material, Montaje, Grupo
+from .models import Seccion, Operacion, Eje, Rodillo, Ficheros, Tipo_rodillo, Material, Bancada, Conjunto, Elemento, Grupo, Montaje
 
 admin.site.register(Seccion)
 admin.site.register(Operacion)
-admin.site.register(Posicion)
+admin.site.register(Eje)
 admin.site.register(Rodillo)
+admin.site.register(Ficheros)
+admin.site.register(Tipo_rodillo)
+admin.site.register(Material)
+admin.site.register(Bancada)
 admin.site.register(Conjunto)
 admin.site.register(Elemento)
-admin.site.register(Ficheros)
-admin.site.register(Material)
-admin.site.register(Montaje)
 admin.site.register(Grupo)
+admin.site.register(Montaje)
