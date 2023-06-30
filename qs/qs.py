@@ -11,7 +11,7 @@ def get_real(_bytearray, byte_index):
     data_real = struct.unpack('>f', struct.pack('4B', *data))[0]
     return data_real
 
-def get_bd1():
+def get_ejes():
     plc = snap7.client.Client()
     plc.connect(IP, RACK, SLOT)
 
