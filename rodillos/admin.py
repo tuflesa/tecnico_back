@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Seccion, Operacion, Eje, Rodillo, Ficheros, Tipo_rodillo, Material, Bancada, Conjunto, Elemento, Grupo, Montaje
+from .models import Seccion, Operacion, Eje, Rodillo, Ficheros, Tipo_rodillo, Material, Bancada, Conjunto, Elemento, Grupo, Montaje, Plano, Revision
 
 admin.site.register(Seccion)
 admin.site.register(Operacion)
@@ -13,3 +13,5 @@ admin.site.register(Conjunto)
 admin.site.register(Elemento)
 admin.site.register(Grupo)
 admin.site.register(Montaje)
+admin.site.register(Plano)
+admin.site.register(Revision)

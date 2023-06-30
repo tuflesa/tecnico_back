@@ -14,7 +14,7 @@ class Seccion(models.Model):
 class Operacion(models.Model):
     nombre = models.CharField(max_length=50) # Ejemplo: F1
     seccion = models.ForeignKey(Seccion, on_delete=models.CASCADE, related_name='operaciones') 
-    icono = models.ImageField(upload_to='operaciones', blank=True, null=True) 
+    icono = models.ImageField(upload_to='iconos', blank=True, null=True) 
 
     def __str__(self):
         return self.seccion.maquina.siglas + '-' + self.seccion.nombre + '-' + self.nombre
@@ -86,6 +86,7 @@ class Conjunto(models.Model):
     nombre = models.CharField(max_length=50)
     bancada = models.ForeignKey(Bancada, on_delete=models.CASCADE)
     operacion = models.ForeignKey(Operacion, on_delete=models.CASCADE, related_name='conjuntos')
+    icono = models.ImageField(upload_to='iconos', blank=True, null=True)
 
     def __str__(self) -> str:
         return self.nombre
@@ -109,3 +110,15 @@ class Montaje(models.Model):
 
     def __str__(self) -> str:
         return self.nombre
+    
+class Plano(models.Model):
+    nombre = models.CharField(max_length=200)
+    rodillos = models.ManyToManyField(Rodillo, related_name='planos')
+
+    def __str__(self) -> str:
+        return self.nombre
+    
+class Revision(models.Model):
+    plano = models.ForeignKey(Plano, on_delete=models.CASCADE)
+    motivo = models.TextField(max_length=250)
+    archivo = models.FileField(upload_to='planos')
