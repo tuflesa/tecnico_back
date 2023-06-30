@@ -1,8 +1,7 @@
 from rest_framework import routers
-from .views import GruposViewSet, ConjuntoViewSet
+from .views import RodilloViewSet
 
 router = routers.DefaultRouter()
-router.register('lista_grupos', GruposViewSet)
-router.register('conjuntos', ConjuntoViewSet)
+router.register('lista_rodillos', RodilloViewSet)
 
 urlpatterns = router.urls
