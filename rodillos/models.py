@@ -12,6 +12,9 @@ class Tipo_Seccion(models.Model):
 class Nombres_Parametros(models.Model):
     nombre = models.CharField(max_length=200)
     descripcion = models.CharField(max_length=200)
+
+    def __str__(self):
+        return self.nombre
     
 # Tipo de plano: Determina los nombres de los parametros a emplear para control de rectificados y para dibujar los rodillos en el Quick Setting
 class Tipo_Plano(models.Model):
@@ -19,6 +22,9 @@ class Tipo_Plano(models.Model):
     tipo_seccion = models.ForeignKey(Tipo_Seccion, on_delete=models.CASCADE, null=True)
     croquis = models.ImageField(upload_to='croquis', blank=True, null=True)
     nombres = models.ManyToManyField(Nombres_Parametros, related_name='tipo_plano')
+
+    def __str__(self):
+        return self.nombre
 
 # Secciones de una máquina: Formadora, cuchillas, calibradora, etc
 class Seccion(models.Model):
