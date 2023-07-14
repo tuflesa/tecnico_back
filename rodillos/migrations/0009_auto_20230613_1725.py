@@ -13,6 +13,6 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='grupo',
             name='tubo_madre',
-            field=models.FloatField(),
+            field=models.FloatField(blank=True, null=True),
         ),
     ]
