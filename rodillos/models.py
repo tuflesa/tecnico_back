@@ -73,7 +73,7 @@ class Eje(models.Model):
 class Grupo(models.Model):
     nombre = models.CharField(max_length=50)
     maquina = models.ForeignKey(Zona, on_delete=models.CASCADE)
-    tubo_madre = models.FloatField()
+    tubo_madre = models.FloatField(blank=True, null=True)
 
     def __str__(self) -> str:
         return self.nombre

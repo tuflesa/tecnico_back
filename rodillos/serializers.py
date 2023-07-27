@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from rodillos.models import Rodillo, Plano, Revision, Seccion, Operacion, Tipo_rodillo, Material, Grupo
+from rodillos.models import Rodillo, Plano, Revision, Seccion, Operacion, Tipo_rodillo, Material, Grupo, Tipo_Plano
 
 class RodilloSerializer(serializers.ModelSerializer):
     class Meta:
@@ -40,5 +40,10 @@ class GrupoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Grupo
         fields = ['id', 'nombre', 'maquina', 'tubo_madre']
+
+class TipoPlanoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Tipo_Plano
+        fields = ['id', 'nombre', 'tipo_seccion', 'croquis', 'nombres']
 
 
