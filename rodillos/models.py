@@ -1,5 +1,6 @@
 from django.db import models
 from estructura.models import Zona
+from django.utils import timezone
 
 # Tipo de sección: Formadora, cuchillas, Soldadura, Calibradora, Cabeza de turco
 class Tipo_Seccion(models.Model):
@@ -148,6 +149,7 @@ class Revision(models.Model):
     plano = models.ForeignKey(Plano, on_delete=models.CASCADE)
     motivo = models.TextField(max_length=250)
     archivo = models.FileField(upload_to='planos')
+    fecha = models.DateField(default=timezone.now)
 
 #Instancia: Un rodillo en concreto
 class Instancia(models.Model):

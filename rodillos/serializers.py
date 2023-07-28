@@ -14,7 +14,7 @@ class PlanoSerializer(serializers.ModelSerializer):
 class RevisionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Revision
-        fields = ['id', 'plano', 'motivo', 'archivo']
+        fields = ['id', 'plano', 'motivo', 'archivo', 'fecha']
 
 class SeccionSerializer(serializers.ModelSerializer):
     class Meta:
