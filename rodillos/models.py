@@ -1,5 +1,6 @@
 from django.db import models
 from estructura.models import Zona
+from django.utils import timezone
 
 # Tipo de sección: Formadora, cuchillas, Soldadura, Calibradora, Cabeza de turco
 class Tipo_Seccion(models.Model):
@@ -73,7 +74,7 @@ class Eje(models.Model):
 class Grupo(models.Model):
     nombre = models.CharField(max_length=50)
     maquina = models.ForeignKey(Zona, on_delete=models.CASCADE)
-    tubo_madre = models.FloatField()
+    tubo_madre = models.FloatField(blank=True, null=True)
 
     def __str__(self) -> str:
         return self.nombre
@@ -148,6 +149,7 @@ class Revision(models.Model):
     plano = models.ForeignKey(Plano, on_delete=models.CASCADE)
     motivo = models.TextField(max_length=250)
     archivo = models.FileField(upload_to='planos')
+    fecha = models.DateField(default=timezone.now)
 
 #Instancia: Un rodillo en concreto
 class Instancia(models.Model):
