@@ -228,6 +228,7 @@ class ArticulosFueraStockViewSet(viewsets.ModelViewSet):
     serializer_class = StockMinimoDetailSerializer
     queryset = StockMinimo.objects.filter(stock_act__lt=F('cantidad')).order_by('repuesto__nombre')
     filterset_class = StockMinimoFilter
+    pagination_class = StandardResultsSetPagination
 
 class AlmacenViewSet(viewsets.ModelViewSet):
     serializer_class = AlmacenSerilizer
