@@ -277,6 +277,12 @@ class PedidoListViewSet(viewsets.ModelViewSet):
     queryset = Pedido.objects.all().order_by('numero')
     filterset_class = PedidoListFilter
 
+class PedidoFueraFechaViewSet(viewsets.ModelViewSet):
+    serializer_class = PedidoListSerilizer
+    queryset = Pedido.objects.all().order_by('numero')
+    filterset_class = PedidoListFilter
+    pagination_class = StandardResultsSetPagination
+
 class PedidoDetailViewSet(viewsets.ModelViewSet):
     serializer_class = PedidoDetailSerilizer
     queryset = Pedido.objects.all().order_by('numero')
