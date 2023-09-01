@@ -1,7 +1,14 @@
 from rest_framework import viewsets
 from rodillos.models import Rodillo, Tipo_rodillo, Seccion, Operacion, Eje, Plano, Revision, Material, Grupo, Tipo_Plano
-from rodillos.serializers import RodilloSerializer, PlanoSerializer, RevisionSerializer, SeccionSerializer, OperacionSerializer, TipoRodilloSerializer, MaterialSerializer, GrupoSerializer, TipoPlanoSerializer
+from rodillos.serializers import RodilloSerializer, PlanoSerializer, RevisionSerializer, SeccionSerializer, OperacionSerializer, TipoRodilloSerializer, MaterialSerializer, GrupoSerializer, TipoPlanoSerializer, RodilloListSerializer
 from django_filters import rest_framework as filters
+from rest_framework.pagination import PageNumberPagination
+
+class StandardResultsSetPagination(PageNumberPagination):
+    page_size = 20
+    page_size_query_param = 'page_size'
+    paginator=1
+    max_page_size = 1000 
 
 class RodilloFilter(filters.FilterSet):
     class Meta:
@@ -10,8 +17,10 @@ class RodilloFilter(filters.FilterSet):
             'nombre': ['exact'],
             'id': ['exact'],
             'operacion': ['exact'],
-            'operacion__seccion': ['exact'],
-            'operacion__seccion__maquina': ['exact'],
+            'operacion__seccion__nombre': ['exact'],
+            'operacion__seccion__maquina__siglas': ['exact'],
+            'operacion__seccion__maquina__empresa__nombre': ['exact'],
+            'operacion__nombre': ['exact'],
         }
 
 class SeccionFilter(filters.FilterSet):
@@ -19,7 +28,8 @@ class SeccionFilter(filters.FilterSet):
         model = Seccion
         fields = {
             'nombre': ['exact'],
-            'maquina': ['exact'],
+            'maquina__siglas': ['exact'],
+            'maquina__empresa__siglas': ['exact'],
         }
 
 class OperacionFilter(filters.FilterSet):
@@ -28,6 +38,7 @@ class OperacionFilter(filters.FilterSet):
         fields = {
             'nombre': ['exact'],
             'seccion': ['exact'],
+            'seccion__nombre': ['exact'],
         }
 
 class Tipo_rodilloFilter(filters.FilterSet):
@@ -76,6 +87,12 @@ class RodilloViewSet(viewsets.ModelViewSet):
     serializer_class = RodilloSerializer
     queryset = Rodillo.objects.all()
     filterset_class = RodilloFilter
+
+class Rodillo_listViewSet(viewsets.ModelViewSet):
+    serializer_class = RodilloListSerializer
+    queryset = Rodillo.objects.all()
+    filterset_class = RodilloFilter
+    pagination_class = StandardResultsSetPagination
 
 class PlanoViewSet(viewsets.ModelViewSet):
     serializer_class = PlanoSerializer

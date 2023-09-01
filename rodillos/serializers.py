@@ -1,11 +1,11 @@
 from rest_framework import serializers
+from estructura.serializers import ZonaSerializer
 from rodillos.models import Rodillo, Plano, Revision, Seccion, Operacion, Tipo_rodillo, Material, Grupo, Tipo_Plano
 
 class RodilloSerializer(serializers.ModelSerializer):
     class Meta:
         model = Rodillo
         fields = ['id', 'nombre', 'operacion', 'grupo', 'tipo', 'material']
-
 class PlanoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Plano
@@ -17,11 +17,13 @@ class RevisionSerializer(serializers.ModelSerializer):
         fields = ['id', 'plano', 'motivo', 'archivo', 'fecha']
 
 class SeccionSerializer(serializers.ModelSerializer):
+    maquina = ZonaSerializer(many=False, read_only=False)
     class Meta:
         model = Seccion
         fields = ['id', 'nombre', 'maquina', 'pertenece_grupo']
 
 class OperacionSerializer(serializers.ModelSerializer):
+    seccion = SeccionSerializer(many=False, read_only=False)
     class Meta:
         model = Operacion
         fields = ['id', 'nombre', 'seccion', 'icono']
@@ -46,4 +48,12 @@ class TipoPlanoSerializer(serializers.ModelSerializer):
         model = Tipo_Plano
         fields = ['id', 'nombre', 'tipo_seccion', 'croquis', 'nombres']
 
+class RodilloListSerializer(serializers.ModelSerializer):
+    operacion = OperacionSerializer(many=False, read_only=False)
+    tipo = TipoRodilloSerializer(many=False)
+    material = MaterialSerializer(many=False)
+    grupo = GrupoSerializer(many=False)
+    class Meta:
+        model = Rodillo
+        fields = ['id', 'nombre', 'operacion', 'grupo', 'tipo', 'material']
 
