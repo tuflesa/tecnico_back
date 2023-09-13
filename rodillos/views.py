@@ -94,6 +94,11 @@ class Rodillo_listViewSet(viewsets.ModelViewSet):
     filterset_class = RodilloFilter
     pagination_class = StandardResultsSetPagination
 
+class Rodillo_editarViewSet(viewsets.ModelViewSet):
+    serializer_class = RodilloSerializer
+    queryset = Rodillo.objects.all()
+    filterset_class = RodilloFilter
+
 class PlanoViewSet(viewsets.ModelViewSet):
     serializer_class = PlanoSerializer
     queryset = Plano.objects.all()
