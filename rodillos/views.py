@@ -1,6 +1,6 @@
 from rest_framework import viewsets
-from rodillos.models import Rodillo, Tipo_rodillo, Seccion, Operacion, Eje, Plano, Revision, Material, Grupo, Tipo_Plano
-from rodillos.serializers import RodilloSerializer, PlanoSerializer, RevisionSerializer, SeccionSerializer, OperacionSerializer, TipoRodilloSerializer, MaterialSerializer, GrupoSerializer, TipoPlanoSerializer, RodilloListSerializer
+from rodillos.models import Rodillo, Tipo_rodillo, Seccion, Operacion, Eje, Plano, Revision, Material, Grupo, Tipo_Plano, Nombres_Parametros
+from rodillos.serializers import RodilloSerializer, PlanoSerializer, RevisionSerializer, SeccionSerializer, OperacionSerializer, TipoRodilloSerializer, MaterialSerializer, GrupoSerializer, TipoPlanoSerializer, RodilloListSerializer, PlanoParametrosSerializer, ParametrosSerializer
 from django_filters import rest_framework as filters
 from rest_framework.pagination import PageNumberPagination
 
@@ -139,6 +139,15 @@ class MaterialViewSet(viewsets.ModelViewSet):
 
 class TipoPlanoViewSet(viewsets.ModelViewSet):
     serializer_class = TipoPlanoSerializer
+    queryset = Tipo_Plano.objects.all()
+    filterset_class = Tipo_PlanoFilter
+
+class ParametrosViewSet(viewsets.ModelViewSet):
+    serializer_class = ParametrosSerializer
+    queryset = Nombres_Parametros.objects.all()
+
+class PlanoParametrosViewSet(viewsets.ModelViewSet):
+    serializer_class = PlanoParametrosSerializer
     queryset = Tipo_Plano.objects.all()
     filterset_class = Tipo_PlanoFilter
 
