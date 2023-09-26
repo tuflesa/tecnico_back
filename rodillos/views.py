@@ -91,6 +91,7 @@ class Tipo_PlanoFilter(filters.FilterSet):
         model = Tipo_Plano
         fields = {
             'nombre': ['exact'],
+            'tipo_seccion':['exact'],
         }
 class RodilloViewSet(viewsets.ModelViewSet):
     serializer_class = RodilloSerializer
