@@ -1,5 +1,5 @@
 from rest_framework import routers
-from .views import RepuestoListSinPaginarViewSet, Filtro_RepuestoConPrecioViewSet, LineaPedidoDetalleViewSet, LineaAdicionalDetalleViewSet, RepuestoConPrecioViewSet, PrecioRepuestoViewSet, MovimientoTrazabilidadViewSet, ArticulosFueraStockViewSet, LineaPedidoPendViewSet, EntregaViewSet, LineaAdicionalPedidoViewSet, LineasSalidaVieSet, MovimientoDetailViewSet, PedidoViewSet, InventarioViewSet, LineaPedidoViewSet, PedidoDetailViewSet, ContactoViewSet, MovimientoViewSet, PedidoListViewSet, ProveedorDetailViewSet, ProveedorViewSet, RepuestoListViewSet, RepuestoDetailViewSet, SalidaVieSet, StockMinimoDetailViewSet, StockMinimoViewSet, AlmacenViewSet, LineaInventarioViewSet, TipoRepuestoViewSet, TipoUnidadViewSet
+from .views import RepuestoListSinPaginarViewSet, Filtro_RepuestoConPrecioViewSet, LineaPedidoDetalleViewSet, LineaAdicionalDetalleViewSet, RepuestoConPrecioViewSet, PrecioRepuestoViewSet, MovimientoTrazabilidadViewSet, ArticulosFueraStockViewSet, LineaPedidoPendViewSet, EntregaViewSet, LineaAdicionalPedidoViewSet, LineasSalidaVieSet, MovimientoDetailViewSet, PedidoViewSet, InventarioViewSet, LineaPedidoViewSet, PedidoDetailViewSet, ContactoViewSet, MovimientoViewSet, PedidoListViewSet, ProveedorDetailViewSet, ProveedorViewSet, RepuestoListViewSet, RepuestoDetailViewSet, SalidaVieSet, StockMinimoDetailViewSet, StockMinimoViewSet, AlmacenViewSet, LineaInventarioViewSet, TipoRepuestoViewSet, TipoUnidadViewSet, PedidoFueraFechaViewSet
 
 router = routers.DefaultRouter()
 router.register('pedido', PedidoViewSet)
@@ -28,6 +28,7 @@ router.register('movimiento_detalle', MovimientoDetailViewSet)
 router.register('proveedor', ProveedorViewSet)
 router.register('proveedor_detalle', ProveedorDetailViewSet)
 router.register('contacto', ContactoViewSet)
+router.register('lista_pedidos_fuera_fecha', PedidoFueraFechaViewSet)
 router.register('lista_pedidos', PedidoListViewSet)
 router.register('pedido_detalle', PedidoDetailViewSet)
 router.register('articulos_fuera_stock',ArticulosFueraStockViewSet)

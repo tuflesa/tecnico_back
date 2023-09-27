@@ -36,3 +36,9 @@ class EmpresaSerializer(serializers.ModelSerializer):
         model = Empresa
         fields = ['id', 'nombre', 'siglas', 'direcciones', 'logo']
 
+class ZonaSerializer_Rodillos(serializers.ModelSerializer): # Lo usamos en la app de rodillos, de ahí su nombre.
+    empresa = EmpresaSerializer(many=False)
+    class Meta:
+        model = Zona
+        fields = ['id','nombre', 'siglas', 'empresa', 'empresa_id'] #, 'secciones']
+
