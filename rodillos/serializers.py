@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from estructura.serializers import ZonaSerializer
+from estructura.serializers import ZonaSerializer_Rodillos
 from rodillos.models import Rodillo, Plano, Revision, Seccion, Operacion, Tipo_rodillo, Material, Grupo, Tipo_Plano, Nombres_Parametros
 
 class RodilloSerializer(serializers.ModelSerializer):
@@ -17,7 +17,7 @@ class RevisionSerializer(serializers.ModelSerializer):
         fields = ['id', 'plano', 'motivo', 'archivo', 'fecha']
 
 class SeccionSerializer(serializers.ModelSerializer):
-    maquina = ZonaSerializer(many=False, read_only=False)
+    maquina = ZonaSerializer_Rodillos(many=False, read_only=False)
     class Meta:
         model = Seccion
         fields = ['id', 'nombre', 'maquina', 'pertenece_grupo']

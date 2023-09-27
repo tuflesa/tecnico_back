@@ -17,10 +17,18 @@ class Nombres_Parametros(models.Model):
     def __str__(self):
         return self.nombre
     
+# Tipo de rodillo: Superior, Inferior, Sup/Inf, Lateral 
+class Tipo_rodillo(models.Model):
+    nombre = models.CharField(max_length=20)
+
+    def __str__(self) -> str:
+        return self.nombre
+    
 # Tipo de plano: Determina los nombres de los parametros a emplear para control de rectificados y para dibujar los rodillos en el Quick Setting
 class Tipo_Plano(models.Model):
     nombre = models.CharField(max_length=200)
-    tipo_seccion = models.ForeignKey(Tipo_Seccion, on_delete=models.CASCADE, null=True)
+    tipo_seccion = models.ForeignKey(Tipo_Seccion, on_delete=models.CASCADE, null=False)
+    tipo_rodillo = models.ForeignKey(Tipo_rodillo,on_delete=models.CASCADE, null=False)
     croquis = models.ImageField(upload_to='croquis', blank=True, null=True)
     nombres = models.ManyToManyField(Nombres_Parametros, related_name='tipo_plano')
 
@@ -48,13 +56,6 @@ class Operacion(models.Model):
 
 # Materiales de los que están hechos los rodillos: Ejemplos 1.2379, AMPCO, Ceramica, etc
 class Material(models.Model):
-    nombre = models.CharField(max_length=20)
-
-    def __str__(self) -> str:
-        return self.nombre
-
-# Tipo de rodillo: Superior, Inferior, Sup/Inf, Lateral 
-class Tipo_rodillo(models.Model):
     nombre = models.CharField(max_length=20)
 
     def __str__(self) -> str:
