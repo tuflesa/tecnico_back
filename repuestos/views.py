@@ -228,6 +228,7 @@ class ArticulosFueraStockViewSet(viewsets.ModelViewSet):
     serializer_class = StockMinimoDetailSerializer
     queryset = StockMinimo.objects.filter(stock_act__lt=F('cantidad')).order_by('repuesto__nombre')
     filterset_class = StockMinimoFilter
+    pagination_class = StandardResultsSetPagination
 
 class AlmacenViewSet(viewsets.ModelViewSet):
     serializer_class = AlmacenSerilizer
@@ -275,6 +276,12 @@ class PedidoListViewSet(viewsets.ModelViewSet):
     serializer_class = PedidoListSerilizer
     queryset = Pedido.objects.all().order_by('numero')
     filterset_class = PedidoListFilter
+
+class PedidoFueraFechaViewSet(viewsets.ModelViewSet):
+    serializer_class = PedidoListSerilizer
+    queryset = Pedido.objects.all().order_by('numero')
+    filterset_class = PedidoListFilter
+    pagination_class = StandardResultsSetPagination
 
 class PedidoDetailViewSet(viewsets.ModelViewSet):
     serializer_class = PedidoDetailSerilizer
