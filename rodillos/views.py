@@ -118,25 +118,14 @@ class RevisionViewSet(viewsets.ModelViewSet):
     serializer_class = RevisionSerializer
     queryset = Revision.objects.all()
 
-class TipoPlanoViewSet(viewsets.ModelViewSet):
-    serializer_class = TipoPlanoSerializer
-    queryset = Tipo_Plano.objects.all()
-
 class SeccionViewSet(viewsets.ModelViewSet):
     serializer_class = SeccionSerializer
     queryset = Seccion.objects.all()
+    filterset_class = SeccionFilter
 
 class OperacionViewSet(viewsets.ModelViewSet):
     serializer_class = OperacionSerializer
     queryset = Operacion.objects.all()
-
-class Tipo_rodilloViewSet(viewsets.ModelViewSet):
-    serializer_class = TipoRodilloSerializer
-    queryset = Tipo_rodillo.objects.all()
-
-class GrupoViewSet(viewsets.ModelViewSet):
-    serializer_class = GrupoSerializer
-    queryset = Grupo.objects.all()
     filterset_class = OperacionFilter
 
 class TipoRodilloViewSet(viewsets.ModelViewSet):
