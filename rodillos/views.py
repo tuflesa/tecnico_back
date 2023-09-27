@@ -1,7 +1,14 @@
 from rest_framework import viewsets
-from rodillos.models import Rodillo, Tipo_rodillo, Seccion, Operacion, Eje, Plano, Revision, Tipo_Plano, Grupo, Material
-from rodillos.serializers import RodilloSerializer, PlanoSerializer, RevisionSerializer, TipoPlanoSerializer, SeccionSerializer, OperacionSerializer, GrupoSerializer, Tipo_rodilloSerializer, MaterialSerializer, TipoRodilloSerializer
+from rodillos.models import Rodillo, Tipo_rodillo, Seccion, Operacion, Eje, Plano, Revision, Material, Grupo, Tipo_Plano, Nombres_Parametros
+from rodillos.serializers import RodilloSerializer, PlanoSerializer, RevisionSerializer, SeccionSerializer, OperacionSerializer, TipoRodilloSerializer, MaterialSerializer, GrupoSerializer, TipoPlanoSerializer, RodilloListSerializer, PlanoParametrosSerializer, ParametrosSerializer
 from django_filters import rest_framework as filters
+from rest_framework.pagination import PageNumberPagination
+
+class StandardResultsSetPagination(PageNumberPagination):
+    page_size = 20
+    page_size_query_param = 'page_size'
+    paginator=1
+    max_page_size = 1000 
 
 class RodilloFilter(filters.FilterSet):
     class Meta:
@@ -10,8 +17,16 @@ class RodilloFilter(filters.FilterSet):
             'nombre': ['exact'],
             'id': ['exact'],
             'operacion': ['exact'],
-            'operacion__seccion': ['exact'],
+            'operacion__seccion__nombre': ['exact'],
+            'operacion__seccion__maquina__siglas': ['exact'],
+            'operacion__seccion__maquina__empresa__nombre': ['exact'],
+            'operacion__nombre': ['exact'],
+            'nombre': ['icontains'],
+            'tipo':['exact'],
+            'operacion__seccion__maquina__empresa__id': ['exact'],
             'operacion__seccion__maquina': ['exact'],
+            'operacion__seccion': ['exact'],
+            'operacion__id':['exact'],
         }
 
 class SeccionFilter(filters.FilterSet):
@@ -19,7 +34,10 @@ class SeccionFilter(filters.FilterSet):
         model = Seccion
         fields = {
             'nombre': ['exact'],
-            'maquina': ['exact'],
+            'maquina__siglas': ['exact'],
+            'maquina__empresa__siglas': ['exact'],
+            'maquina__id':['exact'],
+            'maquina':['exact'],
         }
 
 class OperacionFilter(filters.FilterSet):
@@ -28,6 +46,8 @@ class OperacionFilter(filters.FilterSet):
         fields = {
             'nombre': ['exact'],
             'seccion': ['exact'],
+            'seccion__nombre': ['exact'],
+            'seccion__id':['exact'],
         }
 
 class Tipo_rodilloFilter(filters.FilterSet):
@@ -71,8 +91,20 @@ class Tipo_PlanoFilter(filters.FilterSet):
         model = Tipo_Plano
         fields = {
             'nombre': ['exact'],
+            'tipo_seccion':['exact'],
         }
 class RodilloViewSet(viewsets.ModelViewSet):
+    serializer_class = RodilloSerializer
+    queryset = Rodillo.objects.all()
+    filterset_class = RodilloFilter
+
+class Rodillo_listViewSet(viewsets.ModelViewSet):
+    serializer_class = RodilloListSerializer
+    queryset = Rodillo.objects.all()
+    filterset_class = RodilloFilter
+    pagination_class = StandardResultsSetPagination
+
+class Rodillo_editarViewSet(viewsets.ModelViewSet):
     serializer_class = RodilloSerializer
     queryset = Rodillo.objects.all()
     filterset_class = RodilloFilter
@@ -99,7 +131,7 @@ class OperacionViewSet(viewsets.ModelViewSet):
     queryset = Operacion.objects.all()
 
 class Tipo_rodilloViewSet(viewsets.ModelViewSet):
-    serializer_class = Tipo_rodilloSerializer
+    serializer_class = TipoRodilloSerializer
     queryset = Tipo_rodillo.objects.all()
 
 class GrupoViewSet(viewsets.ModelViewSet):
@@ -119,6 +151,15 @@ class MaterialViewSet(viewsets.ModelViewSet):
 
 class TipoPlanoViewSet(viewsets.ModelViewSet):
     serializer_class = TipoPlanoSerializer
+    queryset = Tipo_Plano.objects.all()
+    filterset_class = Tipo_PlanoFilter
+
+class ParametrosViewSet(viewsets.ModelViewSet):
+    serializer_class = ParametrosSerializer
+    queryset = Nombres_Parametros.objects.all()
+
+class PlanoParametrosViewSet(viewsets.ModelViewSet):
+    serializer_class = PlanoParametrosSerializer
     queryset = Tipo_Plano.objects.all()
     filterset_class = Tipo_PlanoFilter
 
