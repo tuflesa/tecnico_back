@@ -1,8 +1,10 @@
 from rest_framework import viewsets
-from rodillos.models import Rodillo, Tipo_rodillo, Seccion, Operacion, Eje, Plano, Revision, Material, Grupo, Tipo_Plano, Nombres_Parametros
-from rodillos.serializers import RodilloSerializer, PlanoSerializer, RevisionSerializer, SeccionSerializer, OperacionSerializer, TipoRodilloSerializer, MaterialSerializer, GrupoSerializer, TipoPlanoSerializer, RodilloListSerializer, PlanoParametrosSerializer, ParametrosSerializer
+from rodillos.models import Rodillo, Tipo_rodillo, Seccion, Operacion, Eje, Plano, Revision, Material, Grupo, Tipo_Plano, Nombres_Parametros, Tipo_Seccion
+from rodillos.serializers import RodilloSerializer, PlanoSerializer, RevisionSerializer, SeccionSerializer, OperacionSerializer, TipoRodilloSerializer, MaterialSerializer, GrupoSerializer, TipoPlanoSerializer, RodilloListSerializer, PlanoParametrosSerializer, ParametrosSerializer, TipoSeccionSerializer
 from django_filters import rest_framework as filters
 from rest_framework.pagination import PageNumberPagination
+from rest_framework import status
+from rest_framework.response import Response
 
 class StandardResultsSetPagination(PageNumberPagination):
     page_size = 20
@@ -27,6 +29,7 @@ class RodilloFilter(filters.FilterSet):
             'operacion__seccion__maquina': ['exact'],
             'operacion__seccion': ['exact'],
             'operacion__id':['exact'],
+            'tipo_plano':['exact'],
         }
 
 class SeccionFilter(filters.FilterSet):
@@ -92,6 +95,7 @@ class Tipo_PlanoFilter(filters.FilterSet):
         fields = {
             'nombre': ['exact'],
             'tipo_seccion':['exact'],
+            'tipo_rodillo': ['exact'],
         }
 class RodilloViewSet(viewsets.ModelViewSet):
     serializer_class = RodilloSerializer
@@ -113,10 +117,25 @@ class PlanoViewSet(viewsets.ModelViewSet):
     serializer_class = PlanoSerializer
     queryset = Plano.objects.all()
     filterset_class = PlanoFilter
-
 class RevisionViewSet(viewsets.ModelViewSet):
     serializer_class = RevisionSerializer
     queryset = Revision.objects.all()
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        if serializer.is_valid():
+            # Obtener el archivo del formulario
+            archivo = request.FILES.get('archivo')
+
+            if archivo:
+                # Procesar y guardar el archivo aquí
+                nueva_revision = serializer.save(archivo=archivo)
+
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            else:
+                return Response({'archivo': 'El archivo no se ha proporcionado'}, status=status.HTTP_400_BAD_REQUEST)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class SeccionViewSet(viewsets.ModelViewSet):
     serializer_class = SeccionSerializer
@@ -151,5 +170,9 @@ class PlanoParametrosViewSet(viewsets.ModelViewSet):
     serializer_class = PlanoParametrosSerializer
     queryset = Tipo_Plano.objects.all()
     filterset_class = Tipo_PlanoFilter
+
+class TipoSeccionViewSet(viewsets.ModelViewSet):
+    serializer_class = TipoSeccionSerializer
+    queryset = Tipo_Seccion.objects.all()
 
 

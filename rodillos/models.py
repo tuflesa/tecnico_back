@@ -1,6 +1,7 @@
 from django.db import models
 from estructura.models import Zona
 from django.utils import timezone
+from django import forms
 
 # Tipo de sección: Formadora, cuchillas, Soldadura, Calibradora, Cabeza de turco
 class Tipo_Seccion(models.Model):
@@ -27,8 +28,8 @@ class Tipo_rodillo(models.Model):
 # Tipo de plano: Determina los nombres de los parametros a emplear para control de rectificados y para dibujar los rodillos en el Quick Setting
 class Tipo_Plano(models.Model):
     nombre = models.CharField(max_length=200)
-    tipo_seccion = models.ForeignKey(Tipo_Seccion, on_delete=models.CASCADE, null=False)
-    tipo_rodillo = models.ForeignKey(Tipo_rodillo,on_delete=models.CASCADE, null=False)
+    tipo_seccion = models.ForeignKey(Tipo_Seccion, on_delete=models.CASCADE, null=True)
+    tipo_rodillo = models.ForeignKey(Tipo_rodillo, on_delete=models.CASCADE, null=True)
     croquis = models.ImageField(upload_to='croquis', blank=True, null=True)
     nombres = models.ManyToManyField(Nombres_Parametros, related_name='tipo_plano')
 
@@ -157,3 +158,4 @@ class Instancia(models.Model):
     nombre = models.CharField(max_length=200)
     rodillo = models.ForeignKey(Rodillo, on_delete=models.CASCADE)
     planos = models.ManyToManyField(Plano, related_name='instancias')
+
