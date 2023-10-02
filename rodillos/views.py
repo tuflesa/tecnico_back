@@ -134,7 +134,7 @@ class PlanoViewSet(viewsets.ModelViewSet):
 
 class RevisionConjuntosViewSet(viewsets.ModelViewSet):
     serializer_class = RevisionConjuntosSerializer
-    queryset = Revision.objects.all()
+    queryset = Revision.objects.all().order_by('-fecha')
     filterset_class = RevisionFilter
 class RevisionViewSet(viewsets.ModelViewSet):
     serializer_class = RevisionSerializer
