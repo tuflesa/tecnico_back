@@ -1,6 +1,6 @@
 from rest_framework import viewsets
 from rodillos.models import Rodillo, Tipo_rodillo, Seccion, Operacion, Eje, Plano, Revision, Material, Grupo, Tipo_Plano, Nombres_Parametros, Tipo_Seccion
-from rodillos.serializers import RodilloSerializer, PlanoSerializer, RevisionSerializer, SeccionSerializer, OperacionSerializer, TipoRodilloSerializer, MaterialSerializer, GrupoSerializer, TipoPlanoSerializer, RodilloListSerializer, PlanoParametrosSerializer, ParametrosSerializer, TipoSeccionSerializer
+from rodillos.serializers import RodilloSerializer, PlanoNuevoSerializer, RevisionSerializer, SeccionSerializer, OperacionSerializer, TipoRodilloSerializer, MaterialSerializer, GrupoSerializer, TipoPlanoSerializer, RodilloListSerializer, PlanoParametrosSerializer, ParametrosSerializer, TipoSeccionSerializer, PlanoSerializer, RevisionConjuntosSerializer
 from django_filters import rest_framework as filters
 from rest_framework.pagination import PageNumberPagination
 from rest_framework import status
@@ -59,6 +59,14 @@ class Tipo_rodilloFilter(filters.FilterSet):
         fields = {
             'nombre': ['exact'],
         }
+
+class RevisionFilter(filters.FilterSet):
+    class Meta:
+        model = Revision
+        fields = {
+            'plano__id': ['exact'],
+            'plano':['exact'],
+        }
     
 class MaterialFilter(filters.FilterSet):
     class Meta:
@@ -87,6 +95,7 @@ class PlanoFilter(filters.FilterSet):
         model = Plano
         fields = {
             'nombre': ['exact'],
+            'rodillos':['exact'],
         }
 
 class Tipo_PlanoFilter(filters.FilterSet):
@@ -113,10 +122,20 @@ class Rodillo_editarViewSet(viewsets.ModelViewSet):
     queryset = Rodillo.objects.all()
     filterset_class = RodilloFilter
 
+class PlanoNuevoViewSet(viewsets.ModelViewSet):
+    serializer_class = PlanoNuevoSerializer
+    queryset = Plano.objects.all()
+    filterset_class = PlanoFilter
+
 class PlanoViewSet(viewsets.ModelViewSet):
     serializer_class = PlanoSerializer
     queryset = Plano.objects.all()
     filterset_class = PlanoFilter
+
+class RevisionConjuntosViewSet(viewsets.ModelViewSet):
+    serializer_class = RevisionConjuntosSerializer
+    queryset = Revision.objects.all()
+    filterset_class = RevisionFilter
 class RevisionViewSet(viewsets.ModelViewSet):
     serializer_class = RevisionSerializer
     queryset = Revision.objects.all()

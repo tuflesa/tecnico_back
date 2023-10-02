@@ -6,12 +6,22 @@ class RodilloSerializer(serializers.ModelSerializer):
     class Meta:
         model = Rodillo
         fields = ['id', 'nombre', 'operacion', 'grupo', 'tipo', 'material', 'tipo_plano']
+class PlanoNuevoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Plano
+        fields = ['id', 'nombre', 'rodillos']
+
 class PlanoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Plano
         fields = ['id', 'nombre', 'rodillos']
 
 class RevisionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Revision
+        fields = ['id', 'plano', 'motivo', 'archivo', 'fecha']
+
+class RevisionConjuntosSerializer(serializers.ModelSerializer):
     class Meta:
         model = Revision
         fields = ['id', 'plano', 'motivo', 'archivo', 'fecha']
