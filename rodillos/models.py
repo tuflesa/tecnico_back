@@ -159,3 +159,8 @@ class Instancia(models.Model):
     rodillo = models.ForeignKey(Rodillo, on_delete=models.CASCADE)
     planos = models.ManyToManyField(Plano, related_name='instancias')
 
+# Parámetros: Parametros de un rodillo según plano sin rectificar. Al crear una revisión de un plano, se deben actualizar.
+class Parametros(models.Model):
+    nombre = models.CharField(max_length=50)
+    valor = models.FloatField()
+    revision = models.ForeignKey(Revision, on_delete=models.CASCADE)

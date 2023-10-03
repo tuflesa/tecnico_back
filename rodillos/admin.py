@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Tipo_Seccion, Seccion, Operacion, Eje, Rodillo, Tipo_rodillo, Material, Bancada, Conjunto, Elemento, Grupo, Montaje, Plano, Revision, Tipo_Plano, Nombres_Parametros, Instancia, Parametros_Estandar
+from .models import Tipo_Seccion, Seccion, Operacion, Eje, Rodillo, Tipo_rodillo, Material, Bancada, Conjunto, Elemento, Grupo, Montaje, Plano, Revision, Tipo_Plano, Nombres_Parametros, Instancia, Parametros_Estandar, Parametros
 
 admin.site.register(Tipo_Seccion)
 admin.site.register(Seccion)
@@ -19,3 +19,4 @@ admin.site.register(Tipo_Plano)
 admin.site.register(Nombres_Parametros)
 admin.site.register(Instancia)
 admin.site.register(Parametros_Estandar)
+admin.site.register(Parametros)

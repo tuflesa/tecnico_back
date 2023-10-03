@@ -1,6 +1,6 @@
 from rest_framework import viewsets
-from rodillos.models import Rodillo, Tipo_rodillo, Seccion, Operacion, Eje, Plano, Revision, Material, Grupo, Tipo_Plano, Nombres_Parametros, Tipo_Seccion
-from rodillos.serializers import RodilloSerializer, PlanoNuevoSerializer, RevisionSerializer, SeccionSerializer, OperacionSerializer, TipoRodilloSerializer, MaterialSerializer, GrupoSerializer, TipoPlanoSerializer, RodilloListSerializer, PlanoParametrosSerializer, ParametrosSerializer, TipoSeccionSerializer, PlanoSerializer, RevisionConjuntosSerializer
+from rodillos.models import Rodillo, Tipo_rodillo, Seccion, Operacion, Eje, Plano, Revision, Material, Grupo, Tipo_Plano, Nombres_Parametros, Tipo_Seccion, Parametros
+from rodillos.serializers import RodilloSerializer, PlanoNuevoSerializer, RevisionSerializer, SeccionSerializer, OperacionSerializer, TipoRodilloSerializer, MaterialSerializer, GrupoSerializer, TipoPlanoSerializer, RodilloListSerializer, PlanoParametrosSerializer, Nombres_ParametrosSerializer, TipoSeccionSerializer, PlanoSerializer, RevisionConjuntosSerializer, ParametrosSerializer
 from django_filters import rest_framework as filters
 from rest_framework.pagination import PageNumberPagination
 from rest_framework import status
@@ -58,6 +58,13 @@ class Tipo_rodilloFilter(filters.FilterSet):
         model = Tipo_rodillo
         fields = {
             'nombre': ['exact'],
+        }
+
+class ParametrosFilter(filters.FilterSet):
+    class Meta:
+        model = Parametros
+        fields = {
+            'revision': ['exact'],
         }
 
 class RevisionFilter(filters.FilterSet):
@@ -181,8 +188,8 @@ class TipoPlanoViewSet(viewsets.ModelViewSet):
     queryset = Tipo_Plano.objects.all()
     filterset_class = Tipo_PlanoFilter
 
-class ParametrosViewSet(viewsets.ModelViewSet):
-    serializer_class = ParametrosSerializer
+class Nombres_ParametrosViewSet(viewsets.ModelViewSet):
+    serializer_class = Nombres_ParametrosSerializer
     queryset = Nombres_Parametros.objects.all()
 
 class PlanoParametrosViewSet(viewsets.ModelViewSet):
@@ -193,5 +200,10 @@ class PlanoParametrosViewSet(viewsets.ModelViewSet):
 class TipoSeccionViewSet(viewsets.ModelViewSet):
     serializer_class = TipoSeccionSerializer
     queryset = Tipo_Seccion.objects.all()
+
+class ParametrosViewSet(viewsets.ModelViewSet):
+    serializer_class = ParametrosSerializer
+    queryset = Parametros.objects.all()
+    filterset_class = ParametrosFilter
 
 
