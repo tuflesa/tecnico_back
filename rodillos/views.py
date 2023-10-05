@@ -48,9 +48,11 @@ class OperacionFilter(filters.FilterSet):
         model = Operacion
         fields = {
             'nombre': ['exact'],
+            'nombre': ['icontains'],
             'seccion': ['exact'],
             'seccion__nombre': ['exact'],
             'seccion__id':['exact'],
+            'seccion__maquina__siglas':['exact'],
         }
 
 class Tipo_rodilloFilter(filters.FilterSet):
@@ -65,6 +67,7 @@ class ParametrosFilter(filters.FilterSet):
         model = Parametros
         fields = {
             'revision': ['exact'],
+            'revision__plano__nombre': ['exact'],
         }
 
 class RevisionFilter(filters.FilterSet):
@@ -103,6 +106,7 @@ class PlanoFilter(filters.FilterSet):
         fields = {
             'nombre': ['exact'],
             'rodillos':['exact'],
+            'nombre': ['icontains'],
         }
 
 class Tipo_PlanoFilter(filters.FilterSet):
