@@ -1,6 +1,6 @@
 from rest_framework import viewsets
-from rodillos.models import Rodillo, Tipo_rodillo, Seccion, Operacion, Eje, Plano, Revision, Material, Grupo, Tipo_Plano, Nombres_Parametros, Tipo_Seccion
-from rodillos.serializers import RodilloSerializer, PlanoSerializer, RevisionSerializer, SeccionSerializer, OperacionSerializer, TipoRodilloSerializer, MaterialSerializer, GrupoSerializer, TipoPlanoSerializer, RodilloListSerializer, PlanoParametrosSerializer, ParametrosSerializer, TipoSeccionSerializer
+from rodillos.models import Rodillo, Tipo_rodillo, Seccion, Operacion, Eje, Plano, Revision, Material, Grupo, Tipo_Plano, Nombres_Parametros, Tipo_Seccion, Parametros
+from rodillos.serializers import RodilloSerializer, PlanoNuevoSerializer, RevisionSerializer, SeccionSerializer, OperacionSerializer, TipoRodilloSerializer, MaterialSerializer, GrupoSerializer, TipoPlanoSerializer, RodilloListSerializer, PlanoParametrosSerializer, Nombres_ParametrosSerializer, TipoSeccionSerializer, PlanoSerializer, RevisionConjuntosSerializer, ParametrosSerializer
 from django_filters import rest_framework as filters
 from rest_framework.pagination import PageNumberPagination
 from rest_framework import status
@@ -48,9 +48,11 @@ class OperacionFilter(filters.FilterSet):
         model = Operacion
         fields = {
             'nombre': ['exact'],
+            'nombre': ['icontains'],
             'seccion': ['exact'],
             'seccion__nombre': ['exact'],
             'seccion__id':['exact'],
+            'seccion__maquina__siglas':['exact'],
         }
 
 class Tipo_rodilloFilter(filters.FilterSet):
@@ -58,6 +60,22 @@ class Tipo_rodilloFilter(filters.FilterSet):
         model = Tipo_rodillo
         fields = {
             'nombre': ['exact'],
+        }
+
+class ParametrosFilter(filters.FilterSet):
+    class Meta:
+        model = Parametros
+        fields = {
+            'revision': ['exact'],
+            'revision__plano__nombre': ['exact'],
+        }
+
+class RevisionFilter(filters.FilterSet):
+    class Meta:
+        model = Revision
+        fields = {
+            'plano__id': ['exact'],
+            'plano':['exact'],
         }
     
 class MaterialFilter(filters.FilterSet):
@@ -87,6 +105,8 @@ class PlanoFilter(filters.FilterSet):
         model = Plano
         fields = {
             'nombre': ['exact'],
+            'rodillos':['exact'],
+            'nombre': ['icontains'],
         }
 
 class Tipo_PlanoFilter(filters.FilterSet):
@@ -113,10 +133,20 @@ class Rodillo_editarViewSet(viewsets.ModelViewSet):
     queryset = Rodillo.objects.all()
     filterset_class = RodilloFilter
 
+class PlanoNuevoViewSet(viewsets.ModelViewSet):
+    serializer_class = PlanoNuevoSerializer
+    queryset = Plano.objects.all()
+    filterset_class = PlanoFilter
+
 class PlanoViewSet(viewsets.ModelViewSet):
     serializer_class = PlanoSerializer
     queryset = Plano.objects.all()
     filterset_class = PlanoFilter
+
+class RevisionConjuntosViewSet(viewsets.ModelViewSet):
+    serializer_class = RevisionConjuntosSerializer
+    queryset = Revision.objects.all().order_by('-id')
+    filterset_class = RevisionFilter
 class RevisionViewSet(viewsets.ModelViewSet):
     serializer_class = RevisionSerializer
     queryset = Revision.objects.all()
@@ -162,8 +192,8 @@ class TipoPlanoViewSet(viewsets.ModelViewSet):
     queryset = Tipo_Plano.objects.all()
     filterset_class = Tipo_PlanoFilter
 
-class ParametrosViewSet(viewsets.ModelViewSet):
-    serializer_class = ParametrosSerializer
+class Nombres_ParametrosViewSet(viewsets.ModelViewSet):
+    serializer_class = Nombres_ParametrosSerializer
     queryset = Nombres_Parametros.objects.all()
 
 class PlanoParametrosViewSet(viewsets.ModelViewSet):
@@ -174,5 +204,10 @@ class PlanoParametrosViewSet(viewsets.ModelViewSet):
 class TipoSeccionViewSet(viewsets.ModelViewSet):
     serializer_class = TipoSeccionSerializer
     queryset = Tipo_Seccion.objects.all()
+
+class ParametrosViewSet(viewsets.ModelViewSet):
+    serializer_class = ParametrosSerializer
+    queryset = Parametros.objects.all()
+    filterset_class = ParametrosFilter
 
 
