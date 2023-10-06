@@ -29,6 +29,10 @@ class RodillosAdmin(admin.ModelAdmin):
     list_display=("id","nombre", "grupo", "tipo")
     list_filter=("grupo", "tipo",)
 
+class TipoPlanoAdmin(admin.ModelAdmin):
+    search_fields=("nombre",)
+    list_display=("id","nombre")
+
 
 admin.site.register(Tipo_Seccion)
 admin.site.register(Seccion)
@@ -44,7 +48,7 @@ admin.site.register(Grupo)
 admin.site.register(Montaje)
 admin.site.register(Plano, PlanosAdmin)
 admin.site.register(Revision, RevisionAdmin)
-admin.site.register(Tipo_Plano)
+admin.site.register(Tipo_Plano, TipoPlanoAdmin)
 admin.site.register(Nombres_Parametros)
 admin.site.register(Instancia)
 admin.site.register(Parametros_Estandar)

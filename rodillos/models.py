@@ -148,9 +148,9 @@ class Plano(models.Model):
 
 # Revisión: Modificaciones de un plano  
 class Revision(models.Model):
-    plano = models.ForeignKey(Plano, on_delete=models.CASCADE)
-    motivo = models.TextField(max_length=250)
-    archivo = models.FileField(upload_to='planos')
+    plano = models.ForeignKey(Plano, on_delete=models.CASCADE, blank=False, null=False)
+    motivo = models.TextField(max_length=250, blank=False, null=False)
+    archivo = models.FileField(upload_to='planos', blank=False, null=False)
     fecha = models.DateField(default=timezone.now)
 
 #Instancia: Un rodillo en concreto
