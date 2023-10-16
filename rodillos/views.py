@@ -39,6 +39,7 @@ class SeccionFilter(filters.FilterSet):
             'nombre': ['exact'],
             'maquina__siglas': ['exact'],
             'maquina__empresa__siglas': ['exact'],
+            'maquina__empresa__id': ['exact'],
             'maquina__id':['exact'],
             'maquina':['exact'],
         }
@@ -53,6 +54,9 @@ class OperacionFilter(filters.FilterSet):
             'seccion__nombre': ['exact'],
             'seccion__id':['exact'],
             'seccion__maquina__siglas':['exact'],
+            'seccion__maquina__empresa__id': ['exact'],
+            'seccion__maquina': ['exact'],
+            'seccion__maquina__id': ['exact'],
         }
 
 class Tipo_rodilloFilter(filters.FilterSet):
