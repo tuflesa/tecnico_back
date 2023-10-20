@@ -1,6 +1,6 @@
 from rest_framework import viewsets
-from rodillos.models import Rodillo, Tipo_rodillo, Seccion, Operacion, Eje, Plano, Revision, Material, Grupo, Tipo_Plano, Nombres_Parametros, Tipo_Seccion, Parametros
-from rodillos.serializers import RodilloSerializer, PlanoNuevoSerializer, RevisionSerializer, SeccionSerializer, OperacionSerializer, TipoRodilloSerializer, MaterialSerializer, GrupoSerializer, TipoPlanoSerializer, RodilloListSerializer, PlanoParametrosSerializer, Nombres_ParametrosSerializer, TipoSeccionSerializer, PlanoSerializer, RevisionConjuntosSerializer, ParametrosSerializer
+from rodillos.models import Rodillo, Tipo_rodillo, Seccion, Operacion, Eje, Plano, Revision, Material, Grupo, Tipo_Plano, Nombres_Parametros, Tipo_Seccion, Parametros_Estandar
+from rodillos.serializers import RodilloSerializer, PlanoNuevoSerializer, RevisionSerializer, SeccionSerializer, OperacionSerializer, TipoRodilloSerializer, MaterialSerializer, GrupoSerializer, TipoPlanoSerializer, RodilloListSerializer, PlanoParametrosSerializer, Nombres_ParametrosSerializer, TipoSeccionSerializer, PlanoSerializer, RevisionConjuntosSerializer, Parametros_estandarSerializer
 from django_filters import rest_framework as filters
 from rest_framework.pagination import PageNumberPagination
 from rest_framework import status
@@ -68,10 +68,11 @@ class Tipo_rodilloFilter(filters.FilterSet):
 
 class ParametrosFilter(filters.FilterSet):
     class Meta:
-        model = Parametros
+        model = Parametros_Estandar
         fields = {
-            'revision': ['exact'],
-            'revision__plano__nombre': ['exact'],
+            'rodillo': ['exact'],
+            'nombre':['exact'],
+            #'revision__plano__nombre': ['exact'],
         }
 
 class RevisionFilter(filters.FilterSet):
@@ -120,6 +121,14 @@ class Tipo_PlanoFilter(filters.FilterSet):
             'nombre': ['exact'],
             'tipo_seccion':['exact'],
             'tipo_rodillo': ['exact'],
+        }
+
+class NombresParametrosFilter(filters.FilterSet):
+    class Meta:
+        model = Nombres_Parametros
+        fields = {
+            'nombre': ['exact'],
+            'descripcion':['exact'],
         }
 class RodilloViewSet(viewsets.ModelViewSet):
     serializer_class = RodilloSerializer
@@ -199,6 +208,7 @@ class TipoPlanoViewSet(viewsets.ModelViewSet):
 class Nombres_ParametrosViewSet(viewsets.ModelViewSet):
     serializer_class = Nombres_ParametrosSerializer
     queryset = Nombres_Parametros.objects.all()
+    filterset_class = NombresParametrosFilter
 
 class PlanoParametrosViewSet(viewsets.ModelViewSet):
     serializer_class = PlanoParametrosSerializer
@@ -209,9 +219,9 @@ class TipoSeccionViewSet(viewsets.ModelViewSet):
     serializer_class = TipoSeccionSerializer
     queryset = Tipo_Seccion.objects.all()
 
-class ParametrosViewSet(viewsets.ModelViewSet):
-    serializer_class = ParametrosSerializer
-    queryset = Parametros.objects.all()
+class Parametros_estandarViewSet(viewsets.ModelViewSet):
+    serializer_class = Parametros_estandarSerializer
+    queryset = Parametros_Estandar.objects.all()
     filterset_class = ParametrosFilter
 
 
