@@ -64,13 +64,12 @@ class Material(models.Model):
     
 # Ejes de una operación
 class Eje(models.Model):
-    nombre = models.CharField(max_length=50) # Ejemplos: superior, inferior, lateral, ...
     operacion = models.ForeignKey(Operacion, on_delete=models.CASCADE, related_name='posiciones')
     tipo = models.ForeignKey(Tipo_rodillo, on_delete=models.CASCADE)
     diametro = models.FloatField(blank=True, null=True)
 
     def __str__(self):
-        return self.operacion.seccion.maquina.siglas + '-' + self.operacion.seccion.nombre + '-' +   self.operacion.nombre + ' - ' + self.nombre
+        return self.operacion.seccion.maquina.siglas + '-' + self.operacion.nombre + '-' + self.tipo.nombre
 
 # Grupo
 class Grupo(models.Model):
@@ -101,7 +100,6 @@ class Parametros_Estandar(models.Model):
 
 # Bancadas de una sección
 class Bancada(models.Model):
-    nombre = models.CharField(max_length=50)
     seccion = models.ForeignKey(Seccion, on_delete=models.CASCADE)
     grupos = models.ManyToManyField(Grupo,related_name='bancadas')
 
@@ -110,7 +108,6 @@ class Bancada(models.Model):
 
 # Conjuntos de rodillos de una operación. Son las celdas del Tooling Chart
 class Conjunto(models.Model):
-    nombre = models.CharField(max_length=50)
     bancada = models.ForeignKey(Bancada, on_delete=models.CASCADE)
     operacion = models.ForeignKey(Operacion, on_delete=models.CASCADE, related_name='conjuntos')
     icono = models.ImageField(upload_to='iconos', blank=True, null=True)
@@ -120,7 +117,6 @@ class Conjunto(models.Model):
 
 # Elementos de un conjunto de rodillos. Que rodillo en que posición dentro de un conjunto de rodillos
 class Elemento(models.Model):
-    nombre = models.CharField(max_length=50)
     conjunto = models.ForeignKey(Conjunto, on_delete=models.CASCADE, related_name='elementos')
     eje = models.ForeignKey(Eje, on_delete=models.CASCADE)
     rodillo = models.ForeignKey(Rodillo, on_delete=models.CASCADE)
