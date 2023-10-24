@@ -88,3 +88,8 @@ class Parametros_estandarSerializer(serializers.ModelSerializer):
         model = Parametros_Estandar
         fields = ['id', 'nombre', 'valor', 'rodillo']
 
+class Plano_existenteSerializer(serializers.ModelSerializer):
+    rodillos = RodilloSerializer(many=True)
+    class Meta:
+        model = Plano
+        fields = ['id', 'nombre', 'rodillos']

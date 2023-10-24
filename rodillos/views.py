@@ -1,6 +1,6 @@
 from rest_framework import viewsets
 from rodillos.models import Rodillo, Tipo_rodillo, Seccion, Operacion, Eje, Plano, Revision, Material, Grupo, Tipo_Plano, Nombres_Parametros, Tipo_Seccion, Parametros_Estandar
-from rodillos.serializers import RodilloSerializer, PlanoNuevoSerializer, RevisionSerializer, SeccionSerializer, OperacionSerializer, TipoRodilloSerializer, MaterialSerializer, GrupoSerializer, TipoPlanoSerializer, RodilloListSerializer, PlanoParametrosSerializer, Nombres_ParametrosSerializer, TipoSeccionSerializer, PlanoSerializer, RevisionConjuntosSerializer, Parametros_estandarSerializer
+from rodillos.serializers import RodilloSerializer, PlanoNuevoSerializer, RevisionSerializer, SeccionSerializer, OperacionSerializer, TipoRodilloSerializer, MaterialSerializer, GrupoSerializer, TipoPlanoSerializer, RodilloListSerializer, PlanoParametrosSerializer, Nombres_ParametrosSerializer, TipoSeccionSerializer, PlanoSerializer, RevisionConjuntosSerializer, Parametros_estandarSerializer, Plano_existenteSerializer
 from django_filters import rest_framework as filters
 from rest_framework.pagination import PageNumberPagination
 from rest_framework import status
@@ -112,6 +112,7 @@ class PlanoFilter(filters.FilterSet):
             'nombre': ['exact'],
             'rodillos':['exact'],
             'nombre': ['icontains'],
+            'rodillos__tipo_plano':['exact'],
         }
 
 class Tipo_PlanoFilter(filters.FilterSet):
@@ -129,6 +130,7 @@ class NombresParametrosFilter(filters.FilterSet):
         fields = {
             'nombre': ['exact'],
             'descripcion':['exact'],
+            'id':['exact'],
         }
 class RodilloViewSet(viewsets.ModelViewSet):
     serializer_class = RodilloSerializer
@@ -224,4 +226,8 @@ class Parametros_estandarViewSet(viewsets.ModelViewSet):
     queryset = Parametros_Estandar.objects.all()
     filterset_class = ParametrosFilter
 
+class Plano_existenteViewSet(viewsets.ModelViewSet):
+    serializer_class = Plano_existenteSerializer
+    queryset = Plano.objects.all().order_by('nombre')
+    filterset_class = PlanoFilter
 
