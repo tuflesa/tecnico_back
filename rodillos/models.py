@@ -42,6 +42,7 @@ class Seccion(models.Model):
     maquina = models.ForeignKey(Zona, on_delete=models.CASCADE)
     pertenece_grupo = models.BooleanField(default=True)
     tipo = models.ForeignKey(Tipo_Seccion, on_delete=models.CASCADE, null=True)
+    orden = models.IntegerField(null=True, blank=True) #Solamente se usa para la posición en el tooling chart
 
     def __str__(self):
         return self.maquina.siglas + '-' + self.nombre
@@ -51,6 +52,7 @@ class Operacion(models.Model):
     nombre = models.CharField(max_length=50) # Ejemplo: F1
     seccion = models.ForeignKey(Seccion, on_delete=models.CASCADE, related_name='operaciones') 
     icono = models.ImageField(upload_to='iconos', blank=True, null=True) 
+    orden = models.IntegerField(null=True, blank=True) #Solamente se usa para la posición en el tooling chart
 
     def __str__(self):
         return self.seccion.maquina.siglas + '-' + self.seccion.nombre + '-' + self.nombre
@@ -88,6 +90,7 @@ class Rodillo(models.Model):
     tipo = models.ForeignKey(Tipo_rodillo, on_delete=models.CASCADE)
     tipo_plano = models.ForeignKey(Tipo_Plano, on_delete=models.CASCADE, null=True)
     material = models.ForeignKey(Material, on_delete=models.CASCADE)
+    diametro = models.FloatField(blank=True, null=True)
 
     def __str__(self) -> str:
         return self.nombre
@@ -111,6 +114,7 @@ class Conjunto(models.Model):
     bancada = models.ForeignKey(Bancada, on_delete=models.CASCADE)
     operacion = models.ForeignKey(Operacion, on_delete=models.CASCADE, related_name='conjuntos')
     icono = models.ImageField(upload_to='iconos', blank=True, null=True)
+    tubo_madre = models.FloatField(blank=True, null=True)
 
     def __str__(self) -> str:
         return self.nombre
