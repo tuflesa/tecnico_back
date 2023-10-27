@@ -104,10 +104,7 @@ class Parametros_Estandar(models.Model):
 # Bancadas de una sección
 class Bancada(models.Model):
     seccion = models.ForeignKey(Seccion, on_delete=models.CASCADE)
-    grupos = models.ManyToManyField(Grupo,related_name='bancadas')
-
-    def __str__(self) -> str:
-        return self.nombre
+    grupos = models.ManyToManyField(Grupo, related_name='bancadas')
 
 # Conjuntos de rodillos de una operación. Son las celdas del Tooling Chart
 class Conjunto(models.Model):
@@ -116,17 +113,11 @@ class Conjunto(models.Model):
     icono = models.ImageField(upload_to='iconos', blank=True, null=True)
     tubo_madre = models.FloatField(blank=True, null=True)
 
-    def __str__(self) -> str:
-        return self.nombre
-
 # Elementos de un conjunto de rodillos. Que rodillo en que posición dentro de un conjunto de rodillos
 class Elemento(models.Model):
     conjunto = models.ForeignKey(Conjunto, on_delete=models.CASCADE, related_name='elementos')
     eje = models.ForeignKey(Eje, on_delete=models.CASCADE)
     rodillo = models.ForeignKey(Rodillo, on_delete=models.CASCADE)
-
-    def __str__(self) -> str:
-        return self.nombre
 
 # Montaje
 class Montaje(models.Model):

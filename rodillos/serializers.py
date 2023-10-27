@@ -1,11 +1,11 @@
 from rest_framework import serializers
 from estructura.serializers import ZonaSerializer_Rodillos
-from rodillos.models import Rodillo, Plano, Revision, Seccion, Operacion, Tipo_rodillo, Material, Grupo, Tipo_Plano, Nombres_Parametros, Tipo_Seccion, Parametros_Estandar
+from rodillos.models import Rodillo, Plano, Revision, Seccion, Operacion, Tipo_rodillo, Material, Grupo, Tipo_Plano, Nombres_Parametros, Tipo_Seccion, Parametros_Estandar, Eje, Bancada, Conjunto, Elemento
 
 class RodilloSerializer(serializers.ModelSerializer):
     class Meta:
         model = Rodillo
-        fields = ['id', 'nombre', 'operacion', 'grupo', 'tipo', 'material', 'tipo_plano']
+        fields = ['id', 'nombre', 'operacion', 'grupo', 'tipo', 'material', 'tipo_plano', 'diametro']
 class PlanoNuevoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Plano
@@ -93,3 +93,42 @@ class Plano_existenteSerializer(serializers.ModelSerializer):
     class Meta:
         model = Plano
         fields = ['id', 'nombre', 'rodillos']
+
+class EjeSerializer(serializers.ModelSerializer):
+    tipo = TipoRodilloSerializer(many=False)
+    class Meta:
+        model = Eje
+        fields = ['id', 'operacion', 'tipo', 'diametro']
+
+class BancadaSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Bancada
+        fields = ['id', 'seccion', 'grupos']
+
+class Bancada_SelectSerializer(serializers.ModelSerializer):
+    seccion = SeccionSerializer(many=False)
+    class Meta:
+        model = Bancada
+        fields = ['id', 'seccion', 'grupos']
+
+class ConjuntoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Conjunto
+        fields = ['id', 'bancada', 'operacion', 'icono', 'tubo_madre']
+
+class ElementoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Elemento
+        fields = ['id', 'conjunto', 'eje', 'rodillo']
+
+class Conjunto_SelectSerializer(serializers.ModelSerializer):
+    bancada = Bancada_SelectSerializer(many=False)
+    class Meta:
+        model = Conjunto
+        fields = ['id', 'bancada', 'operacion', 'icono', 'tubo_madre']
+
+class Elemento_SelectSerializer(serializers.ModelSerializer):
+    conjunto = Conjunto_SelectSerializer(many=False)
+    class Meta:
+        model = Elemento
+        fields = ['id', 'conjunto', 'eje', 'rodillo']

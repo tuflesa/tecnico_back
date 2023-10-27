@@ -1,8 +1,13 @@
 from rest_framework import routers
-from .views import RodilloViewSet, PlanoNuevoViewSet, RevisionViewSet, SeccionViewSet, OperacionViewSet, TipoRodilloViewSet, MaterialViewSet, GrupoViewSet, TipoPlanoViewSet, Rodillo_listViewSet, Rodillo_editarViewSet, PlanoParametrosViewSet, Nombres_ParametrosViewSet, TipoSeccionViewSet, PlanoViewSet, RevisionConjuntosViewSet, Parametros_estandarViewSet, Plano_existenteViewSet
+from .views import RodilloViewSet, PlanoNuevoViewSet, RevisionViewSet, SeccionViewSet, OperacionViewSet, TipoRodilloViewSet, MaterialViewSet, GrupoViewSet, TipoPlanoViewSet, Rodillo_listViewSet, Rodillo_editarViewSet, PlanoParametrosViewSet, Nombres_ParametrosViewSet, TipoSeccionViewSet, PlanoViewSet, RevisionConjuntosViewSet, Parametros_estandarViewSet, Plano_existenteViewSet, EjeViewSet, BancadaViewSet, ConjuntoViewSet, ElementoViewSet, Elemento_SelectViewSet
 #direcciones de rodillos
 router = routers.DefaultRouter()
 router.register('grupo_nuevo', GrupoViewSet)
+router.register('elemento_select', Elemento_SelectViewSet)
+router.register('bancada', BancadaViewSet)
+router.register('elemento', ElementoViewSet)
+router.register('conjunto', ConjuntoViewSet)
+router.register('eje', EjeViewSet)
 router.register('planos_existentes', Plano_existenteViewSet)
 router.register('parametros_estandar', Parametros_estandarViewSet)
 router.register('nombres_parametros', Nombres_ParametrosViewSet)

@@ -33,11 +33,15 @@ class TipoPlanoAdmin(admin.ModelAdmin):
     search_fields=("nombre",)
     list_display=("id","nombre")
 
+class EjeAdmin(admin.ModelAdmin):
+    search_fields=("diametro",)
+    list_display=("id","operacion", "tipo")
+
 
 admin.site.register(Tipo_Seccion)
 admin.site.register(Seccion)
 admin.site.register(Operacion, OperacionAdmin)
-admin.site.register(Eje)
+admin.site.register(Eje, EjeAdmin)
 admin.site.register(Rodillo, RodillosAdmin)
 admin.site.register(Tipo_rodillo)
 admin.site.register(Material, MaterialAdmin)
