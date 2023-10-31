@@ -3,6 +3,7 @@ from .views import RodilloViewSet, PlanoNuevoViewSet, RevisionViewSet, SeccionVi
 #direcciones de rodillos
 router = routers.DefaultRouter()
 router.register('grupo_nuevo', GrupoViewSet)
+router.register('plano', PlanoViewSet)
 router.register('elemento_select', Elemento_SelectViewSet)
 router.register('bancada', BancadaViewSet)
 router.register('elemento', ElementoViewSet)
@@ -13,7 +14,6 @@ router.register('parametros_estandar', Parametros_estandarViewSet)
 router.register('nombres_parametros', Nombres_ParametrosViewSet)
 router.register('revision_conjuntos', RevisionConjuntosViewSet)
 router.register('plano_nuevo', PlanoNuevoViewSet)
-router.register('plano', PlanoViewSet)
 router.register('grupo', GrupoViewSet)
 router.register('tipo_plano', TipoPlanoViewSet)
 router.register('plano_parametros', PlanoParametrosViewSet) #para sacar los nombres de los parametros que pertenecen a un tipo de plano

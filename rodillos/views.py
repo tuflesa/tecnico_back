@@ -142,6 +142,7 @@ class Tipo_PlanoFilter(filters.FilterSet):
             'nombre': ['exact'],
             'tipo_seccion':['exact'],
             'tipo_rodillo': ['exact'],
+            'id':['exact'],
         }
 
 class NombresParametrosFilter(filters.FilterSet):
@@ -248,7 +249,7 @@ class Parametros_estandarViewSet(viewsets.ModelViewSet):
 
 class Plano_existenteViewSet(viewsets.ModelViewSet):
     serializer_class = Plano_existenteSerializer
-    queryset = Plano.objects.all().order_by('nombre')
+    queryset = Plano.objects.all().order_by('nombre').distinct()
     filterset_class = PlanoFilter
 
 class EjeViewSet(viewsets.ModelViewSet):
