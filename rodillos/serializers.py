@@ -105,8 +105,14 @@ class BancadaSerializer(serializers.ModelSerializer):
         model = Bancada
         fields = ['id', 'seccion', 'grupos']
 
-class Bancada_SelectSerializer(serializers.ModelSerializer):
+class Bancada_GruposSerializer(serializers.ModelSerializer):
     seccion = SeccionSerializer(many=False)
+    class Meta:
+        model = Bancada
+        fields = ['id', 'seccion', 'grupos']
+
+class Bancada_SelectSerializer(serializers.ModelSerializer):
+    seccion = SeccionSerializer()
     class Meta:
         model = Bancada
         fields = ['id', 'seccion', 'grupos']
@@ -122,7 +128,7 @@ class ElementoSerializer(serializers.ModelSerializer):
         fields = ['id', 'conjunto', 'eje', 'rodillo']
 
 class Conjunto_SelectSerializer(serializers.ModelSerializer):
-    bancada = Bancada_SelectSerializer(many=False)
+    bancada = Bancada_SelectSerializer()
     class Meta:
         model = Conjunto
         fields = ['id', 'bancada', 'operacion', 'icono', 'tubo_madre']

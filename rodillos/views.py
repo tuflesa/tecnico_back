@@ -1,6 +1,6 @@
 from rest_framework import viewsets
 from rodillos.models import Rodillo, Tipo_rodillo, Seccion, Operacion, Eje, Plano, Revision, Material, Grupo, Tipo_Plano, Nombres_Parametros, Tipo_Seccion, Parametros_Estandar, Bancada, Conjunto, Elemento
-from rodillos.serializers import RodilloSerializer, PlanoNuevoSerializer, RevisionSerializer, SeccionSerializer, OperacionSerializer, TipoRodilloSerializer, MaterialSerializer, GrupoSerializer, TipoPlanoSerializer, RodilloListSerializer, PlanoParametrosSerializer, Nombres_ParametrosSerializer, TipoSeccionSerializer, PlanoSerializer, RevisionConjuntosSerializer, Parametros_estandarSerializer, Plano_existenteSerializer, EjeSerializer, BancadaSerializer, ConjuntoSerializer, ElementoSerializer, Elemento_SelectSerializer
+from rodillos.serializers import RodilloSerializer, PlanoNuevoSerializer, RevisionSerializer, SeccionSerializer, OperacionSerializer, TipoRodilloSerializer, MaterialSerializer, GrupoSerializer, TipoPlanoSerializer, RodilloListSerializer, PlanoParametrosSerializer, Nombres_ParametrosSerializer, TipoSeccionSerializer, PlanoSerializer, RevisionConjuntosSerializer, Parametros_estandarSerializer, Plano_existenteSerializer, EjeSerializer, BancadaSerializer, ConjuntoSerializer, ElementoSerializer, Elemento_SelectSerializer, Bancada_GruposSerializer, Bancada_SelectSerializer
 from django_filters import rest_framework as filters
 from rest_framework.pagination import PageNumberPagination
 from rest_framework import status
@@ -261,6 +261,10 @@ class BancadaViewSet(viewsets.ModelViewSet):
     serializer_class = BancadaSerializer
     queryset = Bancada.objects.all()
 
+class BancadaGruposViewSet(viewsets.ModelViewSet):
+    serializer_class = Bancada_GruposSerializer
+    queryset = Bancada.objects.all()
+
 class ConjuntoViewSet(viewsets.ModelViewSet):
     serializer_class = ConjuntoSerializer
     queryset = Conjunto.objects.all()
@@ -274,3 +278,7 @@ class Elemento_SelectViewSet(viewsets.ModelViewSet):
     queryset = Elemento.objects.all()
     filterset_class = ElementoFilter
 
+class Bancada_SelectViewSet(viewsets.ModelViewSet):
+    serializer_class = Bancada_SelectSerializer
+    queryset = Bancada.objects.all()
+    #filterset_class = BancadaFilter
