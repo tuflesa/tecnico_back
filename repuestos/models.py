@@ -10,6 +10,11 @@ class Proveedor(models.Model):
     nombre = models.CharField(max_length=100)
     telefono = models.CharField(max_length=30, blank=True, null=True)
     direccion = models.TextField(max_length=250, blank=True, null=True)
+    poblacion = models.TextField(max_length=75, blank=True, null=True)
+    condicion_pago = models.CharField(max_length=50, blank=True, null=True)
+    condicion_entrega = models.CharField(max_length=50, blank=True, null=True)
+    cif = models.CharField(max_length=10, blank=True, null=True)
+    pais = models.TextField(max_length=75, default='España')
 
     def __str__(self):
         return self.nombre

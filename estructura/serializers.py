@@ -23,18 +23,18 @@ class EstructuraSerializer(serializers.ModelSerializer):
     zonas = ZonaSerializer(many=True)
     class Meta:
         model = Empresa
-        fields = ['id', 'nombre', 'siglas', 'zonas']
+        fields = ['id', 'nombre', 'siglas', 'logo','zonas', 'direccion', 'poblacion', 'codpostal', 'telefono', 'cif']
 
 class DireccionesEmpresaSerializer(serializers.ModelSerializer):
     class Meta:
         model = Direcciones
-        fields = ['id', 'empresa', 'direccion', 'codpostal', 'poblacion', 'telefono', 'provincia']
+        fields = ['id', 'empresa', 'direccion', 'codpostal', 'poblacion', 'telefono', 'provincia', 'cif']
 
 class EmpresaSerializer(serializers.ModelSerializer):
     direcciones = DireccionesEmpresaSerializer(many=True)
     class Meta:
         model = Empresa
-        fields = ['id', 'nombre', 'siglas', 'direcciones', 'logo']
+        fields = ['id', 'nombre', 'siglas', 'direcciones', 'logo', 'direccion', 'poblacion', 'codpostal', 'telefono', 'cif']
 
 class ZonaSerializer_Rodillos(serializers.ModelSerializer): # Lo usamos en la app de rodillos, de ahí su nombre.
     empresa = EmpresaSerializer(many=False)
