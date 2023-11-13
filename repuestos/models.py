@@ -91,8 +91,8 @@ class Pedido(models.Model):
     creado_por = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     direccion_envio = models.ForeignKey(Direcciones, on_delete= models.SET_NULL, null= True, blank= True)
     contacto = models.ForeignKey(Contacto, on_delete=models.SET_NULL, null= True, blank=True)
-    observaciones = models.CharField(max_length=80, null=True, blank=True)
-    observaciones2 = models.CharField(max_length=80, null=True, blank=True)
+    observaciones = models.CharField(max_length=300, null=True, blank=True)
+    observaciones2 = models.CharField(max_length=300, null=True, blank=True)
     descripcion = models.CharField(max_length=80, null=True, blank=True)
 
     def save(self, *args, **kwargs):
