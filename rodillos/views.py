@@ -116,8 +116,18 @@ class ElementoFilter(filters.FilterSet):
             'id': ['exact'],
             'conjunto__bancada__seccion__maquina__id': ['exact'],
             'conjunto__bancada__grupos': ['exact'],
+            'conjunto__bancada__seccion__id': ['exact'],
+            'conjunto__operacion': ['exact'],
             'eje': ['exact'],
             'rodillo': ['exact'],
+        }
+
+class BancadaFilter(filters.FilterSet):
+    class Meta:
+        model = Bancada
+        fields = {
+            'seccion': ['exact'],
+            'grupos': ['exact'],
         }
 
 class GrupoViewSet(viewsets.ModelViewSet):
@@ -264,6 +274,7 @@ class BancadaViewSet(viewsets.ModelViewSet):
 class BancadaGruposViewSet(viewsets.ModelViewSet):
     serializer_class = Bancada_GruposSerializer
     queryset = Bancada.objects.all()
+    filterset_class = BancadaFilter
 
 class ConjuntoViewSet(viewsets.ModelViewSet):
     serializer_class = ConjuntoSerializer
