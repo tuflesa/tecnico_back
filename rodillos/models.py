@@ -73,11 +73,29 @@ class Eje(models.Model):
     def __str__(self):
         return self.operacion.seccion.maquina.siglas + '-' + self.operacion.nombre + '-' + self.tipo.nombre
 
+# Bancadas de una sección
+class Bancada(models.Model):
+    seccion = models.ForeignKey(Seccion, on_delete=models.CASCADE)
+    tubo_madre = models.FloatField(blank=True, null=True)
+    dimensiones = models.CharField(max_length=20, blank=True, null=True) # para las dimesiones de una bancada de C.T.
+
+# Conjuntos de rodillos de una operación. Son las celdas del Tooling Chart
+class Conjunto(models.Model):
+    operacion = models.ForeignKey(Operacion, on_delete=models.CASCADE, related_name='conjuntos')
+    tubo_madre = models.FloatField(blank=True, null=True)
+
+# Son las celdas del Tooling Chart para las formaciones raras
+class Celda (models.Model):
+    bancada = models.ForeignKey(Bancada, on_delete=models.CASCADE)
+    conjunto = models.ForeignKey(Conjunto, on_delete=models.CASCADE)
+    icono = models.ImageField(upload_to='iconos', blank=True, null=True)
+
 # Grupo
 class Grupo(models.Model):
     nombre = models.CharField(max_length=50)
     maquina = models.ForeignKey(Zona, on_delete=models.CASCADE)
     tubo_madre = models.FloatField(blank=True, null=True)
+    bancadas = models.ManyToManyField(Bancada, related_name='grupos')
 
     def __str__(self) -> str:
         return self.nombre
@@ -100,18 +118,6 @@ class Parametros_Estandar(models.Model):
     nombre = models.CharField(max_length=50)
     valor = models.FloatField()
     rodillo = models.ForeignKey(Rodillo, on_delete=models.CASCADE)
-
-# Bancadas de una sección
-class Bancada(models.Model):
-    seccion = models.ForeignKey(Seccion, on_delete=models.CASCADE)
-    grupos = models.ManyToManyField(Grupo, related_name='bancadas')
-
-# Conjuntos de rodillos de una operación. Son las celdas del Tooling Chart
-class Conjunto(models.Model):
-    bancada = models.ForeignKey(Bancada, on_delete=models.CASCADE)
-    operacion = models.ForeignKey(Operacion, on_delete=models.CASCADE, related_name='conjuntos')
-    icono = models.ImageField(upload_to='iconos', blank=True, null=True)
-    tubo_madre = models.FloatField(blank=True, null=True)
 
 # Elementos de un conjunto de rodillos. Que rodillo en que posición dentro de un conjunto de rodillos
 class Elemento(models.Model):
