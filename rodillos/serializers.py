@@ -103,19 +103,19 @@ class EjeSerializer(serializers.ModelSerializer):
 class BancadaSerializer(serializers.ModelSerializer):
     class Meta:
         model = Bancada
-        fields = ['id', 'seccion', 'grupos']
+        fields = ['id', 'seccion', 'tubo_madre', 'dimensiones']
 
 class Bancada_GruposSerializer(serializers.ModelSerializer):
     seccion = SeccionSerializer(many=False)
     class Meta:
         model = Bancada
-        fields = ['id', 'seccion', 'grupos']
+        fields = ['id', 'seccion', 'tubo_madre', 'dimensiones']
 
 class Bancada_SelectSerializer(serializers.ModelSerializer):
     seccion = SeccionSerializer()
     class Meta:
         model = Bancada
-        fields = ['id', 'seccion', 'grupos']
+        fields = ['id', 'seccion', 'tubo_madre', 'dimensiones']
 
 class ConjuntoSerializer(serializers.ModelSerializer):
     class Meta:
