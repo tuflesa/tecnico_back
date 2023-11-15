@@ -6,7 +6,7 @@ class Empresa(models.Model):
     logo = models.ImageField(upload_to='logos', null=True)
     direccion = models.CharField(max_length=80, blank=True, null=True)
     poblacion = models.CharField(max_length=50, blank=True, null=True)
-    codpostal = models.CharField(max_length=8, blank=True, null=True)
+    codpostal = models.CharField(max_length=50, blank=True, null=True)
     telefono = models.CharField(max_length=15, blank=True, null=True)
     cif = models.CharField(max_length=9, blank=True, null=True)
 

@@ -15,6 +15,7 @@ class Proveedor(models.Model):
     condicion_entrega = models.CharField(max_length=50, blank=True, null=True)
     cif = models.CharField(max_length=10, blank=True, null=True)
     pais = models.TextField(max_length=75, default='España')
+    cod_ekon = models.TextField(max_length=8, blank=True, null=True)
 
     def __str__(self):
         return self.nombre
