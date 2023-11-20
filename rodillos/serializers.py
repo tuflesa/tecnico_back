@@ -138,9 +138,14 @@ class Elemento_SelectSerializer(serializers.ModelSerializer):
         model = Elemento
         fields = ['id', 'conjunto', 'eje', 'rodillo']
 
-class CeldaSerializer(serializers.ModelSerializer):
+class Celda_SelectSerializer(serializers.ModelSerializer):
     conjunto = Conjunto_OperacionSerializer(many=False)
     bancada = Bancada_SelectSerializer()
+    class Meta:
+        model = Celda
+        fields = ['id', 'bancada', 'conjunto', 'icono']
+    
+class CeldaSerializer(serializers.ModelSerializer):
     class Meta:
         model = Celda
         fields = ['id', 'bancada', 'conjunto', 'icono']

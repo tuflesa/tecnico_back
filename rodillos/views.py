@@ -1,6 +1,6 @@
 from rest_framework import viewsets
 from rodillos.models import Rodillo, Tipo_rodillo, Seccion, Operacion, Eje, Plano, Revision, Material, Grupo, Tipo_Plano, Nombres_Parametros, Tipo_Seccion, Parametros_Estandar, Bancada, Conjunto, Elemento, Celda
-from rodillos.serializers import RodilloSerializer, PlanoNuevoSerializer, RevisionSerializer, SeccionSerializer, OperacionSerializer, TipoRodilloSerializer, MaterialSerializer, GrupoSerializer, TipoPlanoSerializer, RodilloListSerializer, PlanoParametrosSerializer, Nombres_ParametrosSerializer, TipoSeccionSerializer, PlanoSerializer, RevisionConjuntosSerializer, Parametros_estandarSerializer, Plano_existenteSerializer, EjeSerializer, BancadaSerializer, ConjuntoSerializer, ElementoSerializer, Elemento_SelectSerializer, Bancada_GruposSerializer, Bancada_SelectSerializer, CeldaSerializer
+from rodillos.serializers import RodilloSerializer, PlanoNuevoSerializer, RevisionSerializer, SeccionSerializer, OperacionSerializer, TipoRodilloSerializer, MaterialSerializer, GrupoSerializer, TipoPlanoSerializer, RodilloListSerializer, PlanoParametrosSerializer, Nombres_ParametrosSerializer, TipoSeccionSerializer, PlanoSerializer, RevisionConjuntosSerializer, Parametros_estandarSerializer, Plano_existenteSerializer, EjeSerializer, BancadaSerializer, ConjuntoSerializer, ElementoSerializer, Elemento_SelectSerializer, Bancada_GruposSerializer, Bancada_SelectSerializer, CeldaSerializer, Celda_SelectSerializer
 from django_filters import rest_framework as filters
 from rest_framework.pagination import PageNumberPagination
 from rest_framework import status
@@ -11,6 +11,14 @@ class StandardResultsSetPagination(PageNumberPagination):
     page_size_query_param = 'page_size'
     paginator=1
     max_page_size = 1000 
+
+class ConjuntoFilter(filters.FilterSet):
+    class Meta:
+        model = Conjunto
+        fields = {
+            'tubo_madre': ['exact'],
+            'operacion': ['exact'],
+        }
 
 class RodilloFilter(filters.FilterSet):
     class Meta:
@@ -128,6 +136,9 @@ class ElementoFilter(filters.FilterSet):
             'id': ['exact'],
             'eje': ['exact'],
             'rodillo': ['exact'],
+            'conjunto': ['exact'],
+            'conjunto__tubo_madre':['exact'],
+            'conjunto__operacion':['exact'],
         }
 
 class BancadaFilter(filters.FilterSet):
@@ -135,7 +146,7 @@ class BancadaFilter(filters.FilterSet):
         model = Bancada
         fields = {
             'seccion': ['exact'],
-            'grupos': ['exact'],
+            'tubo_madre': ['exact'],
         }
 
 class GrupoViewSet(viewsets.ModelViewSet):
@@ -278,6 +289,7 @@ class EjeViewSet(viewsets.ModelViewSet):
 class BancadaViewSet(viewsets.ModelViewSet):
     serializer_class = BancadaSerializer
     queryset = Bancada.objects.all()
+    filterset_class = BancadaFilter
 
 class BancadaGruposViewSet(viewsets.ModelViewSet):
     serializer_class = Bancada_GruposSerializer
@@ -287,19 +299,27 @@ class BancadaGruposViewSet(viewsets.ModelViewSet):
 class ConjuntoViewSet(viewsets.ModelViewSet):
     serializer_class = ConjuntoSerializer
     queryset = Conjunto.objects.all()
+    filterset_class = ConjuntoFilter
 
 class ElementoViewSet(viewsets.ModelViewSet):
     serializer_class = ElementoSerializer
     queryset = Elemento.objects.all()
+    filterset_class = ElementoFilter
 
 class Elemento_SelectViewSet(viewsets.ModelViewSet):
     queryset = Elemento.objects.all()
+    serializer_class = Elemento_SelectSerializer
     filterset_class = ElementoFilter
 
 class Bancada_SelectViewSet(viewsets.ModelViewSet):
     serializer_class = Bancada_SelectSerializer
     queryset = Bancada.objects.all()
     #filterset_class = BancadaFilter
+
+class Celda_SelectViewSet(viewsets.ModelViewSet):
+    serializer_class = Celda_SelectSerializer
+    queryset = Celda.objects.all()
+    filterset_class = CeldaFilter
 
 class CeldaViewSet(viewsets.ModelViewSet):
     serializer_class = CeldaSerializer
