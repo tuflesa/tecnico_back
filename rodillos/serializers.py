@@ -76,7 +76,7 @@ class RodilloListSerializer(serializers.ModelSerializer):
     grupo = GrupoSerializer(many=False)
     class Meta:
         model = Rodillo
-        fields = ['id', 'nombre', 'operacion', 'grupo', 'tipo', 'material', 'tipo_plano']
+        fields = ['id', 'nombre', 'operacion', 'grupo', 'tipo', 'material', 'tipo_plano', 'diametro']
 
 class TipoSeccionSerializer(serializers.ModelSerializer):
     class Meta:
