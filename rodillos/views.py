@@ -30,6 +30,7 @@ class RodilloFilter(filters.FilterSet):
             'operacion__seccion__nombre': ['exact'],
             'operacion__seccion__maquina__siglas': ['exact'],
             'operacion__seccion__maquina__empresa__nombre': ['exact'],
+            'operacion__seccion__tipo':['exact'],
             'operacion__nombre': ['exact'],
             'nombre': ['icontains'],
             'tipo':['exact'],
@@ -189,7 +190,7 @@ class RodilloViewSet(viewsets.ModelViewSet):
 
 class Rodillo_listViewSet(viewsets.ModelViewSet):
     serializer_class = RodilloListSerializer
-    queryset = Rodillo.objects.all()
+    queryset = Rodillo.objects.all().order_by('-grupo')
     filterset_class = RodilloFilter
     pagination_class = StandardResultsSetPagination
 
@@ -234,12 +235,12 @@ class RevisionViewSet(viewsets.ModelViewSet):
 
 class SeccionViewSet(viewsets.ModelViewSet):
     serializer_class = SeccionSerializer
-    queryset = Seccion.objects.all()
+    queryset = Seccion.objects.all().order_by('orden')
     filterset_class = SeccionFilter
 
 class OperacionViewSet(viewsets.ModelViewSet):
     serializer_class = OperacionSerializer
-    queryset = Operacion.objects.all().exclude(seccion__tipo=5)
+    queryset = Operacion.objects.all().exclude(seccion__tipo=5).order_by('orden')
     filterset_class = OperacionFilter
 
 class TipoRodilloViewSet(viewsets.ModelViewSet):
