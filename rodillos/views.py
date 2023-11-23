@@ -51,6 +51,8 @@ class CeldaFilter(filters.FilterSet):
             'bancada__tubo_madre':['exact'],
             'bancada__seccion__maquina__empresa':['exact'],
             'bancada__seccion__pertenece_grupo':['exact'],
+            'conjunto__id':['exact'],
+            'bancada__id':['exact'],
         }
 
 class SeccionFilter(filters.FilterSet):
@@ -128,6 +130,7 @@ class GrupoFilter(filters.FilterSet):
             'nombre': ['exact'],
             'maquina': ['exact'],
             'tubo_madre': ['exact'],
+            'maquina__siglas': ['exact'],
         }
 
 class ElementoFilter(filters.FilterSet):
@@ -140,6 +143,7 @@ class ElementoFilter(filters.FilterSet):
             'conjunto': ['exact'],
             'conjunto__tubo_madre':['exact'],
             'conjunto__operacion':['exact'],
+            'conjunto__id':['exact'],
         }
 
 class BancadaFilter(filters.FilterSet):
@@ -193,6 +197,11 @@ class Rodillo_listViewSet(viewsets.ModelViewSet):
     queryset = Rodillo.objects.all().order_by('-grupo')
     filterset_class = RodilloFilter
     pagination_class = StandardResultsSetPagination
+
+class Rodillo_existenteViewSet(viewsets.ModelViewSet):
+    serializer_class = RodilloListSerializer
+    queryset = Rodillo.objects.all().order_by('-grupo','tipo')
+    filterset_class = RodilloFilter
 
 class Rodillo_editarViewSet(viewsets.ModelViewSet):
     serializer_class = RodilloSerializer

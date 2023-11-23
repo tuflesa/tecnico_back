@@ -49,9 +49,10 @@ class MaterialSerializer(serializers.ModelSerializer):
         fields = ['id', 'nombre']
 
 class GrupoSerializer(serializers.ModelSerializer):
+    maquina = ZonaSerializer_Rodillos(many=False, read_only=False)
     class Meta:
         model = Grupo
-        fields = ['id', 'nombre', 'maquina', 'tubo_madre']
+        fields = ['id', 'nombre', 'maquina', 'tubo_madre', 'bancadas']
 
 class TipoPlanoSerializer(serializers.ModelSerializer):
     class Meta:
@@ -128,18 +129,21 @@ class ElementoSerializer(serializers.ModelSerializer):
         fields = ['id', 'conjunto', 'eje', 'rodillo']
 
 class Conjunto_OperacionSerializer(serializers.ModelSerializer):
+    operacion = OperacionSerializer(many=False)
     class Meta:
         model = Conjunto
         fields = ['id', 'operacion', 'tubo_madre']
 
 class Elemento_SelectSerializer(serializers.ModelSerializer):
     conjunto = Conjunto_OperacionSerializer(many=False)
+    rodillo = RodilloListSerializer(many=False)
+    eje = EjeSerializer(many=False)
     class Meta:
         model = Elemento
         fields = ['id', 'conjunto', 'eje', 'rodillo']
 
 class Celda_SelectSerializer(serializers.ModelSerializer):
-    conjunto = Conjunto_OperacionSerializer(many=False)
+    conjunto = ConjuntoSerializer(many=False)
     bancada = Bancada_SelectSerializer()
     class Meta:
         model = Celda

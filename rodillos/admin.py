@@ -35,7 +35,7 @@ class TipoPlanoAdmin(admin.ModelAdmin):
 
 class EjeAdmin(admin.ModelAdmin):
     search_fields=("diametro",)
-    list_display=("id","operacion", "tipo")
+    list_filter=("tipo", "operacion")
 
 class Tipo_SeccionAdmin(admin.ModelAdmin):
     search_fields=("nombre",)
