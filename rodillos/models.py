@@ -79,6 +79,12 @@ class Bancada(models.Model):
     tubo_madre = models.FloatField(blank=True, null=True)
     dimensiones = models.CharField(max_length=20, blank=True, null=True) # para las dimesiones de una bancada de C.T.
 
+    def nombre(self):
+        if self.tubo_madre is not None:
+            return f"{self.seccion.nombre}-{self.tubo_madre}"
+        else:
+            return str(self.seccion.nombre)
+
 # Conjuntos de rodillos de una operación. Son las celdas del Tooling Chart
 class Conjunto(models.Model):
     operacion = models.ForeignKey(Operacion, on_delete=models.CASCADE, related_name='conjuntos')
@@ -95,7 +101,7 @@ class Grupo(models.Model):
     nombre = models.CharField(max_length=50)
     maquina = models.ForeignKey(Zona, on_delete=models.CASCADE)
     tubo_madre = models.FloatField(blank=True, null=True)
-    bancadas = models.ManyToManyField(Bancada, related_name='grupos')
+    bancadas = models.ManyToManyField(Bancada, related_name='grupos', null=True, blank=True)
 
     def __str__(self) -> str:
         return self.nombre

@@ -53,6 +53,11 @@ class GrupoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Grupo
         fields = ['id', 'nombre', 'maquina', 'tubo_madre', 'bancadas']
+    
+class Grupo_onlySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Grupo
+        fields = ['id', 'nombre', 'maquina', 'tubo_madre', 'bancadas']
 
 class TipoPlanoSerializer(serializers.ModelSerializer):
     class Meta:
@@ -104,19 +109,19 @@ class EjeSerializer(serializers.ModelSerializer):
 class BancadaSerializer(serializers.ModelSerializer):
     class Meta:
         model = Bancada
-        fields = ['id', 'seccion', 'tubo_madre', 'dimensiones']
+        fields = ['id', 'seccion', 'tubo_madre', 'dimensiones', 'nombre']
 
 class Bancada_GruposSerializer(serializers.ModelSerializer):
     seccion = SeccionSerializer(many=False)
     class Meta:
         model = Bancada
-        fields = ['id', 'seccion', 'tubo_madre', 'dimensiones']
+        fields = ['id', 'seccion', 'tubo_madre', 'dimensiones', 'nombre']
 
 class Bancada_SelectSerializer(serializers.ModelSerializer):
     seccion = SeccionSerializer()
     class Meta:
         model = Bancada
-        fields = ['id', 'seccion', 'tubo_madre', 'dimensiones']
+        fields = ['id', 'seccion', 'tubo_madre', 'dimensiones', 'nombre']
 
 class ConjuntoSerializer(serializers.ModelSerializer):
     class Meta:
