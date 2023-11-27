@@ -153,6 +153,8 @@ class BancadaFilter(filters.FilterSet):
         fields = {
             'seccion': ['exact'],
             'tubo_madre': ['exact'],
+            'seccion__nombre':['exact'],
+            'tubo_madre': ['lte', 'gte'],
         }
 
 class GrupoViewSet(viewsets.ModelViewSet):
