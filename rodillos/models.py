@@ -2,6 +2,7 @@ from django.db import models
 from estructura.models import Zona
 from django.utils import timezone
 from django import forms
+import logging
 
 # Tipo de sección: Formadora, cuchillas, Soldadura, Calibradora, Cabeza de turco
 class Tipo_Seccion(models.Model):
@@ -101,7 +102,7 @@ class Grupo(models.Model):
     nombre = models.CharField(max_length=50)
     maquina = models.ForeignKey(Zona, on_delete=models.CASCADE)
     tubo_madre = models.FloatField(blank=True, null=True)
-    bancadas = models.ManyToManyField(Bancada, related_name='grupos', null=True, blank=True)
+    bancadas = models.ManyToManyField(Bancada, blank=True, related_name='grupos')
 
     def __str__(self) -> str:
         return self.nombre
@@ -140,15 +141,28 @@ class Montaje(models.Model):
 
     def __str__(self) -> str:
         return self.nombre
-    
+
 # Planos de los rodillos
 class Plano(models.Model):
-    nombre = models.CharField(max_length=200)
+    nombre = models.CharField(max_length=200, null=True, blank=True, default=None)
     rodillos = models.ManyToManyField(Rodillo, related_name='planos')
 
-    def __str__(self) -> str:
-        return self.nombre
+    #si lo activo no funciona la acción de guardar, hay que revisar el código.
+    """ def save(self, *args, **kwargs):
+        super(Plano, self).save(*args, **kwargs)  # Guarda primero para tener un ID
 
+        if self.nombre is None and self.rodillos.exists() and self.id:
+            print("estamos dentro del if")
+            maquina = self.rodillos[0]
+            seccion = self.rodillos.firt().operacion.seccion.nombre
+            num = self.id  # Ahora hay un ID disponible
+            self.nombre = f"adios_{maquina}_{seccion}_{num}"
+            print("datos maquina y seccion")
+            print(maquina)
+            print(seccion)
+            self.save(update_fields=['nombre'])  # Guarda solo el campo 'nombre' """
+
+   
 # Revisión: Modificaciones de un plano  
 class Revision(models.Model):
     plano = models.ForeignKey(Plano, on_delete=models.CASCADE, blank=False, null=False)
