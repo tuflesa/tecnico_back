@@ -49,6 +49,7 @@ class CeldaFilter(filters.FilterSet):
             'bancada__seccion__maquina__id': ['exact'],
             'bancada__seccion__maquina__id': ['exact'],
             'bancada__tubo_madre':['exact'],
+            'bancada__dimensiones':['exact'],
             'bancada__seccion__maquina__empresa':['exact'],
             'bancada__seccion__pertenece_grupo':['exact'],
             'conjunto__id':['exact'],
@@ -256,9 +257,14 @@ class SeccionViewSet(viewsets.ModelViewSet):
     queryset = Seccion.objects.all().order_by('orden')
     filterset_class = SeccionFilter
 
+class Operacion_CTViewSet(viewsets.ModelViewSet):#ESTO MEJOR PARA MONTAR CT FILTRANDO AL REVÉS
+    serializer_class = OperacionSerializer
+    queryset = Operacion.objects.filter(seccion__tipo=5).order_by('orden')
+    filterset_class = OperacionFilter
+
 class OperacionViewSet(viewsets.ModelViewSet):
     serializer_class = OperacionSerializer
-    queryset = Operacion.objects.all().exclude(seccion__tipo=5).order_by('orden')
+    queryset = Operacion.objects.all().order_by('orden')
     filterset_class = OperacionFilter
 
 class TipoRodilloViewSet(viewsets.ModelViewSet):
