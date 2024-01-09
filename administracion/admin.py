@@ -3,7 +3,7 @@ from .models import Aplicacion, Perfil, Puesto, NivelAcceso
 
 class PerfilAdmin(admin.ModelAdmin):
     search_fields=("usuario",)
-    list_display=("id","empresa",)
+    list_display=("id","usuario","empresa",)
     list_filter=("empresa","puesto",)
 
 admin.site.register(Aplicacion)
