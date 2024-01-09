@@ -13,7 +13,7 @@ class Proveedor(models.Model):
     poblacion = models.TextField(max_length=75, blank=True, null=True)
     condicion_pago = models.CharField(max_length=50, blank=True, null=True)
     condicion_entrega = models.CharField(max_length=50, blank=True, null=True)
-    cif = models.CharField(max_length=10, blank=True, null=True)
+    cif = models.CharField(max_length=12, blank=True, null=True)
     pais = models.TextField(max_length=75, default='España')
     cod_ekon = models.TextField(max_length=8, blank=True, null=True)
 
