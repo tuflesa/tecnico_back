@@ -176,7 +176,10 @@ class PlanoFilter(filters.FilterSet):
             'nombre': ['icontains'],
             'rodillos__tipo_plano':['exact'],
             'rodillos__operacion__seccion__maquina__siglas': ['exact'],
+            'rodillos__operacion__seccion__maquina__id': ['exact'],
             'rodillos__operacion__seccion__nombre': ['exact'],
+            'rodillos__tipo':['exact'],
+            'rodillos__operacion__id': ['exact'],
         }
 
 class Tipo_PlanoFilter(filters.FilterSet):

@@ -95,7 +95,7 @@ class Parametros_estandarSerializer(serializers.ModelSerializer):
         fields = ['id', 'nombre', 'valor', 'rodillo']
 
 class Plano_existenteSerializer(serializers.ModelSerializer):
-    rodillos = RodilloSerializer(many=True)
+    rodillos = RodilloListSerializer(many=True)
     class Meta:
         model = Plano
         fields = ['id', 'nombre', 'rodillos']

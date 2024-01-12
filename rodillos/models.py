@@ -107,6 +107,13 @@ class Grupo(models.Model):
     def __str__(self) -> str:
         return self.nombre
 
+# Forma
+class Forma(models.Model):
+    nombre = models.CharField(max_length=50)
+
+    def __str__(self) -> str:
+        return self.nombre
+
 # Rodillos
 class Rodillo(models.Model):
     nombre = models.CharField(max_length=50)
@@ -116,6 +123,9 @@ class Rodillo(models.Model):
     tipo_plano = models.ForeignKey(Tipo_Plano, on_delete=models.CASCADE, null=True)
     material = models.ForeignKey(Material, on_delete=models.CASCADE)
     diametro = models.FloatField(blank=True, null=True)
+    forma = models.ForeignKey(Forma, on_delete=models.CASCADE, null=True, blank=True)
+    descripcion_perfil = models.CharField(max_length=50, null=True, blank=True)
+    dimension_perfil = models.CharField(max_length=2, null=True, blank=True)
 
     def __str__(self) -> str:
         return self.nombre

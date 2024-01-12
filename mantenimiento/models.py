@@ -89,7 +89,7 @@ class Tarea(models.Model):
     prioridad = models.IntegerField(default=50) # Número de 0 a 100. 100 máxima prioridad
     #trabajo = models.TextField(blank=True, null=True) #trabajo a realizar, detalles
     observaciones = models.TextField(blank=True, null=True)
-    observaciones_trab = models.TextField(blank=True, null=True)
+    observaciones_trab = models.TextField(blank=True, null=True) #no guarda información??
     tipo_periodo = models.ForeignKey(TipoPeriodo, on_delete=models.CASCADE, null=True, blank=True)
     periodo = models.IntegerField(default=0)
 
