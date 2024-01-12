@@ -5,6 +5,7 @@ from rest_framework import serializers
 from .models import PrecioRepuesto, Entrega, LineaAdicional, Almacen, Contacto, Inventario, LineaPedido, LineaSalida, Movimiento, Pedido, Repuesto, Proveedor, Salida, StockMinimo, LineaInventario, TipoRepuesto, TipoUnidad
 from estructura.serializers import EquipoSerializer
 from estructura.serializers import EstructuraSerializer
+from estructura.serializers import EmpresaSerializer
 from administracion.serializers import UserSerializer
 
 class ContactoSerializer(serializers.ModelSerializer):
@@ -31,7 +32,7 @@ class ProveedorDetailSerializer(serializers.ModelSerializer):
     contactos = ContactoSerializer(many=True, read_only=True)
     class Meta:
         model = Proveedor
-        fields = ['id', 'nombre', 'telefono', 'direccion', 'contactos']
+        fields = ['id', 'nombre', 'telefono', 'direccion', 'contactos', 'condicion_pago', 'condicion_entrega', 'poblacion', 'cif', 'pais', 'cod_ekon']
 
 class AlmacenSerilizer(serializers.ModelSerializer):
     # empresa = EmpresaSerializer(many=False, read_only=False)
@@ -153,6 +154,7 @@ class PedidoDetailSerilizer(serializers.ModelSerializer):
     creado_por = UserSerializer(many=False, read_only=True)
     contacto = ContactoSerializer(many=False)
     direccion_envio = DireccionesEmpresaSerializer(many=False)
+    empresa = EmpresaSerializer(many=False)
     class Meta:
         model = Pedido
         fields = ['id', 'proveedor', 'empresa', 'numero', 'fecha_creacion', 'fecha_entrega', 'fecha_prevista_entrega', 'finalizado', 'contacto', 'direccion_envio', 'lineas_pedido', 'creado_por', 'lineas_adicionales', 'observaciones', 'observaciones2', 'descripcion']

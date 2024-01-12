@@ -21,7 +21,8 @@ class ProveedorFilter(filters.FilterSet):
     class Meta:
         model = Proveedor
         fields = {
-            'nombre': ['icontains']
+            'nombre': ['icontains'],
+            'pais':['exact'],
         }
 
 class MovimientoFilter(filters.FilterSet):
@@ -86,7 +87,7 @@ class PedidoListFilter(filters.FilterSet):
             'fecha_creacion': ['lte', 'gte'],
             'fecha_prevista_entrega': ['lte', 'gte'],
             'finalizado': ['exact'],
-            'empresa': ['exact'],
+            'empresa__id': ['exact'],
             'numero': ['icontains'],
             'lineas_pedido':['exact'],
             'lineas_pedido__cantidad':['exact'],

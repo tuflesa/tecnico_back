@@ -10,6 +10,12 @@ class Proveedor(models.Model):
     nombre = models.CharField(max_length=100)
     telefono = models.CharField(max_length=30, blank=True, null=True)
     direccion = models.TextField(max_length=250, blank=True, null=True)
+    poblacion = models.TextField(max_length=75, blank=True, null=True)
+    condicion_pago = models.CharField(max_length=50, blank=True, null=True)
+    condicion_entrega = models.CharField(max_length=50, blank=True, null=True)
+    cif = models.CharField(max_length=12, blank=True, null=True)
+    pais = models.TextField(max_length=75, default='España')
+    cod_ekon = models.TextField(max_length=8, blank=True, null=True)
 
     def __str__(self):
         return self.nombre
@@ -86,9 +92,9 @@ class Pedido(models.Model):
     creado_por = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     direccion_envio = models.ForeignKey(Direcciones, on_delete= models.SET_NULL, null= True, blank= True)
     contacto = models.ForeignKey(Contacto, on_delete=models.SET_NULL, null= True, blank=True)
-    observaciones = models.CharField(max_length=80, null=True, blank=True)
-    observaciones2 = models.CharField(max_length=80, null=True, blank=True)
-    descripcion = models.CharField(max_length=80, null=True, blank=True)
+    observaciones = models.CharField(max_length=500, null=True, blank=True)
+    observaciones2 = models.CharField(max_length=500, null=True, blank=True)
+    descripcion = models.CharField(max_length=300, null=True, blank=True)
 
     def save(self, *args, **kwargs):
         # Generar nuevo número si el campo numero es None (null)
