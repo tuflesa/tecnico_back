@@ -158,6 +158,15 @@ class BancadaFilter(filters.FilterSet):
             'tubo_madre': ['lte', 'gte'],
         }
 
+class BancadaGrupoFilter(filters.FilterSet):
+    class Meta:
+        model = Bancada
+        fields = {
+            'seccion': ['exact'],
+            'tubo_madre': ['exact'],
+            'seccion__nombre':['exact'],
+        }
+
 class FormaFilter(filters.FilterSet):
     class Meta:
         model = Forma
@@ -329,7 +338,7 @@ class BancadaViewSet(viewsets.ModelViewSet):
 class BancadaGruposViewSet(viewsets.ModelViewSet):
     serializer_class = Bancada_GruposSerializer
     queryset = Bancada.objects.all()
-    filterset_class = BancadaFilter
+    filterset_class = BancadaGrupoFilter
 
 class ConjuntoViewSet(viewsets.ModelViewSet):
     serializer_class = ConjuntoSerializer

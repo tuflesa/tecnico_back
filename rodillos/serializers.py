@@ -48,6 +48,18 @@ class MaterialSerializer(serializers.ModelSerializer):
         model = Material
         fields = ['id', 'nombre']
 
+class BancadaSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Bancada
+        fields = ['id', 'seccion', 'tubo_madre', 'dimensiones', 'nombre']
+
+
+class Bancada_GruposSerializer(serializers.ModelSerializer):
+    seccion = SeccionSerializer(many=False)
+    class Meta:
+        model = Bancada
+        fields = ['id', 'seccion', 'tubo_madre', 'dimensiones', 'nombre']
+
 class GrupoSerializer(serializers.ModelSerializer):
     maquina = ZonaSerializer_Rodillos(many=False, read_only=False)
     class Meta:
@@ -105,17 +117,6 @@ class EjeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Eje
         fields = ['id', 'operacion', 'tipo', 'diametro']
-
-class BancadaSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Bancada
-        fields = ['id', 'seccion', 'tubo_madre', 'dimensiones', 'nombre']
-
-class Bancada_GruposSerializer(serializers.ModelSerializer):
-    seccion = SeccionSerializer(many=False)
-    class Meta:
-        model = Bancada
-        fields = ['id', 'seccion', 'tubo_madre', 'dimensiones', 'nombre']
 
 class Bancada_SelectSerializer(serializers.ModelSerializer):
     seccion = SeccionSerializer()

@@ -44,8 +44,11 @@ class Tipo_SeccionAdmin(admin.ModelAdmin):
 class GrupoAdmin(admin.ModelAdmin):
     list_display=("id","nombre")
 
+class SeccionAdmin(admin.ModelAdmin):
+    list_display=("id","nombre")
+
 admin.site.register(Tipo_Seccion, Tipo_SeccionAdmin)
-admin.site.register(Seccion)
+admin.site.register(Seccion, SeccionAdmin)
 admin.site.register(Operacion, OperacionAdmin)
 admin.site.register(Eje, EjeAdmin)
 admin.site.register(Rodillo, RodillosAdmin)
