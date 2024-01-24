@@ -41,6 +41,11 @@ class Tipo_SeccionAdmin(admin.ModelAdmin):
     search_fields=("nombre",)
     list_display=("id","nombre")
 
+class ElementoAdmin(admin.ModelAdmin):
+    search_fields=("id",)
+    list_display=("id","conjunto", "eje", "rodillo")
+    list_filter=("eje", "rodillo")
+
 class GrupoAdmin(admin.ModelAdmin):
     list_display=("id","nombre")
 
@@ -56,7 +61,7 @@ admin.site.register(Tipo_rodillo)
 admin.site.register(Material, MaterialAdmin)
 admin.site.register(Bancada)
 admin.site.register(Conjunto)
-admin.site.register(Elemento)
+admin.site.register(Elemento, ElementoAdmin)
 admin.site.register(Grupo, GrupoAdmin)
 admin.site.register(Montaje)
 admin.site.register(Plano, PlanosAdmin)

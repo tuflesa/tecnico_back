@@ -128,11 +128,12 @@ class GrupoFilter(filters.FilterSet):
         model = Grupo
         fields = {
             'id': ['exact'],
-            'nombre': ['exact'],
+            'nombre': ['icontains'],
             'maquina': ['exact'],
             'tubo_madre': ['exact'],
             'maquina__siglas': ['exact'],
             'maquina__id':['exact'],
+            'maquina__empresa': ['exact'],
         }
 
 class ElementoFilter(filters.FilterSet):
@@ -332,7 +333,7 @@ class EjeViewSet(viewsets.ModelViewSet):
 
 class BancadaViewSet(viewsets.ModelViewSet):
     serializer_class = BancadaSerializer
-    queryset = Bancada.objects.all()
+    queryset = Bancada.objects.all().order_by('tubo_madre')
     filterset_class = BancadaFilter
 
 class BancadaGruposViewSet(viewsets.ModelViewSet):
@@ -362,7 +363,7 @@ class Bancada_SelectViewSet(viewsets.ModelViewSet):
 
 class Celda_SelectViewSet(viewsets.ModelViewSet):
     serializer_class = Celda_SelectSerializer
-    queryset = Celda.objects.all()
+    queryset = Celda.objects.all().order_by('conjunto__operacion')
     filterset_class = CeldaFilter
 
 class CeldaViewSet(viewsets.ModelViewSet):
