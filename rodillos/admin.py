@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Tipo_Seccion, Seccion, Operacion, Eje, Rodillo, Tipo_rodillo, Material, Bancada, Conjunto, Elemento, Grupo, Montaje, Plano, Revision, Tipo_Plano, Nombres_Parametros, Instancia, Parametros_Estandar, Parametros, Celda
+from .models import Tipo_Seccion, Seccion, Operacion, Eje, Rodillo, Tipo_rodillo, Material, Bancada, Conjunto, Elemento, Grupo, Montaje, Plano, Revision, Tipo_Plano, Nombres_Parametros, Instancia, Parametros_Estandar, Parametros, Celda, Forma
 
 class RevisionAdmin(admin.ModelAdmin):
     search_fields=("plano__nombre",)
@@ -41,11 +41,19 @@ class Tipo_SeccionAdmin(admin.ModelAdmin):
     search_fields=("nombre",)
     list_display=("id","nombre")
 
+class ElementoAdmin(admin.ModelAdmin):
+    search_fields=("id",)
+    list_display=("id","conjunto", "eje", "rodillo")
+    list_filter=("eje", "rodillo")
+
 class GrupoAdmin(admin.ModelAdmin):
     list_display=("id","nombre")
 
+class SeccionAdmin(admin.ModelAdmin):
+    list_display=("id","nombre")
+
 admin.site.register(Tipo_Seccion, Tipo_SeccionAdmin)
-admin.site.register(Seccion)
+admin.site.register(Seccion, SeccionAdmin)
 admin.site.register(Operacion, OperacionAdmin)
 admin.site.register(Eje, EjeAdmin)
 admin.site.register(Rodillo, RodillosAdmin)
@@ -53,7 +61,7 @@ admin.site.register(Tipo_rodillo)
 admin.site.register(Material, MaterialAdmin)
 admin.site.register(Bancada)
 admin.site.register(Conjunto)
-admin.site.register(Elemento)
+admin.site.register(Elemento, ElementoAdmin)
 admin.site.register(Grupo, GrupoAdmin)
 admin.site.register(Montaje)
 admin.site.register(Plano, PlanosAdmin)
@@ -64,3 +72,4 @@ admin.site.register(Instancia)
 admin.site.register(Parametros_Estandar)
 admin.site.register(Parametros, ParametrosAdmin)
 admin.site.register(Celda)
+admin.site.register(Forma)
