@@ -60,6 +60,12 @@ class Bancada_GruposSerializer(serializers.ModelSerializer):
         model = Bancada
         fields = ['id', 'seccion', 'tubo_madre', 'dimensiones', 'nombre']
 
+class Bancada_CTSerializer(serializers.ModelSerializer):
+    seccion = SeccionSerializer(many=False)
+    class Meta:
+        model = Bancada
+        fields = ['id', 'seccion', 'tubo_madre', 'dimensiones', 'nombre']
+
 class GrupoSerializer(serializers.ModelSerializer):
     maquina = ZonaSerializer_Rodillos(many=False, read_only=False)
     class Meta:
@@ -151,6 +157,12 @@ class Elemento_SelectSerializer(serializers.ModelSerializer):
 class Celda_SelectSerializer(serializers.ModelSerializer):
     conjunto = ConjuntoSerializer(many=False)
     bancada = Bancada_SelectSerializer()
+    class Meta:
+        model = Celda
+        fields = ['id', 'bancada', 'conjunto', 'icono']
+
+class Celda_DuplicarSerializer(serializers.ModelSerializer):
+    conjunto = Conjunto_OperacionSerializer(many=False)
     class Meta:
         model = Celda
         fields = ['id', 'bancada', 'conjunto', 'icono']

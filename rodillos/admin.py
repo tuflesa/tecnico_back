@@ -52,6 +52,9 @@ class GrupoAdmin(admin.ModelAdmin):
 class SeccionAdmin(admin.ModelAdmin):
     list_display=("id","nombre")
 
+class CeldaAdmin(admin.ModelAdmin):
+    list_display=("id","bancada", "conjunto")
+
 admin.site.register(Tipo_Seccion, Tipo_SeccionAdmin)
 admin.site.register(Seccion, SeccionAdmin)
 admin.site.register(Operacion, OperacionAdmin)
@@ -71,5 +74,5 @@ admin.site.register(Nombres_Parametros)
 admin.site.register(Instancia)
 admin.site.register(Parametros_Estandar)
 admin.site.register(Parametros, ParametrosAdmin)
-admin.site.register(Celda)
+admin.site.register(Celda, CeldaAdmin)
 admin.site.register(Forma)

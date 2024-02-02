@@ -1,6 +1,6 @@
 from rest_framework import viewsets
 from rodillos.models import Rodillo, Tipo_rodillo, Seccion, Operacion, Eje, Plano, Revision, Material, Grupo, Tipo_Plano, Nombres_Parametros, Tipo_Seccion, Parametros_Estandar, Bancada, Conjunto, Elemento, Celda, Forma
-from rodillos.serializers import RodilloSerializer, PlanoNuevoSerializer, RevisionSerializer, SeccionSerializer, OperacionSerializer, TipoRodilloSerializer, MaterialSerializer, GrupoSerializer, TipoPlanoSerializer, RodilloListSerializer, PlanoParametrosSerializer, Nombres_ParametrosSerializer, TipoSeccionSerializer, PlanoSerializer, RevisionConjuntosSerializer, Parametros_estandarSerializer, Plano_existenteSerializer, EjeSerializer, BancadaSerializer, ConjuntoSerializer, ElementoSerializer, Elemento_SelectSerializer, Bancada_GruposSerializer, Bancada_SelectSerializer, CeldaSerializer, Celda_SelectSerializer, Grupo_onlySerializer, FormaSerializer
+from rodillos.serializers import RodilloSerializer, PlanoNuevoSerializer, RevisionSerializer, SeccionSerializer, OperacionSerializer, TipoRodilloSerializer, MaterialSerializer, GrupoSerializer, TipoPlanoSerializer, RodilloListSerializer, PlanoParametrosSerializer, Nombres_ParametrosSerializer, TipoSeccionSerializer, PlanoSerializer, RevisionConjuntosSerializer, Parametros_estandarSerializer, Plano_existenteSerializer, EjeSerializer, BancadaSerializer, ConjuntoSerializer, ElementoSerializer, Elemento_SelectSerializer, Bancada_GruposSerializer, Bancada_SelectSerializer, CeldaSerializer, Celda_SelectSerializer, Grupo_onlySerializer, FormaSerializer, Celda_DuplicarSerializer, Bancada_CTSerializer
 from django_filters import rest_framework as filters
 from rest_framework.pagination import PageNumberPagination
 from rest_framework import status
@@ -53,6 +53,16 @@ class CeldaFilter(filters.FilterSet):
             'bancada__seccion__maquina__empresa':['exact'],
             'bancada__seccion__pertenece_grupo':['exact'],
             'conjunto__id':['exact'],
+            'bancada__id':['exact'],
+            'bancada__dimensiones':['exact'],
+            'conjunto__operacion':['exact'],
+        }
+
+class CeldaDuplicarFilter(filters.FilterSet):
+    class Meta:
+        model = Celda
+        fields = {
+            'bancada':['exact'],
             'bancada__id':['exact'],
         }
 
@@ -159,6 +169,17 @@ class BancadaFilter(filters.FilterSet):
             'tubo_madre': ['lte', 'gte'],
         }
 
+class BancadaCTFilter(filters.FilterSet):
+    class Meta:
+        model = Bancada
+        fields = {
+            'seccion': ['exact'],
+            'seccion__maquina__id': ['exact'],
+            'seccion__maquina__empresa':['exact'],
+            'dimensiones': ['icontains'],
+            'seccion__pertenece_grupo':['exact'],
+        }
+
 class BancadaGrupoFilter(filters.FilterSet):
     class Meta:
         model = Bancada
@@ -166,6 +187,7 @@ class BancadaGrupoFilter(filters.FilterSet):
             'seccion': ['exact'],
             'tubo_madre': ['exact'],
             'seccion__nombre':['exact'],
+            'dimensiones':['exact'],
         }
 
 class FormaFilter(filters.FilterSet):
@@ -175,10 +197,16 @@ class FormaFilter(filters.FilterSet):
             'nombre': ['exact'],
         }
 
+class Grupo_NuevoViewSet(viewsets.ModelViewSet):
+    serializer_class = GrupoSerializer
+    queryset = Grupo.objects.all()
+    filterset_class = GrupoFilter
+
 class GrupoViewSet(viewsets.ModelViewSet):
     serializer_class = GrupoSerializer
     queryset = Grupo.objects.all()
     filterset_class = GrupoFilter
+    pagination_class = StandardResultsSetPagination
 
 class Grupo_onlyViewSet(viewsets.ModelViewSet):
     serializer_class = Grupo_onlySerializer
@@ -335,7 +363,12 @@ class BancadaViewSet(viewsets.ModelViewSet):
     serializer_class = BancadaSerializer
     queryset = Bancada.objects.all().order_by('tubo_madre')
     filterset_class = BancadaFilter
-
+    
+class BancadaCTViewSet(viewsets.ModelViewSet):
+    serializer_class = Bancada_CTSerializer
+    queryset = Bancada.objects.all().order_by('dimensiones')
+    filterset_class = BancadaCTFilter
+    pagination_class = StandardResultsSetPagination
 class BancadaGruposViewSet(viewsets.ModelViewSet):
     serializer_class = Bancada_GruposSerializer
     queryset = Bancada.objects.all()
@@ -370,6 +403,11 @@ class CeldaViewSet(viewsets.ModelViewSet):
     serializer_class = CeldaSerializer
     queryset = Celda.objects.all()
     filterset_class = CeldaFilter
+
+class Celda_DuplicarViewSet(viewsets.ModelViewSet):
+    serializer_class = Celda_DuplicarSerializer
+    queryset = Celda.objects.all().order_by('conjunto__operacion')
+    filterset_class = CeldaDuplicarFilter
 
 class FormaViewSet(viewsets.ModelViewSet):
     serializer_class = FormaSerializer
