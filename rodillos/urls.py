@@ -1,7 +1,10 @@
 from rest_framework import routers
-from .views import RodilloViewSet, PlanoNuevoViewSet, RevisionViewSet, SeccionViewSet, OperacionViewSet, TipoRodilloViewSet, MaterialViewSet, GrupoViewSet, TipoPlanoViewSet, Rodillo_listViewSet, Rodillo_editarViewSet, PlanoParametrosViewSet, Nombres_ParametrosViewSet, TipoSeccionViewSet, PlanoViewSet, RevisionConjuntosViewSet, Parametros_estandarViewSet, Plano_existenteViewSet, EjeViewSet, BancadaViewSet, ConjuntoViewSet, ElementoViewSet, Elemento_SelectViewSet, BancadaGruposViewSet, CeldaViewSet, Celda_SelectViewSet, Rodillo_existenteViewSet, Grupo_onlyViewSet, Operacion_CTViewSet, FormaViewSet, Celda_DuplicarViewSet, BancadaCTViewSet, Grupo_NuevoViewSet
+from .views import RodilloViewSet, PlanoNuevoViewSet, RevisionViewSet, SeccionViewSet, OperacionViewSet, TipoRodilloViewSet, MaterialViewSet, GrupoViewSet, TipoPlanoViewSet, Rodillo_listViewSet, Rodillo_editarViewSet, PlanoParametrosViewSet, Nombres_ParametrosViewSet, TipoSeccionViewSet, PlanoViewSet, RevisionConjuntosViewSet, Parametros_estandarViewSet, Plano_existenteViewSet, EjeViewSet, BancadaViewSet, ConjuntoViewSet, ElementoViewSet, Elemento_SelectViewSet, BancadaGruposViewSet, CeldaViewSet, Celda_SelectViewSet, Rodillo_existenteViewSet, Grupo_onlyViewSet, Operacion_CTViewSet, FormaViewSet, Celda_DuplicarViewSet, BancadaCTViewSet, Grupo_NuevoViewSet, BancadaMontajeViewSet, grupo_montajeViewSet, BancadaMontajeCTViewSet
 #direcciones de rodillos
 router = routers.DefaultRouter()
+router.register('bancada_montaje_ct', BancadaMontajeCTViewSet)
+router.register('bancada_montaje', BancadaMontajeViewSet)
+router.register('grupo_montaje', grupo_montajeViewSet)
 router.register('grupo_nuevo', Grupo_NuevoViewSet)
 router.register('bancada_ct', BancadaCTViewSet)
 router.register('forma', FormaViewSet)

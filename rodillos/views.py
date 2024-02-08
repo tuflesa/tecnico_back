@@ -5,6 +5,7 @@ from django_filters import rest_framework as filters
 from rest_framework.pagination import PageNumberPagination
 from rest_framework import status
 from rest_framework.response import Response
+from django.db.models import Q
 
 class StandardResultsSetPagination(PageNumberPagination):
     page_size = 20
@@ -188,6 +189,7 @@ class BancadaGrupoFilter(filters.FilterSet):
             'tubo_madre': ['exact'],
             'seccion__nombre':['exact'],
             'dimensiones':['exact'],
+            'seccion__maquina':['exact'],
         }
 
 class FormaFilter(filters.FilterSet):
@@ -200,6 +202,11 @@ class FormaFilter(filters.FilterSet):
 class Grupo_NuevoViewSet(viewsets.ModelViewSet):
     serializer_class = GrupoSerializer
     queryset = Grupo.objects.all()
+    filterset_class = GrupoFilter
+
+class grupo_montajeViewSet(viewsets.ModelViewSet):
+    serializer_class = GrupoSerializer
+    queryset = Grupo.objects.all().order_by('nombre')
     filterset_class = GrupoFilter
 
 class GrupoViewSet(viewsets.ModelViewSet):
@@ -370,6 +377,16 @@ class BancadaCTViewSet(viewsets.ModelViewSet):
     filterset_class = BancadaCTFilter
     pagination_class = StandardResultsSetPagination
 class BancadaGruposViewSet(viewsets.ModelViewSet):
+    serializer_class = Bancada_GruposSerializer
+    queryset = Bancada.objects.all()
+    filterset_class = BancadaGrupoFilter
+
+class BancadaMontajeCTViewSet(viewsets.ModelViewSet):
+    serializer_class = Bancada_GruposSerializer
+    queryset = Bancada.objects.exclude(dimensiones__isnull=True).order_by('dimensiones')
+    filterset_class = BancadaGrupoFilter
+
+class BancadaMontajeViewSet(viewsets.ModelViewSet):
     serializer_class = Bancada_GruposSerializer
     queryset = Bancada.objects.all()
     filterset_class = BancadaGrupoFilter
