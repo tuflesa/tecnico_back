@@ -55,6 +55,10 @@ class SeccionAdmin(admin.ModelAdmin):
 class CeldaAdmin(admin.ModelAdmin):
     list_display=("id","bancada", "conjunto")
 
+class ConjuntoAdmin(admin.ModelAdmin):
+    list_display=("id","operacion", "tubo_madre")
+    search_fields=("tubo_madre",)
+
 admin.site.register(Tipo_Seccion, Tipo_SeccionAdmin)
 admin.site.register(Seccion, SeccionAdmin)
 admin.site.register(Operacion, OperacionAdmin)
@@ -63,7 +67,7 @@ admin.site.register(Rodillo, RodillosAdmin)
 admin.site.register(Tipo_rodillo)
 admin.site.register(Material, MaterialAdmin)
 admin.site.register(Bancada)
-admin.site.register(Conjunto)
+admin.site.register(Conjunto, ConjuntoAdmin)
 admin.site.register(Elemento, ElementoAdmin)
 admin.site.register(Grupo, GrupoAdmin)
 admin.site.register(Montaje)

@@ -147,7 +147,7 @@ class Montaje(models.Model):
     nombre = models.CharField(max_length=50)
     maquina = models.ForeignKey(Zona, on_delete=models.CASCADE, related_name='montajes')
     grupo = models.ForeignKey(Grupo, on_delete=models.CASCADE)
-    bancadas = models.ManyToManyField(Bancada, related_name='montajes')
+    bancadas = models.ForeignKey(Bancada, on_delete=models.CASCADE, null=True, blank=True, default=None) #es la bancada de CT + grupo = montaje
 
     def __str__(self) -> str:
         return self.nombre

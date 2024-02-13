@@ -1,6 +1,6 @@
 from rest_framework import viewsets
-from rodillos.models import Rodillo, Tipo_rodillo, Seccion, Operacion, Eje, Plano, Revision, Material, Grupo, Tipo_Plano, Nombres_Parametros, Tipo_Seccion, Parametros_Estandar, Bancada, Conjunto, Elemento, Celda, Forma
-from rodillos.serializers import RodilloSerializer, PlanoNuevoSerializer, RevisionSerializer, SeccionSerializer, OperacionSerializer, TipoRodilloSerializer, MaterialSerializer, GrupoSerializer, TipoPlanoSerializer, RodilloListSerializer, PlanoParametrosSerializer, Nombres_ParametrosSerializer, TipoSeccionSerializer, PlanoSerializer, RevisionConjuntosSerializer, Parametros_estandarSerializer, Plano_existenteSerializer, EjeSerializer, BancadaSerializer, ConjuntoSerializer, ElementoSerializer, Elemento_SelectSerializer, Bancada_GruposSerializer, Bancada_SelectSerializer, CeldaSerializer, Celda_SelectSerializer, Grupo_onlySerializer, FormaSerializer, Celda_DuplicarSerializer, Bancada_CTSerializer
+from rodillos.models import Rodillo, Tipo_rodillo, Seccion, Operacion, Eje, Plano, Revision, Material, Grupo, Tipo_Plano, Nombres_Parametros, Tipo_Seccion, Parametros_Estandar, Bancada, Conjunto, Elemento, Celda, Forma, Montaje
+from rodillos.serializers import RodilloSerializer, PlanoNuevoSerializer, RevisionSerializer, SeccionSerializer, OperacionSerializer, TipoRodilloSerializer, MaterialSerializer, GrupoSerializer, TipoPlanoSerializer, RodilloListSerializer, PlanoParametrosSerializer, Nombres_ParametrosSerializer, TipoSeccionSerializer, PlanoSerializer, RevisionConjuntosSerializer, Parametros_estandarSerializer, Plano_existenteSerializer, EjeSerializer, BancadaSerializer, ConjuntoSerializer, ElementoSerializer, Elemento_SelectSerializer, Bancada_GruposSerializer, Bancada_SelectSerializer, CeldaSerializer, Celda_SelectSerializer, Grupo_onlySerializer, FormaSerializer, Celda_DuplicarSerializer, Bancada_CTSerializer, MontajeSerializer, MontajeListadoSerializer
 from django_filters import rest_framework as filters
 from rest_framework.pagination import PageNumberPagination
 from rest_framework import status
@@ -197,6 +197,26 @@ class FormaFilter(filters.FilterSet):
         model = Forma
         fields = {
             'nombre': ['exact'],
+        }
+
+class MontajeFilter(filters.FilterSet):
+    class Meta:
+        model = Montaje
+        fields = {
+            'grupo': ['exact'],
+            'bancadas':['exact'],
+            'maquina':['exact'],
+            'bancadas__id':['exact'],
+        }
+
+class MontajeListadoFilter(filters.FilterSet):
+    class Meta:
+        model = Montaje
+        fields = {
+            'grupo__id': ['exact'],
+            'maquina__id':['exact'],
+            'bancadas__id':['exact'],
+            'nombre':['icontains'],
         }
 
 class Grupo_NuevoViewSet(viewsets.ModelViewSet):
@@ -430,3 +450,13 @@ class FormaViewSet(viewsets.ModelViewSet):
     serializer_class = FormaSerializer
     queryset = Forma.objects.all()
     filterset_class = FormaFilter
+
+class MontajeViewSet(viewsets.ModelViewSet):
+    serializer_class = MontajeSerializer
+    queryset = Montaje.objects.all()
+    filterset_class = MontajeFilter
+
+class MontajeListadoViewSet(viewsets.ModelViewSet):
+    serializer_class = MontajeListadoSerializer
+    queryset = Montaje.objects.all()
+    filterset_class = MontajeListadoFilter
