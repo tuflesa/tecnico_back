@@ -32,3 +32,4 @@ class Carga(models.Model):
     destino = models.CharField(max_length=50, null=True, blank=True)
     bruto = models.IntegerField(null=True, blank=True)
     fecha_salida = models.DateTimeField(null=True, blank=True)
+    puerta = models.IntegerField(null=True, blank=True)

@@ -20,9 +20,9 @@ class CargaSerializer(serializers.ModelSerializer):
     fecha_salida = serializers.DateTimeField(format="%d-%m-%Y %H:%M")
     class Meta:
         model = Carga
-        fields = ['id', 'empresa', 'matricula', 'remolque', 'agencia', 'telefono', 'fecha_entrada', 'hora_entrada', 'tara', 'destino', 'bruto', 'fecha_salida']
+        fields = ['id', 'empresa', 'matricula', 'remolque', 'agencia', 'telefono', 'fecha_entrada', 'hora_entrada', 'tara', 'destino', 'bruto', 'fecha_salida', 'puerta']
 
 class CargaSimpleSerializer(serializers.ModelSerializer):
     class Meta:
         model = Carga
-        fields = ['id', 'empresa', 'matricula', 'remolque', 'agencia', 'telefono', 'fecha_entrada', 'hora_entrada', 'tara', 'destino', 'bruto', 'fecha_salida']
+        fields = ['id', 'empresa', 'matricula', 'remolque', 'agencia', 'telefono', 'fecha_entrada', 'hora_entrada', 'tara', 'destino', 'bruto', 'fecha_salida', 'puerta']
