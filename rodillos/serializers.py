@@ -30,13 +30,13 @@ class SeccionSerializer(serializers.ModelSerializer):
     maquina = ZonaSerializer_Rodillos(many=False, read_only=False)
     class Meta:
         model = Seccion
-        fields = ['id', 'nombre', 'maquina', 'pertenece_grupo', 'tipo']
+        fields = ['id', 'nombre', 'maquina', 'pertenece_grupo', 'tipo', 'orden']
 
 class OperacionSerializer(serializers.ModelSerializer):
     seccion = SeccionSerializer(many=False, read_only=False)
     class Meta:
         model = Operacion
-        fields = ['id', 'nombre', 'seccion', 'icono']
+        fields = ['id', 'nombre', 'seccion', 'icono', 'orden']
 
 class TipoRodilloSerializer(serializers.ModelSerializer):
     class Meta:
@@ -68,6 +68,13 @@ class Bancada_CTSerializer(serializers.ModelSerializer):
 
 class GrupoSerializer(serializers.ModelSerializer):
     maquina = ZonaSerializer_Rodillos(many=False, read_only=False)
+    class Meta:
+        model = Grupo
+        fields = ['id', 'nombre', 'maquina', 'tubo_madre', 'bancadas']
+
+class GrupoBancadaSerializer(serializers.ModelSerializer):
+    maquina = ZonaSerializer_Rodillos(many=False, read_only=False)
+    bancadas = Bancada_GruposSerializer(many=True, read_only=False)
     class Meta:
         model = Grupo
         fields = ['id', 'nombre', 'maquina', 'tubo_madre', 'bancadas']
@@ -138,7 +145,7 @@ class ConjuntoSerializer(serializers.ModelSerializer):
 class ElementoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Elemento
-        fields = ['id', 'conjunto', 'eje', 'rodillo']
+        fields = ['id', 'conjunto', 'eje', 'rodillo', 'anotciones_montaje']
 
 class Conjunto_OperacionSerializer(serializers.ModelSerializer):
     operacion = OperacionSerializer(many=False)
@@ -152,7 +159,7 @@ class Elemento_SelectSerializer(serializers.ModelSerializer):
     eje = EjeSerializer(many=False)
     class Meta:
         model = Elemento
-        fields = ['id', 'conjunto', 'eje', 'rodillo']
+        fields = ['id', 'conjunto', 'eje', 'rodillo', 'anotciones_montaje']
 
 class Celda_SelectSerializer(serializers.ModelSerializer):
     conjunto = ConjuntoSerializer(many=False)
@@ -185,6 +192,14 @@ class MontajeSerializer(serializers.ModelSerializer):
 class MontajeListadoSerializer(serializers.ModelSerializer):
     maquina = ZonaSerializer_Rodillos(many=False)
     grupo = GrupoSerializer(many=False)
+    bancadas = BancadaSerializer(many=False)
+    class Meta:
+        model = Montaje
+        fields = ['id', 'nombre', 'maquina', 'grupo', 'bancadas']
+
+class MontajeToolingSerializer(serializers.ModelSerializer):
+    maquina = ZonaSerializer_Rodillos(many=False)
+    grupo = GrupoBancadaSerializer(many=False)
     bancadas = BancadaSerializer(many=False)
     class Meta:
         model = Montaje

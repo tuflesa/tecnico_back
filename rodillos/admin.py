@@ -59,6 +59,14 @@ class ConjuntoAdmin(admin.ModelAdmin):
     list_display=("id","operacion", "tubo_madre")
     search_fields=("tubo_madre",)
 
+class BancadaAdmin(admin.ModelAdmin):
+    list_display=("id","seccion", "tubo_madre")
+    search_fields=("tubo_madre",)
+
+class MontajesAdmin(admin.ModelAdmin):
+    list_display=("id","nombre", "grupo")
+    search_fields=("nombre",)
+
 admin.site.register(Tipo_Seccion, Tipo_SeccionAdmin)
 admin.site.register(Seccion, SeccionAdmin)
 admin.site.register(Operacion, OperacionAdmin)
@@ -66,11 +74,11 @@ admin.site.register(Eje, EjeAdmin)
 admin.site.register(Rodillo, RodillosAdmin)
 admin.site.register(Tipo_rodillo)
 admin.site.register(Material, MaterialAdmin)
-admin.site.register(Bancada)
+admin.site.register(Bancada, BancadaAdmin)
 admin.site.register(Conjunto, ConjuntoAdmin)
 admin.site.register(Elemento, ElementoAdmin)
 admin.site.register(Grupo, GrupoAdmin)
-admin.site.register(Montaje)
+admin.site.register(Montaje, MontajesAdmin)
 admin.site.register(Plano, PlanosAdmin)
 admin.site.register(Revision, RevisionAdmin)
 admin.site.register(Tipo_Plano, TipoPlanoAdmin)

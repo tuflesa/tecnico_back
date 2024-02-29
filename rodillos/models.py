@@ -141,6 +141,7 @@ class Elemento(models.Model):
     conjunto = models.ForeignKey(Conjunto, on_delete=models.CASCADE, related_name='elementos')
     eje = models.ForeignKey(Eje, on_delete=models.CASCADE)
     rodillo = models.ForeignKey(Rodillo, on_delete=models.CASCADE)
+    anotciones_montaje = models.CharField(max_length=100, null=True, blank=True)
 
 # Montaje
 class Montaje(models.Model):
