@@ -1,9 +1,9 @@
 from django.shortcuts import render
 from rest_framework import viewsets, status
 from rest_framework.response import Response
-from .serializers import AgenciaSerializer, CargaSerializer, CargaSimpleSerializer, BasculaSerializer
+from .serializers import AgenciaSerializer, CargaSerializer, CargaSimpleSerializer, BasculaSerializer, LlamadaSimpleSerializer, UltimasLlamadasSerializer
 from django_filters import rest_framework as filters
-from .models import Agencia, Carga, Bascula
+from .models import Agencia, Carga, Bascula, Llamada
 
 class AgenciaFilter(filters.FilterSet):
     class Meta:
@@ -40,3 +40,20 @@ class CargaViewSet(viewsets.ModelViewSet):
     serializer_class = CargaSimpleSerializer
     queryset = Carga.objects.all()
     filterset_class = CargaFilter
+
+class LlamadaViewSet(viewsets.ModelViewSet):
+    serializer_class = LlamadaSimpleSerializer
+    queryset = Llamada.objects.all()
+
+class UltimasLlamadasFilter(filters.FilterSet):
+    class Meta:
+        model = Llamada
+        fields = {
+            'carga__empresa': ['exact'],
+            'carga__bruto': ['isnull']
+        }
+
+class UltimasLlamadasViewSet(viewsets.ModelViewSet):
+    serializer_class = UltimasLlamadasSerializer
+    queryset = Llamada.objects.all().order_by('-fecha', '-hora')
+    filterset_class = UltimasLlamadasFilter
