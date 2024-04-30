@@ -36,6 +36,7 @@ class Notificacion(models.Model): # Notificación 5W+2H Plus
     finalizado = models.BooleanField(default=False)
     conclusion = models.TextField(max_length=800, blank=True, null=True) # Explicación de si queda resuelto o motivos por los que se descarta
     peligrosidad = models.BooleanField(default=False)
+    seguridad = models.BooleanField(default=False)
 
     def save(self, *args, **kwargs):
         # Generar nuevo número si el campo numero es None (null)
@@ -89,7 +90,7 @@ class Tarea(models.Model):
     prioridad = models.IntegerField(default=50) # Número de 0 a 100. 100 máxima prioridad
     #trabajo = models.TextField(blank=True, null=True) #trabajo a realizar, detalles
     observaciones = models.TextField(blank=True, null=True)
-    observaciones_trab = models.TextField(blank=True, null=True)
+    observaciones_trab = models.TextField(blank=True, null=True) #no guarda información??
     tipo_periodo = models.ForeignKey(TipoPeriodo, on_delete=models.CASCADE, null=True, blank=True)
     periodo = models.IntegerField(default=0)
 
