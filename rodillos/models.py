@@ -1,6 +1,8 @@
 from django.db import models
 from estructura.models import Zona
 from django.utils import timezone
+from django import forms
+import logging
 
 # Tipo de sección: Formadora, cuchillas, Soldadura, Calibradora, Cabeza de turco
 class Tipo_Seccion(models.Model):
@@ -20,6 +22,7 @@ class Nombres_Parametros(models.Model):
 # Tipo de rodillo: Superior, Inferior, Sup/Inf, Lateral 
 class Tipo_rodillo(models.Model):
     nombre = models.CharField(max_length=20)
+    siglas = models.CharField(max_length=10, blank=True, null=True) 
 
     def __str__(self) -> str:
         return self.nombre
@@ -27,8 +30,8 @@ class Tipo_rodillo(models.Model):
 # Tipo de plano: Determina los nombres de los parametros a emplear para control de rectificados y para dibujar los rodillos en el Quick Setting
 class Tipo_Plano(models.Model):
     nombre = models.CharField(max_length=200)
-    tipo_seccion = models.ForeignKey(Tipo_Seccion, on_delete=models.CASCADE, null=False)
-    tipo_rodillo = models.ForeignKey(Tipo_rodillo,on_delete=models.CASCADE, null=False)
+    tipo_seccion = models.ForeignKey(Tipo_Seccion, on_delete=models.CASCADE, null=True)
+    tipo_rodillo = models.ForeignKey(Tipo_rodillo, on_delete=models.CASCADE, null=True)
     croquis = models.ImageField(upload_to='croquis', blank=True, null=True)
     nombres = models.ManyToManyField(Nombres_Parametros, related_name='tipo_plano')
 
@@ -41,6 +44,7 @@ class Seccion(models.Model):
     maquina = models.ForeignKey(Zona, on_delete=models.CASCADE)
     pertenece_grupo = models.BooleanField(default=True)
     tipo = models.ForeignKey(Tipo_Seccion, on_delete=models.CASCADE, null=True)
+    orden = models.IntegerField(null=True, blank=True) #Solamente se usa para la posición en el tooling chart
 
     def __str__(self):
         return self.maquina.siglas + '-' + self.nombre
@@ -50,6 +54,7 @@ class Operacion(models.Model):
     nombre = models.CharField(max_length=50) # Ejemplo: F1
     seccion = models.ForeignKey(Seccion, on_delete=models.CASCADE, related_name='operaciones') 
     icono = models.ImageField(upload_to='iconos', blank=True, null=True) 
+    orden = models.IntegerField(null=True, blank=True) #Solamente se usa para la posición en el tooling chart
 
     def __str__(self):
         return self.seccion.maquina.siglas + '-' + self.seccion.nombre + '-' + self.nombre
@@ -63,19 +68,50 @@ class Material(models.Model):
     
 # Ejes de una operación
 class Eje(models.Model):
-    nombre = models.CharField(max_length=50) # Ejemplos: superior, inferior, lateral, ...
     operacion = models.ForeignKey(Operacion, on_delete=models.CASCADE, related_name='posiciones')
     tipo = models.ForeignKey(Tipo_rodillo, on_delete=models.CASCADE)
     diametro = models.FloatField(blank=True, null=True)
 
     def __str__(self):
-        return self.operacion.seccion.maquina.siglas + '-' + self.operacion.seccion.nombre + '-' +   self.operacion.nombre + ' - ' + self.nombre
+        return self.operacion.seccion.maquina.siglas + '-' + self.operacion.nombre + '-' + self.tipo.nombre
+
+# Bancadas de una sección
+class Bancada(models.Model):
+    seccion = models.ForeignKey(Seccion, on_delete=models.CASCADE)
+    tubo_madre = models.FloatField(blank=True, null=True)
+    dimensiones = models.CharField(max_length=20, blank=True, null=True) # para las dimesiones de una bancada de C.T.
+
+    def nombre(self):
+        if self.tubo_madre is not None:
+            return f"{self.seccion.nombre}-{self.tubo_madre}"
+        else:
+            return str(self.seccion.nombre)
+
+# Conjuntos de rodillos de una operación. Son las celdas del Tooling Chart
+class Conjunto(models.Model):
+    operacion = models.ForeignKey(Operacion, on_delete=models.CASCADE, related_name='conjuntos')
+    tubo_madre = models.FloatField(blank=True, null=True)
+
+# Son las celdas del Tooling Chart para las formaciones raras
+class Celda (models.Model):
+    bancada = models.ForeignKey(Bancada, on_delete=models.CASCADE)
+    conjunto = models.ForeignKey(Conjunto, on_delete=models.CASCADE)
+    icono = models.ImageField(upload_to='iconos', blank=True, null=True)
+    operacion = models.ForeignKey(Operacion, on_delete=models.CASCADE, blank=True, null=True)
 
 # Grupo
 class Grupo(models.Model):
     nombre = models.CharField(max_length=50)
     maquina = models.ForeignKey(Zona, on_delete=models.CASCADE)
     tubo_madre = models.FloatField(blank=True, null=True)
+    bancadas = models.ManyToManyField(Bancada, blank=True, related_name='grupos')
+
+    def __str__(self) -> str:
+        return self.nombre
+
+# Forma
+class Forma(models.Model):
+    nombre = models.CharField(max_length=50)
 
     def __str__(self) -> str:
         return self.nombre
@@ -88,6 +124,10 @@ class Rodillo(models.Model):
     tipo = models.ForeignKey(Tipo_rodillo, on_delete=models.CASCADE)
     tipo_plano = models.ForeignKey(Tipo_Plano, on_delete=models.CASCADE, null=True)
     material = models.ForeignKey(Material, on_delete=models.CASCADE)
+    diametro = models.FloatField(blank=True, null=True)
+    forma = models.ForeignKey(Forma, on_delete=models.CASCADE, null=True, blank=True)
+    descripcion_perfil = models.CharField(max_length=50, null=True, blank=True)
+    dimension_perfil = models.CharField(max_length=2, null=True, blank=True)
 
     def __str__(self) -> str:
         return self.nombre
@@ -98,62 +138,46 @@ class Parametros_Estandar(models.Model):
     valor = models.FloatField()
     rodillo = models.ForeignKey(Rodillo, on_delete=models.CASCADE)
 
-# Bancadas de una sección
-class Bancada(models.Model):
-    nombre = models.CharField(max_length=50)
-    seccion = models.ForeignKey(Seccion, on_delete=models.CASCADE)
-    grupos = models.ManyToManyField(Grupo,related_name='bancadas')
-
-    def __str__(self) -> str:
-        return self.nombre
-
-# Conjuntos de rodillos de una operación. Son las celdas del Tooling Chart
-class Conjunto(models.Model):
-    nombre = models.CharField(max_length=50)
-    bancada = models.ForeignKey(Bancada, on_delete=models.CASCADE)
-    operacion = models.ForeignKey(Operacion, on_delete=models.CASCADE, related_name='conjuntos')
-    icono = models.ImageField(upload_to='iconos', blank=True, null=True)
-
-    def __str__(self) -> str:
-        return self.nombre
-
 # Elementos de un conjunto de rodillos. Que rodillo en que posición dentro de un conjunto de rodillos
 class Elemento(models.Model):
-    nombre = models.CharField(max_length=50)
     conjunto = models.ForeignKey(Conjunto, on_delete=models.CASCADE, related_name='elementos')
     eje = models.ForeignKey(Eje, on_delete=models.CASCADE)
     rodillo = models.ForeignKey(Rodillo, on_delete=models.CASCADE)
-
-    def __str__(self) -> str:
-        return self.nombre
+    anotciones_montaje = models.CharField(max_length=100, null=True, blank=True)
 
 # Montaje
 class Montaje(models.Model):
     nombre = models.CharField(max_length=50)
     maquina = models.ForeignKey(Zona, on_delete=models.CASCADE, related_name='montajes')
     grupo = models.ForeignKey(Grupo, on_delete=models.CASCADE)
-    bancadas = models.ManyToManyField(Bancada, related_name='montajes')
+    bancadas = models.ForeignKey(Bancada, on_delete=models.CASCADE, null=True, blank=True, default=None) #es la bancada de CT + grupo = montaje
 
     def __str__(self) -> str:
         return self.nombre
-    
+
 # Planos de los rodillos
 class Plano(models.Model):
-    nombre = models.CharField(max_length=200)
+    nombre = models.CharField(max_length=200, null=True, blank=True, default=None)
     rodillos = models.ManyToManyField(Rodillo, related_name='planos')
-
-    def __str__(self) -> str:
-        return self.nombre
-
+    cod_antiguo = models.CharField(max_length=200, null=True, blank=True, default=None)
+    descripcion = models.CharField(max_length=200, null=True, blank=True, default=None)
+   
 # Revisión: Modificaciones de un plano  
 class Revision(models.Model):
-    plano = models.ForeignKey(Plano, on_delete=models.CASCADE)
-    motivo = models.TextField(max_length=250)
-    archivo = models.FileField(upload_to='planos')
+    plano = models.ForeignKey(Plano, on_delete=models.CASCADE, blank=False, null=False)
+    motivo = models.TextField(max_length=250, blank=False, null=False)
+    archivo = models.FileField(upload_to='planos', blank=False, null=False)
     fecha = models.DateField(default=timezone.now)
+    nombre = models.CharField(max_length=200, null=True, blank=True, default=None)
 
 #Instancia: Un rodillo en concreto
 class Instancia(models.Model):
     nombre = models.CharField(max_length=200)
     rodillo = models.ForeignKey(Rodillo, on_delete=models.CASCADE)
     planos = models.ManyToManyField(Plano, related_name='instancias')
+
+# Parámetros: Parametros de un rodillo según plano sin rectificar. Al crear una revisión de un plano, se deben actualizar.
+class Parametros(models.Model):
+    nombre = models.CharField(max_length=50)
+    valor = models.FloatField()
+    revision = models.ForeignKey(Revision, on_delete=models.CASCADE)

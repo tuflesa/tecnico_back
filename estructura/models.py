@@ -22,10 +22,11 @@ class Direcciones(models.Model):
     provincia = models.CharField(max_length=50, blank=True, null=True)
     cif = models.CharField(max_length=9, blank=True, null=True)
 
-class Zona(models.Model):
+class Zona(models.Model): # máquinas
     nombre = models.CharField(max_length=50)
     siglas = models.CharField(max_length=10, null=True)
     empresa = models.ForeignKey(Empresa, on_delete=models.CASCADE, related_name='zonas')
+    es_maquina_tubo = models.BooleanField(default=True)
 
     def __str__(self):
         return self.empresa.siglas + '-' + self.nombre
