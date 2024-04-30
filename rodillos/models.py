@@ -22,6 +22,7 @@ class Nombres_Parametros(models.Model):
 # Tipo de rodillo: Superior, Inferior, Sup/Inf, Lateral 
 class Tipo_rodillo(models.Model):
     nombre = models.CharField(max_length=20)
+    siglas = models.CharField(max_length=10, blank=True, null=True) 
 
     def __str__(self) -> str:
         return self.nombre
@@ -96,6 +97,7 @@ class Celda (models.Model):
     bancada = models.ForeignKey(Bancada, on_delete=models.CASCADE)
     conjunto = models.ForeignKey(Conjunto, on_delete=models.CASCADE)
     icono = models.ImageField(upload_to='iconos', blank=True, null=True)
+    operacion = models.ForeignKey(Operacion, on_delete=models.CASCADE, blank=True, null=True)
 
 # Grupo
 class Grupo(models.Model):
@@ -157,22 +159,8 @@ class Montaje(models.Model):
 class Plano(models.Model):
     nombre = models.CharField(max_length=200, null=True, blank=True, default=None)
     rodillos = models.ManyToManyField(Rodillo, related_name='planos')
-
-    #si lo activo no funciona la acción de guardar, hay que revisar el código.
-    """ def save(self, *args, **kwargs):
-        super(Plano, self).save(*args, **kwargs)  # Guarda primero para tener un ID
-
-        if self.nombre is None and self.rodillos.exists() and self.id:
-            print("estamos dentro del if")
-            maquina = self.rodillos[0]
-            seccion = self.rodillos.firt().operacion.seccion.nombre
-            num = self.id  # Ahora hay un ID disponible
-            self.nombre = f"adios_{maquina}_{seccion}_{num}"
-            print("datos maquina y seccion")
-            print(maquina)
-            print(seccion)
-            self.save(update_fields=['nombre'])  # Guarda solo el campo 'nombre' """
-
+    cod_antiguo = models.CharField(max_length=200, null=True, blank=True, default=None)
+    descripcion = models.CharField(max_length=200, null=True, blank=True, default=None)
    
 # Revisión: Modificaciones de un plano  
 class Revision(models.Model):
@@ -180,6 +168,7 @@ class Revision(models.Model):
     motivo = models.TextField(max_length=250, blank=False, null=False)
     archivo = models.FileField(upload_to='planos', blank=False, null=False)
     fecha = models.DateField(default=timezone.now)
+    nombre = models.CharField(max_length=200, null=True, blank=True, default=None)
 
 #Instancia: Un rodillo en concreto
 class Instancia(models.Model):

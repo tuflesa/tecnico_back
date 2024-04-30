@@ -35,7 +35,7 @@ class TipoPlanoAdmin(admin.ModelAdmin):
 
 class EjeAdmin(admin.ModelAdmin):
     search_fields=("diametro",)
-    list_filter=("tipo", "operacion")
+    list_filter=("id","tipo", "operacion")
 
 class Tipo_SeccionAdmin(admin.ModelAdmin):
     search_fields=("nombre",)
@@ -53,7 +53,7 @@ class SeccionAdmin(admin.ModelAdmin):
     list_display=("id","nombre")
 
 class CeldaAdmin(admin.ModelAdmin):
-    list_display=("id","bancada", "conjunto")
+    list_display=("id","bancada", "conjunto", "operacion")
 
 class ConjuntoAdmin(admin.ModelAdmin):
     list_display=("id","operacion", "tubo_madre")

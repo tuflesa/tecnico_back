@@ -9,23 +9,28 @@ class RodilloSerializer(serializers.ModelSerializer):
 class PlanoNuevoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Plano
-        fields = ['id', 'nombre', 'rodillos']
+        fields = ['id', 'nombre', 'rodillos', 'cod_antiguo', 'descripcion']
 
 class PlanoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Plano
-        fields = ['id', 'nombre', 'rodillos']
+        fields = ['id', 'nombre', 'rodillos', 'cod_antiguo', 'descripcion']
 
 class RevisionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Revision
-        fields = ['id', 'plano', 'motivo', 'archivo', 'fecha']
+        fields = ['id', 'plano', 'motivo', 'archivo', 'fecha', 'nombre']
 
 class RevisionConjuntosSerializer(serializers.ModelSerializer):
     class Meta:
         model = Revision
-        fields = ['id', 'plano', 'motivo', 'archivo', 'fecha']
+        fields = ['id', 'plano', 'motivo', 'archivo', 'fecha', 'nombre']
 
+class RevisionPlanosSerializer(serializers.ModelSerializer):
+    plano = PlanoSerializer(many=False, read_only=False)
+    class Meta:
+        model = Revision
+        fields = ['id', 'plano', 'motivo', 'archivo', 'fecha', 'nombre']
 class SeccionSerializer(serializers.ModelSerializer):
     maquina = ZonaSerializer_Rodillos(many=False, read_only=False)
     class Meta:
@@ -41,7 +46,7 @@ class OperacionSerializer(serializers.ModelSerializer):
 class TipoRodilloSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tipo_rodillo
-        fields = ['id', 'nombre']
+        fields = ['id', 'nombre', 'siglas']
 
 class MaterialSerializer(serializers.ModelSerializer):
     class Meta:
@@ -68,6 +73,7 @@ class Bancada_CTSerializer(serializers.ModelSerializer):
 
 class GrupoSerializer(serializers.ModelSerializer):
     maquina = ZonaSerializer_Rodillos(many=False, read_only=False)
+    bancadas = Bancada_GruposSerializer(many=True, read_only=False)
     class Meta:
         model = Grupo
         fields = ['id', 'nombre', 'maquina', 'tubo_madre', 'bancadas']
@@ -109,6 +115,12 @@ class RodilloListSerializer(serializers.ModelSerializer):
         model = Rodillo
         fields = ['id', 'nombre', 'operacion', 'grupo', 'tipo', 'material', 'tipo_plano', 'diametro', 'forma', 'descripcion_perfil', 'dimension_perfil']
 
+class RodillosSerializer(serializers.ModelSerializer):
+    grupo = GrupoSerializer(many=False)
+    class Meta:
+        model = Rodillo
+        fields = ['id', 'nombre', 'operacion', 'grupo', 'tipo', 'material', 'tipo_plano', 'diametro', 'forma', 'descripcion_perfil', 'dimension_perfil']
+
 class TipoSeccionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tipo_Seccion
@@ -123,7 +135,7 @@ class Plano_existenteSerializer(serializers.ModelSerializer):
     rodillos = RodilloListSerializer(many=True)
     class Meta:
         model = Plano
-        fields = ['id', 'nombre', 'rodillos']
+        fields = ['id', 'nombre', 'rodillos', 'cod_antiguo', 'descripcion']
 
 class EjeSerializer(serializers.ModelSerializer):
     tipo = TipoRodilloSerializer(many=False)
@@ -138,6 +150,12 @@ class Bancada_SelectSerializer(serializers.ModelSerializer):
         fields = ['id', 'seccion', 'tubo_madre', 'dimensiones', 'nombre']
 
 class ConjuntoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Conjunto
+        fields = ['id', 'operacion', 'tubo_madre']
+
+class Conjunto_OperacionSerializer(serializers.ModelSerializer):
+    operacion = OperacionSerializer()
     class Meta:
         model = Conjunto
         fields = ['id', 'operacion', 'tubo_madre']
@@ -166,18 +184,18 @@ class Celda_SelectSerializer(serializers.ModelSerializer):
     bancada = Bancada_SelectSerializer()
     class Meta:
         model = Celda
-        fields = ['id', 'bancada', 'conjunto', 'icono']
+        fields = ['id', 'bancada', 'conjunto', 'icono', 'operacion']
 
 class Celda_DuplicarSerializer(serializers.ModelSerializer):
     conjunto = Conjunto_OperacionSerializer(many=False)
     class Meta:
         model = Celda
-        fields = ['id', 'bancada', 'conjunto', 'icono']
+        fields = ['id', 'bancada', 'conjunto', 'icono', 'operacion']
     
 class CeldaSerializer(serializers.ModelSerializer):
     class Meta:
         model = Celda
-        fields = ['id', 'bancada', 'conjunto', 'icono']
+        fields = ['id', 'bancada', 'conjunto', 'icono', 'operacion']
 
 class FormaSerializer(serializers.ModelSerializer):
     class Meta:

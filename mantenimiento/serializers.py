@@ -12,12 +12,12 @@ class NotificacionSerializer(serializers.ModelSerializer):
     #fecha_creacion = serializers.DateField(format="%d-%m-%Y")
     class Meta:
         model = Notificacion
-        fields = ['id', 'numero', 'que', 'cuando', 'donde', 'quien', 'como', 'cuanto', 'porque', 'empresa', 'fecha_creacion', 'revisado', 'descartado', 'finalizado', 'conclusion', 'zona', 'peligrosidad']
+        fields = ['id', 'numero', 'que', 'cuando', 'donde', 'quien', 'como', 'cuanto', 'porque', 'empresa', 'fecha_creacion', 'revisado', 'descartado', 'finalizado', 'conclusion', 'zona', 'peligrosidad', 'seguridad']
 
 class NotificacionNuevaSerializer(serializers.ModelSerializer):
     class Meta:
         model = Notificacion
-        fields = ['id', 'numero', 'que', 'cuando', 'donde', 'quien', 'como', 'cuanto', 'porque', 'empresa', 'fecha_creacion', 'revisado', 'descartado', 'finalizado', 'conclusion', 'zona', 'peligrosidad']
+        fields = ['id', 'numero', 'que', 'cuando', 'donde', 'quien', 'como', 'cuanto', 'porque', 'empresa', 'fecha_creacion', 'revisado', 'descartado', 'finalizado', 'conclusion', 'zona', 'peligrosidad', 'seguridad']
 
 
 class TipoPeriodoSerializer(serializers.ModelSerializer):

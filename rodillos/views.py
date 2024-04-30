@@ -1,6 +1,6 @@
 from rest_framework import viewsets
 from rodillos.models import Rodillo, Tipo_rodillo, Seccion, Operacion, Eje, Plano, Revision, Material, Grupo, Tipo_Plano, Nombres_Parametros, Tipo_Seccion, Parametros_Estandar, Bancada, Conjunto, Elemento, Celda, Forma, Montaje
-from rodillos.serializers import RodilloSerializer, PlanoNuevoSerializer, RevisionSerializer, SeccionSerializer, OperacionSerializer, TipoRodilloSerializer, MaterialSerializer, GrupoSerializer, TipoPlanoSerializer, RodilloListSerializer, PlanoParametrosSerializer, Nombres_ParametrosSerializer, TipoSeccionSerializer, PlanoSerializer, RevisionConjuntosSerializer, Parametros_estandarSerializer, Plano_existenteSerializer, EjeSerializer, BancadaSerializer, ConjuntoSerializer, ElementoSerializer, Elemento_SelectSerializer, Bancada_GruposSerializer, Bancada_SelectSerializer, CeldaSerializer, Celda_SelectSerializer, Grupo_onlySerializer, FormaSerializer, Celda_DuplicarSerializer, Bancada_CTSerializer, MontajeSerializer, MontajeListadoSerializer, MontajeToolingSerializer
+from rodillos.serializers import RodilloSerializer, PlanoNuevoSerializer, RevisionSerializer, SeccionSerializer, OperacionSerializer, TipoRodilloSerializer, MaterialSerializer, GrupoSerializer, TipoPlanoSerializer, RodilloListSerializer, PlanoParametrosSerializer, Nombres_ParametrosSerializer, TipoSeccionSerializer, PlanoSerializer, RevisionConjuntosSerializer, Parametros_estandarSerializer, Plano_existenteSerializer, EjeSerializer, BancadaSerializer, ConjuntoSerializer, ElementoSerializer, Elemento_SelectSerializer, Bancada_GruposSerializer, Bancada_SelectSerializer, CeldaSerializer, Celda_SelectSerializer, Grupo_onlySerializer, FormaSerializer, Celda_DuplicarSerializer, Bancada_CTSerializer, MontajeSerializer, MontajeListadoSerializer, MontajeToolingSerializer, RodillosSerializer, Conjunto_OperacionSerializer, RevisionPlanosSerializer
 from django_filters import rest_framework as filters
 from rest_framework.pagination import PageNumberPagination
 from rest_framework import status
@@ -19,6 +19,17 @@ class ConjuntoFilter(filters.FilterSet):
         fields = {
             'tubo_madre': ['exact'],
             'operacion': ['exact'],
+        }
+
+class ConjuntoOperacionFilter(filters.FilterSet):
+    class Meta:
+        model = Conjunto
+        fields = {
+            'tubo_madre': ['exact'],
+            'operacion': ['exact'],
+            'operacion__seccion__id':['exact'],
+            'operacion__id': ['exact'],
+            'tubo_madre': ['lte', 'gte'],
         }
 
 class RodilloFilter(filters.FilterSet):
@@ -41,6 +52,15 @@ class RodilloFilter(filters.FilterSet):
             'operacion__id':['exact'],
             'tipo_plano':['exact'],
             'grupo':['exact'],
+            'nombre':['icontains'],
+        }
+
+class RodillosFilter(filters.FilterSet):
+    class Meta:
+        model = Rodillo
+        fields = {
+            'operacion__id':['exact'],
+            'grupo__id':['exact'],
         }
 
 class CeldaFilter(filters.FilterSet):
@@ -57,6 +77,8 @@ class CeldaFilter(filters.FilterSet):
             'bancada__id':['exact'],
             'bancada__dimensiones':['exact'],
             'conjunto__operacion':['exact'],
+            'bancada':['exact'],
+            'operacion':['exact'],
         }
 
 class CeldaDuplicarFilter(filters.FilterSet):
@@ -123,8 +145,15 @@ class RevisionFilter(filters.FilterSet):
     class Meta:
         model = Revision
         fields = {
-            'plano__id': ['exact'],
             'plano':['exact'],
+        }
+
+class RevisionPlanosFilter(filters.FilterSet):
+    class Meta:
+        model = Revision
+        fields = {
+            'plano__id':['exact'],
+            'plano__nombre':['exact'],
         }
     
 class MaterialFilter(filters.FilterSet):
@@ -145,6 +174,7 @@ class GrupoFilter(filters.FilterSet):
             'maquina__siglas': ['exact'],
             'maquina__id':['exact'],
             'maquina__empresa': ['exact'],
+            'tubo_madre': ['lte', 'gte'],
         }
 
 class ElementoFilter(filters.FilterSet):
@@ -154,6 +184,7 @@ class ElementoFilter(filters.FilterSet):
             'id': ['exact'],
             'eje': ['exact'],
             'rodillo': ['exact'],
+            'rodillo__id': ['exact'],
             'conjunto': ['exact'],
             'conjunto__tubo_madre':['exact'],
             'conjunto__operacion':['exact'],
@@ -221,7 +252,7 @@ class MontajeListadoFilter(filters.FilterSet):
 
 class Grupo_NuevoViewSet(viewsets.ModelViewSet):
     serializer_class = GrupoSerializer
-    queryset = Grupo.objects.all()
+    queryset = Grupo.objects.all().order_by('tubo_madre')
     filterset_class = GrupoFilter
 
 class grupo_montajeViewSet(viewsets.ModelViewSet):
@@ -231,13 +262,13 @@ class grupo_montajeViewSet(viewsets.ModelViewSet):
 
 class GrupoViewSet(viewsets.ModelViewSet):
     serializer_class = GrupoSerializer
-    queryset = Grupo.objects.all()
+    queryset = Grupo.objects.all().order_by('nombre')
     filterset_class = GrupoFilter
     pagination_class = StandardResultsSetPagination
 
 class Grupo_onlyViewSet(viewsets.ModelViewSet):
     serializer_class = Grupo_onlySerializer
-    queryset = Grupo.objects.all()
+    queryset = Grupo.objects.all().order_by('tubo_madre')
     filterset_class = GrupoFilter
 class PlanoFilter(filters.FilterSet):
     class Meta:
@@ -252,6 +283,8 @@ class PlanoFilter(filters.FilterSet):
             'rodillos__operacion__seccion__nombre': ['exact'],
             'rodillos__tipo':['exact'],
             'rodillos__operacion__id': ['exact'],
+            'cod_antiguo': ['icontains'],
+            'descripcion': ['icontains'],
         }
 
 class Tipo_PlanoFilter(filters.FilterSet):
@@ -277,9 +310,14 @@ class RodilloViewSet(viewsets.ModelViewSet):
     queryset = Rodillo.objects.all()
     filterset_class = RodilloFilter
 
+class RodillosViewSet(viewsets.ModelViewSet):
+    serializer_class = RodillosSerializer
+    queryset = Rodillo.objects.all()
+    filterset_class = RodillosFilter
+
 class Rodillo_listViewSet(viewsets.ModelViewSet):
     serializer_class = RodilloListSerializer
-    queryset = Rodillo.objects.all().order_by('-grupo')
+    queryset = Rodillo.objects.all().order_by('-grupo__nombre')
     filterset_class = RodilloFilter
     pagination_class = StandardResultsSetPagination
 
@@ -307,6 +345,11 @@ class RevisionConjuntosViewSet(viewsets.ModelViewSet):
     serializer_class = RevisionConjuntosSerializer
     queryset = Revision.objects.all().order_by('-id')
     filterset_class = RevisionFilter
+
+class RevisionPlanosViewSet(viewsets.ModelViewSet):
+    serializer_class = RevisionPlanosSerializer
+    queryset = Revision.objects.all().order_by('-id')
+    filterset_class = RevisionPlanosFilter
 class RevisionViewSet(viewsets.ModelViewSet):
     serializer_class = RevisionSerializer
     queryset = Revision.objects.all()
@@ -416,6 +459,11 @@ class ConjuntoViewSet(viewsets.ModelViewSet):
     queryset = Conjunto.objects.all()
     filterset_class = ConjuntoFilter
 
+class Conjunto_OperacionViewSet(viewsets.ModelViewSet):
+    serializer_class = Conjunto_OperacionSerializer
+    queryset = Conjunto.objects.all()
+    filterset_class = ConjuntoOperacionFilter
+
 class ElementoViewSet(viewsets.ModelViewSet):
     serializer_class = ElementoSerializer
     queryset = Elemento.objects.all()
@@ -458,7 +506,7 @@ class MontajeViewSet(viewsets.ModelViewSet):
 
 class MontajeListadoViewSet(viewsets.ModelViewSet):
     serializer_class = MontajeListadoSerializer
-    queryset = Montaje.objects.all()
+    queryset = Montaje.objects.all().order_by('nombre')
     filterset_class = MontajeListadoFilter
     pagination_class = StandardResultsSetPagination
 
