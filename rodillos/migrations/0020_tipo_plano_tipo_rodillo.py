@@ -13,7 +13,7 @@ class Migration(migrations.Migration):
     operations = [
         migrations.AddField(
             model_name='tipo_plano',
-            name='Tipo_rodillo',
+            name='tipo_rodillo',
             field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, to='rodillos.tipo_rodillo'),
         ),
     ]
