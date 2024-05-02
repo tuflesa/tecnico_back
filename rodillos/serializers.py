@@ -141,7 +141,7 @@ class EjeSerializer(serializers.ModelSerializer):
     tipo = TipoRodilloSerializer(many=False)
     class Meta:
         model = Eje
-        fields = ['id', 'operacion', 'tipo', 'diametro']
+        fields = ['id', 'operacion', 'tipo', 'diametro', 'numero_ejes']
 
 class Bancada_SelectSerializer(serializers.ModelSerializer):
     seccion = SeccionSerializer()

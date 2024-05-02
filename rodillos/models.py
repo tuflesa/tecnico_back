@@ -71,6 +71,7 @@ class Eje(models.Model):
     operacion = models.ForeignKey(Operacion, on_delete=models.CASCADE, related_name='posiciones')
     tipo = models.ForeignKey(Tipo_rodillo, on_delete=models.CASCADE)
     diametro = models.FloatField(blank=True, null=True)
+    numero_ejes = models.IntegerField(default=1)
 
     def __str__(self):
         return self.operacion.seccion.maquina.siglas + '-' + self.operacion.nombre + '-' + self.tipo.nombre
