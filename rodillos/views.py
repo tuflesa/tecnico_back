@@ -61,6 +61,7 @@ class RodillosFilter(filters.FilterSet):
         fields = {
             'operacion__id':['exact'],
             'grupo__id':['exact'],
+            'nombre':['exact'],
         }
 
 class CeldaFilter(filters.FilterSet):
@@ -177,6 +178,19 @@ class GrupoFilter(filters.FilterSet):
             'tubo_madre': ['lte', 'gte'],
         }
 
+class GrupoNuevoFilter(filters.FilterSet):
+    class Meta:
+        model = Grupo
+        fields = {
+            'id': ['exact'],
+            'nombre': ['icontains'],
+            'maquina': ['exact'],
+            'tubo_madre': ['exact'],
+            'maquina__siglas': ['exact'],
+            'maquina__id':['exact'],
+            'maquina__empresa': ['exact'],
+        }
+
 class ElementoFilter(filters.FilterSet):
     class Meta:
         model = Elemento
@@ -253,7 +267,7 @@ class MontajeListadoFilter(filters.FilterSet):
 class Grupo_NuevoViewSet(viewsets.ModelViewSet):
     serializer_class = GrupoSerializer
     queryset = Grupo.objects.all().order_by('tubo_madre')
-    filterset_class = GrupoFilter
+    filterset_class = GrupoNuevoFilter
 
 class grupo_montajeViewSet(viewsets.ModelViewSet):
     serializer_class = GrupoSerializer
