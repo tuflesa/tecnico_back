@@ -49,11 +49,17 @@ class Seccion(models.Model):
     def __str__(self):
         return self.maquina.siglas + '-' + self.nombre
 
+class Icono(models.Model):
+    nombre = models.CharField(max_length=20)
+    icono = models.ImageField(upload_to='iconos', blank=True, null=True) 
+    def __str__(self) -> str:
+        return self.nombre
+
 # Operaciones de una sección
 class Operacion(models.Model):
     nombre = models.CharField(max_length=50) # Ejemplo: F1
     seccion = models.ForeignKey(Seccion, on_delete=models.CASCADE, related_name='operaciones') 
-    icono = models.ImageField(upload_to='iconos', blank=True, null=True) 
+    imagen = models.ForeignKey(Icono,  on_delete=models.CASCADE, blank=True, null=True)
     orden = models.IntegerField(null=True, blank=True) #Solamente se usa para la posición en el tooling chart
 
     def __str__(self):
