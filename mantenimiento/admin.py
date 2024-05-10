@@ -20,6 +20,9 @@ class EspecialidadAdmin(admin.ModelAdmin):
 
 class EstadoAdmin(admin.ModelAdmin):
     list_display=("nombre", "id",)
+class TareasAdmin(admin.ModelAdmin):
+    list_display=("nombre",)
+    search_fields=("nombre",)
 
 admin.site.register(Notificacion)
 admin.site.register(ParteTrabajo, ParteTrabajoAdmin)
@@ -27,7 +30,7 @@ admin.site.register(LineaParteTrabajo, LineasTrabajoAdmin)
 admin.site.register(TipoPeriodo)
 admin.site.register(TipoTarea)
 admin.site.register(Especialidad, EspecialidadAdmin)
-admin.site.register(Tarea)
+admin.site.register(Tarea, TareasAdmin)
 admin.site.register(EstadoLineasTareas, EstadoAdmin)
 admin.site.register(TrabajadoresLineaParte, TrabajadorLineasAdmin)
 admin.site.register(Reclamo)
