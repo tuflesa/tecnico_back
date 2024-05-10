@@ -11,7 +11,10 @@ class LineasTrabajoAdmin(admin.ModelAdmin):
     list_filter=("estado",)
     search_fields=("parte__num_parte",)
     list_display=("tarea", "parte",)
-
+class TrabajadorLineasAdmin(admin.ModelAdmin):
+    list_filter=("trabajador",)
+    search_fields=("linea__parte__num_parte",)
+    list_display=("id", "trabajador","linea",)
 class EspecialidadAdmin(admin.ModelAdmin):
     list_display=("nombre", "id",)
 
@@ -26,5 +29,5 @@ admin.site.register(TipoTarea)
 admin.site.register(Especialidad, EspecialidadAdmin)
 admin.site.register(Tarea)
 admin.site.register(EstadoLineasTareas, EstadoAdmin)
-admin.site.register(TrabajadoresLineaParte)
+admin.site.register(TrabajadoresLineaParte, TrabajadorLineasAdmin)
 admin.site.register(Reclamo)
