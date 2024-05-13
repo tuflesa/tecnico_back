@@ -59,7 +59,7 @@ class Icono(models.Model):
 class Operacion(models.Model):
     nombre = models.CharField(max_length=50) # Ejemplo: F1
     seccion = models.ForeignKey(Seccion, on_delete=models.CASCADE, related_name='operaciones') 
-    imagen = models.ForeignKey(Icono,  on_delete=models.CASCADE, blank=True, null=True)
+    icono = models.ForeignKey(Icono,  on_delete=models.CASCADE, blank=True, null=True)
     orden = models.IntegerField(null=True, blank=True) #Solamente se usa para la posición en el tooling chart
 
     def __str__(self):
