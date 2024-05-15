@@ -19,10 +19,6 @@ class Migration(migrations.Migration):
                 ('icono', models.ImageField(blank=True, null=True, upload_to='iconos')),
             ],
         ),
-        migrations.RemoveField(
-            model_name='operacion',
-            name='icono',
-        ),
         migrations.AddField(
             model_name='operacion',
             name='icono',
