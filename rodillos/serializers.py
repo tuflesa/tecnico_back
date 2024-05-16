@@ -45,10 +45,10 @@ class IconoSerializer(serializers.ModelSerializer):
 
 class OperacionSerializer(serializers.ModelSerializer):
     seccion = SeccionSerializer(many=False, read_only=False)
-    imagen = IconoSerializer(many=False)
+    icono = IconoSerializer(many=False)
     class Meta:
         model = Operacion
-        fields = ['id', 'nombre', 'seccion', 'imagen', 'orden']
+        fields = ['id', 'nombre', 'seccion', 'icono', 'orden']
 
 class TipoRodilloSerializer(serializers.ModelSerializer):
     class Meta:
