@@ -19,13 +19,9 @@ class Migration(migrations.Migration):
                 ('icono', models.ImageField(blank=True, null=True, upload_to='iconos')),
             ],
         ),
-        migrations.RemoveField(
-            model_name='operacion',
-            name='icono',
-        ),
         migrations.AddField(
             model_name='operacion',
-            name='imagen',
+            name='icono',
             field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='rodillos.icono'),
         ),
     ]

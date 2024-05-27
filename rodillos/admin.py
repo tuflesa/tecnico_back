@@ -72,6 +72,7 @@ class IconoAdmin(admin.ModelAdmin):
     search_fields=("nombre",)
 
 admin.site.register(Tipo_Seccion, Tipo_SeccionAdmin)
+admin.site.register(Icono, IconoAdmin)
 admin.site.register(Seccion, SeccionAdmin)
 admin.site.register(Operacion, OperacionAdmin)
 admin.site.register(Eje, EjeAdmin)
@@ -92,4 +93,3 @@ admin.site.register(Parametros_Estandar)
 admin.site.register(Parametros, ParametrosAdmin)
 admin.site.register(Celda, CeldaAdmin)
 admin.site.register(Forma)
-admin.site.register(Icono, IconoAdmin)

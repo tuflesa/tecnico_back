@@ -41,7 +41,6 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('nombre', models.CharField(max_length=50)),
                 ('siglas', models.CharField(max_length=4)),
-                ('icono', models.ImageField(blank=True, null=True, upload_to='operaciones')),
             ],
         ),
         migrations.CreateModel(

@@ -117,6 +117,7 @@ class OperacionFilter(filters.FilterSet):
             'seccion__maquina': ['exact'],
             'seccion__maquina__id': ['exact'],
             'seccion__pertenece_grupo':['exact'],
+            'icono__id':['exact'],
         }
 
 class Tipo_rodilloFilter(filters.FilterSet):
@@ -211,6 +212,13 @@ class ElementoFilter(filters.FilterSet):
             'conjunto': ['exact'],
             'conjunto__tubo_madre':['exact'],
             'conjunto__operacion':['exact'],
+            'conjunto__id':['exact'],
+        }
+
+class ElementoSelectFilter(filters.FilterSet):
+    class Meta:
+        model = Elemento
+        fields = {
             'conjunto__id':['exact'],
         }
 
@@ -500,7 +508,7 @@ class ElementoViewSet(viewsets.ModelViewSet):
 class Elemento_SelectViewSet(viewsets.ModelViewSet):
     queryset = Elemento.objects.all()
     serializer_class = Elemento_SelectSerializer
-    filterset_class = ElementoFilter
+    filterset_class = ElementoSelectFilter
 
 class Bancada_SelectViewSet(viewsets.ModelViewSet):
     serializer_class = Bancada_SelectSerializer
