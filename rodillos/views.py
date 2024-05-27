@@ -1,6 +1,6 @@
 from rest_framework import viewsets
 from rodillos.models import Rodillo, Tipo_rodillo, Seccion, Operacion, Eje, Plano, Revision, Material, Grupo, Tipo_Plano, Nombres_Parametros, Tipo_Seccion, Parametros_Estandar, Bancada, Conjunto, Elemento, Celda, Forma, Montaje, Icono
-from rodillos.serializers import RodilloSerializer, PlanoNuevoSerializer, RevisionSerializer, SeccionSerializer, OperacionSerializer, TipoRodilloSerializer, MaterialSerializer, GrupoSerializer, TipoPlanoSerializer, RodilloListSerializer, PlanoParametrosSerializer, Nombres_ParametrosSerializer, TipoSeccionSerializer, PlanoSerializer, RevisionConjuntosSerializer, Parametros_estandarSerializer, Plano_existenteSerializer, EjeSerializer, BancadaSerializer, ConjuntoSerializer, ElementoSerializer, Elemento_SelectSerializer, Bancada_GruposSerializer, Bancada_SelectSerializer, CeldaSerializer, Celda_SelectSerializer, Grupo_onlySerializer, FormaSerializer, Celda_DuplicarSerializer, Bancada_CTSerializer, MontajeSerializer, MontajeListadoSerializer, MontajeToolingSerializer, RodillosSerializer, Conjunto_OperacionSerializer, RevisionPlanosSerializer, IconoSerializer
+from rodillos.serializers import RodilloSerializer, PlanoNuevoSerializer, RevisionSerializer, SeccionSerializer, OperacionSerializer, TipoRodilloSerializer, MaterialSerializer, GrupoSerializer, TipoPlanoSerializer, RodilloListSerializer, PlanoParametrosSerializer, Nombres_ParametrosSerializer, TipoSeccionSerializer, PlanoSerializer, RevisionConjuntosSerializer, Parametros_estandarSerializer, Plano_existenteSerializer, EjeSerializer, BancadaSerializer, ConjuntoSerializer, ElementoSerializer, Elemento_SelectSerializer, Bancada_GruposSerializer, Bancada_SelectSerializer, CeldaSerializer, Celda_SelectSerializer, Grupo_onlySerializer, FormaSerializer, Celda_DuplicarSerializer, Bancada_CTSerializer, MontajeSerializer, MontajeListadoSerializer, MontajeToolingSerializer, RodillosSerializer, Conjunto_OperacionSerializer, RevisionPlanosSerializer, IconoSerializer, EjeOperacionSerializer
 from django_filters import rest_framework as filters
 from rest_framework.pagination import PageNumberPagination
 from rest_framework import status
@@ -131,6 +131,15 @@ class EjeFilter(filters.FilterSet):
         model = Eje
         fields = {
             'operacion': ['exact'],
+        }
+
+class EjeOperacionFilter(filters.FilterSet):
+    class Meta:
+        model = Eje
+        fields = {
+            'operacion__seccion__maquina__id': ['exact'],
+            'operacion__id': ['exact'],
+            'tipo':['exact'],
         }
 
 class ParametrosFilter(filters.FilterSet):
@@ -442,6 +451,11 @@ class EjeViewSet(viewsets.ModelViewSet):
     serializer_class = EjeSerializer
     queryset = Eje.objects.all()
     filterset_class = EjeFilter
+
+class EjeOperacionViewSet(viewsets.ModelViewSet):
+    serializer_class = EjeOperacionSerializer
+    queryset = Eje.objects.all().order_by('diametro')
+    filterset_class = EjeOperacionFilter
 
 class BancadaViewSet(viewsets.ModelViewSet):
     serializer_class = BancadaSerializer

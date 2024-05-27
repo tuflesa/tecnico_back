@@ -50,6 +50,12 @@ class OperacionSerializer(serializers.ModelSerializer):
         model = Operacion
         fields = ['id', 'nombre', 'seccion', 'icono', 'orden']
 
+class EjeOperacionSerializer(serializers.ModelSerializer):
+    operacion = OperacionSerializer(many=False)
+    class Meta:
+        model = Eje
+        fields = ['id', 'operacion', 'tipo', 'diametro', 'numero_ejes']
+
 class TipoRodilloSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tipo_rodillo

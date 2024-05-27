@@ -1,5 +1,5 @@
 from rest_framework import routers
-from .views import RodilloViewSet, PlanoNuevoViewSet, RevisionViewSet, SeccionViewSet, OperacionViewSet, TipoRodilloViewSet, MaterialViewSet, GrupoViewSet, TipoPlanoViewSet, Rodillo_listViewSet, Rodillo_editarViewSet, PlanoParametrosViewSet, Nombres_ParametrosViewSet, TipoSeccionViewSet, PlanoViewSet, RevisionConjuntosViewSet, Parametros_estandarViewSet, Plano_existenteViewSet, EjeViewSet, BancadaViewSet, ConjuntoViewSet, ElementoViewSet, Elemento_SelectViewSet, BancadaGruposViewSet, CeldaViewSet, Celda_SelectViewSet, Rodillo_existenteViewSet, Grupo_onlyViewSet, Operacion_CTViewSet, FormaViewSet, Celda_DuplicarViewSet, BancadaCTViewSet, Grupo_NuevoViewSet, BancadaMontajeViewSet, grupo_montajeViewSet, BancadaMontajeCTViewSet, MontajeViewSet, MontajeListadoViewSet, MontajeToolingViewSet, RodillosViewSet, Conjunto_OperacionViewSet, RevisionPlanosViewSet
+from .views import RodilloViewSet, PlanoNuevoViewSet, RevisionViewSet, SeccionViewSet, OperacionViewSet, TipoRodilloViewSet, MaterialViewSet, GrupoViewSet, TipoPlanoViewSet, Rodillo_listViewSet, Rodillo_editarViewSet, PlanoParametrosViewSet, Nombres_ParametrosViewSet, TipoSeccionViewSet, PlanoViewSet, RevisionConjuntosViewSet, Parametros_estandarViewSet, Plano_existenteViewSet, EjeViewSet, BancadaViewSet, ConjuntoViewSet, ElementoViewSet, Elemento_SelectViewSet, BancadaGruposViewSet, CeldaViewSet, Celda_SelectViewSet, Rodillo_existenteViewSet, Grupo_onlyViewSet, Operacion_CTViewSet, FormaViewSet, Celda_DuplicarViewSet, BancadaCTViewSet, Grupo_NuevoViewSet, BancadaMontajeViewSet, grupo_montajeViewSet, BancadaMontajeCTViewSet, MontajeViewSet, MontajeListadoViewSet, MontajeToolingViewSet, RodillosViewSet, Conjunto_OperacionViewSet, RevisionPlanosViewSet, EjeOperacionViewSet
 #direcciones de rodillos
 router = routers.DefaultRouter()
 
@@ -27,6 +27,7 @@ router.register('elemento_select', Elemento_SelectViewSet)
 router.register('bancada', BancadaViewSet)
 router.register('elemento', ElementoViewSet)
 router.register('conjunto', ConjuntoViewSet)
+router.register('eje_operacion', EjeOperacionViewSet)
 router.register('eje', EjeViewSet)
 router.register('planos_existentes', Plano_existenteViewSet)
 router.register('parametros_estandar', Parametros_estandarViewSet)
