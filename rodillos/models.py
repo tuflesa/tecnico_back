@@ -98,6 +98,7 @@ class Bancada(models.Model):
 class Conjunto(models.Model):
     operacion = models.ForeignKey(Operacion, on_delete=models.CASCADE, related_name='conjuntos')
     tubo_madre = models.FloatField(blank=True, null=True)
+    espesores = models.CharField(max_length=10, blank=True, null=True)
 
 # Son las celdas del Tooling Chart para las formaciones raras
 class Celda (models.Model):
@@ -112,6 +113,8 @@ class Grupo(models.Model):
     maquina = models.ForeignKey(Zona, on_delete=models.CASCADE)
     tubo_madre = models.FloatField(blank=True, null=True)
     bancadas = models.ManyToManyField(Bancada, blank=True, related_name='grupos')
+    espesor_1 = models.DecimalField(max_digits=5, decimal_places=2, default=0)
+    espesor_2 = models.DecimalField(max_digits=5, decimal_places=2, default=0)
 
     def __str__(self) -> str:
         return self.nombre
@@ -134,6 +137,9 @@ class Rodillo(models.Model):
     forma = models.ForeignKey(Forma, on_delete=models.CASCADE, null=True, blank=True)
     descripcion_perfil = models.CharField(max_length=50, null=True, blank=True)
     dimension_perfil = models.CharField(max_length=2, null=True, blank=True)
+    espesor_1 = models.DecimalField(max_digits=5, decimal_places=2, default=0)
+    espesor_2 = models.DecimalField(max_digits=5, decimal_places=2, default=0)
+    espesor = models.BooleanField(default=False)
 
     def __str__(self) -> str:
         return self.nombre

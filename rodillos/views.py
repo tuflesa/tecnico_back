@@ -193,12 +193,14 @@ class GrupoNuevoFilter(filters.FilterSet):
         model = Grupo
         fields = {
             'id': ['exact'],
-            'nombre': ['icontains'],
+            'nombre': ['exact'],
             'maquina': ['exact'],
             'tubo_madre': ['exact'],
             'maquina__siglas': ['exact'],
             'maquina__id':['exact'],
             'maquina__empresa': ['exact'],
+            'espesor_1': ['exact'],
+            'espesor_2': ['exact'],
         }
 
 class ElementoFilter(filters.FilterSet):
