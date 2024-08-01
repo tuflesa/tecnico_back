@@ -95,6 +95,8 @@ class Pedido(models.Model):
     observaciones = models.CharField(max_length=500, null=True, blank=True)
     observaciones2 = models.CharField(max_length=500, null=True, blank=True)
     descripcion = models.CharField(max_length=300, null=True, blank=True)
+    intervencion = models.BooleanField(default=False)
+    revisado = models.BooleanField(default=False)
 
     def save(self, *args, **kwargs):
         # Generar nuevo número si el campo numero es None (null)
