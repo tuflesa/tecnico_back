@@ -28,5 +28,7 @@ urlpatterns = [
     path('api/velocidad/', include('velocidad.urls')),
     path('api/repuestos/', include('repuestos.urls')),
     path('api/mantenimiento/', include('mantenimiento.urls')),
+    path('api/rodillos/', include('rodillos.urls')),
+    path('api/qs/', include('qs.urls')),
     path('auth/', CustomAuthToken.as_view())
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

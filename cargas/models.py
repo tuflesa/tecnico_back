@@ -1,6 +1,7 @@
 from django.db import models
 from django.db.models.fields import CharField
 from django.utils import timezone
+from datetime import date
 from estructura.models import Empresa
 
 class Agencia(models.Model):
@@ -32,3 +33,11 @@ class Carga(models.Model):
     destino = models.CharField(max_length=50, null=True, blank=True)
     bruto = models.IntegerField(null=True, blank=True)
     fecha_salida = models.DateTimeField(null=True, blank=True)
+    puerta = models.IntegerField(null=True, blank=True)
+    observaciones = models.CharField(max_length=200, null=True, blank=True)
+
+class Llamada(models.Model):
+    carga = models.ForeignKey(Carga, on_delete=models.CASCADE)
+    fecha = models.DateField(default=date.today)
+    hora = models.TimeField(auto_now_add=True)
+    puerta = models.IntegerField()

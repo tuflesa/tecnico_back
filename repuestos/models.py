@@ -10,6 +10,12 @@ class Proveedor(models.Model):
     nombre = models.CharField(max_length=100)
     telefono = models.CharField(max_length=30, blank=True, null=True)
     direccion = models.TextField(max_length=250, blank=True, null=True)
+    poblacion = models.TextField(max_length=75, blank=True, null=True)
+    condicion_pago = models.CharField(max_length=50, blank=True, null=True)
+    condicion_entrega = models.CharField(max_length=50, blank=True, null=True)
+    cif = models.CharField(max_length=12, blank=True, null=True)
+    pais = models.TextField(max_length=75, default='España')
+    cod_ekon = models.TextField(max_length=8, blank=True, null=True)
 
     def __str__(self):
         return self.nombre
@@ -49,7 +55,7 @@ class Repuesto(models.Model):
     equipos = models.ManyToManyField(Equipo, related_name='repuestos')
     proveedores = models.ManyToManyField(Proveedor, blank=True, related_name='repuestos')
     descatalogado = models.BooleanField(default=False)
-    observaciones = models.CharField(max_length=80, null=True, blank=True)
+    observaciones = models.CharField(max_length=300, null=True, blank=True)
     nombre_comun = models.CharField(max_length = 100, null=True, blank=True)
 
     #def stock(self):
@@ -86,9 +92,9 @@ class Pedido(models.Model):
     creado_por = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     direccion_envio = models.ForeignKey(Direcciones, on_delete= models.SET_NULL, null= True, blank= True)
     contacto = models.ForeignKey(Contacto, on_delete=models.SET_NULL, null= True, blank=True)
-    observaciones = models.CharField(max_length=80, null=True, blank=True)
-    observaciones2 = models.CharField(max_length=80, null=True, blank=True)
-    descripcion = models.CharField(max_length=80, null=True, blank=True)
+    observaciones = models.CharField(max_length=500, null=True, blank=True)
+    observaciones2 = models.CharField(max_length=500, null=True, blank=True)
+    descripcion = models.CharField(max_length=300, null=True, blank=True)
 
     def save(self, *args, **kwargs):
         # Generar nuevo número si el campo numero es None (null)
@@ -123,6 +129,8 @@ class Pedido(models.Model):
 class LineaPedido(models.Model):
     pedido = models.ForeignKey(Pedido, on_delete=models.CASCADE, related_name='lineas_pedido')
     repuesto = models.ForeignKey(Repuesto, on_delete=models.CASCADE)
+    descripcion_proveedor = models.CharField(max_length = 150, blank= True, null=True)
+    modelo_proveedor = models.CharField(max_length=90, null=True, blank=True)
     cantidad = models.IntegerField(default=0)
     precio = models.DecimalField(max_digits=8, decimal_places=2, blank=True, null=True)
     por_recibir = models.IntegerField(default=0)
@@ -168,7 +176,7 @@ class Almacen(models.Model):
 class StockMinimo(models.Model):
     repuesto = models.ForeignKey(Repuesto, on_delete=models.CASCADE, related_name='stocks_minimos')
     almacen = models.ForeignKey(Almacen, on_delete=models.CASCADE, related_name='stocks_minimos')
-    cantidad = models.IntegerField(default=0)
+    cantidad = models.IntegerField(default=0) #cantidad mínima, stock mínimo del repuesto
     localizacion = models.CharField(max_length=50, null=True, blank=True)
     stock_act = models.IntegerField(default=0)
 
@@ -242,7 +250,10 @@ class Foto(models.Model):
     repuesto = models.ForeignKey(Repuesto, on_delete=models.CASCADE)
 
 class PrecioRepuesto(models.Model):
-    repuesto = models.ForeignKey(Repuesto, on_delete=models.CASCADE)
-    proveedor = models.ForeignKey(Proveedor, blank=True, null=True, on_delete=models.CASCADE)
-    precio = models.DecimalField(max_digits=8, decimal_places=2, blank=True, null=True)
-    descuento = models.DecimalField(max_digits=4, decimal_places=2, blank= True, null=True)
+    repuesto = models.ForeignKey(Repuesto, on_delete=models.CASCADE, related_name='precios')
+    proveedor = models.ForeignKey(Proveedor, null=True, on_delete=models.CASCADE)
+    precio = models.DecimalField(max_digits=13, decimal_places=4, blank=True, null=True)
+    descuento = models.DecimalField(max_digits=5, decimal_places=2, blank= True, null=True)
+    descripcion_proveedor = models.CharField(max_length = 150, blank= True, null=True)
+    modelo_proveedor = models.CharField(max_length=90, null=True, blank=True)
+    fabricante = models.CharField(max_length=50, null=True, blank=True)

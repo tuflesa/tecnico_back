@@ -1,9 +1,10 @@
 # from asyncio.windows_events import NULL
 from rest_framework import viewsets
-from mantenimiento.models import Notificacion, ParteTrabajo, Tarea, Especialidad, TipoPeriodo, TipoTarea, LineaParteTrabajo, EstadoLineasTareas, TrabajadoresLineaParte
-from mantenimiento.serializers import LineasDeUnTrabajadorSerializer, PartesFiltradosSerializer, ParteTrabajoEditarSerializer, NotificacionSerializer, NotificacionNuevaSerializer, TareaSerializer, EspecialidadSerializer, TipoTareaSerializer, TipoPeriodoSerializer, TareaNuevaSerializer, ParteTrabajoSerializer, ParteTrabajoDetalleSerializer, LineaParteTrabajoSerializer, LineaParteTrabajoNuevaSerializer, LineaParteTrabajoMovSerializer, ListadoLineasPartesSerializer, EstadoLineasTareasSerializer, TrabajadoresLineaParteSerializer, ListadoLineasActivasSerializer, TrabajadoresEnLineaSerializer
+from mantenimiento.models import Notificacion, ParteTrabajo, Tarea, Especialidad, TipoPeriodo, TipoTarea, LineaParteTrabajo, EstadoLineasTareas, TrabajadoresLineaParte, Reclamo
+from mantenimiento.serializers import LineasDeUnTrabajadorSerializer, PartesFiltradosSerializer, ParteTrabajoEditarSerializer, NotificacionSerializer, NotificacionNuevaSerializer, TareaSerializer, EspecialidadSerializer, TipoTareaSerializer, TipoPeriodoSerializer, TareaNuevaSerializer, ParteTrabajoSerializer, ParteTrabajoDetalleSerializer, LineaParteTrabajoSerializer, LineaParteTrabajoNuevaSerializer, LineaParteTrabajoMovSerializer, ListadoLineasPartesSerializer, EstadoLineasTareasSerializer, TrabajadoresLineaParteSerializer, ListadoLineasActivasSerializer, TrabajadoresEnLineaSerializer,  ReclamoDetalleSerializer, ReclamoSerializer
 from django_filters import rest_framework as filters
 from django.db.models import Count, F, Value
+from rest_framework.pagination import PageNumberPagination
 
 class NotificacionFilter(filters.FilterSet):
     class Meta:
@@ -16,6 +17,9 @@ class NotificacionFilter(filters.FilterSet):
             'finalizado': ['exact'],
             'quien' :['exact'],
             'fecha_creacion' : ['lte', 'gte'], 
+            'zona__id' : ['exact'],
+            'numero' : ['icontains'],
+            'zona__nombre':['exact'],
         }
 class TareaFilter(filters.FilterSet):
     class Meta:
@@ -110,11 +114,34 @@ class TrabajadoresLineaParteFilter(filters.FilterSet):
             'linea': ['exact'],
             'fecha_inicio': ['lte', 'gte'],
             'fecha_fin': ['lte', 'gte'],
+            'linea__parte__empresa': ['exact'],
+            'linea__estado':['exact'],
         }
+
+class ReclamoFilter(filters.FilterSet):
+    class Meta:
+        model = Reclamo
+        fields = {
+            'notificacion': ['exact'],
+            'trabajador': ['exact'],
+            'fecha': ['lte', 'gte'],
+        }
+
+class StandardResultsSetPagination(PageNumberPagination):
+    page_size = 20
+    page_size_query_param = 'page_size'
+    paginator=1
+    max_page_size = 1000 
 
 class NotificacionViewSet(viewsets.ModelViewSet):
     serializer_class = NotificacionSerializer
-    queryset = Notificacion.objects.all()
+    queryset = Notificacion.objects.all().order_by('-id')
+    filterset_class = NotificacionFilter
+    pagination_class = StandardResultsSetPagination
+
+class Notificacion_sinpaginarViewSet(viewsets.ModelViewSet):
+    serializer_class = NotificacionSerializer
+    queryset = Notificacion.objects.all().order_by('-id')
     filterset_class = NotificacionFilter
 
 class NotificacionNuevaViewSet(viewsets.ModelViewSet):
@@ -148,7 +175,7 @@ class TareaNuevaViewSet(viewsets.ModelViewSet):
 
 class TipoTareaViewSet(viewsets.ModelViewSet):
     serializer_class = TipoTareaSerializer
-    queryset = TipoTarea.objects.all()
+    queryset = TipoTarea.objects.all().order_by('nombre')
 class LineaParteTrabajoViewSet(viewsets.ModelViewSet):
     serializer_class = LineaParteTrabajoSerializer
     queryset = LineaParteTrabajo.objects.all()
@@ -166,13 +193,21 @@ class LineaParteTrabajoNuevaViewSet(viewsets.ModelViewSet):
 
 class ListadoLineaParteViewSet(viewsets.ModelViewSet):
     serializer_class = ListadoLineasPartesSerializer
-    queryset = LineaParteTrabajo.objects.all()
+    queryset = LineaParteTrabajo.objects.all().order_by('-tarea__prioridad')
     filterset_class = LineasFilter
+    pagination_class = StandardResultsSetPagination
 
 #excluimos de la busqueda aquellas con estado 3 = finalizadas y 4 = pendientes
 class ListadoLineaActivasViewSet(viewsets.ModelViewSet):
     serializer_class = ListadoLineasActivasSerializer
-    queryset = LineaParteTrabajo.objects.all().exclude(estado=3).exclude(estado=4)
+    queryset = LineaParteTrabajo.objects.exclude(estado=3).exclude(estado=4).order_by('-tarea__prioridad')
+    filterset_class = LineasFilter
+    pagination_class = StandardResultsSetPagination
+
+#excluimos de la busqueda aquellas con estado 3 = finalizadas y 4 = pendientes
+class ListadoLineaActivasSinPaginarViewSet(viewsets.ModelViewSet):
+    serializer_class = ListadoLineasActivasSerializer
+    queryset = LineaParteTrabajo.objects.exclude(estado=3).exclude(estado=4).order_by('-tarea__prioridad')
     filterset_class = LineasFilter
 
 class ParteTrabajoViewSet(viewsets.ModelViewSet):
@@ -183,8 +218,16 @@ class ParteTrabajoViewSet(viewsets.ModelViewSet):
 
 class ParteTrabajoDetalleViewSet(viewsets.ModelViewSet):
     serializer_class = ParteTrabajoDetalleSerializer
-    queryset = ParteTrabajo.objects.all()
+    queryset = ParteTrabajo.objects.all().order_by('id')
     filterset_class = PartesFilter
+    pagination_class = StandardResultsSetPagination
+    
+#excluimos de la busqueda aquellas con estado 3 = finalizadas y 4 = pendientes
+class ParteActivosTrabajoViewSet(viewsets.ModelViewSet):
+    serializer_class = ParteTrabajoDetalleSerializer
+    queryset = ParteTrabajo.objects.exclude(estado=3).exclude(estado=4).order_by('-id')
+    filterset_class = PartesFilter
+    pagination_class = StandardResultsSetPagination
 
 class PartesFiltradosViewSet(viewsets.ModelViewSet):
     serializer_class = PartesFiltradosSerializer
@@ -213,5 +256,16 @@ class TrabajadoresEnLineaViewSet(viewsets.ModelViewSet):
 
 class LineasdeunTrabajadorViewSet(viewsets.ModelViewSet):
     serializer_class = LineasDeUnTrabajadorSerializer
-    queryset = TrabajadoresLineaParte.objects.all()
+    queryset = TrabajadoresLineaParte.objects.all().order_by('-linea__parte')
     filterset_class = TrabajadoresLineaParteFilter
+    pagination_class = StandardResultsSetPagination
+
+class ReclamoDetalleViewSet(viewsets.ModelViewSet):
+    serializer_class = ReclamoDetalleSerializer
+    queryset = Reclamo.objects.all()
+    filterset_class = ReclamoFilter
+
+class ReclamoViewSet(viewsets.ModelViewSet):
+    serializer_class = ReclamoSerializer
+    queryset = Reclamo.objects.all()
+    filterset_class = ReclamoFilter

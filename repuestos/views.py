@@ -3,9 +3,11 @@ from rest_framework import viewsets
 from rest_framework import serializers
 from django.db.models import F
 from rest_framework.serializers import Serializer
-from .serializers import RepuestoConPrecioSerializer, PrecioRepuestoSerializer, MovimientoTrazabilidadSerializer, LineaPedidoPendSerilizer, EntregaSerializer, LineasAdicionalesSerilizer, MovimientoDetailSerializer, SalidasSerializer, StockMinimoDetailSerializer, PedidoSerilizer, LineaPedidoSerilizer, PedidoListSerilizer, PedidoDetailSerilizer, ProveedorDetailSerializer, AlmacenSerilizer, ContactoSerializer, InventarioSerializer, MovimientoSerializer, ProveedorSerializer, RepuestoListSerializer, RepuestoDetailSerializer, StockMinimoDetailSerializer, StockMinimoSerializer, LineaInventarioSerializer, TipoRepuestoSerilizer, TipoUnidadSerilizer, LineaSalidaSerializer
+from .serializers import LineaPedidoDetailSerilizer, LineasAdicionalesDetalleSerilizer, RepuestoConPrecioSerializer, PrecioRepuestoSerializer, MovimientoTrazabilidadSerializer, LineaPedidoPendSerilizer, EntregaSerializer, LineasAdicionalesSerilizer, MovimientoDetailSerializer, SalidasSerializer, StockMinimoDetailSerializer, PedidoSerilizer, LineaPedidoSerilizer, PedidoListSerilizer, PedidoDetailSerilizer, ProveedorDetailSerializer, AlmacenSerilizer, ContactoSerializer, InventarioSerializer, MovimientoSerializer, ProveedorSerializer, RepuestoListSerializer, RepuestoDetailSerializer, StockMinimoDetailSerializer, StockMinimoSerializer, LineaInventarioSerializer, TipoRepuestoSerilizer, TipoUnidadSerilizer, LineaSalidaSerializer
 from .models import PrecioRepuesto, Almacen, Entrega, Inventario, Contacto, LineaAdicional, LineaInventario, LineaPedido, Movimiento, Pedido, Proveedor, Repuesto, StockMinimo, TipoRepuesto, TipoUnidad, Salida, LineaSalida
 from django_filters import filterset, rest_framework as filters
+from rest_framework.pagination import PageNumberPagination
+
 
 class AlmacenFilter(filters.FilterSet):
     class Meta:
@@ -19,7 +21,8 @@ class ProveedorFilter(filters.FilterSet):
     class Meta:
         model = Proveedor
         fields = {
-            'nombre': ['icontains']
+            'nombre': ['icontains'],
+            'pais':['exact'],
         }
 
 class MovimientoFilter(filters.FilterSet):
@@ -61,8 +64,10 @@ class RepuestoListFilter(filters.FilterSet):
             'id': ['exact'],
             'nombre': ['icontains'],
             'tipo_repuesto': ['exact'],
-            'fabricante': ['icontains'],
-            'modelo': ['icontains'],
+            'precios__fabricante': ['icontains'],
+            'precios__modelo_proveedor': ['icontains'],
+            'precios__proveedor':['exact'], 
+            'precios__descripcion_proveedor':['icontains'],
             'es_critico': ['exact'],
             'descatalogado': ['exact'],
             'equipos__seccion__zona__empresa__id' : ['exact'],
@@ -82,7 +87,7 @@ class PedidoListFilter(filters.FilterSet):
             'fecha_creacion': ['lte', 'gte'],
             'fecha_prevista_entrega': ['lte', 'gte'],
             'finalizado': ['exact'],
-            'empresa': ['exact'],
+            'empresa__id': ['exact'],
             'numero': ['icontains'],
             'lineas_pedido':['exact'],
             'lineas_pedido__cantidad':['exact'],
@@ -98,12 +103,30 @@ class LineaPedidoFilter(filters.FilterSet):
             'cantidad': ['exact'],
             'pedido__finalizado': ['exact'],
             'pedido__numero': ['exact'],
+            'pedido__numero': ['icontains'],
             'pedido__empresa': ['exact'],
             'pedido__creado_por': ['exact'],
             'repuesto': ['exact'],
             'pedido__proveedor': ['exact'],
             'pedido__fecha_prevista_entrega': ['exact'],
             'pedido__empresa__id': ['exact'],
+            'descripcion_proveedor': ['icontains'],
+        }
+
+class LineaAdicionalFilter(filters.FilterSet):
+    class Meta:
+        model = LineaAdicional
+        fields = {
+            'por_recibir': ['exact'],
+            'cantidad': ['exact'],
+            'pedido__finalizado': ['exact'],
+            'pedido__numero': ['icontains'],
+            'pedido__empresa__id': ['exact'],
+            'precio': ['exact'],
+            'descuento': ['exact'],
+            'total': ['exact'],
+            'descripcion': ['icontains'],
+            'pedido__proveedor__nombre':['icontains'],
         }
 
 class StockMinimoFilter(filters.FilterSet):
@@ -113,6 +136,7 @@ class StockMinimoFilter(filters.FilterSet):
             'almacen__empresa__id':['exact'],
             'repuesto':['exact'],
             'repuesto__id': ['exact'],
+            'repuesto__nombre' : ['exact'],
             'almacen__nombre': ['exact'],
             'almacen__id': ['exact'],
             'almacen': ['exact'],
@@ -124,7 +148,7 @@ class StockMinimoFilter(filters.FilterSet):
             'repuesto__fabricante' : ['icontains'],
             'almacen__nombre' : ['icontains'],
             'repuesto__nombre_comun' : ['icontains'],
-            'repuesto__nombre' : ['exact'],
+            'almacen__empresa':['exact'],
         }
 
 class ContactosFilter(filters.FilterSet):
@@ -140,11 +164,31 @@ class PrecioRepuestoFilter(filters.FilterSet):
         fields = {
             'proveedor': ['exact'],
             'repuesto':['exact'],
+            'proveedor__nombre':['exact'],
             'proveedor__nombre':['icontains'],
             'repuesto__nombre':['icontains'],
             'proveedor__id':['exact'],
             'repuesto__id':['exact'],
+            'repuesto__modelo':['icontains'],
+            'descripcion_proveedor': ['icontains'],
+            'modelo_proveedor': ['icontains'],
+            'repuesto__descatalogado':['exact'],
+            'repuesto__tipo_repuesto': ['exact'],
+            'repuesto__fabricante': ['icontains'],
+            'repuesto__es_critico': ['exact'],
+            'repuesto__equipos__seccion__zona__empresa__id' : ['exact'],
+            'repuesto__equipos__seccion__zona__id': ['exact'],
+            'repuesto__equipos__seccion__id': ['exact'],
+            'repuesto__equipos__id': ['exact'],
+            'repuesto__proveedores__id':['exact'],
+            'repuesto__nombre_comun':['icontains'],
         }
+
+class StandardResultsSetPagination(PageNumberPagination):
+    page_size = 20
+    page_size_query_param = 'page_size'
+    paginator=1
+    max_page_size = 1000 
 
 class TipoRepuestoViewSet(viewsets.ModelViewSet):
     serializer_class = TipoRepuestoSerilizer
@@ -156,14 +200,21 @@ class TipoUnidadViewSet(viewsets.ModelViewSet):
 
 class RepuestoListViewSet(viewsets.ModelViewSet):
     serializer_class = RepuestoListSerializer
-    queryset = Repuesto.objects.all().distinct()
+    queryset = Repuesto.objects.all().order_by('nombre').distinct()
+    filterset_class = RepuestoListFilter
+    pagination_class = StandardResultsSetPagination
+
+class RepuestoListSinPaginarViewSet(viewsets.ModelViewSet):
+    serializer_class = RepuestoListSerializer
+    queryset = Repuesto.objects.all().order_by('nombre')
     filterset_class = RepuestoListFilter
 
 class RepuestoDetailViewSet(viewsets.ModelViewSet):
     serializer_class = RepuestoDetailSerializer
-    queryset = Repuesto.objects.all()
+    queryset = Repuesto.objects.all().order_by('nombre')
     filterset_class = RepuestoListFilter
-
+    pagination_class = StandardResultsSetPagination
+  
 class StockMinimoViewSet(viewsets.ModelViewSet):
     serializer_class = StockMinimoSerializer
     queryset = StockMinimo.objects.all()
@@ -171,17 +222,18 @@ class StockMinimoViewSet(viewsets.ModelViewSet):
 
 class StockMinimoDetailViewSet(viewsets.ModelViewSet):
     serializer_class = StockMinimoDetailSerializer
-    queryset = StockMinimo.objects.all()
+    queryset = StockMinimo.objects.all().order_by('repuesto__nombre')
     filterset_class = StockMinimoFilter
 
 class ArticulosFueraStockViewSet(viewsets.ModelViewSet):
     serializer_class = StockMinimoDetailSerializer
-    queryset = StockMinimo.objects.filter(stock_act__lt=F('cantidad'))
+    queryset = StockMinimo.objects.filter(stock_act__lt=F('cantidad')).order_by('repuesto__nombre')
     filterset_class = StockMinimoFilter
+    pagination_class = StandardResultsSetPagination
 
 class AlmacenViewSet(viewsets.ModelViewSet):
     serializer_class = AlmacenSerilizer
-    queryset = Almacen.objects.all()
+    queryset = Almacen.objects.all().order_by('nombre')
     filterset_class = AlmacenFilter
 
 class InventarioViewSet(viewsets.ModelViewSet):
@@ -209,12 +261,12 @@ class MovimientoDetailViewSet(viewsets.ModelViewSet):
 
 class ProveedorViewSet(viewsets.ModelViewSet):
     serializer_class = ProveedorSerializer
-    queryset = Proveedor.objects.all()
+    queryset = Proveedor.objects.all().order_by('nombre')
     filterset_class = ProveedorFilter
 
 class ProveedorDetailViewSet(viewsets.ModelViewSet):
     serializer_class = ProveedorDetailSerializer
-    queryset = Proveedor.objects.all()
+    queryset = Proveedor.objects.all().order_by('nombre')
 
 class ContactoViewSet(viewsets.ModelViewSet):
     serializer_class = ContactoSerializer
@@ -223,31 +275,48 @@ class ContactoViewSet(viewsets.ModelViewSet):
 
 class PedidoListViewSet(viewsets.ModelViewSet):
     serializer_class = PedidoListSerilizer
-    queryset = Pedido.objects.all()
+    queryset = Pedido.objects.all().order_by('numero')
     filterset_class = PedidoListFilter
+
+class PedidoFueraFechaViewSet(viewsets.ModelViewSet):
+    serializer_class = PedidoListSerilizer
+    queryset = Pedido.objects.all().order_by('numero')
+    filterset_class = PedidoListFilter
+    pagination_class = StandardResultsSetPagination
 
 class PedidoDetailViewSet(viewsets.ModelViewSet):
     serializer_class = PedidoDetailSerilizer
-    queryset = Pedido.objects.all()
+    queryset = Pedido.objects.all().order_by('numero')
     filterset_class = PedidoListFilter
 
 class LineaPedidoViewSet(viewsets.ModelViewSet):
     serializer_class = LineaPedidoSerilizer
-    queryset = LineaPedido.objects.all()
+    queryset = LineaPedido.objects.all().order_by('id')
+    filterset_class = LineaPedidoFilter
+
+class LineaPedidoDetalleViewSet(viewsets.ModelViewSet):
+    serializer_class = LineaPedidoDetailSerilizer
+    queryset = LineaPedido.objects.all().order_by('id')
     filterset_class = LineaPedidoFilter
 
 class LineaPedidoPendViewSet(viewsets.ModelViewSet):
     serializer_class = LineaPedidoPendSerilizer
-    queryset = LineaPedido.objects.all()
+    queryset = LineaPedido.objects.all().order_by('id')
     filterset_class = LineaPedidoFilter
 
 class LineaAdicionalPedidoViewSet(viewsets.ModelViewSet):
     serializer_class = LineasAdicionalesSerilizer
-    queryset = LineaAdicional.objects.all()
+    queryset = LineaAdicional.objects.all().order_by('id')
+
+class LineaAdicionalDetalleViewSet(viewsets.ModelViewSet):
+    serializer_class = LineasAdicionalesDetalleSerilizer
+    queryset = LineaAdicional.objects.all().order_by('descripcion')
+    filterset_class = LineaAdicionalFilter
+    pagination_class = StandardResultsSetPagination
 
 class PedidoViewSet(viewsets.ModelViewSet):
     serializer_class = PedidoSerilizer
-    queryset = Pedido.objects.all()
+    queryset = Pedido.objects.all().order_by('numero')
 
 class SalidaVieSet(viewsets.ModelViewSet):
     serializer_class = SalidasSerializer
@@ -264,10 +333,16 @@ class MovimientoTrazabilidadViewSet(viewsets.ModelViewSet):
 
 class PrecioRepuestoViewSet(viewsets.ModelViewSet):
     serializer_class = PrecioRepuestoSerializer
-    queryset = PrecioRepuesto.objects.all()
+    queryset = PrecioRepuesto.objects.all().order_by('repuesto__nombre')
     filterset_class = PrecioRepuestoFilter
 
 class RepuestoConPrecioViewSet(viewsets.ModelViewSet):
     serializer_class = RepuestoConPrecioSerializer
-    queryset = PrecioRepuesto.objects.all()
+    queryset = PrecioRepuesto.objects.all().order_by('repuesto__nombre').distinct()
     filterset_class = PrecioRepuestoFilter
+
+class Filtro_RepuestoConPrecioViewSet(viewsets.ModelViewSet):
+    serializer_class = RepuestoConPrecioSerializer
+    queryset = PrecioRepuesto.objects.all().order_by('repuesto__nombre')
+    filterset_class = PrecioRepuestoFilter
+    pagination_class = StandardResultsSetPagination
