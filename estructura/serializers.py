@@ -10,7 +10,7 @@ class ZonaSerializer(serializers.ModelSerializer):
     # secciones = SeccionSerializer(many=True)
     class Meta:
         model = Zona
-        fields = ['id','nombre', 'siglas', 'empresa', 'empresa_id'] #, 'secciones']
+        fields = ['id','nombre', 'siglas', 'empresa', 'empresa_id', 'espesor_1', 'espesor_2'] #, 'secciones']
 
 class SeccionSerializer(serializers.ModelSerializer):
     # equipos = EquiposSerializer(many=True)
@@ -40,5 +40,5 @@ class ZonaSerializer_Rodillos(serializers.ModelSerializer): # Lo usamos en la ap
     empresa = EmpresaSerializer(many=False)
     class Meta:
         model = Zona
-        fields = ['id','nombre', 'siglas', 'empresa', 'empresa_id'] #, 'secciones']
+        fields = ['id','nombre', 'siglas', 'empresa', 'empresa_id', 'espesor_1', 'espesor_2'] #, 'secciones']
 
