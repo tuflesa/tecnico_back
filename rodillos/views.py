@@ -62,6 +62,7 @@ class RodillosFilter(filters.FilterSet):
             'operacion__id':['exact'],
             'grupo__id':['exact'],
             'nombre':['exact'],
+            'grupo__tubo_madre':['exact'],
         }
 
 class CeldaFilter(filters.FilterSet):
@@ -479,7 +480,7 @@ class BancadaCTViewSet(viewsets.ModelViewSet):
     pagination_class = StandardResultsSetPagination
 class BancadaGruposViewSet(viewsets.ModelViewSet):
     serializer_class = Bancada_GruposSerializer
-    queryset = Bancada.objects.all()
+    queryset = Bancada.objects.all().order_by('tubo_madre')
     filterset_class = BancadaGrupoFilter
 
 class BancadaMontajeCTViewSet(viewsets.ModelViewSet):
