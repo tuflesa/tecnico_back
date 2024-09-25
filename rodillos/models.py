@@ -187,7 +187,9 @@ class Revision(models.Model):
 class Instancia(models.Model):
     nombre = models.CharField(max_length=200)
     rodillo = models.ForeignKey(Rodillo, on_delete=models.CASCADE)
-    planos = models.ManyToManyField(Plano, related_name='instancias')
+    material = models.ForeignKey(Material, on_delete=models.CASCADE, blank=True, null=True)
+    especial = models.BooleanField(default=False, null=True, blank=True)
+    diametro = models.FloatField(null=True, blank=True)
 
 # Parámetros: Parametros de un rodillo según plano sin rectificar. Al crear una revisión de un plano, se deben actualizar.
 class Parametros(models.Model):

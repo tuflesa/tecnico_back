@@ -1,6 +1,6 @@
 from rest_framework import viewsets
-from rodillos.models import Rodillo, Tipo_rodillo, Seccion, Operacion, Eje, Plano, Revision, Material, Grupo, Tipo_Plano, Nombres_Parametros, Tipo_Seccion, Parametros_Estandar, Bancada, Conjunto, Elemento, Celda, Forma, Montaje, Icono
-from rodillos.serializers import RodilloSerializer, PlanoNuevoSerializer, RevisionSerializer, SeccionSerializer, OperacionSerializer, TipoRodilloSerializer, MaterialSerializer, GrupoSerializer, TipoPlanoSerializer, RodilloListSerializer, PlanoParametrosSerializer, Nombres_ParametrosSerializer, TipoSeccionSerializer, PlanoSerializer, RevisionConjuntosSerializer, Parametros_estandarSerializer, Plano_existenteSerializer, EjeSerializer, BancadaSerializer, ConjuntoSerializer, ElementoSerializer, Elemento_SelectSerializer, Bancada_GruposSerializer, Bancada_SelectSerializer, CeldaSerializer, Celda_SelectSerializer, Grupo_onlySerializer, FormaSerializer, Celda_DuplicarSerializer, Bancada_CTSerializer, MontajeSerializer, MontajeListadoSerializer, MontajeToolingSerializer, RodillosSerializer, Conjunto_OperacionSerializer, RevisionPlanosSerializer, IconoSerializer, EjeOperacionSerializer
+from rodillos.models import Rodillo, Tipo_rodillo, Seccion, Operacion, Eje, Plano, Revision, Material, Grupo, Tipo_Plano, Nombres_Parametros, Tipo_Seccion, Parametros_Estandar, Bancada, Conjunto, Elemento, Celda, Forma, Montaje, Icono, Instancia
+from rodillos.serializers import RodilloSerializer, PlanoNuevoSerializer, RevisionSerializer, SeccionSerializer, OperacionSerializer, TipoRodilloSerializer, MaterialSerializer, GrupoSerializer, TipoPlanoSerializer, RodilloListSerializer, PlanoParametrosSerializer, Nombres_ParametrosSerializer, TipoSeccionSerializer, PlanoSerializer, RevisionConjuntosSerializer, Parametros_estandarSerializer, Plano_existenteSerializer, EjeSerializer, BancadaSerializer, ConjuntoSerializer, ElementoSerializer, Elemento_SelectSerializer, Bancada_GruposSerializer, Bancada_SelectSerializer, CeldaSerializer, Celda_SelectSerializer, Grupo_onlySerializer, FormaSerializer, Celda_DuplicarSerializer, Bancada_CTSerializer, MontajeSerializer, MontajeListadoSerializer, MontajeToolingSerializer, RodillosSerializer, Conjunto_OperacionSerializer, RevisionPlanosSerializer, IconoSerializer, EjeOperacionSerializer, InstanciaSerializer, InstanciaListadoSerializer
 from django_filters import rest_framework as filters
 from rest_framework.pagination import PageNumberPagination
 from rest_framework import status
@@ -65,6 +65,19 @@ class RodillosFilter(filters.FilterSet):
             'grupo__tubo_madre':['exact'],
         }
 
+class InstanciaFilter(filters.FilterSet):
+    class Meta:
+        model = Instancia
+        fields = {
+            'rodillo':['exact'],
+        }
+
+class InstanciaListadoFilter(filters.FilterSet):
+    class Meta:
+        model = Instancia
+        fields = {
+            'rodillo__id':['exact'],
+        }
 class CeldaFilter(filters.FilterSet):
     class Meta:
         model = Celda
@@ -557,3 +570,13 @@ class MontajeToolingViewSet(viewsets.ModelViewSet):
 class IconoViewSet(viewsets.ModelViewSet):
     serializer_class = IconoSerializer
     queryset = Icono.objects.all()
+
+class InstanciaViewSet(viewsets.ModelViewSet):
+    serializer_class = InstanciaSerializer
+    queryset = Instancia.objects.all()
+    filterset_class = InstanciaFilter
+
+class InstanciaListadoViewSet(viewsets.ModelViewSet):
+    serializer_class = InstanciaListadoSerializer
+    queryset = Instancia.objects.all()
+    filterset_class = InstanciaListadoFilter

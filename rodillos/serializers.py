@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from estructura.serializers import ZonaSerializer_Rodillos
-from rodillos.models import Rodillo, Plano, Revision, Seccion, Operacion, Tipo_rodillo, Material, Grupo, Tipo_Plano, Nombres_Parametros, Tipo_Seccion, Parametros_Estandar, Eje, Bancada, Conjunto, Elemento, Celda, Forma, Montaje, Icono
+from rodillos.models import Rodillo, Plano, Revision, Seccion, Operacion, Tipo_rodillo, Material, Grupo, Tipo_Plano, Nombres_Parametros, Tipo_Seccion, Parametros_Estandar, Eje, Bancada, Conjunto, Elemento, Celda, Forma, Montaje, Icono, Instancia
 
 class RodilloSerializer(serializers.ModelSerializer):
     class Meta:
@@ -235,3 +235,14 @@ class MontajeToolingSerializer(serializers.ModelSerializer):
         model = Montaje
         fields = ['id', 'nombre', 'maquina', 'grupo', 'bancadas']
 
+class InstanciaSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Instancia
+        fields = ['id', 'nombre', 'rodillo', 'material', 'especial', 'diametro']
+
+class InstanciaListadoSerializer(serializers.ModelSerializer):
+    rodillo = RodilloSerializer(many=False)
+    material = MaterialSerializer(many=False)
+    class Meta:
+        model = Instancia
+        fields = ['id', 'nombre', 'rodillo', 'material', 'especial', 'diametro']
