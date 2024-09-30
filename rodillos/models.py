@@ -190,6 +190,8 @@ class Instancia(models.Model):
     material = models.ForeignKey(Material, on_delete=models.CASCADE, blank=True, null=True)
     especial = models.BooleanField(default=False, null=True, blank=True)
     diametro = models.FloatField(null=True, blank=True)
+    diametro_ext = models.FloatField(null=True, blank=True)
+    activa_qs = models.BooleanField(default=True, null=True, blank=True)
 
 # Parámetros: Parametros de un rodillo según plano sin rectificar. Al crear una revisión de un plano, se deben actualizar.
 class Parametros(models.Model):

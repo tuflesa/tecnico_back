@@ -238,11 +238,11 @@ class MontajeToolingSerializer(serializers.ModelSerializer):
 class InstanciaSerializer(serializers.ModelSerializer):
     class Meta:
         model = Instancia
-        fields = ['id', 'nombre', 'rodillo', 'material', 'especial', 'diametro']
+        fields = ['id', 'nombre', 'rodillo', 'material', 'especial', 'diametro', 'diametro_ext', 'activa_qs']
 
 class InstanciaListadoSerializer(serializers.ModelSerializer):
     rodillo = RodilloSerializer(many=False)
     material = MaterialSerializer(many=False)
     class Meta:
         model = Instancia
-        fields = ['id', 'nombre', 'rodillo', 'material', 'especial', 'diametro']
+        fields = ['id', 'nombre', 'rodillo', 'material', 'especial', 'diametro', 'diametro_ext', 'activa_qs']
