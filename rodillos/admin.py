@@ -12,7 +12,7 @@ class MaterialAdmin(admin.ModelAdmin):
 class OperacionAdmin(admin.ModelAdmin):
     search_fields=("seccion__maquina__siglas",)
     list_display=("id","nombre", "seccion",)
-    list_filter=("seccion__nombre",)
+    list_filter=("seccion__nombre","seccion__maquina__siglas",)
 
 class ParametrosAdmin(admin.ModelAdmin):
     search_fields=("revision__plano__nombre",)

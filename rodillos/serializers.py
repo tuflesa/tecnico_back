@@ -5,7 +5,7 @@ from rodillos.models import Rodillo, Plano, Revision, Seccion, Operacion, Tipo_r
 class RodilloSerializer(serializers.ModelSerializer):
     class Meta:
         model = Rodillo
-        fields = ['id', 'nombre', 'operacion', 'grupo', 'tipo', 'material', 'tipo_plano', 'diametro', 'forma', 'descripcion_perfil', 'dimension_perfil']
+        fields = ['id', 'nombre', 'operacion', 'grupo', 'tipo', 'tipo_plano', 'diametro', 'forma', 'descripcion_perfil', 'dimension_perfil']
 class PlanoNuevoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Plano
@@ -54,6 +54,12 @@ class TipoRodilloSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tipo_rodillo
         fields = ['id', 'nombre', 'siglas']
+class EjeOperacionSerializer(serializers.ModelSerializer):
+    operacion = OperacionSerializer(many=False)
+    tipo = TipoRodilloSerializer(many=False)
+    class Meta:
+        model = Eje
+        fields = ['id', 'operacion', 'tipo', 'diametro', 'numero_ejes']
 
 class MaterialSerializer(serializers.ModelSerializer):
     class Meta:
@@ -116,17 +122,16 @@ class PlanoParametrosSerializer(serializers.ModelSerializer):
 class RodilloListSerializer(serializers.ModelSerializer):
     operacion = OperacionSerializer(many=False, read_only=False)
     tipo = TipoRodilloSerializer(many=False)
-    material = MaterialSerializer(many=False)
     grupo = GrupoSerializer(many=False)
     class Meta:
         model = Rodillo
-        fields = ['id', 'nombre', 'operacion', 'grupo', 'tipo', 'material', 'tipo_plano', 'diametro', 'forma', 'descripcion_perfil', 'dimension_perfil']
+        fields = ['id', 'nombre', 'operacion', 'grupo', 'tipo', 'tipo_plano', 'diametro', 'forma', 'descripcion_perfil', 'dimension_perfil']
 
 class RodillosSerializer(serializers.ModelSerializer):
     grupo = GrupoSerializer(many=False)
     class Meta:
         model = Rodillo
-        fields = ['id', 'nombre', 'operacion', 'grupo', 'tipo', 'material', 'tipo_plano', 'diametro', 'forma', 'descripcion_perfil', 'dimension_perfil']
+        fields = ['id', 'nombre', 'operacion', 'grupo', 'tipo', 'tipo_plano', 'diametro', 'forma', 'descripcion_perfil', 'dimension_perfil']
 
 class TipoSeccionSerializer(serializers.ModelSerializer):
     class Meta:
