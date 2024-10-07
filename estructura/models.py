@@ -27,6 +27,8 @@ class Zona(models.Model): # máquinas
     siglas = models.CharField(max_length=10, null=True)
     empresa = models.ForeignKey(Empresa, on_delete=models.CASCADE, related_name='zonas')
     es_maquina_tubo = models.BooleanField(default=True)
+    espesor_1 = models.DecimalField(max_digits=5, decimal_places=2, default=0)
+    espesor_2 = models.DecimalField(max_digits=5, decimal_places=2, default=0)
 
     def __str__(self):
         return self.empresa.siglas + '-' + self.nombre

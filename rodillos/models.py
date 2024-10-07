@@ -87,6 +87,7 @@ class Bancada(models.Model):
     seccion = models.ForeignKey(Seccion, on_delete=models.CASCADE)
     tubo_madre = models.FloatField(blank=True, null=True)
     dimensiones = models.CharField(max_length=20, blank=True, null=True) # para las dimesiones de una bancada de C.T.
+    espesores = models.CharField(max_length=10, default='0÷0')
 
     def nombre(self):
         if self.tubo_madre is not None:
@@ -98,6 +99,7 @@ class Bancada(models.Model):
 class Conjunto(models.Model):
     operacion = models.ForeignKey(Operacion, on_delete=models.CASCADE, related_name='conjuntos')
     tubo_madre = models.FloatField(blank=True, null=True)
+    espesores = models.CharField(max_length=10, blank=True, null=True)
 
 # Son las celdas del Tooling Chart para las formaciones raras
 class Celda (models.Model):
@@ -112,6 +114,8 @@ class Grupo(models.Model):
     maquina = models.ForeignKey(Zona, on_delete=models.CASCADE)
     tubo_madre = models.FloatField(blank=True, null=True)
     bancadas = models.ManyToManyField(Bancada, blank=True, related_name='grupos')
+    espesor_1 = models.DecimalField(max_digits=5, decimal_places=2, default=0)
+    espesor_2 = models.DecimalField(max_digits=5, decimal_places=2, default=0)
 
     def __str__(self) -> str:
         return self.nombre
@@ -134,6 +138,10 @@ class Rodillo(models.Model):
     forma = models.ForeignKey(Forma, on_delete=models.CASCADE, null=True, blank=True)
     descripcion_perfil = models.CharField(max_length=50, null=True, blank=True)
     dimension_perfil = models.CharField(max_length=2, null=True, blank=True)
+    espesor_1 = models.DecimalField(max_digits=5, decimal_places=2, default=0)
+    espesor_2 = models.DecimalField(max_digits=5, decimal_places=2, default=0)
+    espesor = models.BooleanField(default=False)
+    num_instancias = models.IntegerField(default=0,blank=True, null=True)
 
     def __str__(self) -> str:
         return self.nombre
@@ -180,7 +188,12 @@ class Revision(models.Model):
 class Instancia(models.Model):
     nombre = models.CharField(max_length=200)
     rodillo = models.ForeignKey(Rodillo, on_delete=models.CASCADE)
-    planos = models.ManyToManyField(Plano, related_name='instancias')
+    material = models.ForeignKey(Material, on_delete=models.CASCADE, blank=True, null=True)
+    especial = models.BooleanField(default=False, null=True, blank=True)
+    diametro = models.FloatField(null=True, blank=True)
+    diametro_ext = models.FloatField(null=True, blank=True)
+    activa_qs = models.BooleanField(default=True, null=True, blank=True)
+    obsoleta = models.BooleanField(default=False, null=True, blank=True)
 
 # Parámetros: Parametros de un rodillo según plano sin rectificar. Al crear una revisión de un plano, se deben actualizar.
 class Parametros(models.Model):
