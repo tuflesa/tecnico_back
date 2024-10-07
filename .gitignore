@@ -3,4 +3,3 @@ venv
 media
 static
 *.pyc
-db.sqlite3
