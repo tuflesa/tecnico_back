@@ -141,6 +141,7 @@ class Rodillo(models.Model):
     espesor_1 = models.DecimalField(max_digits=5, decimal_places=2, default=0)
     espesor_2 = models.DecimalField(max_digits=5, decimal_places=2, default=0)
     espesor = models.BooleanField(default=False)
+    num_instancias = models.IntegerField(default=0,blank=True, null=True)
 
     def __str__(self) -> str:
         return self.nombre
@@ -192,6 +193,7 @@ class Instancia(models.Model):
     diametro = models.FloatField(null=True, blank=True)
     diametro_ext = models.FloatField(null=True, blank=True)
     activa_qs = models.BooleanField(default=True, null=True, blank=True)
+    obsoleta = models.BooleanField(default=False, null=True, blank=True)
 
 # Parámetros: Parametros de un rodillo según plano sin rectificar. Al crear una revisión de un plano, se deben actualizar.
 class Parametros(models.Model):

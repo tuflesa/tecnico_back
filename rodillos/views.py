@@ -77,6 +77,7 @@ class InstanciaListadoFilter(filters.FilterSet):
         model = Instancia
         fields = {
             'rodillo__id':['exact'],
+            'obsoleta':['exact'],
         }
 class CeldaFilter(filters.FilterSet):
     class Meta:
