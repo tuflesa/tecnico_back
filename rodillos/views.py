@@ -53,6 +53,7 @@ class RodilloFilter(filters.FilterSet):
             'tipo_plano':['exact'],
             'grupo':['exact'],
             'nombre':['icontains'],
+            'num_instancias':['exact'],
         }
 
 class RodillosFilter(filters.FilterSet):
