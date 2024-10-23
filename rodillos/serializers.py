@@ -1,11 +1,12 @@
 from rest_framework import serializers
 from estructura.serializers import ZonaSerializer_Rodillos
-from rodillos.models import Rodillo, Plano, Revision, Seccion, Operacion, Tipo_rodillo, Material, Grupo, Tipo_Plano, Nombres_Parametros, Tipo_Seccion, Parametros_Estandar, Eje, Bancada, Conjunto, Elemento, Celda, Forma, Montaje, Icono, Instancia
+from administracion.serializers import UserSerializer
+from rodillos.models import Rodillo, Plano, Revision, Seccion, Operacion, Tipo_rodillo, Material, Grupo, Tipo_Plano, Nombres_Parametros, Tipo_Seccion, Parametros_Estandar, Eje, Bancada, Conjunto, Elemento, Celda, Forma, Montaje, Icono, Instancia, Rectificacion
 
 class RodilloSerializer(serializers.ModelSerializer):
     class Meta:
         model = Rodillo
-        fields = ['id', 'nombre', 'operacion', 'grupo', 'tipo', 'tipo_plano', 'diametro', 'forma', 'descripcion_perfil', 'dimension_perfil', 'espesor_1', 'espesor_2', 'espesor', 'num_instancias']
+        fields = ['id', 'nombre', 'operacion', 'grupo', 'tipo', 'tipo_plano', 'diametro', 'forma', 'descripcion_perfil', 'dimension_perfil', 'espesor_1', 'espesor_2', 'espesor', 'num_instancias', 'num_ejes']
 class PlanoNuevoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Plano
@@ -125,13 +126,13 @@ class RodilloListSerializer(serializers.ModelSerializer):
     grupo = GrupoSerializer(many=False)
     class Meta:
         model = Rodillo
-        fields = ['id', 'nombre', 'operacion', 'grupo', 'tipo', 'tipo_plano', 'diametro', 'forma', 'descripcion_perfil', 'dimension_perfil', 'espesor_1', 'espesor_2', 'espesor', 'num_instancias']
+        fields = ['id', 'nombre', 'operacion', 'grupo', 'tipo', 'tipo_plano', 'diametro', 'forma', 'descripcion_perfil', 'dimension_perfil', 'espesor_1', 'espesor_2', 'espesor', 'num_instancias', 'num_ejes']
 
 class RodillosSerializer(serializers.ModelSerializer):
     grupo = GrupoSerializer(many=False)
     class Meta:
         model = Rodillo
-        fields = ['id', 'nombre', 'operacion', 'grupo', 'tipo', 'tipo_plano', 'diametro', 'forma', 'descripcion_perfil', 'dimension_perfil', 'espesor_1', 'espesor_2', 'espesor', 'num_instancias']
+        fields = ['id', 'nombre', 'operacion', 'grupo', 'tipo', 'tipo_plano', 'diametro', 'forma', 'descripcion_perfil', 'dimension_perfil', 'espesor_1', 'espesor_2', 'espesor', 'num_instancias', 'num_ejes']
 
 class TipoSeccionSerializer(serializers.ModelSerializer):
     class Meta:
@@ -238,11 +239,23 @@ class MontajeToolingSerializer(serializers.ModelSerializer):
 class InstanciaSerializer(serializers.ModelSerializer):
     class Meta:
         model = Instancia
-        fields = ['id', 'nombre', 'rodillo', 'material', 'especial', 'diametro', 'diametro_ext', 'activa_qs', 'obsoleta']
+        fields = ['id', 'nombre', 'rodillo', 'material', 'especial', 'diametro', 'diametro_ext', 'activa_qs', 'obsoleta', 'ancho']
 
 class InstanciaListadoSerializer(serializers.ModelSerializer):
-    rodillo = RodilloSerializer(many=False)
+    rodillo = RodilloListSerializer(many=False)
     material = MaterialSerializer(many=False)
     class Meta:
         model = Instancia
-        fields = ['id', 'nombre', 'rodillo', 'material', 'especial', 'diametro', 'diametro_ext', 'activa_qs', 'obsoleta']
+        fields = ['id', 'nombre', 'rodillo', 'material', 'especial', 'diametro', 'diametro_ext', 'activa_qs', 'obsoleta', 'ancho']
+
+class RectificacionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Rectificacion
+        fields = ['id', 'numero', 'creado_por', 'fecha', 'empresa', 'maquina']
+
+class RectificacionListaSerializer(serializers.ModelSerializer):
+    maquina = ZonaSerializer_Rodillos(many=False, read_only=False)
+    creado_por = UserSerializer(many=False, read_only=True)
+    class Meta:
+        model = Rectificacion
+        fields = ['id', 'numero', 'creado_por', 'fecha', 'empresa', 'maquina']

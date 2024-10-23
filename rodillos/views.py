@@ -1,11 +1,12 @@
 from rest_framework import viewsets
-from rodillos.models import Rodillo, Tipo_rodillo, Seccion, Operacion, Eje, Plano, Revision, Material, Grupo, Tipo_Plano, Nombres_Parametros, Tipo_Seccion, Parametros_Estandar, Bancada, Conjunto, Elemento, Celda, Forma, Montaje, Icono, Instancia
-from rodillos.serializers import RodilloSerializer, PlanoNuevoSerializer, RevisionSerializer, SeccionSerializer, OperacionSerializer, TipoRodilloSerializer, MaterialSerializer, GrupoSerializer, TipoPlanoSerializer, RodilloListSerializer, PlanoParametrosSerializer, Nombres_ParametrosSerializer, TipoSeccionSerializer, PlanoSerializer, RevisionConjuntosSerializer, Parametros_estandarSerializer, Plano_existenteSerializer, EjeSerializer, BancadaSerializer, ConjuntoSerializer, ElementoSerializer, Elemento_SelectSerializer, Bancada_GruposSerializer, Bancada_SelectSerializer, CeldaSerializer, Celda_SelectSerializer, Grupo_onlySerializer, FormaSerializer, Celda_DuplicarSerializer, Bancada_CTSerializer, MontajeSerializer, MontajeListadoSerializer, MontajeToolingSerializer, RodillosSerializer, Conjunto_OperacionSerializer, RevisionPlanosSerializer, IconoSerializer, EjeOperacionSerializer, InstanciaSerializer, InstanciaListadoSerializer
+from rodillos.models import Rodillo, Tipo_rodillo, Seccion, Operacion, Eje, Plano, Revision, Material, Grupo, Tipo_Plano, Nombres_Parametros, Tipo_Seccion, Parametros_Estandar, Bancada, Conjunto, Elemento, Celda, Forma, Montaje, Icono, Instancia, Rectificacion
+from rodillos.serializers import RodilloSerializer, PlanoNuevoSerializer, RevisionSerializer, SeccionSerializer, OperacionSerializer, TipoRodilloSerializer, MaterialSerializer, GrupoSerializer, TipoPlanoSerializer, RodilloListSerializer, PlanoParametrosSerializer, Nombres_ParametrosSerializer, TipoSeccionSerializer, PlanoSerializer, RevisionConjuntosSerializer, Parametros_estandarSerializer, Plano_existenteSerializer, EjeSerializer, BancadaSerializer, ConjuntoSerializer, ElementoSerializer, Elemento_SelectSerializer, Bancada_GruposSerializer, Bancada_SelectSerializer, CeldaSerializer, Celda_SelectSerializer, Grupo_onlySerializer, FormaSerializer, Celda_DuplicarSerializer, Bancada_CTSerializer, MontajeSerializer, MontajeListadoSerializer, MontajeToolingSerializer, RodillosSerializer, Conjunto_OperacionSerializer, RevisionPlanosSerializer, IconoSerializer, EjeOperacionSerializer, InstanciaSerializer, InstanciaListadoSerializer, RectificacionSerializer, RectificacionListaSerializer
 from django_filters import rest_framework as filters
 from rest_framework.pagination import PageNumberPagination
 from rest_framework import status
 from rest_framework.response import Response
-from django.db.models import Q
+from django.db.models import Q, Value, CharField
+from django.db.models.functions import Concat
 
 class StandardResultsSetPagination(PageNumberPagination):
     page_size = 20
@@ -13,6 +14,28 @@ class StandardResultsSetPagination(PageNumberPagination):
     paginator=1
     max_page_size = 1000 
 
+class RectificacionesListadoFilter(filters.FilterSet):
+    full_name = filters.CharFilter(method='filter_full_name')
+    class Meta:
+        model = Rectificacion
+        fields = {
+            'id': ['exact'],
+            'empresa': ['exact'],
+            'maquina__id': ['exact'],
+            'numero': ['icontains'],
+            'creado_por':['exact'],
+        }
+    def filter_full_name(self, queryset, name, value):
+        return queryset.annotate(
+            full_name=Concat('creado_por__first_name', Value(' '), 'creado_por__last_name', output_field=CharField())
+        ).filter(full_name__icontains=value)
+
+class RectificacionesFilter(filters.FilterSet):
+    class Meta:
+        model = Rectificacion
+        fields = {
+            'id': ['exact'],
+        }
 class ConjuntoFilter(filters.FilterSet):
     class Meta:
         model = Conjunto
@@ -79,6 +102,12 @@ class InstanciaListadoFilter(filters.FilterSet):
         fields = {
             'rodillo__id':['exact'],
             'obsoleta':['exact'],
+            'id':['exact'],
+            'rodillo__operacion__seccion__maquina__id':['exact'],
+            'rodillo__operacion__seccion__id':['exact'],
+            'nombre':['icontains'],
+            'rodillo__operacion__id':['exact'],
+
         }
 class CeldaFilter(filters.FilterSet):
     class Meta:
@@ -582,3 +611,14 @@ class InstanciaListadoViewSet(viewsets.ModelViewSet):
     serializer_class = InstanciaListadoSerializer
     queryset = Instancia.objects.all()
     filterset_class = InstanciaListadoFilter
+
+class RectificacionViewSet(viewsets.ModelViewSet):
+    serializer_class = RectificacionSerializer
+    queryset = Rectificacion.objects.all()
+    filterset_class = RectificacionesFilter
+
+class RectificacionListaViewSet(viewsets.ModelViewSet):
+    serializer_class = RectificacionListaSerializer
+    queryset = Rectificacion.objects.all()
+    filterset_class = RectificacionesListadoFilter
+    pagination_class = StandardResultsSetPagination

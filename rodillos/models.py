@@ -1,8 +1,10 @@
 from django.db import models
-from estructura.models import Zona
+from estructura.models import Zona, Empresa
 from django.utils import timezone
+from django.contrib.auth.models import User
 from django import forms
 import logging
+import datetime
 
 # Tipo de sección: Formadora, cuchillas, Soldadura, Calibradora, Cabeza de turco
 class Tipo_Seccion(models.Model):
@@ -142,6 +144,7 @@ class Rodillo(models.Model):
     espesor_2 = models.DecimalField(max_digits=5, decimal_places=2, default=0)
     espesor = models.BooleanField(default=False)
     num_instancias = models.IntegerField(default=0,blank=True, null=True)
+    num_ejes = models.IntegerField(default=1,blank=True, null=True)
 
     def __str__(self) -> str:
         return self.nombre
@@ -192,6 +195,7 @@ class Instancia(models.Model):
     especial = models.BooleanField(default=False, null=True, blank=True)
     diametro = models.FloatField(null=True, blank=True)
     diametro_ext = models.FloatField(null=True, blank=True)
+    ancho = models.FloatField(null=True, blank=True)
     activa_qs = models.BooleanField(default=True, null=True, blank=True)
     obsoleta = models.BooleanField(default=False, null=True, blank=True)
 
@@ -200,3 +204,40 @@ class Parametros(models.Model):
     nombre = models.CharField(max_length=50)
     valor = models.FloatField()
     revision = models.ForeignKey(Revision, on_delete=models.CASCADE)
+
+class ContadorRectificaciones(models.Model):
+    year = models.IntegerField()
+    empresa = models.ForeignKey(Empresa, on_delete=models.CASCADE)
+    contador = models.IntegerField(default=0)
+
+    def __str__(self):
+        return str(self.year) + '-' + str(self.contador)
+
+class Rectificacion(models.Model):
+    numero = models.CharField(max_length=20, null=True, blank=True, default=None)
+    creado_por = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    fecha = models.DateField(default=timezone.now)
+    empresa = models.ForeignKey(Empresa, on_delete=models.CASCADE)
+    maquina = models.ForeignKey(Zona, on_delete=models.CASCADE)
+    def save(self, *args, **kwargs):
+        # Generar nuevo número si el campo numero es None (null)
+        if self.numero is None:
+            currentDateTime = datetime.datetime.now()
+            date = currentDateTime.date()
+            year = date.strftime("%Y")
+
+            contador = ContadorRectificaciones.objects.filter(year=year, empresa=self.empresa)
+            if (len(contador)==0):
+                contador = ContadorRectificaciones(year=year, contador=0, empresa=self.empresa)
+                contador.save()
+                numero=1
+            else:
+                contador = ContadorRectificaciones.objects.get(year=year, empresa=self.empresa)
+                numero=contador.contador+1
+
+            contador.contador = numero
+            contador.save()
+
+            self.numero = self.empresa.siglas + '-' + year + '-' + str(numero).zfill(3)
+        # Llamar al metodo save por defecto de la clase
+        super(Rectificacion,self).save(*args, **kwargs)
