@@ -1,19 +1,53 @@
-from rest_framework import viewsets
-from rodillos.models import Rodillo, Tipo_rodillo, Seccion, Operacion, Eje, Plano, Revision, Material, Grupo, Tipo_Plano, Nombres_Parametros, Tipo_Seccion, Parametros_Estandar, Bancada, Conjunto, Elemento, Celda, Forma, Montaje, Icono, Instancia, Rectificacion
-from rodillos.serializers import RodilloSerializer, PlanoNuevoSerializer, RevisionSerializer, SeccionSerializer, OperacionSerializer, TipoRodilloSerializer, MaterialSerializer, GrupoSerializer, TipoPlanoSerializer, RodilloListSerializer, PlanoParametrosSerializer, Nombres_ParametrosSerializer, TipoSeccionSerializer, PlanoSerializer, RevisionConjuntosSerializer, Parametros_estandarSerializer, Plano_existenteSerializer, EjeSerializer, BancadaSerializer, ConjuntoSerializer, ElementoSerializer, Elemento_SelectSerializer, Bancada_GruposSerializer, Bancada_SelectSerializer, CeldaSerializer, Celda_SelectSerializer, Grupo_onlySerializer, FormaSerializer, Celda_DuplicarSerializer, Bancada_CTSerializer, MontajeSerializer, MontajeListadoSerializer, MontajeToolingSerializer, RodillosSerializer, Conjunto_OperacionSerializer, RevisionPlanosSerializer, IconoSerializer, EjeOperacionSerializer, InstanciaSerializer, InstanciaListadoSerializer, RectificacionSerializer, RectificacionListaSerializer
+from rest_framework import status, viewsets
+from rodillos.models import Rodillo, Tipo_rodillo, Seccion, Operacion, Eje, Plano, Revision, Material, Grupo, Tipo_Plano, Nombres_Parametros, Tipo_Seccion, Parametros_Estandar, Bancada, Conjunto, Elemento, Celda, Forma, Montaje, Icono, Instancia, Rectificacion, LineaRectificacion
+from rodillos.serializers import RodilloSerializer, PlanoNuevoSerializer, RevisionSerializer, SeccionSerializer, OperacionSerializer, TipoRodilloSerializer, MaterialSerializer, GrupoSerializer, TipoPlanoSerializer, RodilloListSerializer, PlanoParametrosSerializer, Nombres_ParametrosSerializer, TipoSeccionSerializer, PlanoSerializer, RevisionConjuntosSerializer, Parametros_estandarSerializer, Plano_existenteSerializer, EjeSerializer, BancadaSerializer, ConjuntoSerializer, ElementoSerializer, Elemento_SelectSerializer, Bancada_GruposSerializer, Bancada_SelectSerializer, CeldaSerializer, Celda_SelectSerializer, Grupo_onlySerializer, FormaSerializer, Celda_DuplicarSerializer, Bancada_CTSerializer, MontajeSerializer, MontajeListadoSerializer, MontajeToolingSerializer, RodillosSerializer, Conjunto_OperacionSerializer, RevisionPlanosSerializer, IconoSerializer, EjeOperacionSerializer, InstanciaSerializer, InstanciaListadoSerializer, RectificacionSerializer, RectificacionListaSerializer, LineaRectificacionSerializer, ListadoLineaRectificacionSerializer
 from django_filters import rest_framework as filters
 from rest_framework.pagination import PageNumberPagination
-from rest_framework import status
 from rest_framework.response import Response
 from django.db.models import Q, Value, CharField
 from django.db.models.functions import Concat
+from django.http import JsonResponse
+from rest_framework.decorators import action
+import subprocess
 
+class EliminarViewSet(viewsets.ViewSet):
+    @action(detail=False, methods=['post'], url_path='eliminar_archivos')
+    def eliminar_archivos(self, request):
+        try:
+            subprocess.run(
+                ['powershell', '-command', 'Remove-Item -Path "C:\\FTP\\*" -Recurse -Force'],
+                check=True
+            )
+            return Response({"message": "Contenido de C:\\FTP eliminado exitosamente."}, status=status.HTTP_200_OK)
+        except subprocess.CalledProcessError as e:
+            return Response({"error": f"Error al ejecutar el comando: {e}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
 class StandardResultsSetPagination(PageNumberPagination):
     page_size = 20
     page_size_query_param = 'page_size'
     paginator=1
     max_page_size = 1000 
 
+class ListadoLineaRectificacionFilter(filters.FilterSet):
+    full_name = filters.CharFilter(method='filter_full_name')
+    class Meta:
+        model = LineaRectificacion
+        fields = {
+            'rectificado': ['exact'],
+            'rectificado__id': ['exact'],
+            'instancia__id': ['exact'],
+            'instancia__rodillo__operacion__id':['exact'],
+            'instancia__rodillo__operacion__seccion__id':['exact'],
+            'instancia__rodillo__operacion__seccion__maquina__id':['exact'],
+            'instancia__rodillo__operacion__seccion__maquina__empresa__id':['exact'],
+            'instancia__nombre': ['icontains'],
+            'finalizado':['exact'],
+            'rectificado_por':['exact'],
+        }
+    def filter_full_name(self, queryset, name, value):
+        return queryset.annotate(
+            full_name=Concat('rectificado_por__first_name', Value(' '), 'rectificado_por__last_name', output_field=CharField())
+        ).filter(full_name__icontains=value)
 class RectificacionesListadoFilter(filters.FilterSet):
     full_name = filters.CharFilter(method='filter_full_name')
     class Meta:
@@ -24,6 +58,7 @@ class RectificacionesListadoFilter(filters.FilterSet):
             'maquina__id': ['exact'],
             'numero': ['icontains'],
             'creado_por':['exact'],
+            'finalizado' : ['exact'],
         }
     def filter_full_name(self, queryset, name, value):
         return queryset.annotate(
@@ -622,3 +657,12 @@ class RectificacionListaViewSet(viewsets.ModelViewSet):
     queryset = Rectificacion.objects.all()
     filterset_class = RectificacionesListadoFilter
     pagination_class = StandardResultsSetPagination
+
+class LineaRectificacionViewSet(viewsets.ModelViewSet):
+    serializer_class = LineaRectificacionSerializer
+    queryset = LineaRectificacion.objects.all()
+
+class ListadoLineaRectificacionViewSet(viewsets.ModelViewSet):
+    serializer_class = ListadoLineaRectificacionSerializer
+    queryset = LineaRectificacion.objects.all().order_by('fecha','id')
+    filterset_class = ListadoLineaRectificacionFilter

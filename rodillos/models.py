@@ -89,7 +89,7 @@ class Bancada(models.Model):
     seccion = models.ForeignKey(Seccion, on_delete=models.CASCADE)
     tubo_madre = models.FloatField(blank=True, null=True)
     dimensiones = models.CharField(max_length=20, blank=True, null=True) # para las dimesiones de una bancada de C.T.
-    espesores = models.CharField(max_length=10, default='0÷0')
+    espesores = models.CharField(max_length=20, default='0÷0')
 
     def nombre(self):
         if self.tubo_madre is not None:
@@ -101,7 +101,7 @@ class Bancada(models.Model):
 class Conjunto(models.Model):
     operacion = models.ForeignKey(Operacion, on_delete=models.CASCADE, related_name='conjuntos')
     tubo_madre = models.FloatField(blank=True, null=True)
-    espesores = models.CharField(max_length=10, blank=True, null=True)
+    espesores = models.CharField(max_length=20, blank=True, null=True)
 
 # Son las celdas del Tooling Chart para las formaciones raras
 class Celda (models.Model):
@@ -145,6 +145,7 @@ class Rodillo(models.Model):
     espesor = models.BooleanField(default=False)
     num_instancias = models.IntegerField(default=0,blank=True, null=True)
     num_ejes = models.IntegerField(default=1,blank=True, null=True)
+    archivo = models.FileField(upload_to='programa', blank=True, null=True)
 
     def __str__(self) -> str:
         return self.nombre
@@ -217,8 +218,10 @@ class Rectificacion(models.Model):
     numero = models.CharField(max_length=20, null=True, blank=True, default=None)
     creado_por = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     fecha = models.DateField(default=timezone.now)
+    fecha_estimada = models.DateField(default=timezone.now)
     empresa = models.ForeignKey(Empresa, on_delete=models.CASCADE)
     maquina = models.ForeignKey(Zona, on_delete=models.CASCADE)
+    finalizado = models.BooleanField(default=False)
     def save(self, *args, **kwargs):
         # Generar nuevo número si el campo numero es None (null)
         if self.numero is None:
@@ -241,3 +244,24 @@ class Rectificacion(models.Model):
             self.numero = self.empresa.siglas + '-' + year + '-' + str(numero).zfill(3)
         # Llamar al metodo save por defecto de la clase
         super(Rectificacion,self).save(*args, **kwargs)
+
+class LineaRectificacion(models.Model):
+    TIPO_RECTIFICADO_CHOICES = [
+        ('estandar', 'Estándar'),
+        ('axial', 'Axial'),
+    ]
+    rectificado = models.ForeignKey(Rectificacion, on_delete=models.CASCADE)
+    instancia = models.ForeignKey(Instancia, on_delete=models.SET_NULL, null=True, blank=True)
+    fecha = models.DateField(default=timezone.now)
+    diametro = models.FloatField(null=True, blank=True)
+    diametro_ext = models.FloatField(null=True, blank=True)
+    ancho = models.FloatField(null=True, blank=True)
+    nuevo_diametro = models.FloatField(null=True, blank=True)
+    nuevo_diametro_ext = models.FloatField(null=True, blank=True)
+    nuevo_ancho = models.FloatField(null=True, blank=True)
+    rectificado_por = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    fecha_rectificado = models.DateField(blank=True, null=True)
+    tipo_rectificado = models.CharField(max_length=10, choices=TIPO_RECTIFICADO_CHOICES, default='estandar')
+    finalizado = models.BooleanField(default=False)
+    archivo = models.FileField(upload_to='programa', blank=True, null=True)
+    observaciones = models.CharField(max_length=600, null=True, blank=True)
