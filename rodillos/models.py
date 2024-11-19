@@ -1,8 +1,10 @@
 from django.db import models
 from estructura.models import Zona, Empresa
+from repuestos.models import Proveedor
 from django.utils import timezone
 from django.contrib.auth.models import User
 from django import forms
+from .storages import OverwriteStorage
 import logging
 import datetime
 
@@ -263,5 +265,6 @@ class LineaRectificacion(models.Model):
     fecha_rectificado = models.DateField(blank=True, null=True)
     tipo_rectificado = models.CharField(max_length=10, choices=TIPO_RECTIFICADO_CHOICES, default='estandar')
     finalizado = models.BooleanField(default=False)
-    archivo = models.FileField(upload_to='programa', blank=True, null=True)
+    archivo = models.FileField(upload_to='programa', blank=True, null=True, storage=OverwriteStorage())
     observaciones = models.CharField(max_length=600, null=True, blank=True)
+    proveedor = models.ForeignKey(Proveedor, null=True, blank=True, on_delete=models.CASCADE)

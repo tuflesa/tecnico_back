@@ -9,8 +9,10 @@ from django.db.models.functions import Concat
 from django.http import JsonResponse
 from rest_framework.decorators import action
 import subprocess
+from ftplib import FTP
+import django_filters
 
-class EliminarViewSet(viewsets.ViewSet):
+""" class EliminarViewSet(viewsets.ViewSet):
     @action(detail=False, methods=['post'], url_path='eliminar_archivos')
     def eliminar_archivos(self, request):
         try:
@@ -20,8 +22,33 @@ class EliminarViewSet(viewsets.ViewSet):
             )
             return Response({"message": "Contenido de C:\\FTP eliminado exitosamente."}, status=status.HTTP_200_OK)
         except subprocess.CalledProcessError as e:
-            return Response({"error": f"Error al ejecutar el comando: {e}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        
+            return Response({"error": f"Error al ejecutar el comando: {e}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR) """
+class EliminarViewSet(viewsets.ViewSet):
+    @action(detail=False, methods=['post'], url_path='eliminar_archivos')
+    def eliminar_archivos(self, request):
+        servidor = "10.10.20.51"  # Dirección del servidor FTP
+        usuario = "domenem"            # Usuario FTP
+        contrasena = "Domenada77"      # Contraseña FTP
+        carpeta = "/"                     # Carpeta en el servidor (puedes especificar una ruta)
+
+        try:
+            # Conexión al servidor FTP
+            with FTP(servidor) as ftp:
+                ftp.login(usuario, contrasena)
+                ftp.cwd(carpeta)  # Cambiar al directorio deseado
+
+                # Listar y eliminar todos los archivos en la carpeta
+                archivos = ftp.nlst()  # Lista de archivos en el directorio
+                for archivo in archivos:
+                    try:
+                        ftp.delete(archivo)  # Eliminar archivo
+                    except Exception as e:
+                        return Response({"error": f"No se pudo eliminar {archivo}: {e}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+                return Response({"message": f"Contenido de {carpeta} eliminado exitosamente."}, status=status.HTTP_200_OK)
+
+        except Exception as e:
+            return Response({"error": f"Error al conectar o eliminar archivos en el servidor FTP: {e}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 class StandardResultsSetPagination(PageNumberPagination):
     page_size = 20
     page_size_query_param = 'page_size'
@@ -29,7 +56,7 @@ class StandardResultsSetPagination(PageNumberPagination):
     max_page_size = 1000 
 
 class ListadoLineaRectificacionFilter(filters.FilterSet):
-    full_name = filters.CharFilter(method='filter_full_name')
+    full_name = filters.CharFilter(method='filter_full_name')    
     class Meta:
         model = LineaRectificacion
         fields = {
@@ -43,11 +70,14 @@ class ListadoLineaRectificacionFilter(filters.FilterSet):
             'instancia__nombre': ['icontains'],
             'finalizado':['exact'],
             'rectificado_por':['exact'],
+            'proveedor': ['exact'],
         }
+
     def filter_full_name(self, queryset, name, value):
         return queryset.annotate(
             full_name=Concat('rectificado_por__first_name', Value(' '), 'rectificado_por__last_name', output_field=CharField())
         ).filter(full_name__icontains=value)
+
 class RectificacionesListadoFilter(filters.FilterSet):
     full_name = filters.CharFilter(method='filter_full_name')
     class Meta:
