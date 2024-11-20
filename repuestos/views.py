@@ -23,6 +23,7 @@ class ProveedorFilter(filters.FilterSet):
         fields = {
             'nombre': ['icontains'],
             'pais':['exact'],
+            'de_rectificado':['exact'],
         }
 
 class MovimientoFilter(filters.FilterSet):
@@ -93,6 +94,8 @@ class PedidoListFilter(filters.FilterSet):
             'lineas_pedido__cantidad':['exact'],
             'creado_por':['exact'],
             'descripcion':['icontains'],
+            'intervencion': ['exact'],
+            'revisado': ['exact'],
         }
 
 class LineaPedidoFilter(filters.FilterSet):

@@ -11,11 +11,12 @@ class Proveedor(models.Model):
     telefono = models.CharField(max_length=30, blank=True, null=True)
     direccion = models.TextField(max_length=250, blank=True, null=True)
     poblacion = models.TextField(max_length=75, blank=True, null=True)
-    condicion_pago = models.CharField(max_length=50, blank=True, null=True)
+    condicion_pago = models.CharField(max_length=200, blank=True, null=True)
     condicion_entrega = models.CharField(max_length=50, blank=True, null=True)
     cif = models.CharField(max_length=12, blank=True, null=True)
     pais = models.TextField(max_length=75, default='España')
     cod_ekon = models.TextField(max_length=8, blank=True, null=True)
+    de_rectificado = models.BooleanField(default=False)
 
     def __str__(self):
         return self.nombre
@@ -95,6 +96,8 @@ class Pedido(models.Model):
     observaciones = models.CharField(max_length=500, null=True, blank=True)
     observaciones2 = models.CharField(max_length=500, null=True, blank=True)
     descripcion = models.CharField(max_length=300, null=True, blank=True)
+    intervencion = models.BooleanField(default=False, null=True, blank=True)
+    revisado = models.BooleanField(default=False, null=True, blank=True)
 
     def save(self, *args, **kwargs):
         # Generar nuevo número si el campo numero es None (null)
