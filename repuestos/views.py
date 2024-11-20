@@ -23,6 +23,7 @@ class ProveedorFilter(filters.FilterSet):
         fields = {
             'nombre': ['icontains'],
             'pais':['exact'],
+            'de_rectificado':['exact'],
         }
 
 class MovimientoFilter(filters.FilterSet):

@@ -16,6 +16,7 @@ class Proveedor(models.Model):
     cif = models.CharField(max_length=12, blank=True, null=True)
     pais = models.TextField(max_length=75, default='España')
     cod_ekon = models.TextField(max_length=8, blank=True, null=True)
+    de_rectificado = models.BooleanField(default=False)
 
     def __str__(self):
         return self.nombre
