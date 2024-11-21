@@ -1,9 +1,18 @@
 from rest_framework import routers
-from .views import RodilloViewSet, PlanoNuevoViewSet, RevisionViewSet, SeccionViewSet, OperacionViewSet, TipoRodilloViewSet, MaterialViewSet, GrupoViewSet, TipoPlanoViewSet, Rodillo_listViewSet, Rodillo_editarViewSet, PlanoParametrosViewSet, Nombres_ParametrosViewSet, TipoSeccionViewSet, PlanoViewSet, RevisionConjuntosViewSet, Parametros_estandarViewSet, Plano_existenteViewSet, EjeViewSet, BancadaViewSet, ConjuntoViewSet, ElementoViewSet, Elemento_SelectViewSet, BancadaGruposViewSet, CeldaViewSet, Celda_SelectViewSet, Rodillo_existenteViewSet, Grupo_onlyViewSet, Operacion_CTViewSet, FormaViewSet, Celda_DuplicarViewSet, BancadaCTViewSet, Grupo_NuevoViewSet, BancadaMontajeViewSet, grupo_montajeViewSet, BancadaMontajeCTViewSet, MontajeViewSet, MontajeListadoViewSet, MontajeToolingViewSet, RodillosViewSet, Conjunto_OperacionViewSet, RevisionPlanosViewSet, EjeOperacionViewSet
+from .views import RodilloViewSet, PlanoNuevoViewSet, RevisionViewSet, SeccionViewSet, OperacionViewSet, TipoRodilloViewSet, MaterialViewSet, GrupoViewSet, TipoPlanoViewSet, Rodillo_listViewSet, Rodillo_editarViewSet, PlanoParametrosViewSet, Nombres_ParametrosViewSet, TipoSeccionViewSet, PlanoViewSet, RevisionConjuntosViewSet, Parametros_estandarViewSet, Plano_existenteViewSet, EjeViewSet, BancadaViewSet, ConjuntoViewSet, ElementoViewSet, Elemento_SelectViewSet, BancadaGruposViewSet, CeldaViewSet, Celda_SelectViewSet, Rodillo_existenteViewSet, Grupo_onlyViewSet, Operacion_CTViewSet, FormaViewSet, Celda_DuplicarViewSet, BancadaCTViewSet, Grupo_NuevoViewSet, BancadaMontajeViewSet, grupo_montajeViewSet, BancadaMontajeCTViewSet, MontajeViewSet, MontajeListadoViewSet, MontajeToolingViewSet, RodillosViewSet, Conjunto_OperacionViewSet, RevisionPlanosViewSet, EjeOperacionViewSet, InstanciaViewSet, InstanciaListadoViewSet, RectificacionViewSet, RectificacionListaViewSet, LineaRectificacionViewSet, ListadoLineaRectificacionViewSet, EliminarViewSet
+from .views import *
+
 #direcciones de rodillos
 router = routers.DefaultRouter()
 
 router.register('bancada_montaje_ct', BancadaMontajeCTViewSet)
+router.register('eliminar', EliminarViewSet, basename='eliminar_archivos')
+router.register('listado_linea_rectificacion', ListadoLineaRectificacionViewSet)
+router.register('linea_rectificacion', LineaRectificacionViewSet)
+router.register('instancia_listado', InstanciaListadoViewSet)
+router.register('instancia_nueva', InstanciaViewSet)
+router.register('rectificacion_nueva', RectificacionViewSet)
+router.register('rectificacion_lista', RectificacionListaViewSet)
 router.register('revision_planos', RevisionPlanosViewSet)
 router.register('rodillos', RodillosViewSet)
 router.register('conjunto_operacion', Conjunto_OperacionViewSet)
@@ -48,3 +57,4 @@ router.register('revision_plano', RevisionViewSet)
 router.register('tipo_seccion', TipoSeccionViewSet)
 
 urlpatterns = router.urls
+

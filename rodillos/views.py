@@ -1,18 +1,106 @@
-from rest_framework import viewsets
-from rodillos.models import Rodillo, Tipo_rodillo, Seccion, Operacion, Eje, Plano, Revision, Material, Grupo, Tipo_Plano, Nombres_Parametros, Tipo_Seccion, Parametros_Estandar, Bancada, Conjunto, Elemento, Celda, Forma, Montaje, Icono
-from rodillos.serializers import RodilloSerializer, PlanoNuevoSerializer, RevisionSerializer, SeccionSerializer, OperacionSerializer, TipoRodilloSerializer, MaterialSerializer, GrupoSerializer, TipoPlanoSerializer, RodilloListSerializer, PlanoParametrosSerializer, Nombres_ParametrosSerializer, TipoSeccionSerializer, PlanoSerializer, RevisionConjuntosSerializer, Parametros_estandarSerializer, Plano_existenteSerializer, EjeSerializer, BancadaSerializer, ConjuntoSerializer, ElementoSerializer, Elemento_SelectSerializer, Bancada_GruposSerializer, Bancada_SelectSerializer, CeldaSerializer, Celda_SelectSerializer, Grupo_onlySerializer, FormaSerializer, Celda_DuplicarSerializer, Bancada_CTSerializer, MontajeSerializer, MontajeListadoSerializer, MontajeToolingSerializer, RodillosSerializer, Conjunto_OperacionSerializer, RevisionPlanosSerializer, IconoSerializer, EjeOperacionSerializer
+from rest_framework import status, viewsets
+from rodillos.models import Rodillo, Tipo_rodillo, Seccion, Operacion, Eje, Plano, Revision, Material, Grupo, Tipo_Plano, Nombres_Parametros, Tipo_Seccion, Parametros_Estandar, Bancada, Conjunto, Elemento, Celda, Forma, Montaje, Icono, Instancia, Rectificacion, LineaRectificacion
+from rodillos.serializers import RodilloSerializer, PlanoNuevoSerializer, RevisionSerializer, SeccionSerializer, OperacionSerializer, TipoRodilloSerializer, MaterialSerializer, GrupoSerializer, TipoPlanoSerializer, RodilloListSerializer, PlanoParametrosSerializer, Nombres_ParametrosSerializer, TipoSeccionSerializer, PlanoSerializer, RevisionConjuntosSerializer, Parametros_estandarSerializer, Plano_existenteSerializer, EjeSerializer, BancadaSerializer, ConjuntoSerializer, ElementoSerializer, Elemento_SelectSerializer, Bancada_GruposSerializer, Bancada_SelectSerializer, CeldaSerializer, Celda_SelectSerializer, Grupo_onlySerializer, FormaSerializer, Celda_DuplicarSerializer, Bancada_CTSerializer, MontajeSerializer, MontajeListadoSerializer, MontajeToolingSerializer, RodillosSerializer, Conjunto_OperacionSerializer, RevisionPlanosSerializer, IconoSerializer, EjeOperacionSerializer, InstanciaSerializer, InstanciaListadoSerializer, RectificacionSerializer, RectificacionListaSerializer, LineaRectificacionSerializer, ListadoLineaRectificacionSerializer
 from django_filters import rest_framework as filters
 from rest_framework.pagination import PageNumberPagination
-from rest_framework import status
 from rest_framework.response import Response
-from django.db.models import Q
+from django.db.models import Q, Value, CharField
+from django.db.models.functions import Concat
+from django.http import JsonResponse
+from rest_framework.decorators import action
+import subprocess
+from ftplib import FTP
+import django_filters
 
+""" class EliminarViewSet(viewsets.ViewSet):
+    @action(detail=False, methods=['post'], url_path='eliminar_archivos')
+    def eliminar_archivos(self, request):
+        try:
+            subprocess.run(
+                ['powershell', '-command', 'Remove-Item -Path "C:\\FTP\\*" -Recurse -Force'],
+                check=True
+            )
+            return Response({"message": "Contenido de C:\\FTP eliminado exitosamente."}, status=status.HTTP_200_OK)
+        except subprocess.CalledProcessError as e:
+            return Response({"error": f"Error al ejecutar el comando: {e}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR) """
+class EliminarViewSet(viewsets.ViewSet):
+    @action(detail=False, methods=['post'], url_path='eliminar_archivos')
+    def eliminar_archivos(self, request):
+        servidor = "10.10.20.51"  # Dirección del servidor FTP
+        usuario = "domenem"            # Usuario FTP
+        contrasena = "Domenada77"      # Contraseña FTP
+        carpeta = "/"                     # Carpeta en el servidor (puedes especificar una ruta)
+
+        try:
+            # Conexión al servidor FTP
+            with FTP(servidor) as ftp:
+                ftp.login(usuario, contrasena)
+                ftp.cwd(carpeta)  # Cambiar al directorio deseado
+
+                # Listar y eliminar todos los archivos en la carpeta
+                archivos = ftp.nlst()  # Lista de archivos en el directorio
+                for archivo in archivos:
+                    try:
+                        ftp.delete(archivo)  # Eliminar archivo
+                    except Exception as e:
+                        return Response({"error": f"No se pudo eliminar {archivo}: {e}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+                return Response({"message": f"Contenido de {carpeta} eliminado exitosamente."}, status=status.HTTP_200_OK)
+
+        except Exception as e:
+            return Response({"error": f"Error al conectar o eliminar archivos en el servidor FTP: {e}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 class StandardResultsSetPagination(PageNumberPagination):
     page_size = 20
     page_size_query_param = 'page_size'
     paginator=1
     max_page_size = 1000 
 
+class ListadoLineaRectificacionFilter(filters.FilterSet):
+    full_name = filters.CharFilter(method='filter_full_name')    
+    class Meta:
+        model = LineaRectificacion
+        fields = {
+            'rectificado': ['exact'],
+            'rectificado__id': ['exact'],
+            'instancia__id': ['exact'],
+            'instancia__rodillo__operacion__id':['exact'],
+            'instancia__rodillo__operacion__seccion__id':['exact'],
+            'instancia__rodillo__operacion__seccion__maquina__id':['exact'],
+            'instancia__rodillo__operacion__seccion__maquina__empresa__id':['exact'],
+            'instancia__nombre': ['icontains'],
+            'finalizado':['exact'],
+            'rectificado_por':['exact'],
+            'proveedor': ['exact'],
+        }
+
+    def filter_full_name(self, queryset, name, value):
+        return queryset.annotate(
+            full_name=Concat('rectificado_por__first_name', Value(' '), 'rectificado_por__last_name', output_field=CharField())
+        ).filter(full_name__icontains=value)
+
+class RectificacionesListadoFilter(filters.FilterSet):
+    full_name = filters.CharFilter(method='filter_full_name')
+    class Meta:
+        model = Rectificacion
+        fields = {
+            'id': ['exact'],
+            'empresa': ['exact'],
+            'maquina__id': ['exact'],
+            'numero': ['icontains'],
+            'creado_por':['exact'],
+            'finalizado' : ['exact'],
+        }
+    def filter_full_name(self, queryset, name, value):
+        return queryset.annotate(
+            full_name=Concat('creado_por__first_name', Value(' '), 'creado_por__last_name', output_field=CharField())
+        ).filter(full_name__icontains=value)
+
+class RectificacionesFilter(filters.FilterSet):
+    class Meta:
+        model = Rectificacion
+        fields = {
+            'id': ['exact'],
+        }
 class ConjuntoFilter(filters.FilterSet):
     class Meta:
         model = Conjunto
@@ -53,6 +141,7 @@ class RodilloFilter(filters.FilterSet):
             'tipo_plano':['exact'],
             'grupo':['exact'],
             'nombre':['icontains'],
+            'num_instancias':['exact'],
         }
 
 class RodillosFilter(filters.FilterSet):
@@ -62,8 +151,29 @@ class RodillosFilter(filters.FilterSet):
             'operacion__id':['exact'],
             'grupo__id':['exact'],
             'nombre':['exact'],
+            'grupo__tubo_madre':['exact'],
         }
 
+class InstanciaFilter(filters.FilterSet):
+    class Meta:
+        model = Instancia
+        fields = {
+            'rodillo':['exact'],
+        }
+
+class InstanciaListadoFilter(filters.FilterSet):
+    class Meta:
+        model = Instancia
+        fields = {
+            'rodillo__id':['exact'],
+            'obsoleta':['exact'],
+            'id':['exact'],
+            'rodillo__operacion__seccion__maquina__id':['exact'],
+            'rodillo__operacion__seccion__id':['exact'],
+            'nombre':['icontains'],
+            'rodillo__operacion__id':['exact'],
+
+        }
 class CeldaFilter(filters.FilterSet):
     class Meta:
         model = Celda
@@ -193,12 +303,14 @@ class GrupoNuevoFilter(filters.FilterSet):
         model = Grupo
         fields = {
             'id': ['exact'],
-            'nombre': ['icontains'],
+            'nombre': ['exact'],
             'maquina': ['exact'],
             'tubo_madre': ['exact'],
             'maquina__siglas': ['exact'],
             'maquina__id':['exact'],
             'maquina__empresa': ['exact'],
+            'espesor_1': ['exact'],
+            'espesor_2': ['exact'],
         }
 
 class ElementoFilter(filters.FilterSet):
@@ -477,7 +589,7 @@ class BancadaCTViewSet(viewsets.ModelViewSet):
     pagination_class = StandardResultsSetPagination
 class BancadaGruposViewSet(viewsets.ModelViewSet):
     serializer_class = Bancada_GruposSerializer
-    queryset = Bancada.objects.all()
+    queryset = Bancada.objects.all().order_by('tubo_madre')
     filterset_class = BancadaGrupoFilter
 
 class BancadaMontajeCTViewSet(viewsets.ModelViewSet):
@@ -554,3 +666,33 @@ class MontajeToolingViewSet(viewsets.ModelViewSet):
 class IconoViewSet(viewsets.ModelViewSet):
     serializer_class = IconoSerializer
     queryset = Icono.objects.all()
+
+class InstanciaViewSet(viewsets.ModelViewSet):
+    serializer_class = InstanciaSerializer
+    queryset = Instancia.objects.all()
+    filterset_class = InstanciaFilter
+
+class InstanciaListadoViewSet(viewsets.ModelViewSet):
+    serializer_class = InstanciaListadoSerializer
+    queryset = Instancia.objects.all()
+    filterset_class = InstanciaListadoFilter
+
+class RectificacionViewSet(viewsets.ModelViewSet):
+    serializer_class = RectificacionSerializer
+    queryset = Rectificacion.objects.all()
+    filterset_class = RectificacionesFilter
+
+class RectificacionListaViewSet(viewsets.ModelViewSet):
+    serializer_class = RectificacionListaSerializer
+    queryset = Rectificacion.objects.all()
+    filterset_class = RectificacionesListadoFilter
+    pagination_class = StandardResultsSetPagination
+
+class LineaRectificacionViewSet(viewsets.ModelViewSet):
+    serializer_class = LineaRectificacionSerializer
+    queryset = LineaRectificacion.objects.all()
+
+class ListadoLineaRectificacionViewSet(viewsets.ModelViewSet):
+    serializer_class = ListadoLineaRectificacionSerializer
+    queryset = LineaRectificacion.objects.all().order_by('fecha','id')
+    filterset_class = ListadoLineaRectificacionFilter

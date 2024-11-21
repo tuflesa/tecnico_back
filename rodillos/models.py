@@ -1,8 +1,12 @@
 from django.db import models
-from estructura.models import Zona
+from estructura.models import Zona, Empresa
+from repuestos.models import Proveedor
 from django.utils import timezone
+from django.contrib.auth.models import User
 from django import forms
+from .storages import OverwriteStorage
 import logging
+import datetime
 
 # Tipo de sección: Formadora, cuchillas, Soldadura, Calibradora, Cabeza de turco
 class Tipo_Seccion(models.Model):
@@ -87,6 +91,7 @@ class Bancada(models.Model):
     seccion = models.ForeignKey(Seccion, on_delete=models.CASCADE)
     tubo_madre = models.FloatField(blank=True, null=True)
     dimensiones = models.CharField(max_length=20, blank=True, null=True) # para las dimesiones de una bancada de C.T.
+    espesores = models.CharField(max_length=20, default='0÷0')
 
     def nombre(self):
         if self.tubo_madre is not None:
@@ -98,6 +103,7 @@ class Bancada(models.Model):
 class Conjunto(models.Model):
     operacion = models.ForeignKey(Operacion, on_delete=models.CASCADE, related_name='conjuntos')
     tubo_madre = models.FloatField(blank=True, null=True)
+    espesores = models.CharField(max_length=20, blank=True, null=True)
 
 # Son las celdas del Tooling Chart para las formaciones raras
 class Celda (models.Model):
@@ -112,6 +118,8 @@ class Grupo(models.Model):
     maquina = models.ForeignKey(Zona, on_delete=models.CASCADE)
     tubo_madre = models.FloatField(blank=True, null=True)
     bancadas = models.ManyToManyField(Bancada, blank=True, related_name='grupos')
+    espesor_1 = models.DecimalField(max_digits=5, decimal_places=2, default=0)
+    espesor_2 = models.DecimalField(max_digits=5, decimal_places=2, default=0)
 
     def __str__(self) -> str:
         return self.nombre
@@ -134,6 +142,12 @@ class Rodillo(models.Model):
     forma = models.ForeignKey(Forma, on_delete=models.CASCADE, null=True, blank=True)
     descripcion_perfil = models.CharField(max_length=50, null=True, blank=True)
     dimension_perfil = models.CharField(max_length=2, null=True, blank=True)
+    espesor_1 = models.DecimalField(max_digits=5, decimal_places=2, default=0)
+    espesor_2 = models.DecimalField(max_digits=5, decimal_places=2, default=0)
+    espesor = models.BooleanField(default=False)
+    num_instancias = models.IntegerField(default=0,blank=True, null=True)
+    num_ejes = models.IntegerField(default=1,blank=True, null=True)
+    archivo = models.FileField(upload_to='programa', blank=True, null=True)
 
     def __str__(self) -> str:
         return self.nombre
@@ -180,10 +194,78 @@ class Revision(models.Model):
 class Instancia(models.Model):
     nombre = models.CharField(max_length=200)
     rodillo = models.ForeignKey(Rodillo, on_delete=models.CASCADE)
-    planos = models.ManyToManyField(Plano, related_name='instancias')
+    material = models.ForeignKey(Material, on_delete=models.CASCADE, blank=True, null=True)
+    especial = models.BooleanField(default=False, null=True, blank=True)
+    diametro = models.FloatField(null=True, blank=True) # diametro de fondo
+    diametro_ext = models.FloatField(null=True, blank=True)
+    ancho = models.FloatField(null=True, blank=True)
+    activa_qs = models.BooleanField(default=True, null=True, blank=True)
+    obsoleta = models.BooleanField(default=False, null=True, blank=True)
+    dieametro_centro = models.FloatField(null=True, blank=True)
 
 # Parámetros: Parametros de un rodillo según plano sin rectificar. Al crear una revisión de un plano, se deben actualizar.
 class Parametros(models.Model):
     nombre = models.CharField(max_length=50)
     valor = models.FloatField()
     revision = models.ForeignKey(Revision, on_delete=models.CASCADE)
+
+class ContadorRectificaciones(models.Model):
+    year = models.IntegerField()
+    empresa = models.ForeignKey(Empresa, on_delete=models.CASCADE)
+    contador = models.IntegerField(default=0)
+
+    def __str__(self):
+        return str(self.year) + '-' + str(self.contador)
+
+class Rectificacion(models.Model):
+    numero = models.CharField(max_length=20, null=True, blank=True, default=None)
+    creado_por = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    fecha = models.DateField(default=timezone.now)
+    fecha_estimada = models.DateField(default=timezone.now)
+    empresa = models.ForeignKey(Empresa, on_delete=models.CASCADE)
+    maquina = models.ForeignKey(Zona, on_delete=models.CASCADE)
+    finalizado = models.BooleanField(default=False)
+    def save(self, *args, **kwargs):
+        # Generar nuevo número si el campo numero es None (null)
+        if self.numero is None:
+            currentDateTime = datetime.datetime.now()
+            date = currentDateTime.date()
+            year = date.strftime("%Y")
+
+            contador = ContadorRectificaciones.objects.filter(year=year, empresa=self.empresa)
+            if (len(contador)==0):
+                contador = ContadorRectificaciones(year=year, contador=0, empresa=self.empresa)
+                contador.save()
+                numero=1
+            else:
+                contador = ContadorRectificaciones.objects.get(year=year, empresa=self.empresa)
+                numero=contador.contador+1
+
+            contador.contador = numero
+            contador.save()
+
+            self.numero = self.empresa.siglas + '-' + year + '-' + str(numero).zfill(3)
+        # Llamar al metodo save por defecto de la clase
+        super(Rectificacion,self).save(*args, **kwargs)
+
+class LineaRectificacion(models.Model):
+    TIPO_RECTIFICADO_CHOICES = [
+        ('estandar', 'Estándar'),
+        ('axial', 'Axial'),
+    ]
+    rectificado = models.ForeignKey(Rectificacion, on_delete=models.CASCADE)
+    instancia = models.ForeignKey(Instancia, on_delete=models.SET_NULL, null=True, blank=True)
+    fecha = models.DateField(default=timezone.now)
+    diametro = models.FloatField(null=True, blank=True)
+    diametro_ext = models.FloatField(null=True, blank=True)
+    ancho = models.FloatField(null=True, blank=True)
+    nuevo_diametro = models.FloatField(null=True, blank=True)
+    nuevo_diametro_ext = models.FloatField(null=True, blank=True)
+    nuevo_ancho = models.FloatField(null=True, blank=True)
+    rectificado_por = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    fecha_rectificado = models.DateField(blank=True, null=True)
+    tipo_rectificado = models.CharField(max_length=10, choices=TIPO_RECTIFICADO_CHOICES, default='estandar')
+    finalizado = models.BooleanField(default=False)
+    archivo = models.FileField(upload_to='programa', blank=True, null=True, storage=OverwriteStorage())
+    observaciones = models.CharField(max_length=600, null=True, blank=True)
+    proveedor = models.ForeignKey(Proveedor, null=True, blank=True, on_delete=models.CASCADE)

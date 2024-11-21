@@ -11,11 +11,12 @@ class Proveedor(models.Model):
     telefono = models.CharField(max_length=30, blank=True, null=True)
     direccion = models.TextField(max_length=250, blank=True, null=True)
     poblacion = models.TextField(max_length=75, blank=True, null=True)
-    condicion_pago = models.CharField(max_length=50, blank=True, null=True)
+    condicion_pago = models.CharField(max_length=200, blank=True, null=True)
     condicion_entrega = models.CharField(max_length=50, blank=True, null=True)
     cif = models.CharField(max_length=12, blank=True, null=True)
     pais = models.TextField(max_length=75, default='España')
     cod_ekon = models.TextField(max_length=8, blank=True, null=True)
+    de_rectificado = models.BooleanField(default=False)
 
     def __str__(self):
         return self.nombre
