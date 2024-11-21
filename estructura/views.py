@@ -13,7 +13,8 @@ class ZonasFilter(filters.FilterSet):
         fields = {
             'empresa': ['exact'],
             'nombre': ['icontains'],
-            'siglas': ['icontains']
+            'siglas': ['icontains'],
+            'es_maquina_tubo': ['exact']
         }
 
 class DireccionesFilter(filters.FilterSet):

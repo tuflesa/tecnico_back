@@ -520,7 +520,7 @@ class SeccionViewSet(viewsets.ModelViewSet):
 
 class Operacion_CTViewSet(viewsets.ModelViewSet):#ESTO MEJOR PARA MONTAR CT FILTRANDO AL REVÉS
     serializer_class = OperacionSerializer
-    queryset = Operacion.objects.filter(seccion__tipo=5).order_by('orden')
+    queryset = Operacion.objects.filter(seccion__pertenece_grupo=False).order_by('orden')
     filterset_class = OperacionFilter
 
 class OperacionViewSet(viewsets.ModelViewSet):

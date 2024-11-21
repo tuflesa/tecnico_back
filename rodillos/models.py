@@ -141,7 +141,7 @@ class Rodillo(models.Model):
     diametro = models.FloatField(blank=True, null=True)
     forma = models.ForeignKey(Forma, on_delete=models.CASCADE, null=True, blank=True)
     descripcion_perfil = models.CharField(max_length=50, null=True, blank=True)
-    dimension_perfil = models.CharField(max_length=2, null=True, blank=True)
+    dimension_perfil = models.CharField(max_length=3, null=True, blank=True)
     espesor_1 = models.DecimalField(max_digits=5, decimal_places=2, default=0)
     espesor_2 = models.DecimalField(max_digits=5, decimal_places=2, default=0)
     espesor = models.BooleanField(default=False)
@@ -201,7 +201,7 @@ class Instancia(models.Model):
     ancho = models.FloatField(null=True, blank=True)
     activa_qs = models.BooleanField(default=True, null=True, blank=True)
     obsoleta = models.BooleanField(default=False, null=True, blank=True)
-    dieametro_centro = models.FloatField(null=True, blank=True)
+    diametro_centro = models.FloatField(null=True, blank=True)
 
 # Parámetros: Parametros de un rodillo según plano sin rectificar. Al crear una revisión de un plano, se deben actualizar.
 class Parametros(models.Model):
