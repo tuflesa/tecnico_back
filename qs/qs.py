@@ -22,7 +22,7 @@ def get_ejes():
     plc.connect(IP, RACK, SLOT)
 
 
-    from_PLC = plc.db_read(46,0,140)
+    from_PLC = plc.db_read(46,0,200)
     # Break down
     bd1_inf = get_real(from_PLC,0)
     bd1_sup = get_real(from_PLC,4)
@@ -49,6 +49,11 @@ def get_ejes():
     w_lat_operador = get_real(from_PLC,64)
     w_lat_motor = get_real(from_PLC,68)
     w_inferior = get_real(from_PLC,72)
+    w_cabezal = get_real(from_PLC,180)
+    w_sup_alto_op = get_real(from_PLC,184)
+    w_sup_alto_mot = get_real(from_PLC,188)
+    w_sup_ancho_op = get_real(from_PLC,192)
+    w_sup_ancho_mot = get_real(from_PLC,196)
 
     ejes = [{'op': 1, 'pos': {'INF': bd1_inf, 'SUP': bd1_sup}}, 
             {'op': 2, 'pos': {'INF':bd2_inf, 'SUP': bd2_sup}},
@@ -56,7 +61,9 @@ def get_ejes():
             {'op': 4, 'pos': {'INF': fp1_inf, 'SUP': fp1_sup}},
             {'op': 5, 'pos': {'INF': fp2_inf, 'SUP': fp2_sup}},
             {'op': 6, 'pos': {'INF': fp3_inf, 'SUP': fp3_sup}},
-            {'op': 7, 'pos': {'LAT_OP': w_lat_operador, 'LAT_MO': w_lat_motor, 'INF': w_inferior}}]
+            {'op': 7, 'pos': {'LAT_OP': w_lat_operador, 'LAT_MO': w_lat_motor, 'INF': w_inferior, 
+                              'CAB': w_cabezal, 'SUP_ALTO_OP': w_sup_alto_op, 'SUP_ALTO_MOT': w_sup_alto_mot,
+                              'SUP_ANCHO_OP': w_sup_ancho_op, 'SUP_ANCHO_MOT': w_sup_ancho_mot}}]
 
     return ejes
 
