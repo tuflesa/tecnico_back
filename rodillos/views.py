@@ -391,6 +391,7 @@ class MontajeListadoFilter(filters.FilterSet):
             'maquina__id':['exact'],
             'bancadas__id':['exact'],
             'nombre':['icontains'],
+            'maquina__empresa__id': ['exact'],
         }
 
 class Grupo_NuevoViewSet(viewsets.ModelViewSet):
@@ -694,5 +695,5 @@ class LineaRectificacionViewSet(viewsets.ModelViewSet):
 
 class ListadoLineaRectificacionViewSet(viewsets.ModelViewSet):
     serializer_class = ListadoLineaRectificacionSerializer
-    queryset = LineaRectificacion.objects.all().order_by('fecha','id')
+    queryset = LineaRectificacion.objects.all().order_by('-fecha_rectificado','fecha','id')
     filterset_class = ListadoLineaRectificacionFilter
