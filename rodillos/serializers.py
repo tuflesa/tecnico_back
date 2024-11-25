@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from estructura.serializers import ZonaSerializer_Rodillos
 from administracion.serializers import UserSerializer
+from repuestos.serializers import ProveedorSerializer
 from rodillos.models import Rodillo, Plano, Revision, Seccion, Operacion, Tipo_rodillo, Material, Grupo, Tipo_Plano, Nombres_Parametros, Tipo_Seccion, Parametros_Estandar, Eje, Bancada, Conjunto, Elemento, Celda, Forma, Montaje, Icono, Instancia, Rectificacion, LineaRectificacion
 
 class RodilloSerializer(serializers.ModelSerializer):
@@ -270,6 +271,7 @@ class ListadoLineaRectificacionSerializer(serializers.ModelSerializer):
     fecha_rectificado = serializers.DateField(allow_null=True, required=False)
     rectificado_por = UserSerializer(many=False, read_only=True)
     instancia = InstanciaListadoSerializer(many=False)
+    proveedor = ProveedorSerializer(many=False)
     class Meta:
         model = LineaRectificacion
         fields = ['id', 'rectificado', 'instancia', 'fecha', 'diametro', 'diametro_ext', 'ancho', 'nuevo_diametro', 'nuevo_diametro_ext', 'nuevo_ancho', 'rectificado_por', 'fecha_rectificado', 'tipo_rectificado', 'finalizado', 'archivo', 'observaciones','proveedor']
