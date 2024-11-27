@@ -244,7 +244,7 @@ class Rectificacion(models.Model):
             contador.contador = numero
             contador.save()
 
-            self.numero = self.empresa.siglas + '-' + year + '-' + str(numero).zfill(3)
+            self.numero = self.empresa.siglas + '-' + year + '-R-' + str(numero).zfill(3)
         # Llamar al metodo save por defecto de la clase
         super(Rectificacion,self).save(*args, **kwargs)
 
@@ -259,9 +259,11 @@ class LineaRectificacion(models.Model):
     diametro = models.FloatField(null=True, blank=True)
     diametro_ext = models.FloatField(null=True, blank=True)
     ancho = models.FloatField(null=True, blank=True)
+    diametro_centro = models.FloatField(null=True, blank=True)
     nuevo_diametro = models.FloatField(null=True, blank=True)
     nuevo_diametro_ext = models.FloatField(null=True, blank=True)
     nuevo_ancho = models.FloatField(null=True, blank=True)
+    nuevo_diametro_centro = models.FloatField(null=True, blank=True)
     rectificado_por = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     fecha_rectificado = models.DateField(blank=True, null=True)
     tipo_rectificado = models.CharField(max_length=10, choices=TIPO_RECTIFICADO_CHOICES, default='estandar')

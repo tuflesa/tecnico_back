@@ -265,7 +265,7 @@ class LineaRectificacionSerializer(serializers.ModelSerializer):
     fecha_rectificado = serializers.DateField(allow_null=True, required=False)
     class Meta:
         model = LineaRectificacion
-        fields = ['id', 'rectificado', 'instancia', 'fecha', 'diametro', 'diametro_ext', 'ancho', 'nuevo_diametro', 'nuevo_diametro_ext', 'nuevo_ancho', 'rectificado_por', 'fecha_rectificado', 'tipo_rectificado', 'finalizado', 'archivo', 'observaciones','proveedor']
+        fields = '__all__'
 
 class ListadoLineaRectificacionSerializer(serializers.ModelSerializer):
     fecha_rectificado = serializers.DateField(allow_null=True, required=False)
@@ -274,4 +274,4 @@ class ListadoLineaRectificacionSerializer(serializers.ModelSerializer):
     proveedor = ProveedorSerializer(many=False)
     class Meta:
         model = LineaRectificacion
-        fields = ['id', 'rectificado', 'instancia', 'fecha', 'diametro', 'diametro_ext', 'ancho', 'nuevo_diametro', 'nuevo_diametro_ext', 'nuevo_ancho', 'rectificado_por', 'fecha_rectificado', 'tipo_rectificado', 'finalizado', 'archivo', 'observaciones','proveedor']
+        fields = '__all__'
