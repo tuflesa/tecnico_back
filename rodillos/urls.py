@@ -1,5 +1,5 @@
 from rest_framework import routers
-from .views import RodilloViewSet, PlanoNuevoViewSet, RevisionViewSet, SeccionViewSet, OperacionViewSet, TipoRodilloViewSet, MaterialViewSet, GrupoViewSet, TipoPlanoViewSet, Rodillo_listViewSet, Rodillo_editarViewSet, PlanoParametrosViewSet, Nombres_ParametrosViewSet, TipoSeccionViewSet, PlanoViewSet, RevisionConjuntosViewSet, Parametros_estandarViewSet, Plano_existenteViewSet, EjeViewSet, BancadaViewSet, ConjuntoViewSet, ElementoViewSet, Elemento_SelectViewSet, BancadaGruposViewSet, CeldaViewSet, Celda_SelectViewSet, Rodillo_existenteViewSet, Grupo_onlyViewSet, Operacion_CTViewSet, FormaViewSet, Celda_DuplicarViewSet, BancadaCTViewSet, Grupo_NuevoViewSet, BancadaMontajeViewSet, grupo_montajeViewSet, BancadaMontajeCTViewSet, MontajeViewSet, MontajeListadoViewSet, MontajeToolingViewSet, RodillosViewSet, Conjunto_OperacionViewSet, RevisionPlanosViewSet, EjeOperacionViewSet, InstanciaViewSet, InstanciaListadoViewSet, RectificacionViewSet, RectificacionListaViewSet, LineaRectificacionViewSet, ListadoLineaRectificacionViewSet, EliminarViewSet
+from .views import RodilloViewSet, PlanoNuevoViewSet, RevisionViewSet, SeccionViewSet, OperacionViewSet, TipoRodilloViewSet, MaterialViewSet, GrupoViewSet, TipoPlanoViewSet, Rodillo_listViewSet, Rodillo_editarViewSet, PlanoParametrosViewSet, Nombres_ParametrosViewSet, TipoSeccionViewSet, PlanoViewSet, RevisionConjuntosViewSet, Parametros_estandarViewSet, Plano_existenteViewSet, EjeViewSet, BancadaViewSet, ConjuntoViewSet, ElementoViewSet, Elemento_SelectViewSet, BancadaGruposViewSet, CeldaViewSet, Celda_SelectViewSet, Rodillo_existenteViewSet, Grupo_onlyViewSet, Operacion_CTViewSet, FormaViewSet, Celda_DuplicarViewSet, BancadaCTViewSet, Grupo_NuevoViewSet, BancadaMontajeViewSet, grupo_montajeViewSet, BancadaMontajeCTViewSet, MontajeViewSet, MontajeListadoViewSet, MontajeToolingViewSet, RodillosViewSet, Conjunto_OperacionViewSet, RevisionPlanosViewSet, EjeOperacionViewSet, InstanciaViewSet, InstanciaListadoViewSet, RectificacionViewSet, RectificacionListaViewSet, LineaRectificacionViewSet, ListadoLineaRectificacionViewSet, EliminarViewSet, RevisionPlanosRecienteViewSet
 from .views import *
 
 #direcciones de rodillos
@@ -14,6 +14,7 @@ router.register('instancia_nueva', InstanciaViewSet)
 router.register('rectificacion_nueva', RectificacionViewSet)
 router.register('rectificacion_lista', RectificacionListaViewSet)
 router.register('revision_planos', RevisionPlanosViewSet)
+router.register('revision_planos_reciente', RevisionPlanosRecienteViewSet, basename='revision_planos_reciente')
 router.register('rodillos', RodillosViewSet)
 router.register('conjunto_operacion', Conjunto_OperacionViewSet)
 router.register('montaje_tooling', MontajeToolingViewSet)

@@ -28,11 +28,6 @@ class RevisionConjuntosSerializer(serializers.ModelSerializer):
         model = Revision
         fields = ['id', 'plano', 'motivo', 'archivo', 'fecha', 'nombre']
 
-class RevisionPlanosSerializer(serializers.ModelSerializer):
-    plano = PlanoSerializer(many=False, read_only=False)
-    class Meta:
-        model = Revision
-        fields = ['id', 'plano', 'motivo', 'archivo', 'fecha', 'nombre']
 class SeccionSerializer(serializers.ModelSerializer):
     maquina = ZonaSerializer_Rodillos(many=False, read_only=False)
     class Meta:
@@ -150,6 +145,12 @@ class Plano_existenteSerializer(serializers.ModelSerializer):
     class Meta:
         model = Plano
         fields = ['id', 'nombre', 'rodillos', 'cod_antiguo', 'descripcion', 'xa_rectificado']
+
+class RevisionPlanosSerializer(serializers.ModelSerializer):
+    plano = Plano_existenteSerializer(many=False, read_only=False)
+    class Meta:
+        model = Revision
+        fields = ['id', 'plano', 'motivo', 'archivo', 'fecha', 'nombre']
 
 class EjeSerializer(serializers.ModelSerializer):
     tipo = TipoRodilloSerializer(many=False)

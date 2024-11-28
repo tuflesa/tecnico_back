@@ -275,6 +275,8 @@ class RevisionPlanosFilter(filters.FilterSet):
         fields = {
             'plano__id':['exact'],
             'plano__nombre':['exact'],
+            'plano__rodillos':['exact'],
+            'plano__xa_rectificado':['exact'],
         }
     
 class MaterialFilter(filters.FilterSet):
@@ -494,6 +496,23 @@ class RevisionPlanosViewSet(viewsets.ModelViewSet):
     serializer_class = RevisionPlanosSerializer
     queryset = Revision.objects.all().order_by('-id')
     filterset_class = RevisionPlanosFilter
+
+class RevisionPlanosRecienteViewSet(viewsets.ViewSet):
+    serializer_class = RevisionPlanosSerializer
+
+    def list(self, request):
+        rodillo_id = request.query_params.get('plano__rodillos')
+        xa_rectificado_str = request.query_params.get('plano__xa_rectificado')
+        xa_rectificado = xa_rectificado_str.lower() == 'true' if xa_rectificado_str is not None else None # Convertir el valor de xa_rectificado a un booleano
+        # Filtrado según los parámetros
+        queryset = Revision.objects.filter(
+            plano__rodillos=rodillo_id,
+            plano__xa_rectificado=xa_rectificado
+        ).order_by('-id')[:1]
+
+        serializer = self.serializer_class(queryset, many=True)
+        return Response(serializer.data)
+    
 class RevisionViewSet(viewsets.ModelViewSet):
     serializer_class = RevisionSerializer
     queryset = Revision.objects.all()
