@@ -181,6 +181,7 @@ class Plano(models.Model):
     rodillos = models.ManyToManyField(Rodillo, related_name='planos')
     cod_antiguo = models.CharField(max_length=200, null=True, blank=True, default=None)
     descripcion = models.CharField(max_length=200, null=True, blank=True, default=None)
+    xa_rectificado = models.BooleanField(default=False)
    
 # Revisión: Modificaciones de un plano  
 class Revision(models.Model):

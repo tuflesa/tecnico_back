@@ -11,12 +11,12 @@ class RodilloSerializer(serializers.ModelSerializer):
 class PlanoNuevoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Plano
-        fields = ['id', 'nombre', 'rodillos', 'cod_antiguo', 'descripcion']
+        fields = ['id', 'nombre', 'rodillos', 'cod_antiguo', 'descripcion', 'xa_rectificado']
 
 class PlanoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Plano
-        fields = ['id', 'nombre', 'rodillos', 'cod_antiguo', 'descripcion']
+        fields = ['id', 'nombre', 'rodillos', 'cod_antiguo', 'descripcion', 'xa_rectificado']
 
 class RevisionSerializer(serializers.ModelSerializer):
     class Meta:
@@ -149,7 +149,7 @@ class Plano_existenteSerializer(serializers.ModelSerializer):
     rodillos = RodilloListSerializer(many=True)
     class Meta:
         model = Plano
-        fields = ['id', 'nombre', 'rodillos', 'cod_antiguo', 'descripcion']
+        fields = ['id', 'nombre', 'rodillos', 'cod_antiguo', 'descripcion', 'xa_rectificado']
 
 class EjeSerializer(serializers.ModelSerializer):
     tipo = TipoRodilloSerializer(many=False)
