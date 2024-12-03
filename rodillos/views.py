@@ -8,6 +8,7 @@ from django.db.models import Q, Value, CharField
 from django.db.models.functions import Concat
 from django.http import JsonResponse
 from rest_framework.decorators import action
+from django.db.models import Max
 import subprocess
 from ftplib import FTP
 import django_filters
@@ -505,10 +506,12 @@ class RevisionPlanosRecienteViewSet(viewsets.ViewSet):
         xa_rectificado_str = request.query_params.get('plano__xa_rectificado')
         xa_rectificado = xa_rectificado_str.lower() == 'true' if xa_rectificado_str is not None else None # Convertir el valor de xa_rectificado a un booleano
         # Filtrado según los parámetros
-        queryset = Revision.objects.filter(
+        subquery  = Revision.objects.filter(
             plano__rodillos=rodillo_id,
             plano__xa_rectificado=xa_rectificado
-        ).order_by('-id')[:1]
+        ).values('plano_id').annotate(max_id=Max('id')).values_list('max_id', flat=True)
+
+        queryset = Revision.objects.filter(id__in=subquery).order_by('-id')
 
         serializer = self.serializer_class(queryset, many=True)
         return Response(serializer.data)

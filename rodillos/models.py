@@ -137,7 +137,7 @@ class Rodillo(models.Model):
     operacion = models.ForeignKey(Operacion, on_delete=models.CASCADE, related_name='rodillos')
     grupo = models.ForeignKey(Grupo, on_delete=models.CASCADE, null=True, blank=True)
     tipo = models.ForeignKey(Tipo_rodillo, on_delete=models.CASCADE)
-    tipo_plano = models.ForeignKey(Tipo_Plano, on_delete=models.CASCADE, null=True)
+    tipo_plano = models.ForeignKey(Tipo_Plano, on_delete=models.CASCADE, null=True, blank=True)
     diametro = models.FloatField(blank=True, null=True)
     forma = models.ForeignKey(Forma, on_delete=models.CASCADE, null=True, blank=True)
     descripcion_perfil = models.CharField(max_length=50, null=True, blank=True)
