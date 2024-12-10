@@ -2,7 +2,7 @@ from rest_framework import serializers
 from estructura.serializers import ZonaSerializer_Rodillos
 from administracion.serializers import UserSerializer
 from repuestos.serializers import ProveedorSerializer
-from rodillos.models import Rodillo, Plano, Revision, Seccion, Operacion, Tipo_rodillo, Material, Grupo, Tipo_Plano, Nombres_Parametros, Tipo_Seccion, Parametros_Estandar, Eje, Bancada, Conjunto, Elemento, Celda, Forma, Montaje, Icono, Instancia, Rectificacion, LineaRectificacion
+from rodillos.models import Rodillo, Plano, Revision, Seccion, Operacion, Tipo_rodillo, Material, Grupo, Tipo_Plano, Nombres_Parametros, Tipo_Seccion, Parametros_Estandar, Eje, Bancada, Conjunto, Elemento, Celda, Forma, Montaje, Icono, Instancia, Rectificacion, LineaRectificacion, Posicion
 
 class RodilloSerializer(serializers.ModelSerializer):
     class Meta:
@@ -66,20 +66,20 @@ class MaterialSerializer(serializers.ModelSerializer):
 class BancadaSerializer(serializers.ModelSerializer):
     class Meta:
         model = Bancada
-        fields = ['id', 'seccion', 'tubo_madre', 'dimensiones', 'nombre', 'espesores']
+        fields = '__all__'
 
 
 class Bancada_GruposSerializer(serializers.ModelSerializer):
     seccion = SeccionSerializer(many=False)
     class Meta:
         model = Bancada
-        fields = ['id', 'seccion', 'tubo_madre', 'dimensiones', 'nombre', 'espesores']
+        fields = '__all__'
 
 class Bancada_CTSerializer(serializers.ModelSerializer):
     seccion = SeccionSerializer(many=False)
     class Meta:
         model = Bancada
-        fields = ['id', 'seccion', 'tubo_madre', 'dimensiones', 'nombre', 'espesores']
+        fields = '__all__'
 
 class GrupoSerializer(serializers.ModelSerializer):
     maquina = ZonaSerializer_Rodillos(many=False, read_only=False)
@@ -162,18 +162,18 @@ class Bancada_SelectSerializer(serializers.ModelSerializer):
     seccion = SeccionSerializer()
     class Meta:
         model = Bancada
-        fields = ['id', 'seccion', 'tubo_madre', 'dimensiones', 'nombre', 'espesores']
+        fields = '__all__'
 
 class ConjuntoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Conjunto
-        fields = ['id', 'operacion', 'tubo_madre', 'espesores']
+        fields = '__all__'
 
 class Conjunto_OperacionSerializer(serializers.ModelSerializer):
     operacion = OperacionSerializer()
     class Meta:
         model = Conjunto
-        fields = ['id', 'operacion', 'tubo_madre', 'espesores']
+        fields = '__all__'
 
 class ElementoSerializer(serializers.ModelSerializer):
     class Meta:
@@ -184,7 +184,7 @@ class Conjunto_OperacionSerializer(serializers.ModelSerializer):
     operacion = OperacionSerializer(many=False)
     class Meta:
         model = Conjunto
-        fields = ['id', 'operacion', 'tubo_madre', 'espesores']
+        fields = '__all__'
 
 class Elemento_SelectSerializer(serializers.ModelSerializer):
     conjunto = Conjunto_OperacionSerializer(many=False)
@@ -241,14 +241,14 @@ class MontajeToolingSerializer(serializers.ModelSerializer):
 class InstanciaSerializer(serializers.ModelSerializer):
     class Meta:
         model = Instancia
-        fields = ['id', 'nombre', 'rodillo', 'material', 'especial', 'diametro', 'diametro_ext', 'diametro_centro', 'activa_qs', 'obsoleta', 'ancho']
+        fields = ['id', 'nombre', 'rodillo', 'material', 'especial', 'diametro', 'diametro_ext', 'diametro_centro', 'activa_qs', 'obsoleta', 'ancho', 'posicion']
 
 class InstanciaListadoSerializer(serializers.ModelSerializer):
     rodillo = RodilloListSerializer(many=False)
     material = MaterialSerializer(many=False)
     class Meta:
         model = Instancia
-        fields = ['id', 'nombre', 'rodillo', 'material', 'especial', 'diametro', 'diametro_ext', 'diametro_centro', 'activa_qs', 'obsoleta', 'ancho']
+        fields = ['id', 'nombre', 'rodillo', 'material', 'especial', 'diametro', 'diametro_ext', 'diametro_centro', 'activa_qs', 'obsoleta', 'ancho', 'posicion']
 
 class RectificacionSerializer(serializers.ModelSerializer):
     class Meta:
@@ -275,4 +275,9 @@ class ListadoLineaRectificacionSerializer(serializers.ModelSerializer):
     proveedor = ProveedorSerializer(many=False)
     class Meta:
         model = LineaRectificacion
+        fields = '__all__'
+
+class PosicionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Posicion
         fields = '__all__'

@@ -92,6 +92,7 @@ class Bancada(models.Model):
     tubo_madre = models.FloatField(blank=True, null=True)
     dimensiones = models.CharField(max_length=20, blank=True, null=True) # para las dimesiones de una bancada de C.T.
     espesores = models.CharField(max_length=20, default='0÷0')
+    nombre_grupo = models.CharField(max_length=50, blank=True, null=True)
 
     def nombre(self):
         if self.tubo_madre is not None:
@@ -104,6 +105,7 @@ class Conjunto(models.Model):
     operacion = models.ForeignKey(Operacion, on_delete=models.CASCADE, related_name='conjuntos')
     tubo_madre = models.FloatField(blank=True, null=True)
     espesores = models.CharField(max_length=20, blank=True, null=True)
+    
 
 # Son las celdas del Tooling Chart para las formaciones raras
 class Celda (models.Model):
@@ -191,6 +193,14 @@ class Revision(models.Model):
     fecha = models.DateField(default=timezone.now)
     nombre = models.CharField(max_length=200, null=True, blank=True, default=None)
 
+# Posicones de una instancia: Operador, Motor, None
+class Posicion(models.Model):
+    nombre = models.CharField(max_length=50, null=True, blank=True)
+    siglas = models.CharField(max_length=5, blank=True, null=True)
+
+    def __str__(self):
+        return self.nombre
+
 #Instancia: Un rodillo en concreto
 class Instancia(models.Model):
     nombre = models.CharField(max_length=200)
@@ -203,6 +213,7 @@ class Instancia(models.Model):
     activa_qs = models.BooleanField(default=True, null=True, blank=True)
     obsoleta = models.BooleanField(default=False, null=True, blank=True)
     diametro_centro = models.FloatField(null=True, blank=True)
+    posicion = models.ForeignKey(Posicion, blank=True, null=True, on_delete=models.SET_NULL)
 
 # Parámetros: Parametros de un rodillo según plano sin rectificar. Al crear una revisión de un plano, se deben actualizar.
 class Parametros(models.Model):
