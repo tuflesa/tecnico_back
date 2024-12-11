@@ -354,6 +354,7 @@ class BancadaCTFilter(filters.FilterSet):
             'seccion': ['exact'],
             'seccion__maquina__id': ['exact'],
             'seccion__maquina__empresa':['exact'],
+            'seccion__maquina__empresa__id':['exact'],
             'dimensiones': ['icontains'],
             'seccion__pertenece_grupo':['exact'],
         }
