@@ -68,7 +68,6 @@ class BancadaSerializer(serializers.ModelSerializer):
         model = Bancada
         fields = '__all__'
 
-
 class Bancada_GruposSerializer(serializers.ModelSerializer):
     seccion = SeccionSerializer(many=False)
     class Meta:
@@ -281,3 +280,27 @@ class PosicionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Posicion
         fields = '__all__'
+
+class CeldaQSSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Celda
+        fields = ['id', 'bancada', 'conjunto', 'icono', 'operacion']
+
+class BancadaQSSerializer(serializers.ModelSerializer):
+    celdas = CeldaQSSerializer(many=True)
+    class Meta:
+        model = Bancada
+        fields = '__all__'
+
+class GrupoQSSerializer(serializers.ModelSerializer):
+    bancadas = BancadaQSSerializer(many=True)
+    class Meta:
+        model = Grupo
+        fields = ['id', 'nombre', 'maquina', 'tubo_madre', 'bancadas', 'espesor_1', 'espesor_2']
+
+class MontajeQSSerializer(serializers.ModelSerializer):
+    grupo = GrupoQSSerializer(many=False)
+    bancadas = BancadaQSSerializer(many=False)
+    class Meta:
+        model = Montaje
+        fields = ['id', 'nombre', 'maquina', 'grupo', 'bancadas']
