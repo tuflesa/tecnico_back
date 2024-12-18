@@ -281,6 +281,11 @@ class PosicionSerializer(serializers.ModelSerializer):
         model = Posicion
         fields = '__all__'
 
+class OperacionQSSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Operacion
+        fields = '__all__'
+
 class RodilloQSSerializer(serializers.ModelSerializer):
     tipo = TipoRodilloSerializer(many=False)
     instancias = InstanciaSerializer(many=True)
@@ -304,11 +309,18 @@ class ConjuntoQSSerializer(serializers.ModelSerializer):
 
 class CeldaQSSerializer(serializers.ModelSerializer):
     conjunto = ConjuntoQSSerializer(many=False)
+    operacion = OperacionQSSerializer(many = False)
     class Meta:
         model = Celda
         fields = '__all__'
 
+class SeccionQSSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Seccion
+        fields = '__all__'
+
 class BancadaQSSerializer(serializers.ModelSerializer):
+    seccion = SeccionQSSerializer(many=False)
     celdas = CeldaQSSerializer(many=True)
     class Meta:
         model = Bancada
