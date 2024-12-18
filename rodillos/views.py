@@ -682,6 +682,11 @@ class MontajeListadoViewSet(viewsets.ModelViewSet):
     filterset_class = MontajeListadoFilter
     pagination_class = StandardResultsSetPagination
 
+class MontajeQSViewSet(viewsets.ModelViewSet):
+    serializer_class = MontajeListadoSerializer
+    queryset = Montaje.objects.all().order_by('nombre')
+    filterset_class = MontajeListadoFilter
+
 class MontajeToolingViewSet(viewsets.ModelViewSet):
     serializer_class = MontajeToolingSerializer
     queryset = Montaje.objects.all()
