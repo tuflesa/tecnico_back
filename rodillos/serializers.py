@@ -121,7 +121,7 @@ class RodilloListSerializer(serializers.ModelSerializer):
     grupo = GrupoSerializer(many=False)
     class Meta:
         model = Rodillo
-        fields = ['id', 'nombre', 'operacion', 'grupo', 'tipo', 'tipo_plano', 'diametro', 'forma', 'descripcion_perfil', 'dimension_perfil', 'espesor_1', 'espesor_2', 'espesor', 'num_instancias', 'num_ejes', 'archivo']
+        fields = '__all__'
 
 class RodillosSerializer(serializers.ModelSerializer):
     grupo = GrupoSerializer(many=False)
@@ -137,7 +137,7 @@ class TipoSeccionSerializer(serializers.ModelSerializer):
 class Parametros_estandarSerializer(serializers.ModelSerializer):
     class Meta:
         model = Parametros_Estandar
-        fields = ['id', 'nombre', 'valor', 'rodillo']
+        fields = '__all__'
 
 class Plano_existenteSerializer(serializers.ModelSerializer):
     rodillos = RodilloListSerializer(many=True)
@@ -240,14 +240,14 @@ class MontajeToolingSerializer(serializers.ModelSerializer):
 class InstanciaSerializer(serializers.ModelSerializer):
     class Meta:
         model = Instancia
-        fields = ['id', 'nombre', 'rodillo', 'material', 'especial', 'diametro', 'diametro_ext', 'diametro_centro', 'activa_qs', 'obsoleta', 'ancho', 'posicion']
+        fields = '__all__'
 
 class InstanciaListadoSerializer(serializers.ModelSerializer):
     rodillo = RodilloListSerializer(many=False)
     material = MaterialSerializer(many=False)
     class Meta:
         model = Instancia
-        fields = ['id', 'nombre', 'rodillo', 'material', 'especial', 'diametro', 'diametro_ext', 'diametro_centro', 'activa_qs', 'obsoleta', 'ancho', 'posicion']
+        fields = '__all__'
 
 class RectificacionSerializer(serializers.ModelSerializer):
     class Meta:
@@ -281,10 +281,32 @@ class PosicionSerializer(serializers.ModelSerializer):
         model = Posicion
         fields = '__all__'
 
+class RodilloQSSerializer(serializers.ModelSerializer):
+    tipo = TipoRodilloSerializer(many=False)
+    instancias = InstanciaSerializer(many=True)
+    parametros = Parametros_estandarSerializer(many=True)
+    class Meta:
+        model = Rodillo
+        fields = '__all__'
+
+class ElementoQSSelectSerializer(serializers.ModelSerializer):
+    rodillo = RodilloQSSerializer(many=False)
+    eje = EjeSerializer(many=False)
+    class Meta:
+        model = Elemento
+        fields = '__all__'
+
+class ConjuntoQSSerializer(serializers.ModelSerializer):
+    elementos = ElementoQSSelectSerializer(many=True)
+    class Meta:
+        model = Conjunto
+        fields = '__all__'
+
 class CeldaQSSerializer(serializers.ModelSerializer):
+    conjunto = ConjuntoQSSerializer(many=False)
     class Meta:
         model = Celda
-        fields = ['id', 'bancada', 'conjunto', 'icono', 'operacion']
+        fields = '__all__'
 
 class BancadaQSSerializer(serializers.ModelSerializer):
     celdas = CeldaQSSerializer(many=True)

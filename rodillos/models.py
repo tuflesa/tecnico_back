@@ -158,7 +158,7 @@ class Rodillo(models.Model):
 class Parametros_Estandar(models.Model):
     nombre = models.CharField(max_length=50)
     valor = models.FloatField()
-    rodillo = models.ForeignKey(Rodillo, on_delete=models.CASCADE)
+    rodillo = models.ForeignKey(Rodillo, on_delete=models.CASCADE, related_name='parametros')
 
 # Elementos de un conjunto de rodillos. Que rodillo en que posición dentro de un conjunto de rodillos
 class Elemento(models.Model):
@@ -204,7 +204,7 @@ class Posicion(models.Model):
 #Instancia: Un rodillo en concreto
 class Instancia(models.Model):
     nombre = models.CharField(max_length=200)
-    rodillo = models.ForeignKey(Rodillo, on_delete=models.CASCADE)
+    rodillo = models.ForeignKey(Rodillo, on_delete=models.CASCADE, related_name='instancias')
     material = models.ForeignKey(Material, on_delete=models.CASCADE, blank=True, null=True)
     especial = models.BooleanField(default=False, null=True, blank=True)
     diametro = models.FloatField(null=True, blank=True) # diametro de fondo
