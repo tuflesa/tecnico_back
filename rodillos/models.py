@@ -92,6 +92,7 @@ class Bancada(models.Model):
     tubo_madre = models.FloatField(blank=True, null=True)
     dimensiones = models.CharField(max_length=20, blank=True, null=True) # para las dimesiones de una bancada de C.T.
     espesores = models.CharField(max_length=20, default='0÷0')
+    nombre_grupo = models.CharField(max_length=50, blank=True, null=True)
 
     def nombre(self):
         if self.tubo_madre is not None:
@@ -104,6 +105,7 @@ class Conjunto(models.Model):
     operacion = models.ForeignKey(Operacion, on_delete=models.CASCADE, related_name='conjuntos')
     tubo_madre = models.FloatField(blank=True, null=True)
     espesores = models.CharField(max_length=20, blank=True, null=True)
+    
 
 # Son las celdas del Tooling Chart para las formaciones raras
 class Celda (models.Model):
@@ -137,7 +139,7 @@ class Rodillo(models.Model):
     operacion = models.ForeignKey(Operacion, on_delete=models.CASCADE, related_name='rodillos')
     grupo = models.ForeignKey(Grupo, on_delete=models.CASCADE, null=True, blank=True)
     tipo = models.ForeignKey(Tipo_rodillo, on_delete=models.CASCADE)
-    tipo_plano = models.ForeignKey(Tipo_Plano, on_delete=models.CASCADE, null=True)
+    tipo_plano = models.ForeignKey(Tipo_Plano, on_delete=models.CASCADE, null=True, blank=True)
     diametro = models.FloatField(blank=True, null=True)
     forma = models.ForeignKey(Forma, on_delete=models.CASCADE, null=True, blank=True)
     descripcion_perfil = models.CharField(max_length=50, null=True, blank=True)
@@ -181,6 +183,7 @@ class Plano(models.Model):
     rodillos = models.ManyToManyField(Rodillo, related_name='planos')
     cod_antiguo = models.CharField(max_length=200, null=True, blank=True, default=None)
     descripcion = models.CharField(max_length=200, null=True, blank=True, default=None)
+    xa_rectificado = models.BooleanField(default=False)
    
 # Revisión: Modificaciones de un plano  
 class Revision(models.Model):
@@ -189,6 +192,14 @@ class Revision(models.Model):
     archivo = models.FileField(upload_to='planos', blank=False, null=False)
     fecha = models.DateField(default=timezone.now)
     nombre = models.CharField(max_length=200, null=True, blank=True, default=None)
+
+# Posicones de una instancia: Operador, Motor, None
+class Posicion(models.Model):
+    nombre = models.CharField(max_length=50, null=True, blank=True)
+    siglas = models.CharField(max_length=5, blank=True, null=True)
+
+    def __str__(self):
+        return self.nombre
 
 #Instancia: Un rodillo en concreto
 class Instancia(models.Model):
@@ -202,6 +213,7 @@ class Instancia(models.Model):
     activa_qs = models.BooleanField(default=True, null=True, blank=True)
     obsoleta = models.BooleanField(default=False, null=True, blank=True)
     diametro_centro = models.FloatField(null=True, blank=True)
+    posicion = models.ForeignKey(Posicion, blank=True, null=True, on_delete=models.SET_NULL)
 
 # Parámetros: Parametros de un rodillo según plano sin rectificar. Al crear una revisión de un plano, se deben actualizar.
 class Parametros(models.Model):
@@ -244,7 +256,7 @@ class Rectificacion(models.Model):
             contador.contador = numero
             contador.save()
 
-            self.numero = self.empresa.siglas + '-' + year + '-' + str(numero).zfill(3)
+            self.numero = self.empresa.siglas + '-' + year + '-R-' + str(numero).zfill(3)
         # Llamar al metodo save por defecto de la clase
         super(Rectificacion,self).save(*args, **kwargs)
 
@@ -259,9 +271,11 @@ class LineaRectificacion(models.Model):
     diametro = models.FloatField(null=True, blank=True)
     diametro_ext = models.FloatField(null=True, blank=True)
     ancho = models.FloatField(null=True, blank=True)
+    diametro_centro = models.FloatField(null=True, blank=True)
     nuevo_diametro = models.FloatField(null=True, blank=True)
     nuevo_diametro_ext = models.FloatField(null=True, blank=True)
     nuevo_ancho = models.FloatField(null=True, blank=True)
+    nuevo_diametro_centro = models.FloatField(null=True, blank=True)
     rectificado_por = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     fecha_rectificado = models.DateField(blank=True, null=True)
     tipo_rectificado = models.CharField(max_length=10, choices=TIPO_RECTIFICADO_CHOICES, default='estandar')

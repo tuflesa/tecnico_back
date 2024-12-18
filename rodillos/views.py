@@ -1,6 +1,6 @@
 from rest_framework import status, viewsets
-from rodillos.models import Rodillo, Tipo_rodillo, Seccion, Operacion, Eje, Plano, Revision, Material, Grupo, Tipo_Plano, Nombres_Parametros, Tipo_Seccion, Parametros_Estandar, Bancada, Conjunto, Elemento, Celda, Forma, Montaje, Icono, Instancia, Rectificacion, LineaRectificacion
-from rodillos.serializers import RodilloSerializer, PlanoNuevoSerializer, RevisionSerializer, SeccionSerializer, OperacionSerializer, TipoRodilloSerializer, MaterialSerializer, GrupoSerializer, TipoPlanoSerializer, RodilloListSerializer, PlanoParametrosSerializer, Nombres_ParametrosSerializer, TipoSeccionSerializer, PlanoSerializer, RevisionConjuntosSerializer, Parametros_estandarSerializer, Plano_existenteSerializer, EjeSerializer, BancadaSerializer, ConjuntoSerializer, ElementoSerializer, Elemento_SelectSerializer, Bancada_GruposSerializer, Bancada_SelectSerializer, CeldaSerializer, Celda_SelectSerializer, Grupo_onlySerializer, FormaSerializer, Celda_DuplicarSerializer, Bancada_CTSerializer, MontajeSerializer, MontajeListadoSerializer, MontajeToolingSerializer, RodillosSerializer, Conjunto_OperacionSerializer, RevisionPlanosSerializer, IconoSerializer, EjeOperacionSerializer, InstanciaSerializer, InstanciaListadoSerializer, RectificacionSerializer, RectificacionListaSerializer, LineaRectificacionSerializer, ListadoLineaRectificacionSerializer
+from rodillos.models import Rodillo, Tipo_rodillo, Seccion, Operacion, Eje, Plano, Revision, Material, Grupo, Tipo_Plano, Nombres_Parametros, Tipo_Seccion, Parametros_Estandar, Bancada, Conjunto, Elemento, Celda, Forma, Montaje, Icono, Instancia, Rectificacion, LineaRectificacion, Posicion
+from rodillos.serializers import RodilloSerializer, PlanoNuevoSerializer, RevisionSerializer, SeccionSerializer, OperacionSerializer, TipoRodilloSerializer, MaterialSerializer, GrupoSerializer, TipoPlanoSerializer, RodilloListSerializer, PlanoParametrosSerializer, Nombres_ParametrosSerializer, TipoSeccionSerializer, PlanoSerializer, RevisionConjuntosSerializer, Parametros_estandarSerializer, Plano_existenteSerializer, EjeSerializer, BancadaSerializer, ConjuntoSerializer, ElementoSerializer, Elemento_SelectSerializer, Bancada_GruposSerializer, Bancada_SelectSerializer, CeldaSerializer, Celda_SelectSerializer, Grupo_onlySerializer, FormaSerializer, Celda_DuplicarSerializer, Bancada_CTSerializer, MontajeSerializer, MontajeListadoSerializer, MontajeToolingSerializer, RodillosSerializer, Conjunto_OperacionSerializer, RevisionPlanosSerializer, IconoSerializer, EjeOperacionSerializer, InstanciaSerializer, InstanciaListadoSerializer, RectificacionSerializer, RectificacionListaSerializer, LineaRectificacionSerializer, ListadoLineaRectificacionSerializer, PosicionSerializer
 from django_filters import rest_framework as filters
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
@@ -8,6 +8,7 @@ from django.db.models import Q, Value, CharField
 from django.db.models.functions import Concat
 from django.http import JsonResponse
 from rest_framework.decorators import action
+from django.db.models import Max
 import subprocess
 from ftplib import FTP
 import django_filters
@@ -275,6 +276,8 @@ class RevisionPlanosFilter(filters.FilterSet):
         fields = {
             'plano__id':['exact'],
             'plano__nombre':['exact'],
+            'plano__rodillos':['exact'],
+            'plano__xa_rectificado':['exact'],
         }
     
 class MaterialFilter(filters.FilterSet):
@@ -351,6 +354,7 @@ class BancadaCTFilter(filters.FilterSet):
             'seccion': ['exact'],
             'seccion__maquina__id': ['exact'],
             'seccion__maquina__empresa':['exact'],
+            'seccion__maquina__empresa__id':['exact'],
             'dimensiones': ['icontains'],
             'seccion__pertenece_grupo':['exact'],
         }
@@ -391,6 +395,7 @@ class MontajeListadoFilter(filters.FilterSet):
             'maquina__id':['exact'],
             'bancadas__id':['exact'],
             'nombre':['icontains'],
+            'maquina__empresa__id': ['exact'],
         }
 
 class Grupo_NuevoViewSet(viewsets.ModelViewSet):
@@ -493,6 +498,25 @@ class RevisionPlanosViewSet(viewsets.ModelViewSet):
     serializer_class = RevisionPlanosSerializer
     queryset = Revision.objects.all().order_by('-id')
     filterset_class = RevisionPlanosFilter
+
+class RevisionPlanosRecienteViewSet(viewsets.ViewSet):
+    serializer_class = RevisionPlanosSerializer
+
+    def list(self, request):
+        rodillo_id = request.query_params.get('plano__rodillos')
+        xa_rectificado_str = request.query_params.get('plano__xa_rectificado')
+        xa_rectificado = xa_rectificado_str.lower() == 'true' if xa_rectificado_str is not None else None # Convertir el valor de xa_rectificado a un booleano
+        # Filtrado según los parámetros
+        subquery  = Revision.objects.filter(
+            plano__rodillos=rodillo_id,
+            plano__xa_rectificado=xa_rectificado
+        ).values('plano_id').annotate(max_id=Max('id')).values_list('max_id', flat=True)
+
+        queryset = Revision.objects.filter(id__in=subquery).order_by('-id')
+
+        serializer = self.serializer_class(queryset, many=True)
+        return Response(serializer.data)
+    
 class RevisionViewSet(viewsets.ModelViewSet):
     serializer_class = RevisionSerializer
     queryset = Revision.objects.all()
@@ -658,6 +682,11 @@ class MontajeListadoViewSet(viewsets.ModelViewSet):
     filterset_class = MontajeListadoFilter
     pagination_class = StandardResultsSetPagination
 
+class MontajeQSViewSet(viewsets.ModelViewSet):
+    serializer_class = MontajeListadoSerializer
+    queryset = Montaje.objects.all().order_by('nombre')
+    filterset_class = MontajeListadoFilter
+
 class MontajeToolingViewSet(viewsets.ModelViewSet):
     serializer_class = MontajeToolingSerializer
     queryset = Montaje.objects.all()
@@ -694,5 +723,9 @@ class LineaRectificacionViewSet(viewsets.ModelViewSet):
 
 class ListadoLineaRectificacionViewSet(viewsets.ModelViewSet):
     serializer_class = ListadoLineaRectificacionSerializer
-    queryset = LineaRectificacion.objects.all().order_by('fecha','id')
+    queryset = LineaRectificacion.objects.all().order_by('-fecha_rectificado','fecha','id')
     filterset_class = ListadoLineaRectificacionFilter
+
+class PosicionViewSet(viewsets.ModelViewSet):
+    serializer_class = PosicionSerializer
+    queryset = Posicion.objects.all()
