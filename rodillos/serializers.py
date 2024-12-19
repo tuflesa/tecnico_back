@@ -7,7 +7,8 @@ from rodillos.models import Rodillo, Plano, Revision, Seccion, Operacion, Tipo_r
 class RodilloSerializer(serializers.ModelSerializer):
     class Meta:
         model = Rodillo
-        ields = '__all__'
+        fields = '__all__'
+
 class PlanoNuevoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Plano
