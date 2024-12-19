@@ -127,7 +127,7 @@ class RodillosSerializer(serializers.ModelSerializer):
     grupo = GrupoSerializer(many=False)
     class Meta:
         model = Rodillo
-        ields = '__all__'
+        fields = '__all__'
 
 class TipoSeccionSerializer(serializers.ModelSerializer):
     class Meta:
