@@ -2,6 +2,7 @@ from rest_framework import serializers
 from estructura.serializers import ZonaSerializer_Rodillos
 from administracion.serializers import UserSerializer
 from repuestos.serializers import ProveedorSerializer
+from qs.serializers import ArticuloSerializer
 from rodillos.models import Rodillo, Plano, Revision, Seccion, Operacion, Tipo_rodillo, Material, Grupo, Tipo_Plano, Nombres_Parametros, Tipo_Seccion, Parametros_Estandar, Eje, Bancada, Conjunto, Elemento, Celda, Forma, Montaje, Icono, Instancia, Rectificacion, LineaRectificacion, Posicion
 
 class RodilloSerializer(serializers.ModelSerializer):
@@ -335,6 +336,7 @@ class GrupoQSSerializer(serializers.ModelSerializer):
 class MontajeQSSerializer(serializers.ModelSerializer):
     grupo = GrupoQSSerializer(many=False)
     bancadas = BancadaQSSerializer(many=False)
+    articulos = ArticuloSerializer(many=True)
     class Meta:
         model = Montaje
         fields = ['id', 'nombre', 'maquina', 'grupo', 'bancadas']
