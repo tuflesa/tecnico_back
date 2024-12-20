@@ -339,4 +339,4 @@ class MontajeQSSerializer(serializers.ModelSerializer):
     articulos = ArticuloSerializer(many=True)
     class Meta:
         model = Montaje
-        fields = ['id', 'nombre', 'maquina', 'grupo', 'bancadas']
+        fields = ['id', 'nombre', 'maquina', 'grupo', 'bancadas', 'articulos']
