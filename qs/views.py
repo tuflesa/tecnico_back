@@ -1,5 +1,6 @@
 from rest_framework.views import APIView
 from rest_framework import viewsets
+#from django.http import HttpResponse
 from django_filters import rest_framework as filters
 from rest_framework.response import Response
 from .serializers import ArticuloSerializer
@@ -25,7 +26,10 @@ class PCViewSet(APIView):
 
         return Response(get_PC())
     
-class ArticuloViewSet(viewsets.ViewSet):
+class ArticuloViewSet(viewsets.ModelViewSet):
     serializer_class = ArticuloSerializer
     queryset = Articulo.objects.all()
     filterset_class = ArticuloFilter
+
+# def first(request):
+#     return HttpResponse('1st message from views')
