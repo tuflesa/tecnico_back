@@ -25,7 +25,7 @@ SECRET_KEY = '#+ompm3l5o6ie5!*4(=-ot_-bjc!nl&^ex9ujyg9j9)8-0b15h'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['10.128.100.242']
 
 # Application definition
 
@@ -64,9 +64,14 @@ MIDDLEWARE = [
 CORS_ORIGIN_WHITELIST = ["http://localhost:3000"]
 CORS_EXPOSE_HEADERS = ['X-CSRFToken', 'csrftoken']
 CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOWED_ORIGINS = [
+    "http://10.128.100.242",
+    "http://localhost:3000",
+]
 CSRF_COOKIE_SAMESITE = None
 CSRF_COOKIE_HTTPONLY = True
-CSRF_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = False
+# SESSION_COOKIE_SECURE = True
 
 ROOT_URLCONF = 'tecnico.urls'
 
@@ -94,8 +99,12 @@ WSGI_APPLICATION = 'tecnico.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'tecnico', 
+	'USER': 'tecnico',
+	'PASSWORD': 'popTuf242',
+	'HOST': '10.128.100.242',
+	'PORT': '5432',
     }
 }
 
@@ -110,10 +119,6 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.TokenAuthentication',
     ]
 }
-
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",
-]
 
 # Password validation
 # https://docs.djangoproject.com/en/3.1/ref/settings/#auth-password-validators
