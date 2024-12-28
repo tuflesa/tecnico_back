@@ -1,11 +1,7 @@
 from django.urls import path
-from .views import EjesViewSet, PCViewSet, ArticuloViewSet
-from rest_framework import routers
+from .views import EjesViewSet, PCViewSet
 
-router = routers.DefaultRouter()
-router.register('articulos', ArticuloViewSet)
-
-urlpatterns = router.urls + [
+urlpatterns = [
     path('ejes/', EjesViewSet.as_view()),
     path('pc/', PCViewSet.as_view()),
 ]
