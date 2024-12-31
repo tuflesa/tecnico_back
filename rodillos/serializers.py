@@ -291,6 +291,7 @@ class RodilloQSSerializer(serializers.ModelSerializer):
     tipo = TipoRodilloSerializer(many=False)
     instancias = InstanciaSerializer(many=True)
     parametros = Parametros_estandarSerializer(many=True)
+    tipo_plano = TipoPlanoSerializer(many=False)
     class Meta:
         model = Rodillo
         fields = '__all__'
