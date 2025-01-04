@@ -40,6 +40,7 @@ class Articulo(models.Model): # Ejemplo Red. 100x3.0 S275 Negro EN10.219
     calidad = models.ForeignKey(Calidad, on_delete=models.CASCADE)
     acabado = models.ForeignKey(Acabado, on_delete=models.CASCADE)
     norma = models.ForeignKey(Norma, on_delete=models.CASCADE)
+    desarrollo = models.IntegerField()
     montajes = models.ManyToManyField(Montaje, related_name='articulos')
 
     def __str__(self) -> str:
