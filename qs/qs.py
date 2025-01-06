@@ -121,12 +121,55 @@ def get_diametros_actuales_PLC():
     bd1_sup = get_real(from_PLC,8)
     bd2_inf = get_real(from_PLC,12)
     bd2_sup = get_real(from_PLC,16)
+    is1_ancho = get_real(from_PLC,20)
+    # Fin pass
+    fp1_inf = get_real(from_PLC, 24)
+    fp1_sup = get_real(from_PLC, 28)
+    fp2_inf = get_real(from_PLC, 32)
+    fp2_sup = get_real(from_PLC, 36)
+    fp3_inf = get_real(from_PLC, 40)
+    fp3_sup = get_real(from_PLC, 44)
+    # Welding
+    w_inf = get_real(from_PLC, 48)
+    w_lat_op = get_real(from_PLC, 52)
+    w_lat_mo = get_real(from_PLC, 56)
+    w_sup_op = get_real(from_PLC,60)
+    w_sup_mo = get_real(from_PLC, 64)
+    # Calibradora
+    cb1_inf = get_real(from_PLC, 68)
+    cb1_sup = get_real(from_PLC, 72)
+    cb1_lat_op = get_real(from_PLC, 76)
+    cb1_lat_mo = get_real(from_PLC, 80)
+    cb2_inf = get_real(from_PLC, 84)
+    cb2_sup = get_real(from_PLC, 88)
+    cb2_lat_op = get_real(from_PLC, 92)
+    cb2_lat_mo = get_real(from_PLC, 96)
+    cb3_inf = get_real(from_PLC, 100)
+    cb3_sup = get_real(from_PLC, 104)
+    cb3_lat_op = get_real(from_PLC, 108)
+    cb3_lat_mo = get_real(from_PLC, 112)
+    cb4_inf = get_real(from_PLC, 116)
+    cb4_sup = get_real(from_PLC, 120)
+    cb4_lat_op = get_real(from_PLC, 124)
+    cb4_lat_mo = get_real(from_PLC, 128)
+    # IS2 IS3
+    is2_ancho = get_real(from_PLC,132)
+    is3_ancho = get_real(from_PLC,136)
 
-    diametros_actuales ={'PR': pinch_roll,
-                         'BD1_INF': bd1_inf, 
-                         'BD1_SUP': bd1_sup,
-                         'BD2_INF': bd2_inf,
-                         'BD2_SUP': bd2_sup}
+    diametros_actuales ={'BD1': {'INF': bd1_inf, 'SUP': bd1_sup},
+                         'BD2': {'INF': bd2_inf, 'SUP': bd2_sup},
+                         'IS1': {'ANCHO': is1_ancho},
+                         'FP1': {'INF': fp1_inf, 'SUP': fp1_sup},
+                         'IS2': {'ANCHO': is2_ancho},
+                         'FP2': {'INF': fp2_inf, 'SUP': fp2_sup},
+                         'IS3': {'ANCHO': is3_ancho},
+                         'FP3': {'INF': fp3_inf, 'SUP': fp3_sup},
+                         'W': {'INF': w_inf, 'LAT_OP': w_lat_op, 'LAT_MO': w_lat_mo, 'SUP_OP': w_sup_op, 'SUP_MO': w_sup_mo},
+                         'CB1': {'INF': cb1_inf, 'SUP': cb1_sup, 'LAT_OP': cb1_lat_op, 'LAT_MO': cb1_lat_mo},
+                         'CB2': {'INF': cb2_inf, 'SUP': cb2_sup, 'LAT_OP': cb2_lat_op, 'LAT_MO': cb2_lat_mo},
+                         'CB3': {'INF': cb3_inf, 'SUP': cb3_sup, 'LAT_OP': cb3_lat_op, 'LAT_MO': cb3_lat_mo},
+                         'CB4': {'INF': cb4_inf, 'SUP': cb4_sup, 'LAT_OP': cb4_lat_op, 'LAT_MO': cb4_lat_mo}
+                         }
     return diametros_actuales
 
 def get_PC():
