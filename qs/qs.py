@@ -108,6 +108,21 @@ def get_ejes():
 
     return ejes
 
+def get_diametros_actuales_PLC():
+    plc = snap7.client.Client()
+    plc.connect(IP, RACK, SLOT)
+
+    from_PLC = plc.db_read(46,560,140) # 140 Bytes = 35 variables de 4 bytes cada una
+
+    # Break down
+    bd1_inf = get_real(from_PLC,0)
+    bd1_sup = get_real(from_PLC,4)
+    bd2_inf = get_real(from_PLC,8)
+    bd2_sup = get_real(from_PLC,12)
+
+    diametros_actuales =[{'BD1_INF': bd1_inf}, {'BD1_SUP': bd1_sup}, {'BD2_INF': bd2_inf}, {'BD2_SUP': bd2_sup}]
+    return diametros_actuales
+
 def get_PC():
     plc = snap7.client.Client()
     plc.connect(IP, RACK, SLOT)
