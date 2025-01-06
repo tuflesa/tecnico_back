@@ -122,7 +122,11 @@ def get_diametros_actuales_PLC():
     bd2_inf = get_real(from_PLC,12)
     bd2_sup = get_real(from_PLC,16)
 
-    diametros_actuales =[{'BD1_INF': bd1_inf}, {'BD1_SUP': bd1_sup}, {'BD2_INF': bd2_inf}, {'BD2_SUP': bd2_sup}]
+    diametros_actuales ={'PR': pinch_roll,
+                         'BD1_INF': bd1_inf, 
+                         'BD1_SUP': bd1_sup,
+                         'BD2_INF': bd2_inf,
+                         'BD2_SUP': bd2_sup}
     return diametros_actuales
 
 def get_PC():
