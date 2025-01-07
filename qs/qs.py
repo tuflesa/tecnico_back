@@ -172,7 +172,92 @@ def get_diametros_actuales_PLC():
                          }
     return diametros_actuales
 
-def get_PC():
+def get_posiciones_actuales_PLC():
+    plc = snap7.client.Client()
+    plc.connect(IP, RACK, SLOT)
+
+    from_PLC = plc.db_read(46,280,200) # Inicio en la posición 280 - 200 Bytes = 50 variables de 4 bytes cada una
+
+    # Pinch Roll
+    pinch_roll_inf = cb3_superior = get_real(from_PLC,140) # Siguiente lineal rodillos inferiores
+    # Break down
+    bd1_inf = get_real(from_PLC,0)
+    bd1_sup = get_real(from_PLC,4)
+    bd2_inf = get_real(from_PLC,8)
+    bd2_sup = get_real(from_PLC,12)
+    is1_alto = get_real(from_PLC,156)
+    is1_ancho = get_real(from_PLC,160) #Siguiente IS2
+    # Lineal
+    lineal_entrada_altura = get_real(from_PLC,16)
+    lineal_entrada_ancho = get_real(from_PLC, 20)
+    lineal_entrada_superior = get_real(from_PLC,24)
+    lineal_salida_altura = get_real(from_PLC,28)
+    lineal_salida_ancho = get_real(from_PLC, 32)
+    lineal_salida_superior = get_real(from_PLC,36)
+    lineal_rod_inf_entrada = get_real(from_PLC,144) 
+    lineal_rod_inf_central = get_real(from_PLC,148)
+    lineal_rod_inf_salida = get_real(from_PLC,152) #Siguiente IS1
+    # Finpass
+    fp1_inf = get_real(from_PLC,40)
+    fp1_sup = get_real(from_PLC,44)
+    is2_alto = get_real(from_PLC,164)
+    is2_ancho = get_real(from_PLC,168) #Siguiente IS3
+    fp2_inf = get_real(from_PLC,48)
+    fp2_sup = get_real(from_PLC,52)
+    is3_alto = get_real(from_PLC,172)
+    is3_ancho = get_real(from_PLC,176) #siguiente soldadura cabezal
+    fp3_inf = get_real(from_PLC,56)
+    fp3_sup = get_real(from_PLC,60)
+    # Welding
+    w_lat_operador = get_real(from_PLC,64)
+    w_lat_motor = get_real(from_PLC,68)
+    w_inf = get_real(from_PLC,72)
+    w_cabezal = get_real(from_PLC,180)
+    w_sup_alto_operador = get_real(from_PLC,184)
+    w_sup_alto_motor = get_real(from_PLC,188)
+    w_sup_ancho_operador = get_real(from_PLC,192)
+    w_sup_ancho_motor = get_real(from_PLC,196) #Ultimo
+    # Calibradora
+    cb1_lat_operador = get_real(from_PLC,76)
+    cb1_lat_motor = get_real(from_PLC,80)
+    cb1_inferior = get_real(from_PLC,84)
+    cb1_superior = get_real(from_PLC,88)
+    cb2_lat_operador = get_real(from_PLC,92)
+    cb2_lat_motor = get_real(from_PLC,96)
+    cb2_inferior = get_real(from_PLC,100)
+    cb2_superior = get_real(from_PLC,104)
+    cb3_lat_operador = get_real(from_PLC,108)
+    cb3_lat_motor = get_real(from_PLC,112)
+    cb3_inferior = get_real(from_PLC,116)
+    cb3_superior = get_real(from_PLC,120)
+    cb4_lat_operador = get_real(from_PLC,124)
+    cb4_lat_motor = get_real(from_PLC,128)
+    cb4_inferior = get_real(from_PLC,132)
+    cb4_superior = get_real(from_PLC,136) #Siguiente pinchroll - al inicio
+
+    posiciones_actuales = {'PR':  {'INF': pinch_roll_inf},
+                           'BD1': {'INF': bd1_inf, 'SUP': bd1_sup},
+                           'BD2': {'INF': bd2_inf, 'SUP': bd2_sup},
+                           'IS1': {'ANCHO': is1_ancho, 'ALTO': is1_alto},
+                           'LINEAL': {'ENTRADA_ALTO': lineal_entrada_altura, 'ENTRADA_ANCHO': lineal_entrada_ancho, 'ENTRADA_SUP': lineal_entrada_superior,
+                                      'SALIDA_ALTO': lineal_salida_altura, 'SALIDA_ANCHO': lineal_salida_ancho, 'SALIDA_SUP': lineal_salida_superior,
+                                      'RODILLO_INF_ENTRADA': lineal_rod_inf_entrada, 'RODILLO_INF_CENTRO': lineal_rod_inf_central, 'RODILLO_INF_SALIDA': lineal_rod_inf_salida},
+                            'FP1': {'INF': fp1_inf, 'SUP': fp1_sup},
+                            'IS2': {'ANCHO': is2_ancho, 'ALTO': is2_alto},
+                            'FP2': {'INF': fp2_inf, 'SUP': fp2_sup},
+                            'IS3': {'ANCHO': is3_ancho, 'ALTO': is3_alto},
+                            'FP3': {'INF': fp3_inf, 'SUP': fp3_sup},
+                            'W':   {'CAB': w_cabezal, 'LAT_OP': w_lat_operador, 'LAT_MO': w_lat_motor, 'INF': w_inf,
+                                  'SUP_ALTO_OP': w_sup_alto_operador, 'SUP_ANCHO_OP': w_sup_ancho_operador, 'SUP_ALTO_MO': w_sup_alto_motor, 'SUP_ANCHO_MO': w_sup_ancho_motor},
+                            'CB1': {'SUP': cb1_superior, 'INF': cb1_inferior, 'LAT_OP': cb1_lat_operador, 'LAT_MO': cb1_lat_motor},
+                            'CB2': {'SUP': cb2_superior, 'INF': cb2_inferior, 'LAT_OP': cb2_lat_operador, 'LAT_MO': cb2_lat_motor},
+                            'CB3': {'SUP': cb3_superior, 'INF': cb3_inferior, 'LAT_OP': cb3_lat_operador, 'LAT_MO': cb3_lat_motor},
+                            'CB4': {'SUP': cb4_superior, 'INF': cb4_inferior, 'LAT_OP': cb4_lat_operador, 'LAT_MO': cb4_lat_motor},
+                            }
+    return posiciones_actuales
+
+def get_PC(): # Lee los datos que se han enviado al PLC - No los datos actuales
+
     plc = snap7.client.Client()
     plc.connect(IP, RACK, SLOT)
 
