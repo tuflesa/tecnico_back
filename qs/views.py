@@ -4,7 +4,7 @@ from rest_framework.views import APIView
 from django_filters import rest_framework as filters
 from rest_framework.response import Response
 
-from .qs import get_ejes, get_PC, get_diametros_actuales_PLC
+from .qs import get_ejes, get_PC, get_diametros_actuales_PLC, get_posiciones_actuales_PLC
 
 # ViewSets
 class EjesViewSet(APIView):
@@ -18,6 +18,10 @@ class PCViewSet(APIView):
 class DiametrosActPLC(APIView):
     def get(self, request):
         return Response(get_diametros_actuales_PLC())
+    
+class PosicionesActPLC(APIView):
+    def get(self, request):
+        return Response(get_posiciones_actuales_PLC())
 
 # def first(request):
 #     return HttpResponse('1st message from views')
