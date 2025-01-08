@@ -216,6 +216,9 @@ class Instancia(models.Model):
     diametro_centro = models.FloatField(null=True, blank=True)
     posicion = models.ForeignKey(Posicion, blank=True, null=True, on_delete=models.SET_NULL)
 
+    def __str__(self):
+        return self.nombre
+
 # Parámetros: Parametros de un rodillo según plano sin rectificar. Al crear una revisión de un plano, se deben actualizar.
 class Parametros(models.Model):
     nombre = models.CharField(max_length=50)
