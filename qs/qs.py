@@ -240,7 +240,7 @@ def get_posiciones_actuales_PLC():
                            {'op': 2, 'nombre': 'BD2', 'posiciones': [{'eje': 'INF', 'pos': bd2_inf}, {'eje': 'SUP', 'pos': bd2_sup}]},
                            {'op': 3, 'nombre': 'IS1', 'posiciones': [{'eje': 'ANCHO', 'pos': is1_ancho}, {'eje': 'ALTO', 'pos': is1_alto}]},
                            {'op': 4, 'nombre':'LINEAL', 'posiciones': [{'eje': 'ENTRADA_ALTO', 'pos': lineal_entrada_altura}, {'eje': 'ENTRADA_ANCHO', 'pos': lineal_entrada_ancho}, {'eje': 'ENTRADA_SUP', 'pos': lineal_entrada_superior},
-                                                                 {'eje': 'SALIDA_ALTO',pos: lineal_salida_altura}, {'eje': 'SALIDA_ANCHO', 'pos': lineal_salida_ancho}, {'eje': 'SALIDA_SUP', 'pos': lineal_salida_superior},
+                                                                 {'eje': 'SALIDA_ALTO','pos': lineal_salida_altura}, {'eje': 'SALIDA_ANCHO', 'pos': lineal_salida_ancho}, {'eje': 'SALIDA_SUP', 'pos': lineal_salida_superior},
                                                                  { 'eje': 'RODILLO_INF_ENTRADA', 'pos': lineal_rod_inf_entrada}, {'eje': 'RODILLO_INF_CENTRO', 'pos': lineal_rod_inf_central}, {'eje': 'RODILLO_INF_SALIDA', 'pos': lineal_rod_inf_salida}]},
                             {'op': 5, 'nombre': 'FP1', 'posiciones': [{'eje': 'INF', 'pos': fp1_inf}, {'eje': 'SUP', 'pos': fp1_sup}]},
                             {'op': 6, 'nombre': 'IS2', 'posiciones': [{'eje': 'ANCHO', 'pos': is2_ancho}, {'eje': 'ALTO', 'pos': is2_alto}]},
