@@ -235,25 +235,25 @@ def get_posiciones_actuales_PLC():
     cb4_inferior = get_real(from_PLC,132)
     cb4_superior = get_real(from_PLC,136) #Siguiente pinchroll - al inicio
 
-    posiciones_actuales = {'PR':  {'INF': pinch_roll_inf},
-                           'BD1': {'INF': bd1_inf, 'SUP': bd1_sup},
-                           'BD2': {'INF': bd2_inf, 'SUP': bd2_sup},
-                           'IS1': {'ANCHO': is1_ancho, 'ALTO': is1_alto},
-                           'LINEAL': {'ENTRADA_ALTO': lineal_entrada_altura, 'ENTRADA_ANCHO': lineal_entrada_ancho, 'ENTRADA_SUP': lineal_entrada_superior,
-                                      'SALIDA_ALTO': lineal_salida_altura, 'SALIDA_ANCHO': lineal_salida_ancho, 'SALIDA_SUP': lineal_salida_superior,
-                                      'RODILLO_INF_ENTRADA': lineal_rod_inf_entrada, 'RODILLO_INF_CENTRO': lineal_rod_inf_central, 'RODILLO_INF_SALIDA': lineal_rod_inf_salida},
-                            'FP1': {'INF': fp1_inf, 'SUP': fp1_sup},
-                            'IS2': {'ANCHO': is2_ancho, 'ALTO': is2_alto},
-                            'FP2': {'INF': fp2_inf, 'SUP': fp2_sup},
-                            'IS3': {'ANCHO': is3_ancho, 'ALTO': is3_alto},
-                            'FP3': {'INF': fp3_inf, 'SUP': fp3_sup},
-                            'W':   {'CAB': w_cabezal, 'LAT_OP': w_lat_operador, 'LAT_MO': w_lat_motor, 'INF': w_inf,
-                                  'SUP_ALTO_OP': w_sup_alto_operador, 'SUP_ANCHO_OP': w_sup_ancho_operador, 'SUP_ALTO_MO': w_sup_alto_motor, 'SUP_ANCHO_MO': w_sup_ancho_motor},
-                            'CB1': {'SUP': cb1_superior, 'INF': cb1_inferior, 'LAT_OP': cb1_lat_operador, 'LAT_MO': cb1_lat_motor},
-                            'CB2': {'SUP': cb2_superior, 'INF': cb2_inferior, 'LAT_OP': cb2_lat_operador, 'LAT_MO': cb2_lat_motor},
-                            'CB3': {'SUP': cb3_superior, 'INF': cb3_inferior, 'LAT_OP': cb3_lat_operador, 'LAT_MO': cb3_lat_motor},
-                            'CB4': {'SUP': cb4_superior, 'INF': cb4_inferior, 'LAT_OP': cb4_lat_operador, 'LAT_MO': cb4_lat_motor},
-                            }
+    posiciones_actuales = [{'op': 0, 'nombre': 'PR', 'posiciones': [{'eje': 'INF', 'pos': pinch_roll_inf}]},
+                           {'op': 1, 'nombre': 'BD1', 'posiciones': [{'eje': 'INF', 'pos': bd1_inf},{'eje': 'SUP', 'pos': bd1_sup}]},
+                           {'op': 2, 'nombre': 'BD2', 'posiciones': [{'eje': 'INF', 'pos': bd2_inf}, {'eje': 'SUP', 'pos': bd2_sup}]},
+                           {'op': 3, 'nombre': 'IS1', 'posiciones': [{'eje': 'ANCHO', 'pos': is1_ancho}, {'eje': 'ALTO', 'pos': is1_alto}]},
+                           {'op': 4, 'nombre':'LINEAL', 'posiciones': [{'eje': 'ENTRADA_ALTO', 'pos': lineal_entrada_altura}, {'eje': 'ENTRADA_ANCHO', 'pos': lineal_entrada_ancho}, {'eje': 'ENTRADA_SUP', 'pos': lineal_entrada_superior},
+                                                                 {'eje': 'SALIDA_ALTO',pos: lineal_salida_altura}, {'eje': 'SALIDA_ANCHO', 'pos': lineal_salida_ancho}, {'eje': 'SALIDA_SUP', 'pos': lineal_salida_superior},
+                                                                 { 'eje': 'RODILLO_INF_ENTRADA', 'pos': lineal_rod_inf_entrada}, {'eje': 'RODILLO_INF_CENTRO', 'pos': lineal_rod_inf_central}, {'eje': 'RODILLO_INF_SALIDA', 'pos': lineal_rod_inf_salida}]},
+                            {'op': 5, 'nombre': 'FP1', 'posiciones': [{'eje': 'INF', 'pos': fp1_inf}, {'eje': 'SUP', 'pos': fp1_sup}]},
+                            {'op': 6, 'nombre': 'IS2', 'posiciones': [{'eje': 'ANCHO', 'pos': is2_ancho}, {'eje': 'ALTO', 'pos': is2_alto}]},
+                            {'op': 7, 'nombre': 'FP2', 'posiciones': [{'eje': 'INF', 'pos': fp2_inf}, {'eje': 'SUP', 'pos': fp2_sup}]},
+                            {'op': 8, 'nombre': 'IS3', 'posiciones': [{'eje': 'ANCHO', 'pos': is3_ancho}, {'eje': 'ALTO', 'pos': is3_alto}]},
+                            {'op': 9, 'nombre': 'FP3', 'posiciones': [{'eje': 'INF', 'pos': fp3_inf}, {'eje': 'SUP', 'pos': fp3_sup}]},
+                            {'op': 10, 'nombre': 'W', 'posiciones': [{'eje': 'CAB', 'pos': w_cabezal}, {'eje': 'LAT_OP', 'pos': w_lat_operador}, {'eje': 'LAT_MO', 'pos': w_lat_motor}, {'eje': 'INF', 'pos': w_inf},
+                                                               {'eje': 'SUP_ALTO_OP', 'pos': w_sup_alto_operador}, {'eje': 'SUP_ANCHO_OP', 'pos': w_sup_ancho_operador}, {'eje': 'SUP_ALTO_MO', 'pos': w_sup_alto_motor}, {'eje': 'SUP_ANCHO_MO', 'pos': w_sup_ancho_motor}]},
+                            {'op': 11, 'nombre': 'CB1', 'posiciones': [{'eje': 'SUP', 'pos': cb1_superior}, {'eje': 'INF', 'pos': cb1_inferior}, {'eje': 'LAT_OP', 'pos': cb1_lat_operador}, {'eje': 'LAT_MO', 'pos': cb1_lat_motor}]},
+                            {'op': 12, 'nombre': 'CB2', 'posiciones': [{'eje': 'SUP', 'pos': cb2_superior}, {'eje': 'INF', 'pos': cb2_inferior}, {'eje': 'LAT_OP', 'pos': cb2_lat_operador}, {'eje': 'LAT_MO', 'pos': cb2_lat_motor}]},
+                            {'op': 13, 'nombre': 'CB3', 'posiciones': [{'eje': 'SUP', 'pos': cb3_superior}, {'eje': 'INF', 'pos': cb3_inferior}, {'eje': 'LAT_OP', 'pos': cb3_lat_operador}, {'eje': 'LAT_MO', 'pos': cb3_lat_motor}]},
+                            {'op': 14, 'nombre': 'CB4', 'posiciones': [{'eje': 'SUP', 'pos': cb4_superior}, {'eje': 'INF', 'pos': cb4_inferior}, {'eje': 'LAT_OP', 'pos': cb4_lat_operador}, {'eje': 'LAT_MO', 'pos': cb4_lat_motor}]},
+                            ]
     return posiciones_actuales
 
 def get_PC(): # Lee los datos que se han enviado al PLC - No los datos actuales
