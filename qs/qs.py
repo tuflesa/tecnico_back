@@ -248,7 +248,7 @@ def get_posiciones_actuales_PLC():
                             {'op': 8, 'nombre': 'IS3', 'posiciones': [{'eje': 'ANCHO', 'pos': is3_ancho}, {'eje': 'ALTO', 'pos': is3_alto}]},
                             {'op': 9, 'nombre': 'FP3', 'posiciones': [{'eje': 'INF', 'pos': fp3_inf}, {'eje': 'SUP', 'pos': fp3_sup}]},
                             {'op': 10, 'nombre': 'W', 'posiciones': [{'eje': 'CAB', 'pos': w_cabezal}, {'eje': 'LAT_OP', 'pos': w_lat_operador}, {'eje': 'LAT_MO', 'pos': w_lat_motor}, {'eje': 'INF', 'pos': w_inf},
-                                                               {'eje': 'SUP_ALTO_OP', 'pos': w_sup_alto_operador}, {'eje': 'SUP_ANCHO_OP', 'pos': w_sup_ancho_operador}, {'eje': 'SUP_ALTO_MO', 'pos': w_sup_alto_motor}, {'eje': 'SUP_ANCHO_MO', 'pos': w_sup_ancho_motor}]},
+                                                               {'eje': 'SUP_V_OP', 'pos': w_sup_alto_operador}, {'eje': 'SUP_H_OP', 'pos': w_sup_ancho_operador}, {'eje': 'SUP_V_MO', 'pos': w_sup_alto_motor}, {'eje': 'SUP_H_MO', 'pos': w_sup_ancho_motor}]},
                             {'op': 11, 'nombre': 'CB1', 'posiciones': [{'eje': 'SUP', 'pos': cb1_superior}, {'eje': 'INF', 'pos': cb1_inferior}, {'eje': 'LAT_OP', 'pos': cb1_lat_operador}, {'eje': 'LAT_MO', 'pos': cb1_lat_motor}]},
                             {'op': 12, 'nombre': 'CB2', 'posiciones': [{'eje': 'SUP', 'pos': cb2_superior}, {'eje': 'INF', 'pos': cb2_inferior}, {'eje': 'LAT_OP', 'pos': cb2_lat_operador}, {'eje': 'LAT_MO', 'pos': cb2_lat_motor}]},
                             {'op': 13, 'nombre': 'CB3', 'posiciones': [{'eje': 'SUP', 'pos': cb3_superior}, {'eje': 'INF', 'pos': cb3_inferior}, {'eje': 'LAT_OP', 'pos': cb3_lat_operador}, {'eje': 'LAT_MO', 'pos': cb3_lat_motor}]},
