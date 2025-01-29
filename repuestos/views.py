@@ -114,6 +114,7 @@ class LineaPedidoFilter(filters.FilterSet):
             'pedido__fecha_prevista_entrega': ['exact'],
             'pedido__empresa__id': ['exact'],
             'descripcion_proveedor': ['icontains'],
+            'repuesto__tipo_repuesto': ['exact'],
         }
 
 class LineaAdicionalFilter(filters.FilterSet):
