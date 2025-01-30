@@ -4,3 +4,4 @@ media
 static
 *.pyc
 db.sqlite3
+tecnico/settings.py
