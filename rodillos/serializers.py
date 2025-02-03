@@ -220,7 +220,7 @@ class FormaSerializer(serializers.ModelSerializer):
 class MontajeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Montaje
-        fields = ['id', 'nombre', 'maquina', 'grupo', 'bancadas']
+        fields = ['id', 'nombre', 'maquina', 'grupo', 'bancadas', 'titular_grupo']
 
 class MontajeListadoSerializer(serializers.ModelSerializer):
     maquina = ZonaSerializer_Rodillos(many=False)
@@ -228,7 +228,7 @@ class MontajeListadoSerializer(serializers.ModelSerializer):
     bancadas = BancadaSerializer(many=False)
     class Meta:
         model = Montaje
-        fields = ['id', 'nombre', 'maquina', 'grupo', 'bancadas']
+        fields = ['id', 'nombre', 'maquina', 'grupo', 'bancadas', 'titular_grupo']
 
 class MontajeToolingSerializer(serializers.ModelSerializer):
     maquina = ZonaSerializer_Rodillos(many=False)
@@ -236,7 +236,7 @@ class MontajeToolingSerializer(serializers.ModelSerializer):
     bancadas = BancadaSerializer(many=False)
     class Meta:
         model = Montaje
-        fields = ['id', 'nombre', 'maquina', 'grupo', 'bancadas']
+        fields = ['id', 'nombre', 'maquina', 'grupo', 'bancadas', 'titular_grupo']
 
 class InstanciaSerializer(serializers.ModelSerializer):
     class Meta:
@@ -340,4 +340,4 @@ class MontajeQSSerializer(serializers.ModelSerializer):
     articulos = ArticuloSerializer(many=True)
     class Meta:
         model = Montaje
-        fields = ['id', 'nombre', 'maquina', 'grupo', 'bancadas', 'articulos']
+        fields = ['id', 'nombre', 'maquina', 'grupo', 'bancadas', 'articulos', 'titular_grupo']

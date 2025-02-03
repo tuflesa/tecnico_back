@@ -174,6 +174,7 @@ class Montaje(models.Model):
     maquina = models.ForeignKey(Zona, on_delete=models.CASCADE, related_name='montajes')
     grupo = models.ForeignKey(Grupo, on_delete=models.CASCADE)
     bancadas = models.ForeignKey(Bancada, on_delete=models.CASCADE, null=True, blank=True, default=None) #es la bancada de CT + grupo = montaje
+    titular_grupo = models.BooleanField(default=False)
 
     def __str__(self) -> str:
         return self.nombre
