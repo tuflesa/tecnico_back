@@ -199,18 +199,18 @@ class Celda_SelectSerializer(serializers.ModelSerializer):
     bancada = Bancada_SelectSerializer()
     class Meta:
         model = Celda
-        fields = ['id', 'bancada', 'conjunto', 'icono', 'operacion']
+        fields = '__all__'
 
 class Celda_DuplicarSerializer(serializers.ModelSerializer):
     conjunto = Conjunto_OperacionSerializer(many=False)
     class Meta:
         model = Celda
-        fields = ['id', 'bancada', 'conjunto', 'icono', 'operacion']
+        fields = '__all__'
     
 class CeldaSerializer(serializers.ModelSerializer):
     class Meta:
         model = Celda
-        fields = ['id', 'bancada', 'conjunto', 'icono', 'operacion']
+        fields = '__all__'
 
 class FormaSerializer(serializers.ModelSerializer):
     class Meta:

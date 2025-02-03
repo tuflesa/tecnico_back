@@ -111,7 +111,6 @@ class Conjunto(models.Model):
 class Celda (models.Model):
     bancada = models.ForeignKey(Bancada, on_delete=models.CASCADE, related_name='celdas')
     conjunto = models.ForeignKey(Conjunto, on_delete=models.CASCADE)
-    icono = models.ImageField(upload_to='iconos', blank=True, null=True)
     operacion = models.ForeignKey(Operacion, on_delete=models.CASCADE, blank=True, null=True)
 
 # Grupo
