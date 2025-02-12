@@ -3,7 +3,7 @@ from estructura.serializers import ZonaSerializer_Rodillos
 from administracion.serializers import UserSerializer
 from repuestos.serializers import ProveedorSerializer
 from articulos.serializers import ArticuloSerializer
-from rodillos.models import Rodillo, Plano, Revision, Seccion, Operacion, Tipo_rodillo, Material, Grupo, Tipo_Plano, Nombres_Parametros, Tipo_Seccion, Parametros_Estandar, Eje, Bancada, Conjunto, Elemento, Celda, Forma, Montaje, Icono, Instancia, Rectificacion, LineaRectificacion, Posicion
+from rodillos.models import Rodillo, Plano, Revision, Seccion, Operacion, Tipo_rodillo, Material, Grupo, Tipo_Plano, Nombres_Parametros, Tipo_Seccion, Parametros_Estandar, Eje, Bancada, Conjunto, Elemento, Celda, Forma, Montaje, Icono, Instancia, Rectificacion, LineaRectificacion, Posicion, Icono_celda
 
 class RodilloSerializer(serializers.ModelSerializer):
     class Meta:
@@ -194,7 +194,13 @@ class Elemento_SelectSerializer(serializers.ModelSerializer):
         model = Elemento
         fields = ['id', 'conjunto', 'eje', 'rodillo', 'anotciones_montaje']
 
+class Icono_celdaSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Icono_celda
+        fields = '__all__'
+
 class Celda_SelectSerializer(serializers.ModelSerializer):
+    icono = Icono_celdaSerializer(many=False)
     conjunto = ConjuntoSerializer(many=False)
     bancada = Bancada_SelectSerializer()
     class Meta:
@@ -220,7 +226,7 @@ class FormaSerializer(serializers.ModelSerializer):
 class MontajeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Montaje
-        fields = ['id', 'nombre', 'maquina', 'grupo', 'bancadas', 'titular_grupo']
+        fields = '__all__'
 
 class MontajeListadoSerializer(serializers.ModelSerializer):
     maquina = ZonaSerializer_Rodillos(many=False)
@@ -228,15 +234,15 @@ class MontajeListadoSerializer(serializers.ModelSerializer):
     bancadas = BancadaSerializer(many=False)
     class Meta:
         model = Montaje
-        fields = ['id', 'nombre', 'maquina', 'grupo', 'bancadas', 'titular_grupo']
+        fields = '__all__'
 
-class MontajeToolingSerializer(serializers.ModelSerializer):
+""" class MontajeToolingSerializer(serializers.ModelSerializer):
     maquina = ZonaSerializer_Rodillos(many=False)
     grupo = GrupoBancadaSerializer(many=False)
     bancadas = BancadaSerializer(many=False)
     class Meta:
         model = Montaje
-        fields = ['id', 'nombre', 'maquina', 'grupo', 'bancadas', 'titular_grupo']
+        fields = ['id', 'nombre', 'maquina', 'grupo', 'bancadas', 'titular_grupo'] """
 
 class InstanciaSerializer(serializers.ModelSerializer):
     class Meta:
@@ -340,4 +346,11 @@ class MontajeQSSerializer(serializers.ModelSerializer):
     articulos = ArticuloSerializer(many=True)
     class Meta:
         model = Montaje
-        fields = ['id', 'nombre', 'maquina', 'grupo', 'bancadas', 'articulos', 'titular_grupo']
+        fields = '__all__'
+
+class MontajeToolingSerializer(serializers.ModelSerializer):
+    grupo = GrupoQSSerializer(many=False)
+    bancadas = BancadaQSSerializer(many=False)
+    class Meta:
+        model = Montaje
+        fields = '__all__'
