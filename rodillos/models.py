@@ -59,12 +59,20 @@ class Icono(models.Model):
     def __str__(self) -> str:
         return self.nombre
 
+
+class Icono_celda(models.Model):
+    nombre = models.CharField(max_length=20)
+    icono = models.ImageField(upload_to='iconos_celda', blank=True, null=True) 
+    def __str__(self) -> str:
+        return self.nombre
+    
 # Operaciones de una sección
 class Operacion(models.Model):
     nombre = models.CharField(max_length=50) # Ejemplo: F1
     seccion = models.ForeignKey(Seccion, on_delete=models.CASCADE, related_name='operaciones') 
     icono = models.ForeignKey(Icono,  on_delete=models.CASCADE, blank=True, null=True)
     orden = models.IntegerField(null=True, blank=True) #Solamente se usa para la posición en el tooling chart
+    icono_celda = models.ForeignKey(Icono_celda,  on_delete=models.CASCADE, blank=True, null=True)
 
     def __str__(self):
         return self.seccion.maquina.siglas + '-' + self.seccion.nombre + '-' + self.nombre
@@ -99,20 +107,24 @@ class Bancada(models.Model):
             return f"{self.seccion.nombre}-{self.tubo_madre}"
         else:
             return str(self.seccion.nombre)
+    class Meta:
+        ordering = ['seccion__orden', 'id']
 
 # Conjuntos de rodillos de una operación. Son las celdas del Tooling Chart
 class Conjunto(models.Model):
     operacion = models.ForeignKey(Operacion, on_delete=models.CASCADE, related_name='conjuntos')
     tubo_madre = models.FloatField(blank=True, null=True)
     espesores = models.CharField(max_length=20, blank=True, null=True)
-    
 
 # Son las celdas del Tooling Chart para las formaciones raras
 class Celda (models.Model):
     bancada = models.ForeignKey(Bancada, on_delete=models.CASCADE, related_name='celdas')
     conjunto = models.ForeignKey(Conjunto, on_delete=models.CASCADE)
-    icono = models.ImageField(upload_to='iconos', blank=True, null=True)
     operacion = models.ForeignKey(Operacion, on_delete=models.CASCADE, blank=True, null=True)
+    icono = models.ForeignKey(Icono_celda,  on_delete=models.CASCADE, blank=True, null=True)
+
+    class Meta:
+        ordering = ['operacion__orden', 'id']
 
 # Grupo
 class Grupo(models.Model):
@@ -174,9 +186,15 @@ class Montaje(models.Model):
     maquina = models.ForeignKey(Zona, on_delete=models.CASCADE, related_name='montajes')
     grupo = models.ForeignKey(Grupo, on_delete=models.CASCADE)
     bancadas = models.ForeignKey(Bancada, on_delete=models.CASCADE, null=True, blank=True, default=None) #es la bancada de CT + grupo = montaje
+    titular_grupo = models.BooleanField(default=False)
+    anotciones_montaje = models.CharField(max_length=500, null=True, blank=True)
+    archivo = models.FileField(upload_to='anotaciones_montaje', blank=True, null=True )
 
     def __str__(self) -> str:
         return self.nombre
+    
+    class Meta:
+        ordering = ['grupo__tubo_madre', 'grupo','titular_grupo']
 
 # Planos de los rodillos
 class Plano(models.Model):
