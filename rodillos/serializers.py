@@ -322,6 +322,14 @@ class CeldaQSSerializer(serializers.ModelSerializer):
         model = Celda
         fields = '__all__'
 
+class CeldaToolingSerializer(serializers.ModelSerializer):
+    conjunto = ConjuntoQSSerializer(many=False)
+    operacion = OperacionQSSerializer(many = False)
+    icono = Icono_celdaSerializer(many=False)
+    class Meta:
+        model = Celda
+        fields = '__all__'
+
 class SeccionQSSerializer(serializers.ModelSerializer):
     class Meta:
         model = Seccion
@@ -334,8 +342,15 @@ class BancadaQSSerializer(serializers.ModelSerializer):
         model = Bancada
         fields = '__all__'
 
+class BancadaToolingSerializer(serializers.ModelSerializer):
+    seccion = SeccionQSSerializer(many=False)
+    celdas = CeldaToolingSerializer(many=True)
+    class Meta:
+        model = Bancada
+        fields = '__all__'
+
 class GrupoQSSerializer(serializers.ModelSerializer):
-    bancadas = BancadaQSSerializer(many=True)
+    bancadas = BancadaToolingSerializer(many=True)
     class Meta:
         model = Grupo
         fields = ['id', 'nombre', 'maquina', 'tubo_madre', 'bancadas', 'espesor_1', 'espesor_2']
@@ -350,7 +365,7 @@ class MontajeQSSerializer(serializers.ModelSerializer):
 
 class MontajeToolingSerializer(serializers.ModelSerializer):
     grupo = GrupoQSSerializer(many=False)
-    bancadas = BancadaQSSerializer(many=False)
+    bancadas = BancadaToolingSerializer(many=False)
     class Meta:
         model = Montaje
         fields = '__all__'
