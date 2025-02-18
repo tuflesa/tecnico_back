@@ -62,7 +62,9 @@ class Icono(models.Model):
 
 class Icono_celda(models.Model):
     nombre = models.CharField(max_length=20)
-    icono = models.ImageField(upload_to='iconos_celda', blank=True, null=True) 
+    icono = models.ImageField(upload_to='iconos_celda', blank=True, null=True)
+    pertenece_grupo = models.BooleanField(default=True)
+    pertenece_ct = models.BooleanField(default=False)
     def __str__(self) -> str:
         return self.nombre
     
