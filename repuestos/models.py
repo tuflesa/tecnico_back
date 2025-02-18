@@ -95,7 +95,7 @@ class Pedido(models.Model):
     contacto = models.ForeignKey(Contacto, on_delete=models.SET_NULL, null= True, blank=True)
     observaciones = models.CharField(max_length=500, null=True, blank=True)
     observaciones2 = models.CharField(max_length=500, null=True, blank=True)
-    descripcion = models.CharField(max_length=300, null=True, blank=True)
+    descripcion = models.CharField(max_length=300, null=False, blank=False)
     intervencion = models.BooleanField(default=False, null=True, blank=True)
     revisado = models.BooleanField(default=False, null=True, blank=True)
 
