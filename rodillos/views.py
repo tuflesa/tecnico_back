@@ -176,6 +176,7 @@ class InstanciaListadoFilter(filters.FilterSet):
 
         }
 class CeldaFilter(filters.FilterSet):
+    icono_isnull = django_filters.BooleanFilter(field_name='icono', lookup_expr='isnull')
     class Meta:
         model = Celda
         fields = {
@@ -191,6 +192,7 @@ class CeldaFilter(filters.FilterSet):
             'conjunto__operacion':['exact'],
             'bancada':['exact'],
             'operacion':['exact'],
+            'icono': ['exact'],
         }
 
 class CeldaDuplicarFilter(filters.FilterSet):
@@ -746,3 +748,4 @@ class PosicionViewSet(viewsets.ModelViewSet):
 class CeldaQSViewSet(viewsets.ModelViewSet):
     serializer_class = CeldaQSSerializer
     queryset = Celda.objects.all()
+    filterset_class = CeldaFilter
