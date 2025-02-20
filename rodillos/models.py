@@ -74,6 +74,7 @@ class Operacion(models.Model):
     seccion = models.ForeignKey(Seccion, on_delete=models.CASCADE, related_name='operaciones') 
     icono = models.ForeignKey(Icono,  on_delete=models.CASCADE, blank=True, null=True)
     orden = models.IntegerField(null=True, blank=True) #Solamente se usa para la posición en el tooling chart
+    color = models.CharField(max_length=20, default='blue')
     icono_celda = models.ForeignKey(Icono_celda,  on_delete=models.CASCADE, blank=True, null=True)
 
     def __str__(self):
