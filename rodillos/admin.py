@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Tipo_Seccion, Seccion, Operacion, Eje, Rodillo, Tipo_rodillo, Material, Bancada, Conjunto, Elemento, Grupo, Montaje, Plano, Revision, Tipo_Plano, Nombres_Parametros, Instancia, Parametros_Estandar, Parametros, Celda, Forma, Icono, Rectificacion, LineaRectificacion, Posicion
+from .models import Tipo_Seccion, Seccion, Operacion, Eje, Rodillo, Tipo_rodillo, Material, Bancada, Conjunto, Elemento, Grupo, Montaje, Plano, Revision, Tipo_Plano, Nombres_Parametros, Instancia, Parametros_Estandar, Parametros, Celda, Forma, Icono, Rectificacion, LineaRectificacion, Posicion, Icono_celda
 
 class RevisionAdmin(admin.ModelAdmin):
     search_fields=("plano__nombre",)
@@ -71,8 +71,13 @@ class IconoAdmin(admin.ModelAdmin):
     list_display=("id","nombre")
     search_fields=("nombre",)
 
+class Icono_celdaAdmin(admin.ModelAdmin):
+    list_display=("id","nombre")
+    search_fields=("nombre",)
+
 admin.site.register(Tipo_Seccion, Tipo_SeccionAdmin)
 admin.site.register(Icono, IconoAdmin)
+admin.site.register(Icono_celda, Icono_celdaAdmin)
 admin.site.register(Rectificacion)
 admin.site.register(Seccion, SeccionAdmin)
 admin.site.register(Operacion, OperacionAdmin)

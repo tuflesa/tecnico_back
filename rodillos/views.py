@@ -1,6 +1,6 @@
 from rest_framework import status, viewsets
-from rodillos.models import Rodillo, Tipo_rodillo, Seccion, Operacion, Eje, Plano, Revision, Material, Grupo, Tipo_Plano, Nombres_Parametros, Tipo_Seccion, Parametros_Estandar, Bancada, Conjunto, Elemento, Celda, Forma, Montaje, Icono, Instancia, Rectificacion, LineaRectificacion, Posicion
-from rodillos.serializers import RodilloSerializer, PlanoNuevoSerializer, RevisionSerializer, SeccionSerializer, OperacionSerializer, TipoRodilloSerializer, MaterialSerializer, GrupoSerializer, TipoPlanoSerializer, RodilloListSerializer, PlanoParametrosSerializer, Nombres_ParametrosSerializer, TipoSeccionSerializer, PlanoSerializer, RevisionConjuntosSerializer, Parametros_estandarSerializer, Plano_existenteSerializer, EjeSerializer, BancadaSerializer, ConjuntoSerializer, ElementoSerializer, Elemento_SelectSerializer, Bancada_GruposSerializer, Bancada_SelectSerializer, CeldaSerializer, Celda_SelectSerializer, Grupo_onlySerializer, FormaSerializer, Celda_DuplicarSerializer, Bancada_CTSerializer, MontajeSerializer, MontajeListadoSerializer, MontajeToolingSerializer, RodillosSerializer, Conjunto_OperacionSerializer, RevisionPlanosSerializer, IconoSerializer, EjeOperacionSerializer, InstanciaSerializer, InstanciaListadoSerializer, RectificacionSerializer, RectificacionListaSerializer, LineaRectificacionSerializer, ListadoLineaRectificacionSerializer, PosicionSerializer, MontajeQSSerializer
+from rodillos.models import Rodillo, Tipo_rodillo, Seccion, Operacion, Eje, Plano, Revision, Material, Grupo, Tipo_Plano, Nombres_Parametros, Tipo_Seccion, Parametros_Estandar, Bancada, Conjunto, Elemento, Celda, Forma, Montaje, Icono, Instancia, Rectificacion, LineaRectificacion, Posicion, Icono_celda
+from rodillos.serializers import RodilloSerializer, PlanoNuevoSerializer, RevisionSerializer, SeccionSerializer, OperacionSerializer, TipoRodilloSerializer, MaterialSerializer, GrupoSerializer, TipoPlanoSerializer, RodilloListSerializer, PlanoParametrosSerializer, Nombres_ParametrosSerializer, TipoSeccionSerializer, PlanoSerializer, RevisionConjuntosSerializer, Parametros_estandarSerializer, Plano_existenteSerializer, EjeSerializer, BancadaSerializer, ConjuntoSerializer, ElementoSerializer, Elemento_SelectSerializer, Bancada_GruposSerializer, Bancada_SelectSerializer, CeldaSerializer, Celda_SelectSerializer, Grupo_onlySerializer, FormaSerializer, Celda_DuplicarSerializer, Bancada_CTSerializer, MontajeSerializer, MontajeListadoSerializer, MontajeToolingSerializer, RodillosSerializer, Conjunto_OperacionSerializer, RevisionPlanosSerializer, IconoSerializer, EjeOperacionSerializer, InstanciaSerializer, InstanciaListadoSerializer, RectificacionSerializer, RectificacionListaSerializer, LineaRectificacionSerializer, ListadoLineaRectificacionSerializer, PosicionSerializer, MontajeQSSerializer, Icono_celdaSerializer, BancadaQSSerializer, CeldaQSSerializer
 from django_filters import rest_framework as filters
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
@@ -176,6 +176,7 @@ class InstanciaListadoFilter(filters.FilterSet):
 
         }
 class CeldaFilter(filters.FilterSet):
+    icono_isnull = django_filters.BooleanFilter(field_name='icono', lookup_expr='isnull')
     class Meta:
         model = Celda
         fields = {
@@ -191,6 +192,7 @@ class CeldaFilter(filters.FilterSet):
             'conjunto__operacion':['exact'],
             'bancada':['exact'],
             'operacion':['exact'],
+            'icono': ['exact'],
         }
 
 class CeldaDuplicarFilter(filters.FilterSet):
@@ -396,6 +398,14 @@ class MontajeListadoFilter(filters.FilterSet):
             'bancadas__id':['exact'],
             'nombre':['icontains'],
             'maquina__empresa__id': ['exact'],
+        }
+
+class IconoCeldaFilter(filters.FilterSet):
+    class Meta:
+        model = Icono_celda
+        fields = {
+            'pertenece_grupo': ['exact'],
+            'pertenece_ct': ['exact'],
         }
 
 class Grupo_NuevoViewSet(viewsets.ModelViewSet):
@@ -651,6 +661,11 @@ class Bancada_SelectViewSet(viewsets.ModelViewSet):
     queryset = Bancada.objects.all()
     #filterset_class = BancadaFilter
 
+class Icono_celdaViewSet(viewsets.ModelViewSet):
+    serializer_class = Icono_celdaSerializer
+    queryset = Icono_celda.objects.all()
+    filterset_class = IconoCeldaFilter
+
 class Celda_SelectViewSet(viewsets.ModelViewSet):
     serializer_class = Celda_SelectSerializer
     queryset = Celda.objects.all().order_by('conjunto__operacion')
@@ -729,3 +744,8 @@ class ListadoLineaRectificacionViewSet(viewsets.ModelViewSet):
 class PosicionViewSet(viewsets.ModelViewSet):
     serializer_class = PosicionSerializer
     queryset = Posicion.objects.all()
+
+class CeldaQSViewSet(viewsets.ModelViewSet):
+    serializer_class = CeldaQSSerializer
+    queryset = Celda.objects.all()
+    filterset_class = CeldaFilter

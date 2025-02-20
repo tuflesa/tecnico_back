@@ -153,6 +153,7 @@ class StockMinimoFilter(filters.FilterSet):
             'almacen__nombre' : ['icontains'],
             'repuesto__nombre_comun' : ['icontains'],
             'almacen__empresa':['exact'],
+            'repuesto__tipo_repuesto': ['exact'],
         }
 
 class ContactosFilter(filters.FilterSet):
