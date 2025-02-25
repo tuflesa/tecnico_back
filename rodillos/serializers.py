@@ -3,7 +3,7 @@ from estructura.serializers import ZonaSerializer_Rodillos
 from administracion.serializers import UserSerializer
 from repuestos.serializers import ProveedorSerializer
 from articulos.serializers import ArticuloSerializer
-from rodillos.models import Rodillo, Plano, Revision, Seccion, Operacion, Tipo_rodillo, Material, Grupo, Tipo_Plano, Nombres_Parametros, Tipo_Seccion, Parametros_Estandar, Eje, Bancada, Conjunto, Elemento, Celda, Forma, Montaje, Icono, Instancia, Rectificacion, LineaRectificacion, Posicion, Icono_celda
+from rodillos.models import Rodillo, Plano, Revision, Seccion, Operacion, Tipo_rodillo, Material, Grupo, Tipo_Plano, Nombres_Parametros, Tipo_Seccion, Parametros_Estandar, Eje, Bancada, Conjunto, Elemento, Celda, Forma, Montaje, Icono, Instancia, Rectificacion, LineaRectificacion, Posicion, Icono_celda, Anotaciones
 
 class RodilloSerializer(serializers.ModelSerializer):
     class Meta:
@@ -363,9 +363,21 @@ class MontajeQSSerializer(serializers.ModelSerializer):
         model = Montaje
         fields = '__all__'
 
+class AnotacionesToolingSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Anotaciones
+        fields = '__all__'
+
 class MontajeToolingSerializer(serializers.ModelSerializer):
     grupo = GrupoQSSerializer(many=False)
     bancadas = BancadaToolingSerializer(many=False)
+    anotaciones = AnotacionesToolingSerializer(many=True)
+    maquina = ZonaSerializer_Rodillos(many=False)
     class Meta:
         model = Montaje
+        fields = '__all__'
+    
+class AnotacionesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Anotaciones
         fields = '__all__'

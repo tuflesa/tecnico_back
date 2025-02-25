@@ -199,6 +199,12 @@ class Montaje(models.Model):
     class Meta:
         ordering = ['grupo__tubo_madre', 'grupo','titular_grupo']
 
+# Varias anotaciones por cada montaje
+class Anotaciones(models.Model):
+    descripcion = models.CharField(max_length=50)
+    archivo = models.FileField(upload_to='anotaciones_montaje', blank=True, null=True )
+    montaje = models.ForeignKey(Montaje, on_delete=models.CASCADE, related_name='anotaciones')
+
 # Planos de los rodillos
 class Plano(models.Model):
     nombre = models.CharField(max_length=200, null=True, blank=True, default=None)
