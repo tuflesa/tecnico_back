@@ -166,6 +166,7 @@ class Rodillo(models.Model):
     num_ejes = models.IntegerField(default=1,blank=True, null=True)
     archivo = models.FileField(upload_to='programa', blank=True, null=True)
     rectificado_por_parejas = models.BooleanField(default=True) #este campo lo utilizamos para saber que trabajan con una sola instancia por pareja, se rectifican a la par
+    es_generico = models.BooleanField(default=False) #para el null en los montajes
 
     def __str__(self) -> str:
         return self.nombre

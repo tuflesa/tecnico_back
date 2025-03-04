@@ -199,14 +199,6 @@ class Icono_celdaSerializer(serializers.ModelSerializer):
         model = Icono_celda
         fields = '__all__'
 
-class Celda_SelectSerializer(serializers.ModelSerializer):
-    icono = Icono_celdaSerializer(many=False)
-    conjunto = ConjuntoSerializer(many=False)
-    bancada = Bancada_SelectSerializer()
-    class Meta:
-        model = Celda
-        fields = '__all__'
-
 class Celda_DuplicarSerializer(serializers.ModelSerializer):
     conjunto = Conjunto_OperacionSerializer(many=False)
     class Meta:
@@ -347,6 +339,14 @@ class BancadaToolingSerializer(serializers.ModelSerializer):
     celdas = CeldaToolingSerializer(many=True)
     class Meta:
         model = Bancada
+        fields = '__all__'
+
+class Celda_SelectSerializer(serializers.ModelSerializer):
+    icono = Icono_celdaSerializer(many=False)
+    conjunto = ConjuntoSerializer(many=False)
+    bancada = BancadaToolingSerializer()
+    class Meta:
+        model = Celda
         fields = '__all__'
 
 class GrupoQSSerializer(serializers.ModelSerializer):
