@@ -23,7 +23,7 @@ class Variante(models.Model):
     l_entrada_alto = models.FloatField(null=False, blank=False)
     l_entrada_rod_inf = models.FloatField(null=False, blank=False)
     l_centro_rod_inf = models.FloatField(null=False, blank=False)
-    l_saluda_sup = models.FloatField(null=False, blank=False)
+    l_salida_sup = models.FloatField(null=False, blank=False)
     l_salida_ancho = models.FloatField(null=False, blank=False)
     l_salida_alto = models.FloatField(null=False, blank=False)
     l_salida_rod_inf = models.FloatField(null=False, blank=False)
