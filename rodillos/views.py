@@ -153,6 +153,7 @@ class RodillosFilter(filters.FilterSet):
             'grupo__id':['exact'],
             'nombre':['exact'],
             'grupo__tubo_madre':['exact'],
+            'es_generico': ['exact'],
         }
 
 class InstanciaFilter(filters.FilterSet):
