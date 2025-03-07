@@ -46,6 +46,7 @@ class Variante(models.Model):
     w_sup_op_h = models.FloatField(null=False, blank=False) # Eje horizontal
     w_sup_mo_v = models.FloatField(null=False, blank=False) # Eje vertical
     w_sup_mo_h = models.FloatField(null=False, blank=False) # Eje horizontal
+    w_cab = models.FloatField(null=False, blank=False, default=0) # Altura del cabezal
     # Calibradora
     cb1_sup = models.FloatField(null=False, blank=False)
     cb1_inf = models.FloatField(null=False, blank=False)
