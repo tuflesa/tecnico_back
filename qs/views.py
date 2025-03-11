@@ -1,8 +1,5 @@
 from rest_framework.views import APIView
 from rest_framework import viewsets
-#from rest_framework import viewsets
-#from django.http import HttpResponse
-from django_filters import rest_framework as filters
 from rest_framework.response import Response
 from .models import Variante
 from .serializers import VarianteSerializer
@@ -29,6 +26,3 @@ class PosicionesActPLC(APIView):
 class VarianteViewSet(viewsets.ModelViewSet):
     serializer_class = VarianteSerializer
     queryset = Variante.objects.all()
-
-# def first(request):
-#     return HttpResponse('1st message from views')

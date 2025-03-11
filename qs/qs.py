@@ -1,5 +1,7 @@
 import snap7
 import struct
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
 
 # QS mtt2
 IP = '10.128.1.140'
@@ -301,3 +303,8 @@ def get_PC(): # Lee los datos que se han enviado al PLC - No los datos actuales
           {'op': 7, 'pos': {'LAT_OP': w_op_w, 'LAT_MO': w_mot_w, 'INF': w_inf_w}}]
     
     return pc
+
+@api_view(['POST'])
+def enviarVariantePLC(request):
+    print(request.data['data'])
+    return Response('OK')
