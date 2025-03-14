@@ -48,7 +48,7 @@ class EquipoFilter(filters.FilterSet):
 
 class EmpresaViewSet(viewsets.ModelViewSet):
     serializer_class = EmpresaSerializer
-    queryset = Empresa.objects.all()
+    queryset = Empresa.objects.all().order_by('siglas')
 
 class DireccionesEmpresaViewSet(viewsets.ModelViewSet):
     serializer_class = DireccionesEmpresaSerializer
@@ -57,12 +57,12 @@ class DireccionesEmpresaViewSet(viewsets.ModelViewSet):
 
 class ZonaViewSet(viewsets.ModelViewSet):
     serializer_class = ZonaSerializer
-    queryset = Zona.objects.all()
+    queryset = Zona.objects.all().order_by('siglas')
     filterset_class = ZonasFilter
 
 class SeccionViewSet(viewsets.ModelViewSet):
     serializer_class = SeccionSerializer
-    queryset = Seccion.objects.all()
+    queryset = Seccion.objects.all().order_by('nombre')
     filterset_class = SeccionFilter
 
 class EquipoViewSet(viewsets.ModelViewSet):

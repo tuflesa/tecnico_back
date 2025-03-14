@@ -200,14 +200,14 @@ class ListadoLineaParteViewSet(viewsets.ModelViewSet):
 #excluimos de la busqueda aquellas con estado 3 = finalizadas y 4 = pendientes
 class ListadoLineaActivasViewSet(viewsets.ModelViewSet):
     serializer_class = ListadoLineasActivasSerializer
-    queryset = LineaParteTrabajo.objects.exclude(estado=3).exclude(estado=4).order_by('-tarea__prioridad')
+    queryset = LineaParteTrabajo.objects.exclude(estado=3).exclude(estado=4).order_by('-tarea__prioridad', 'fecha_plan')
     filterset_class = LineasFilter
     pagination_class = StandardResultsSetPagination
 
 #excluimos de la busqueda aquellas con estado 3 = finalizadas y 4 = pendientes
 class ListadoLineaActivasSinPaginarViewSet(viewsets.ModelViewSet):
     serializer_class = ListadoLineasActivasSerializer
-    queryset = LineaParteTrabajo.objects.exclude(estado=3).exclude(estado=4).order_by('-tarea__prioridad')
+    queryset = LineaParteTrabajo.objects.exclude(estado=3).exclude(estado=4).order_by('-tarea__prioridad', 'fecha_plan')
     filterset_class = LineasFilter
 
 class ParteTrabajoViewSet(viewsets.ModelViewSet):
@@ -225,7 +225,7 @@ class ParteTrabajoDetalleViewSet(viewsets.ModelViewSet):
 #excluimos de la busqueda aquellas con estado 3 = finalizadas y 4 = pendientes
 class ParteActivosTrabajoViewSet(viewsets.ModelViewSet):
     serializer_class = ParteTrabajoDetalleSerializer
-    queryset = ParteTrabajo.objects.exclude(estado=3).exclude(estado=4).order_by('-id')
+    queryset = ParteTrabajo.objects.exclude(estado=3).exclude(estado=4).order_by('-fecha_creacion')
     filterset_class = PartesFilter
     pagination_class = StandardResultsSetPagination
 
