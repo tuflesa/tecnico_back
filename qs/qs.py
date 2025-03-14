@@ -1,4 +1,5 @@
 import snap7
+from snap7.util import set_dint
 import struct
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -178,10 +179,11 @@ def get_posiciones_actuales_PLC():
     plc = snap7.client.Client()
     plc.connect(IP, RACK, SLOT)
 
-    from_PLC = plc.db_read(46,280,200) # Inicio en la posición 280 - 200 Bytes = 50 variables de 4 bytes cada una
+    from_PLC = plc.db_read(46,280,204) # Inicio en la posición 280 - 204 Bytes = 51 variables de 4 bytes cada una
 
     # Pinch Roll
-    pinch_roll_inf = cb3_superior = get_real(from_PLC,140) # Siguiente lineal rodillos inferiores
+    pinch_roll_inf = get_real(from_PLC,140) # Siguiente lineal rodillos inferiores
+    pinch_roll_press = get_real(from_PLC,200)
     # Break down
     bd1_inf = get_real(from_PLC,0)
     bd1_sup = get_real(from_PLC,4)
@@ -237,7 +239,7 @@ def get_posiciones_actuales_PLC():
     cb4_inferior = get_real(from_PLC,132)
     cb4_superior = get_real(from_PLC,136) #Siguiente pinchroll - al inicio
 
-    posiciones_actuales = [{'op': 0, 'nombre': 'PR', 'posiciones': [{'eje': 'INF', 'pos': pinch_roll_inf}]},
+    posiciones_actuales = [{'op': 0, 'nombre': 'PR', 'posiciones': [{'eje': 'INF', 'pos': pinch_roll_inf},{'eje': 'PRES', 'pos': pinch_roll_press} ]},
                            {'op': 1, 'nombre': 'BD1', 'posiciones': [{'eje': 'INF', 'pos': bd1_inf},{'eje': 'SUP', 'pos': bd1_sup}]},
                            {'op': 2, 'nombre': 'BD2', 'posiciones': [{'eje': 'INF', 'pos': bd2_inf}, {'eje': 'SUP', 'pos': bd2_sup}]},
                            {'op': 3, 'nombre': 'IS1', 'posiciones': [{'eje': 'ANCHO', 'pos': is1_ancho}, {'eje': 'ALTO', 'pos': is1_alto}]},
@@ -306,5 +308,32 @@ def get_PC(): # Lee los datos que se han enviado al PLC - No los datos actuales
 
 @api_view(['POST'])
 def enviarVariantePLC(request):
-    print(request.data['data'])
+    variante = request.data
+    print(variante)
+    pinch_roll_inf = int(variante['pr_inf']*100) # 2 decimales
+    pinch_roll_press = int(variante['pr_press']*100) # 2 decimales
+    bd1_inf = int(variante['bd1_inf']*100) # 2 decimales
+    bd1_sup = int(variante['bd1_sup']*100) # 2 decimales
+    bd2_inf = int(variante['bd2_inf']*100) # 2 decimales
+    bd2_sup = int(variante['bd2_sup']*100) # 2 decimales
+    is1_ancho = int(variante['is1_ancho']*100) # 2 decimales
+    is1_alto = int(variante['is1_alto']*100) # 2 decimales
+
+    to_PLC = bytearray(36)
+
+    set_dint(to_PLC, 0, 1) # 1 para indicar que hay datos nuevos
+    set_dint(to_PLC, 4, pinch_roll_inf)
+    set_dint(to_PLC, 8, pinch_roll_press)
+    set_dint(to_PLC, 12, bd1_inf)
+    set_dint(to_PLC, 16, bd1_sup)
+    set_dint(to_PLC, 20, bd2_inf)
+    set_dint(to_PLC, 24, bd2_sup)
+    set_dint(to_PLC, 28, is1_ancho)
+    set_dint(to_PLC, 32, is1_alto)
+    print(to_PLC)
+
+    plc = snap7.client.Client()
+    plc.connect(IP, RACK, SLOT)
+
+    plc.db_write(46, 700, to_PLC)
     return Response('OK')
