@@ -318,8 +318,89 @@ def enviarVariantePLC(request):
     bd2_sup = int(variante['bd2_sup']*100) # 2 decimales
     is1_ancho = int(variante['is1_ancho']*100) # 2 decimales
     is1_alto = int(variante['is1_alto']*100) # 2 decimales
+    l_entrada_ancho = int(variante['lineal_entrada_ancho']*100) # 2 decimales
+    l_entrada_alto = int(variante['lineal_entrada_alto']*100) # 2 decimales
+    l_entrada_sup = int(variante['lineal_entrada_superior']*100) # 2 decimales
+    l_salida_ancho = int(variante['lineal_salida_ancho']*100) # 2 decimales
+    l_salida_alto = int(variante['lineal_salida_alto']*100) # 2 decimales
+    l_salida_sup = int(variante['lineal_salida_superior']*100) # 2 decimales
+    l_rod_entrada = int(variante['lineal_rodillo_entrada']*100) # 2 decimales
+    l_rod_centro = int(variante['lineal_rodillo_centro']*100) # 2 decimales
+    l_rod_salida = int(variante['lineal_rodillo_salida']*100) # 2 decimales
+    fp1_inf = int(variante['fp1_inf']*100) # 2 decimales
+    fp1_sup = int(variante['fp1_sup']*100) # 2 decimales
+    is2_ancho = int(variante['is2_ancho']*100) # 2 decimales
+    is2_alto = int(variante['is2_alto']*100) # 2 decimales
+    fp2_inf = int(variante['fp2_inf']*100) # 2 decimales
+    fp2_sup = int(variante['fp2_sup']*100) # 2 decimales
+    is3_ancho = int(variante['is3_ancho']*100) # 2 decimales
+    is3_alto = int(variante['is3_alto']*100) # 2 decimales
+    fp3_inf = int(variante['fp3_inf']*100) # 2 decimales
+    fp3_sup = int(variante['fp3_sup']*100) # 2 decimales
+    w_cab = int(variante['w_cab']*1000) # 3 decimales
+    w_lat_op = int(variante['w_lat_op']*1000) # 3 decimales
+    w_lat_mo = int(variante['w_lat_mo']*1000) # 3 decimales
+    w_inf = int(variante['w_inf']*1000) # 3 decimales
+    w_sup_v_op = int(variante['w_sup_v_op']*1000) # 3 decimales
+    w_sup_v_mo = int(variante['w_sup_v_mo']*1000) # 3 decimales
+    w_sup_h_op = int(variante['w_sup_h_op']*1000) # 3 decimales
+    w_sup_h_mo = int(variante['w_sup_v_mo']*1000) # 3 decimales
+    cb1_sup = int(variante['cb1_sup']*1000) # 3 decimales
+    cb1_inf = int(variante['cb1_inf']*1000) # 3 decimales
+    cb1_lat_op = int(variante['cb1_lat_op']*1000) # 3 decimales
+    cb1_lat_mo = int(variante['cb1_lat_mo']*1000) # 3 decimales
+    cb2_sup = int(variante['cb2_sup']*1000) # 3 decimales
+    cb2_inf = int(variante['cb2_inf']*1000) # 3 decimales
+    cb2_lat_op = int(variante['cb2_lat_op']*1000) # 3 decimales
+    cb2_lat_mo = int(variante['cb2_lat_mo']*1000) # 3 decimales
+    cb3_sup = int(variante['cb3_sup']*1000) # 3 decimales
+    cb3_inf = int(variante['cb3_inf']*1000) # 3 decimales
+    cb3_lat_op = int(variante['cb3_lat_op']*1000) # 3 decimales
+    cb3_lat_mo = int(variante['cb3_lat_mo']*1000) # 3 decimales
+    cb4_sup = int(variante['cb4_sup']*1000) # 3 decimales
+    cb4_inf = int(variante['cb4_inf']*1000) # 3 decimales
+    cb4_lat_op = int(variante['cb4_lat_op']*1000) # 3 decimales
+    cb4_lat_mo = int(variante['cb4_lat_mo']*1000) # 3 decimales
+    # Diametros
+    bd1_inf_d = int(variante['BD1_INF_D']*100) # 2 decimales
+    bd1_sup_d = int(variante['BD1_SUP_D']*100) # 2 decimales
+    bd2_inf_d = int(variante['BD2_INF_D']*100) # 2 decimales
+    bd2_sup_d = int(variante['BD2_SUP_D']*100) # 2 decimales
+    is1_ancho_d = int(variante['IS1_ANCHO_D']*100) # 2 decimales
+    is1_alto_d = int(variante['IS1_ALTO_D']*100) # 2 decimales
+    fp1_inf_d = int(variante['FP1_INF_D']*100) # 2 decimales
+    fp1_sup_d = int(variante['FP1_SUP_D']*100) # 2 decimales
+    is2_ancho_d = int(variante['IS2_ANCHO_D']*100) # 2 decimales
+    is2_alto_d = int(variante['IS2_ALTO_D']*100) # 2 decimales
+    fp2_inf_d = int(variante['FP2_INF_D']*100) # 2 decimales
+    fp2_sup_d = int(variante['FP2_SUP_D']*100) # 2 decimales
+    is3_ancho_d = int(variante['IS3_ANCHO_D']*100) # 2 decimales
+    is3_alto_d = int(variante['IS3_ALTO_D']*100) # 2 decimales
+    fp3_inf_d = int(variante['FP3_INF_D']*100) # 2 decimales
+    fp3_sup_d = int(variante['FP3_SUP_D']*100) # 2 decimales
+    w_inf_d = int(variante['W_INF_D']*1000) # 3 decimales
+    w_lat_op_d = int(variante['W_LAT_OP_D']*1000) # 3 decimales
+    w_lat_mo_d = int(variante['W_LAT_MO_D']*1000) # 3 decimales
+    w_sup_op_d = int(variante['W_SUP_OP_D']*1000) # 3 decimales
+    w_sup_mo_d = int(variante['W_SUP_MO_D']*1000) # 3 decimales
+    cb1_sup_d = int(variante['CB1_SUP_D']*1000) # 3 decimales
+    cb1_inf_d = int(variante['CB1_INF_D']*1000) # 3 decimales
+    cb1_lat_op_d = int(variante['CB1_LAT_OP_D']*1000) # 3 decimales
+    cb1_lat_mo_d = int(variante['CB1_LAT_MO_D']*1000) # 3 decimales
+    cb2_sup_d = int(variante['CB2_SUP_D']*1000) # 3 decimales
+    cb2_inf_d = int(variante['CB2_INF_D']*1000) # 3 decimales
+    cb2_lat_op_d = int(variante['CB2_LAT_OP_D']*1000) # 3 decimales
+    cb2_lat_mo_d = int(variante['CB2_LAT_MO_D']*1000) # 3 decimales
+    cb3_sup_d = int(variante['CB3_SUP_D']*1000) # 3 decimales
+    cb3_inf_d = int(variante['CB3_INF_D']*1000) # 3 decimales
+    cb3_lat_op_d = int(variante['CB3_LAT_OP_D']*1000) # 3 decimales
+    cb3_lat_mo_d = int(variante['CB3_LAT_MO_D']*1000) # 3 decimales
+    cb4_sup_d = int(variante['CB4_SUP_D']*1000) # 3 decimales
+    cb4_inf_d = int(variante['CB4_INF_D']*1000) # 3 decimales
+    cb4_lat_op_d = int(variante['CB4_LAT_OP_D']*1000) # 3 decimales
+    cb4_lat_mo_d = int(variante['CB4_LAT_MO_D']*1000) # 3 decimales
 
-    to_PLC = bytearray(36)
+    to_PLC = bytearray(356)
 
     set_dint(to_PLC, 0, 1) # 1 para indicar que hay datos nuevos
     set_dint(to_PLC, 4, pinch_roll_inf)
@@ -330,7 +411,87 @@ def enviarVariantePLC(request):
     set_dint(to_PLC, 24, bd2_sup)
     set_dint(to_PLC, 28, is1_ancho)
     set_dint(to_PLC, 32, is1_alto)
-    print(to_PLC)
+    set_dint(to_PLC, 36, l_entrada_alto)
+    set_dint(to_PLC, 40, l_entrada_ancho)
+    set_dint(to_PLC, 44, l_entrada_sup)
+    set_dint(to_PLC, 48, l_salida_alto)
+    set_dint(to_PLC, 52, l_salida_ancho)
+    set_dint(to_PLC, 56, l_salida_sup)
+    set_dint(to_PLC, 60, l_rod_entrada)
+    set_dint(to_PLC, 64, l_rod_centro)
+    set_dint(to_PLC, 68, l_rod_salida)
+    set_dint(to_PLC, 72, fp1_inf)
+    set_dint(to_PLC, 76, fp1_sup)
+    set_dint(to_PLC, 80, is2_ancho)
+    set_dint(to_PLC, 84, is2_alto)
+    set_dint(to_PLC, 88, fp2_inf)
+    set_dint(to_PLC, 92, fp2_sup)
+    set_dint(to_PLC, 96, is3_ancho)
+    set_dint(to_PLC, 100, is3_alto)
+    set_dint(to_PLC, 104, fp3_inf)
+    set_dint(to_PLC, 108, fp3_sup)
+    set_dint(to_PLC, 112, w_cab)
+    set_dint(to_PLC, 116, w_lat_op)
+    set_dint(to_PLC, 120, w_lat_mo)
+    set_dint(to_PLC, 124, w_inf)
+    set_dint(to_PLC, 128, w_sup_v_op)
+    set_dint(to_PLC, 132, w_sup_v_mo)
+    set_dint(to_PLC, 136, w_sup_h_op)
+    set_dint(to_PLC, 140, w_sup_h_mo)
+    set_dint(to_PLC, 144, cb1_sup)
+    set_dint(to_PLC, 148, cb1_inf)
+    set_dint(to_PLC, 152, cb1_lat_op)
+    set_dint(to_PLC, 156, cb1_lat_mo)
+    set_dint(to_PLC, 160, cb2_sup)
+    set_dint(to_PLC, 164, cb2_inf)
+    set_dint(to_PLC, 168, cb2_lat_op)
+    set_dint(to_PLC, 172, cb2_lat_mo)
+    set_dint(to_PLC, 176, cb3_sup)
+    set_dint(to_PLC, 180, cb3_inf)
+    set_dint(to_PLC, 184, cb3_lat_op)
+    set_dint(to_PLC, 188, cb3_lat_mo)
+    set_dint(to_PLC, 192, cb4_sup)
+    set_dint(to_PLC, 196, cb4_inf)
+    set_dint(to_PLC, 200, cb4_lat_op)
+    set_dint(to_PLC, 204, cb4_lat_mo)
+    # Diametros
+    set_dint(to_PLC, 208, bd1_inf_d)
+    set_dint(to_PLC, 212, bd1_sup_d)
+    set_dint(to_PLC, 216, bd2_inf_d)
+    set_dint(to_PLC, 220, bd2_sup_d)
+    set_dint(to_PLC, 224, is1_ancho_d)
+    set_dint(to_PLC, 228, is1_alto_d)
+    set_dint(to_PLC, 232, fp1_inf_d)
+    set_dint(to_PLC, 236, fp1_sup_d)
+    set_dint(to_PLC, 240, is2_ancho_d)
+    set_dint(to_PLC, 244, is2_alto_d)
+    set_dint(to_PLC, 248, fp2_inf_d)
+    set_dint(to_PLC, 252, fp2_sup_d)
+    set_dint(to_PLC, 256, is3_ancho_d)
+    set_dint(to_PLC, 260, is3_alto_d)
+    set_dint(to_PLC, 264, fp3_inf_d)
+    set_dint(to_PLC, 268, fp3_sup_d)
+    set_dint(to_PLC, 272, w_inf_d)
+    set_dint(to_PLC, 276, w_lat_op_d)
+    set_dint(to_PLC, 280, w_lat_mo_d)
+    set_dint(to_PLC, 284, w_sup_op_d)
+    set_dint(to_PLC, 288, w_sup_mo_d)
+    set_dint(to_PLC, 292, cb1_sup_d)
+    set_dint(to_PLC, 296, cb1_inf_d)
+    set_dint(to_PLC, 300, cb1_lat_op_d)
+    set_dint(to_PLC, 304, cb1_lat_mo_d)
+    set_dint(to_PLC, 308, cb2_sup_d)
+    set_dint(to_PLC, 312, cb2_inf_d)
+    set_dint(to_PLC, 316, cb2_lat_op_d)
+    set_dint(to_PLC, 320, cb2_lat_mo_d)
+    set_dint(to_PLC, 324, cb3_sup_d)
+    set_dint(to_PLC, 328, cb3_inf_d)
+    set_dint(to_PLC, 332, cb3_lat_op_d)
+    set_dint(to_PLC, 336, cb3_lat_mo_d)
+    set_dint(to_PLC, 340, cb4_sup_d)
+    set_dint(to_PLC, 344, cb4_inf_d)
+    set_dint(to_PLC, 348, cb4_lat_op_d)
+    set_dint(to_PLC, 352, cb4_lat_mo_d)
 
     plc = snap7.client.Client()
     plc.connect(IP, RACK, SLOT)
