@@ -200,9 +200,23 @@ class ListadoLineaParteViewSet(viewsets.ModelViewSet):
 #excluimos de la busqueda aquellas con estado 3 = finalizadas y 4 = pendientes
 class ListadoLineaActivasViewSet(viewsets.ModelViewSet):
     serializer_class = ListadoLineasActivasSerializer
-    queryset = LineaParteTrabajo.objects.exclude(estado=3).exclude(estado=4).order_by('-tarea__prioridad', 'fecha_plan')
     filterset_class = LineasFilter
     pagination_class = StandardResultsSetPagination
+
+    # Define un queryset predeterminado para que Django pueda determinar el basename
+    queryset = LineaParteTrabajo.objects.exclude(estado=3).exclude(estado=4).order_by('-tarea__prioridad', 'fecha_plan')
+
+    def get_queryset(self):
+        queryset = super().get_queryset()  # Obtiene el queryset predeterminado
+        
+        # Obtener las destrezas desde los parámetros de la URL (si se pasan)
+        destrezas = self.request.query_params.get('destrezas', '').split(',')
+        
+        if destrezas:
+            # Filtrar por especialidad de tarea si hay destrezas
+            queryset = queryset.filter(tarea__especialidad__in=destrezas)
+       
+        return queryset
 
 #excluimos de la busqueda aquellas con estado 3 = finalizadas y 4 = pendientes
 class ListadoLineaActivasSinPaginarViewSet(viewsets.ModelViewSet):
