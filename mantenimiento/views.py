@@ -1,7 +1,7 @@
 # from asyncio.windows_events import NULL
 from rest_framework import viewsets
 from mantenimiento.models import Notificacion, ParteTrabajo, Tarea, Especialidad, TipoPeriodo, TipoTarea, LineaParteTrabajo, EstadoLineasTareas, TrabajadoresLineaParte, Reclamo
-from mantenimiento.serializers import LineasDeUnTrabajadorSerializer, PartesFiltradosSerializer, ParteTrabajoEditarSerializer, NotificacionSerializer, NotificacionNuevaSerializer, TareaSerializer, EspecialidadSerializer, TipoTareaSerializer, TipoPeriodoSerializer, TareaNuevaSerializer, ParteTrabajoSerializer, ParteTrabajoDetalleSerializer, LineaParteTrabajoSerializer, LineaParteTrabajoNuevaSerializer, LineaParteTrabajoMovSerializer, ListadoLineasPartesSerializer, EstadoLineasTareasSerializer, TrabajadoresLineaParteSerializer, ListadoLineasActivasSerializer, TrabajadoresEnLineaSerializer,  ReclamoDetalleSerializer, ReclamoSerializer
+from mantenimiento.serializers import LineasDeUnTrabajadorSerializer, PartesFiltradosSerializer, ParteTrabajoEditarSerializer, NotificacionSerializer, NotificacionNuevaSerializer, TareaSerializer, EspecialidadSerializer, TipoTareaSerializer, TipoPeriodoSerializer, TareaNuevaSerializer, ParteTrabajoSerializer, ParteTrabajoDetalleSerializer, LineaParteTrabajoSerializer, LineaParteTrabajoNuevaSerializer, LineaParteTrabajoMovSerializer, ListadoLineasPartesSerializer, EstadoLineasTareasSerializer, TrabajadoresLineaParteSerializer, ListadoLineasActivasSerializer, TrabajadoresEnLineaSerializer,  ReclamoDetalleSerializer, ReclamoSerializer, LineaParteTrabajoTrabajadorSerializer
 from django_filters import rest_framework as filters
 from django.db.models import Count, F, Value
 from rest_framework.pagination import PageNumberPagination
@@ -33,6 +33,7 @@ class TareaFilter(filters.FilterSet):
         }
 
 class LineasFilter(filters.FilterSet):
+    estado = filters.BaseInFilter(field_name="estado")
     class Meta:
         model = LineaParteTrabajo
         fields = {
@@ -59,7 +60,6 @@ class LineasFilter(filters.FilterSet):
             'tarea__id' : ['exact'],
             'fecha_fin': ['exact'],
             'tarea__tipo_periodo__cantidad_dias' : ['exact'],
-
         }
 
 class EspecialidadFilter(filters.FilterSet):
@@ -186,6 +186,12 @@ class LineaParteTrabajoMovViewSet(viewsets.ModelViewSet):
     queryset = LineaParteTrabajo.objects.all()
     filterset_class = LineasFilter
 
+
+class LineaParteTrabajoTrabajadorViewSet(viewsets.ModelViewSet):
+    serializer_class = LineaParteTrabajoTrabajadorSerializer
+    queryset = LineaParteTrabajo.objects.all()
+    filterset_class = LineasFilter
+
 class LineaParteTrabajoNuevaViewSet(viewsets.ModelViewSet):
     serializer_class = LineaParteTrabajoNuevaSerializer
     queryset = LineaParteTrabajo.objects.all()
@@ -200,9 +206,16 @@ class ListadoLineaParteViewSet(viewsets.ModelViewSet):
 #excluimos de la busqueda aquellas con estado 3 = finalizadas y 4 = pendientes
 class ListadoLineaActivasViewSet(viewsets.ModelViewSet):
      serializer_class = ListadoLineasActivasSerializer
-     queryset = LineaParteTrabajo.objects.exclude(estado=3).exclude(estado=4).order_by('-tarea__prioridad', 'fecha_plan')
+     queryset = LineaParteTrabajo.objects.all().order_by('-tarea__prioridad', 'fecha_plan')
      filterset_class = LineasFilter
      pagination_class = StandardResultsSetPagination
+     def get_queryset(self):
+        queryset = self.queryset
+        estados_excluir = self.request.query_params.get('exclude_estado', '')
+        if estados_excluir:
+            estados = [int(e) for e in estados_excluir.split(',')]
+            queryset = queryset.exclude(estado__in=estados)
+        return queryset
 class ListadoLineaActivasDestrezasViewSet(viewsets.ModelViewSet):
     serializer_class = ListadoLineasActivasSerializer
     filterset_class = LineasFilter
