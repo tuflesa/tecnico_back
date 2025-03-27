@@ -5,12 +5,12 @@ from mantenimiento.models import Especialidad, EstadoLineasTareas, LineaParteTra
 class ParteTrabajoAdmin(admin.ModelAdmin):
     list_filter=("estado",)
     search_fields=("num_parte",)
-    list_display=("nombre", "num_parte",)
+    list_display=("id","nombre", "num_parte",)
 
 class LineasTrabajoAdmin(admin.ModelAdmin):
     list_filter=("estado",)
     search_fields=("parte__num_parte",)
-    list_display=("tarea", "parte",)
+    list_display=("id","tarea", "parte",)
 class TrabajadorLineasAdmin(admin.ModelAdmin):
     list_filter=("trabajador",)
     search_fields=("linea__parte__num_parte",)
@@ -21,7 +21,7 @@ class EspecialidadAdmin(admin.ModelAdmin):
 class EstadoAdmin(admin.ModelAdmin):
     list_display=("nombre", "id",)
 class TareasAdmin(admin.ModelAdmin):
-    list_display=("nombre",)
+    list_display=("id","nombre",)
     search_fields=("nombre",)
 
 admin.site.register(Notificacion)
