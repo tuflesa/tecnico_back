@@ -1,5 +1,5 @@
 from rest_framework import routers
-from .views import Notificacion_sinpaginarViewSet, ListadoLineaActivasSinPaginarViewSet, ParteActivosTrabajoViewSet, LineasdeunTrabajadorViewSet, TrabajadoresLineaParteFechaNullViewSet, PartesFiltradosViewSet, ParteTrabajoEditarViewSet, NotificacionViewSet, NotificacionNuevaViewSet, TareaViewSet, EspecialidadViewSet, TipoTareaViewSet, TipoPeriodoViewSet, TareaNuevaViewSet, ParteTrabajoViewSet, ParteTrabajoDetalleViewSet, LineaParteTrabajoViewSet, LineaParteTrabajoNuevaViewSet, LineaParteTrabajoMovViewSet, ListadoLineaParteViewSet, EstadoLineasTareasViewSet, TrabajadoresLineaParteViewSet, ListadoLineaActivasViewSet, TrabajadoresEnLineaViewSet, ReclamoDetalleViewSet, ReclamoViewSet
+from .views import Notificacion_sinpaginarViewSet, ListadoLineaActivasSinPaginarViewSet, ParteActivosTrabajoViewSet, LineasdeunTrabajadorViewSet, TrabajadoresLineaParteFechaNullViewSet, PartesFiltradosViewSet, ParteTrabajoEditarViewSet, NotificacionViewSet, NotificacionNuevaViewSet, TareaViewSet, EspecialidadViewSet, TipoTareaViewSet, TipoPeriodoViewSet, TareaNuevaViewSet, ParteTrabajoViewSet, ParteTrabajoDetalleViewSet, LineaParteTrabajoViewSet, LineaParteTrabajoNuevaViewSet, LineaParteTrabajoMovViewSet, ListadoLineaParteViewSet, EstadoLineasTareasViewSet, TrabajadoresLineaParteViewSet, ListadoLineaActivasViewSet, TrabajadoresEnLineaViewSet, ReclamoDetalleViewSet, ReclamoViewSet, ListadoLineaActivasDestrezasViewSet, LineaParteTrabajoTrabajadorViewSet
 
 router = routers.DefaultRouter()
 router.register('reclamos', ReclamoViewSet)
@@ -17,11 +17,13 @@ router.register('trabajadores_linea', TrabajadoresLineaParteViewSet)
 router.register('linea_nueva', LineaParteTrabajoNuevaViewSet)
 router.register('lineas_parte_trabajo', LineaParteTrabajoViewSet)
 router.register('lineas_activas_sinPaginar', ListadoLineaActivasSinPaginarViewSet)
+router.register('listado_lineas_activas_destrezas', ListadoLineaActivasDestrezasViewSet)
 router.register('listado_lineas_activas', ListadoLineaActivasViewSet)
 router.register('listado_lineas_partes', ListadoLineaParteViewSet)
 router.register('parte_activos_trabajo', ParteActivosTrabajoViewSet)
 router.register('parte_trabajo_detalle', ParteTrabajoDetalleViewSet)
 router.register('parte_trabajo', ParteTrabajoViewSet)
+router.register('lineas_parte_contrabajador', LineaParteTrabajoTrabajadorViewSet)
 router.register('lineas_parte_mov', LineaParteTrabajoMovViewSet)
 router.register('tarea_nueva', TareaNuevaViewSet)
 router.register('tareas', TareaViewSet)

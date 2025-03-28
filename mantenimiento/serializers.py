@@ -96,21 +96,14 @@ class LineaParteTrabajoSerializer(serializers.ModelSerializer):
 class LineaParteTrabajoMovSerializer(serializers.ModelSerializer):
     class Meta:
         model = LineaParteTrabajo
-        fields = ['id', 'parte', 'tarea', 'fecha_inicio', 'fecha_fin', 'estado', 'fecha_plan', 'observaciones_trab']
+        fields = '__all__'
 
 class LineaParteTrabajoNuevaSerializer(serializers.ModelSerializer):
     class Meta:
         model = LineaParteTrabajo
-        fields = ['id', 'parte', 'tarea', 'fecha_inicio', 'fecha_fin', 'estado', 'fecha_plan', 'observaciones_trab']
+        fields = '__all__'
 
 class ListadoLineasPartesSerializer(serializers.ModelSerializer):
-    parte = ParteTrabajoDetalleSerializer(many=False, read_only=True)
-    tarea = TareaSerializer(many=False, read_only=True)
-    class Meta:
-        model = LineaParteTrabajo
-        fields = ['id', 'parte', 'tarea', 'fecha_inicio', 'fecha_fin', 'estado', 'fecha_plan', 'observaciones_trab']
-
-class ListadoLineasActivasSerializer(serializers.ModelSerializer):
     parte = ParteTrabajoDetalleSerializer(many=False, read_only=True)
     tarea = TareaSerializer(many=False, read_only=True)
     class Meta:
@@ -128,7 +121,19 @@ class TrabajadoresEnLineaSerializer(serializers.ModelSerializer):
     class Meta:
         model = TrabajadoresLineaParte
         fields = ['id', 'linea', 'fecha_inicio', 'fecha_fin', 'trabajador']
-
+class LineaParteTrabajoTrabajadorSerializer(serializers.ModelSerializer):
+    lineas = TrabajadoresEnLineaSerializer(many=True, read_only=True)
+    class Meta:
+        model = LineaParteTrabajo
+        fields = '__all__'
+class ListadoLineasActivasSerializer(serializers.ModelSerializer):
+    parte = ParteTrabajoDetalleSerializer(many=False, read_only=True)
+    tarea = TareaSerializer(many=False, read_only=True)
+    lineas = TrabajadoresEnLineaSerializer(many=True, read_only=True)
+    estado = EstadoLineasTareasSerializer(many=False)
+    class Meta:
+        model = LineaParteTrabajo
+        fields = '__all__'
 class LineasDeUnTrabajadorSerializer(serializers.ModelSerializer):
     linea = ListadoLineasPartesSerializer(many=False, read_only=True)
     class Meta:
