@@ -6,7 +6,7 @@ from articulos.models import Articulo
 class Variante(models.Model):
     nombre = models.CharField(max_length=50)
     montaje = models.ForeignKey(Montaje, on_delete=models.CASCADE)
-    articulo = models.ForeignKey(Articulo, on_delete=models.CASCADE)
+    articulo = models.ForeignKey(Articulo, on_delete=models.CASCADE, related_name='variantes')
     # Pinch Roll
     pr_inf = models.FloatField(null=False, blank=False)
     pr_presion = models.FloatField(null=False, blank=False)

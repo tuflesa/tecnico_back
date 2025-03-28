@@ -344,7 +344,7 @@ def enviarVariantePLC(request):
     w_sup_v_op = int(variante['w_sup_v_op']*1000) # 3 decimales
     w_sup_v_mo = int(variante['w_sup_v_mo']*1000) # 3 decimales
     w_sup_h_op = int(variante['w_sup_h_op']*1000) # 3 decimales
-    w_sup_h_mo = int(variante['w_sup_v_mo']*1000) # 3 decimales
+    w_sup_h_mo = int(variante['w_sup_h_mo']*1000) # 3 decimales
     cb1_sup = int(variante['cb1_sup']*1000) # 3 decimales
     cb1_inf = int(variante['cb1_inf']*1000) # 3 decimales
     cb1_lat_op = int(variante['cb1_lat_op']*1000) # 3 decimales
