@@ -1,7 +1,7 @@
 from django.db.models import fields
 from rest_framework import viewsets
 from rest_framework import serializers
-from django.db.models import F
+from django.db.models import Q, F
 from rest_framework.serializers import Serializer
 from .serializers import LineaPedidoDetailSerilizer, LineasAdicionalesDetalleSerilizer, RepuestoConPrecioSerializer, PrecioRepuestoSerializer, MovimientoTrazabilidadSerializer, LineaPedidoPendSerilizer, EntregaSerializer, LineasAdicionalesSerilizer, MovimientoDetailSerializer, SalidasSerializer, StockMinimoDetailSerializer, PedidoSerilizer, LineaPedidoSerilizer, PedidoListSerilizer, PedidoDetailSerilizer, ProveedorDetailSerializer, AlmacenSerilizer, ContactoSerializer, InventarioSerializer, MovimientoSerializer, ProveedorSerializer, RepuestoListSerializer, RepuestoDetailSerializer, StockMinimoDetailSerializer, StockMinimoSerializer, LineaInventarioSerializer, TipoRepuestoSerilizer, TipoUnidadSerilizer, LineaSalidaSerializer
 from .models import PrecioRepuesto, Almacen, Entrega, Inventario, Contacto, LineaAdicional, LineaInventario, LineaPedido, Movimiento, Pedido, Proveedor, Repuesto, StockMinimo, TipoRepuesto, TipoUnidad, Salida, LineaSalida
@@ -147,6 +147,7 @@ class StockMinimoFilter(filters.FilterSet):
             'almacen__empresa__siglas': ['exact'],
             'stock_act': ['lt', 'gt'],
             'cantidad': ['exact'],
+            'cantidad_aconsejable': ['exact'],
             'repuesto__descatalogado' : ['exact'],
             'repuesto__nombre' : ['icontains'],
             'repuesto__fabricante' : ['icontains'],
@@ -232,7 +233,7 @@ class StockMinimoDetailViewSet(viewsets.ModelViewSet):
 
 class ArticulosFueraStockViewSet(viewsets.ModelViewSet):
     serializer_class = StockMinimoDetailSerializer
-    queryset = StockMinimo.objects.filter(stock_act__lt=F('cantidad')).order_by('repuesto__nombre')
+    queryset = StockMinimo.objects.filter(Q(stock_act__lt=F('cantidad_aconsejable')) | Q(stock_act__lt=F('cantidad'))).order_by('repuesto__nombre')
     filterset_class = StockMinimoFilter
     pagination_class = StandardResultsSetPagination
 
