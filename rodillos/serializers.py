@@ -251,14 +251,14 @@ class InstanciaListadoSerializer(serializers.ModelSerializer):
 class RectificacionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Rectificacion
-        fields = ['id', 'numero', 'creado_por', 'fecha', 'empresa', 'maquina', 'finalizado', 'fecha_estimada']
+        fields = '__all__'
 
 class RectificacionListaSerializer(serializers.ModelSerializer):
     maquina = ZonaSerializer_Rodillos(many=False, read_only=False)
     creado_por = UserSerializer(many=False, read_only=True)
     class Meta:
         model = Rectificacion
-        fields = ['id', 'numero', 'creado_por', 'fecha', 'empresa', 'maquina', 'finalizado', 'fecha_estimada']
+        fields = '__all__'
 
 class LineaRectificacionSerializer(serializers.ModelSerializer):
     fecha_rectificado = serializers.DateField(allow_null=True, required=False)

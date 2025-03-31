@@ -269,6 +269,7 @@ class Rectificacion(models.Model):
     empresa = models.ForeignKey(Empresa, on_delete=models.CASCADE)
     maquina = models.ForeignKey(Zona, on_delete=models.CASCADE)
     finalizado = models.BooleanField(default=False)
+    proveedor = models.ForeignKey(Proveedor, null=True, blank=True, on_delete=models.CASCADE)
     def save(self, *args, **kwargs):
         # Generar nuevo número si el campo numero es None (null)
         if self.numero is None:
