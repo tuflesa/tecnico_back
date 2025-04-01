@@ -81,6 +81,7 @@ class ListadoLineaRectificacionFilter(filters.FilterSet):
 
 class RectificacionesListadoFilter(filters.FilterSet):
     full_name = filters.CharFilter(method='filter_full_name')
+    proveedor = filters.CharFilter(method='filter_proveedor')
     class Meta:
         model = Rectificacion
         fields = {
@@ -90,11 +91,21 @@ class RectificacionesListadoFilter(filters.FilterSet):
             'numero': ['icontains'],
             'creado_por':['exact'],
             'finalizado' : ['exact'],
+            'proveedor': ['exact'],
         }
     def filter_full_name(self, queryset, name, value):
         return queryset.annotate(
             full_name=Concat('creado_por__first_name', Value(' '), 'creado_por__last_name', output_field=CharField())
         ).filter(full_name__icontains=value)
+    def filter_proveedor(self, queryset, name, value):
+        if value == 'sin_proveedor':
+            # Filtrar los registros donde proveedor es nulo
+            return queryset.filter(proveedor__isnull=True)
+        elif value:
+            # Filtrar por proveedor específico
+            return queryset.filter(**{name: value})
+        # Si no hay filtro de proveedor (opción "Todas" o vacío)
+        return queryset
 
 class RectificacionesFilter(filters.FilterSet):
     class Meta:
