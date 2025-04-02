@@ -266,6 +266,37 @@ class LineaRectificacionSerializer(serializers.ModelSerializer):
         model = LineaRectificacion
         fields = '__all__'
 
+""" class LineaRectificacion_toolingSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = LineaRectificacion
+        fields = '__all__' """
+class LineaRectificacion_toolingSerializer(serializers.ModelSerializer): # filtramos aqui que sea finalizado a false
+    class Meta:
+        model = LineaRectificacion
+        fields = '__all__'
+    
+    def to_representation(self, instance):
+        # Aplicar filtrado a nivel de serializador
+        if instance.finalizado:
+            return None
+        return super().to_representation(instance)
+    
+""" class Instancia_toolingSerializer(serializers.ModelSerializer):
+    lineasinstancias = LineaRectificacion_toolingSerializer(many=True)
+    class Meta:
+        model = Instancia
+        fields = '__all__' """
+class Instancia_toolingSerializer(serializers.ModelSerializer):
+    lineasinstancias = serializers.SerializerMethodField()
+    
+    class Meta:
+        model = Instancia
+        fields = '__all__'
+    
+    def get_lineasinstancias(self, obj):
+        queryset = obj.lineasinstancias.filter(finalizado=False)
+        return LineaRectificacion_toolingSerializer(queryset, many=True).data
+
 class ListadoLineaRectificacionSerializer(serializers.ModelSerializer):
     fecha_rectificado = serializers.DateField(allow_null=True, required=False)
     rectificado_por = UserSerializer(many=False, read_only=True)
@@ -287,7 +318,7 @@ class OperacionQSSerializer(serializers.ModelSerializer):
 
 class RodilloQSSerializer(serializers.ModelSerializer):
     tipo = TipoRodilloSerializer(many=False)
-    instancias = InstanciaSerializer(many=True)
+    instancias = Instancia_toolingSerializer(many=True)
     parametros = Parametros_estandarSerializer(many=True)
     tipo_plano = TipoPlanoSerializer(many=False)
     class Meta:

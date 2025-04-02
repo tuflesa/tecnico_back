@@ -79,11 +79,19 @@ class AnotaconesAdmin(admin.ModelAdmin):
     list_display=("id","descripcion", "montaje")
     search_fields=("descripcion",)
 
+class RectificacionAdmin(admin.ModelAdmin):
+    list_display=("id","numero", "creado_por")
+    search_fields=("numero",)
+
+class LineaRectificacionAdmin(admin.ModelAdmin):
+    list_display=("id","rectificado", "instancia")
+    search_fields=("id",)
+
 admin.site.register(Tipo_Seccion, Tipo_SeccionAdmin)
 admin.site.register(Anotaciones)
 admin.site.register(Icono, IconoAdmin)
 admin.site.register(Icono_celda, Icono_celdaAdmin)
-admin.site.register(Rectificacion)
+admin.site.register(Rectificacion, RectificacionAdmin)
 admin.site.register(Seccion, SeccionAdmin)
 admin.site.register(Operacion, OperacionAdmin)
 admin.site.register(Eje, EjeAdmin)
@@ -104,5 +112,5 @@ admin.site.register(Parametros_Estandar)
 admin.site.register(Parametros, ParametrosAdmin)
 admin.site.register(Celda, CeldaAdmin)
 admin.site.register(Forma)
-admin.site.register(LineaRectificacion)
+admin.site.register(LineaRectificacion, LineaRectificacionAdmin)
 admin.site.register(Posicion)

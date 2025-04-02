@@ -1,29 +1,15 @@
 from rest_framework import status, viewsets
 from rodillos.models import Rodillo, Tipo_rodillo, Seccion, Operacion, Eje, Plano, Revision, Material, Grupo, Tipo_Plano, Nombres_Parametros, Tipo_Seccion, Parametros_Estandar, Bancada, Conjunto, Elemento, Celda, Forma, Montaje, Icono, Instancia, Rectificacion, LineaRectificacion, Posicion, Icono_celda, Anotaciones
-from rodillos.serializers import RodilloSerializer, PlanoNuevoSerializer, RevisionSerializer, SeccionSerializer, OperacionSerializer, TipoRodilloSerializer, MaterialSerializer, GrupoSerializer, TipoPlanoSerializer, RodilloListSerializer, PlanoParametrosSerializer, Nombres_ParametrosSerializer, TipoSeccionSerializer, PlanoSerializer, RevisionConjuntosSerializer, Parametros_estandarSerializer, Plano_existenteSerializer, EjeSerializer, BancadaSerializer, ConjuntoSerializer, ElementoSerializer, Elemento_SelectSerializer, Bancada_GruposSerializer, Bancada_SelectSerializer, CeldaSerializer, Celda_SelectSerializer, Grupo_onlySerializer, FormaSerializer, Celda_DuplicarSerializer, Bancada_CTSerializer, MontajeSerializer, MontajeListadoSerializer, MontajeToolingSerializer, RodillosSerializer, Conjunto_OperacionSerializer, RevisionPlanosSerializer, IconoSerializer, EjeOperacionSerializer, InstanciaSerializer, InstanciaListadoSerializer, RectificacionSerializer, RectificacionListaSerializer, LineaRectificacionSerializer, ListadoLineaRectificacionSerializer, PosicionSerializer, MontajeQSSerializer, Icono_celdaSerializer, BancadaQSSerializer, CeldaQSSerializer, AnotacionesSerializer
+from rodillos.serializers import RodilloSerializer, PlanoNuevoSerializer, RevisionSerializer, SeccionSerializer, OperacionSerializer, TipoRodilloSerializer, MaterialSerializer, GrupoSerializer, TipoPlanoSerializer, RodilloListSerializer, PlanoParametrosSerializer, Nombres_ParametrosSerializer, TipoSeccionSerializer, PlanoSerializer, RevisionConjuntosSerializer, Parametros_estandarSerializer, Plano_existenteSerializer, EjeSerializer, BancadaSerializer, ConjuntoSerializer, ElementoSerializer, Elemento_SelectSerializer, Bancada_GruposSerializer, Bancada_SelectSerializer, CeldaSerializer, Celda_SelectSerializer, Grupo_onlySerializer, FormaSerializer, Celda_DuplicarSerializer, Bancada_CTSerializer, MontajeSerializer, MontajeListadoSerializer, MontajeToolingSerializer, RodillosSerializer, Conjunto_OperacionSerializer, RevisionPlanosSerializer, IconoSerializer, EjeOperacionSerializer, InstanciaSerializer, InstanciaListadoSerializer, RectificacionSerializer, RectificacionListaSerializer, LineaRectificacionSerializer, ListadoLineaRectificacionSerializer, PosicionSerializer, MontajeQSSerializer, Icono_celdaSerializer, BancadaQSSerializer, CeldaQSSerializer, AnotacionesSerializer, LineaRectificacion_toolingSerializer
 from django_filters import rest_framework as filters
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from django.db.models import Q, Value, CharField
 from django.db.models.functions import Concat
-from django.http import JsonResponse
 from rest_framework.decorators import action
 from django.db.models import Max
-import subprocess
 from ftplib import FTP
 import django_filters
-
-""" class EliminarViewSet(viewsets.ViewSet):
-    @action(detail=False, methods=['post'], url_path='eliminar_archivos')
-    def eliminar_archivos(self, request):
-        try:
-            subprocess.run(
-                ['powershell', '-command', 'Remove-Item -Path "C:\\FTP\\*" -Recurse -Force'],
-                check=True
-            )
-            return Response({"message": "Contenido de C:\\FTP eliminado exitosamente."}, status=status.HTTP_200_OK)
-        except subprocess.CalledProcessError as e:
-            return Response({"error": f"Error al ejecutar el comando: {e}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR) """
 class EliminarViewSet(viewsets.ViewSet):
     @action(detail=False, methods=['post'], url_path='eliminar_archivos')
     def eliminar_archivos(self, request):
@@ -78,7 +64,6 @@ class ListadoLineaRectificacionFilter(filters.FilterSet):
         return queryset.annotate(
             full_name=Concat('rectificado_por__first_name', Value(' '), 'rectificado_por__last_name', output_field=CharField())
         ).filter(full_name__icontains=value)
-
 class RectificacionesListadoFilter(filters.FilterSet):
     full_name = filters.CharFilter(method='filter_full_name')
     proveedor = filters.CharFilter(method='filter_proveedor')
@@ -715,17 +700,14 @@ class MontajeListadoViewSet(viewsets.ModelViewSet):
     queryset = Montaje.objects.all().order_by('nombre')
     filterset_class = MontajeListadoFilter
     pagination_class = StandardResultsSetPagination
-
 class MontajeQSViewSet(viewsets.ModelViewSet):
     serializer_class = MontajeQSSerializer
     queryset = Montaje.objects.all().order_by('nombre')
     filterset_class = MontajeListadoFilter
-
 class MontajeToolingViewSet(viewsets.ModelViewSet):
     serializer_class = MontajeToolingSerializer
     queryset = Montaje.objects.all()
     filterset_class = MontajeListadoFilter
-
 class IconoViewSet(viewsets.ModelViewSet):
     serializer_class = IconoSerializer
     queryset = Icono.objects.all()
@@ -755,6 +737,9 @@ class LineaRectificacionViewSet(viewsets.ModelViewSet):
     serializer_class = LineaRectificacionSerializer
     queryset = LineaRectificacion.objects.all()
 
+class LineaRectificaciontoolingViewSet(viewsets.ModelViewSet):
+    serializer_class = LineaRectificacion_toolingSerializer
+    queryset = LineaRectificacion.objects.filter(finalizado=False)
 class ListadoLineaRectificacionViewSet(viewsets.ModelViewSet):
     serializer_class = ListadoLineaRectificacionSerializer
     queryset = LineaRectificacion.objects.all().order_by('-fecha_rectificado','fecha','id')

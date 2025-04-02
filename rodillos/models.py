@@ -299,7 +299,7 @@ class LineaRectificacion(models.Model):
         ('axial', 'Axial'),
     ]
     rectificado = models.ForeignKey(Rectificacion, on_delete=models.CASCADE)
-    instancia = models.ForeignKey(Instancia, on_delete=models.SET_NULL, null=True, blank=True)
+    instancia = models.ForeignKey(Instancia, on_delete=models.SET_NULL, null=True, blank=True, related_name='lineasinstancias')
     fecha = models.DateField(default=timezone.now)
     diametro = models.FloatField(null=True, blank=True)
     diametro_ext = models.FloatField(null=True, blank=True)
