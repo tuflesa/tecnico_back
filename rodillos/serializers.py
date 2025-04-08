@@ -287,10 +287,10 @@ class LineaRectificacion_toolingSerializer(serializers.ModelSerializer): # filtr
         model = Instancia
         fields = '__all__' """
 
-class PosicionSerializer(serializers.ModelSerializer):
-    class Meta:
-        model: Posicion
-        fields = '__all__'
+# class PosicionSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model: Posicion
+#         fields = '__all__'
 
 class Instancia_toolingSerializer(serializers.ModelSerializer):
     lineasinstancias = serializers.SerializerMethodField() 
@@ -299,16 +299,18 @@ class Instancia_toolingSerializer(serializers.ModelSerializer):
         model = Instancia
         fields = '__all__'
 
+    def get_lineasinstancias(self, obj):
+        queryset = obj.lineasinstancias.filter(finalizado=False)
+        return LineaRectificacion_toolingSerializer(queryset, many=True).data
+
 class InstanciaQSSerializer(serializers.ModelSerializer):
-    lineasinstancias = serializers.SerializerMethodField() 
+    #lineasinstancias = serializers.SerializerMethodField() 
     posicion = PosicionSerializer(many=False)
     class Meta:
         model = Instancia
         fields = '__all__'
     
-    def get_lineasinstancias(self, obj):
-        queryset = obj.lineasinstancias.filter(finalizado=False)
-        return LineaRectificacion_toolingSerializer(queryset, many=True).data
+    
 
 class ListadoLineaRectificacionSerializer(serializers.ModelSerializer):
     fecha_rectificado = serializers.DateField(allow_null=True, required=False)
@@ -319,10 +321,10 @@ class ListadoLineaRectificacionSerializer(serializers.ModelSerializer):
         model = LineaRectificacion
         fields = '__all__'
 
-# class PosicionSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = Posicion
-#         fields = '__all__'
+class PosicionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Posicion
+        fields = '__all__'
 
 class OperacionQSSerializer(serializers.ModelSerializer):
     class Meta:
