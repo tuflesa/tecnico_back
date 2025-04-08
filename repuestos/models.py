@@ -2,6 +2,7 @@ from django.db import models
 from django.db.models import Sum, Q
 from django.db.models.deletion import CASCADE
 from estructura.models import Empresa, Equipo, Direcciones
+from mantenimiento.models import ParteTrabajo
 from django.utils import timezone
 from django.contrib.auth.models import User
 import datetime
@@ -205,6 +206,7 @@ class Salida(models.Model):
     nombre = models.CharField(max_length = 100, default='Salida almacén')
     fecha_creacion = models.DateField(default=datetime.date.today)
     responsable = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    num_parte = models.ForeignKey(ParteTrabajo, blank=True, null=True, on_delete=models.SET_NULL)
 
     def __str__(self):
         return self.nombre + ' - ' + str(self.fecha_creacion)
