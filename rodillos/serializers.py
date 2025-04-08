@@ -303,6 +303,11 @@ class Instancia_toolingSerializer(serializers.ModelSerializer):
         queryset = obj.lineasinstancias.filter(finalizado=False)
         return LineaRectificacion_toolingSerializer(queryset, many=True).data
 
+class PosicionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Posicion
+        fields = '__all__'
+
 class InstanciaQSSerializer(serializers.ModelSerializer):
     #lineasinstancias = serializers.SerializerMethodField() 
     posicion = PosicionSerializer(many=False)
@@ -310,8 +315,6 @@ class InstanciaQSSerializer(serializers.ModelSerializer):
         model = Instancia
         fields = '__all__'
     
-    
-
 class ListadoLineaRectificacionSerializer(serializers.ModelSerializer):
     fecha_rectificado = serializers.DateField(allow_null=True, required=False)
     rectificado_por = UserSerializer(many=False, read_only=True)
@@ -319,11 +322,6 @@ class ListadoLineaRectificacionSerializer(serializers.ModelSerializer):
     proveedor = ProveedorSerializer(many=False)
     class Meta:
         model = LineaRectificacion
-        fields = '__all__'
-
-class PosicionSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Posicion
         fields = '__all__'
 
 class OperacionQSSerializer(serializers.ModelSerializer):
