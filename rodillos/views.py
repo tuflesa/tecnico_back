@@ -553,7 +553,7 @@ class RevisionViewSet(viewsets.ModelViewSet):
 
 class SeccionViewSet(viewsets.ModelViewSet):
     serializer_class = SeccionSerializer
-    queryset = Seccion.objects.all().order_by('orden')
+    queryset = Seccion.objects.all().order_by('maquina','orden')
     filterset_class = SeccionFilter
 
 class Operacion_CTViewSet(viewsets.ModelViewSet):#ESTO MEJOR PARA MONTAR CT FILTRANDO AL REVÉS

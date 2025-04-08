@@ -168,19 +168,18 @@ class PedidoSerilizer(serializers.ModelSerializer):
 class SalidasSerializer(serializers.ModelSerializer):
     class Meta:
         model = Salida
-        fields = ['id', 'nombre', 'fecha_creacion', 'responsable']
+        fields = '__all__'
 
 class LineaSalidaSerializer(serializers.ModelSerializer):
     class Meta:
         model = LineaSalida
-        fields = ['id', 'salida', 'repuesto', 'almacen', 'cantidad']
-
-
+        fields = '__all__'
 class LineaSalidaTrazaSerializer(serializers.ModelSerializer):
     salida = SalidasSerializer(many=False, read_only=True)
+    repuesto = RepuestoListSerializer(many=False, read_only=True)
     class Meta:
         model = LineaSalida
-        fields = ['id', 'salida', 'repuesto', 'almacen', 'cantidad']
+        fields = fields = '__all__'
 
 class MovimientoTrazabilidadSerializer(serializers.ModelSerializer):
     almacen = AlmacenSerilizer(many=False, read_only=True)
@@ -190,7 +189,7 @@ class MovimientoTrazabilidadSerializer(serializers.ModelSerializer):
     usuario = UserSerializer(many=False, read_only=True)
     class Meta:
         model = Movimiento
-        fields = ['id', 'fecha', 'cantidad', 'almacen', 'usuario', 'linea_pedido', 'linea_inventario', 'linea_salida', 'albaran']        
+        fields = fields = '__all__'       
 
 class PrecioRepuestoSerializer(serializers.ModelSerializer):
     class Meta:

@@ -3,7 +3,7 @@ from rest_framework import viewsets
 from rest_framework import serializers
 from django.db.models import Q, F
 from rest_framework.serializers import Serializer
-from .serializers import LineaPedidoDetailSerilizer, LineasAdicionalesDetalleSerilizer, RepuestoConPrecioSerializer, PrecioRepuestoSerializer, MovimientoTrazabilidadSerializer, LineaPedidoPendSerilizer, EntregaSerializer, LineasAdicionalesSerilizer, MovimientoDetailSerializer, SalidasSerializer, StockMinimoDetailSerializer, PedidoSerilizer, LineaPedidoSerilizer, PedidoListSerilizer, PedidoDetailSerilizer, ProveedorDetailSerializer, AlmacenSerilizer, ContactoSerializer, InventarioSerializer, MovimientoSerializer, ProveedorSerializer, RepuestoListSerializer, RepuestoDetailSerializer, StockMinimoDetailSerializer, StockMinimoSerializer, LineaInventarioSerializer, TipoRepuestoSerilizer, TipoUnidadSerilizer, LineaSalidaSerializer
+from .serializers import LineaPedidoDetailSerilizer, LineasAdicionalesDetalleSerilizer, RepuestoConPrecioSerializer, PrecioRepuestoSerializer, MovimientoTrazabilidadSerializer, LineaPedidoPendSerilizer, EntregaSerializer, LineasAdicionalesSerilizer, MovimientoDetailSerializer, SalidasSerializer, StockMinimoDetailSerializer, PedidoSerilizer, LineaPedidoSerilizer, PedidoListSerilizer, PedidoDetailSerilizer, ProveedorDetailSerializer, AlmacenSerilizer, ContactoSerializer, InventarioSerializer, MovimientoSerializer, ProveedorSerializer, RepuestoListSerializer, RepuestoDetailSerializer, StockMinimoDetailSerializer, StockMinimoSerializer, LineaInventarioSerializer, TipoRepuestoSerilizer, TipoUnidadSerilizer, LineaSalidaSerializer, LineaSalidaTrazaSerializer
 from .models import PrecioRepuesto, Almacen, Entrega, Inventario, Contacto, LineaAdicional, LineaInventario, LineaPedido, Movimiento, Pedido, Proveedor, Repuesto, StockMinimo, TipoRepuesto, TipoUnidad, Salida, LineaSalida
 from django_filters import filterset, rest_framework as filters
 from rest_framework.pagination import PageNumberPagination
@@ -15,6 +15,13 @@ class AlmacenFilter(filters.FilterSet):
         fields = {
             'empresa': ['exact'],
             'nombre': ['icontains'],
+        }
+
+class salidas_numparteFilter(filters.FilterSet):
+    class Meta:
+        model = LineaSalida
+        fields = {
+            'salida__num_parte': ['exact'],
         }
         
 class ProveedorFilter(filters.FilterSet):
@@ -56,6 +63,7 @@ class MovimientoTrazabilidadFilter(filters.FilterSet):
             'linea_inventario__repuesto':['exact'],
             'linea_pedido__repuesto':['exact'],
             'almacen__id': ['exact'],
+            'linea_salida__salida__num_parte': ['exact']
         }
 
 class RepuestoListFilter(filters.FilterSet):
@@ -332,6 +340,11 @@ class SalidaVieSet(viewsets.ModelViewSet):
 class LineasSalidaVieSet(viewsets.ModelViewSet):
     serializer_class = LineaSalidaSerializer
     queryset = LineaSalida.objects.all()
+
+class LineasSalida_numparteVieSet(viewsets.ModelViewSet):
+    serializer_class = LineaSalidaTrazaSerializer
+    queryset = LineaSalida.objects.all()
+    filterset_class = salidas_numparteFilter
 
 class MovimientoTrazabilidadViewSet(viewsets.ModelViewSet):
     serializer_class = MovimientoTrazabilidadSerializer
