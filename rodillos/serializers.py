@@ -286,9 +286,22 @@ class LineaRectificacion_toolingSerializer(serializers.ModelSerializer): # filtr
     class Meta:
         model = Instancia
         fields = '__all__' """
+
+class PosicionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model: Posicion
+        fields = '__all__'
+
 class Instancia_toolingSerializer(serializers.ModelSerializer):
-    lineasinstancias = serializers.SerializerMethodField()
-    
+    lineasinstancias = serializers.SerializerMethodField() 
+
+    class Meta:
+        model = Instancia
+        fields = '__all__'
+
+class InstanciaQSSerializer(serializers.ModelSerializer):
+    lineasinstancias = serializers.SerializerMethodField() 
+    posicion = PosicionSerializer(many=False)
     class Meta:
         model = Instancia
         fields = '__all__'
@@ -306,10 +319,10 @@ class ListadoLineaRectificacionSerializer(serializers.ModelSerializer):
         model = LineaRectificacion
         fields = '__all__'
 
-class PosicionSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Posicion
-        fields = '__all__'
+# class PosicionSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = Posicion
+#         fields = '__all__'
 
 class OperacionQSSerializer(serializers.ModelSerializer):
     class Meta:
@@ -318,7 +331,7 @@ class OperacionQSSerializer(serializers.ModelSerializer):
 
 class RodilloQSSerializer(serializers.ModelSerializer):
     tipo = TipoRodilloSerializer(many=False)
-    instancias = Instancia_toolingSerializer(many=True)
+    instancias = InstanciaQSSerializer(many=True)
     parametros = Parametros_estandarSerializer(many=True)
     tipo_plano = TipoPlanoSerializer(many=False)
     class Meta:
