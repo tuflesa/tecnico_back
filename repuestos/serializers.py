@@ -43,7 +43,7 @@ class AlmacenSerilizer(serializers.ModelSerializer):
 class RepuestoListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Repuesto
-        fields = ['id', 'nombre', 'unidad_nombre', 'unidad_siglas', 'tipo_repuesto', 'tipo_unidad','fabricante', 'modelo', 'es_critico', 'descatalogado', 'equipos', 'proveedores', 'observaciones', 'nombre_comun']
+        fields = '__all__'
 
 class StockMinimoSerializer(serializers.ModelSerializer):
     #almacen = AlmacenSerilizer(many=False, read_only=True)
@@ -64,7 +64,7 @@ class RepuestoDetailSerializer(serializers.ModelSerializer):
     stocks_minimos = StockMinimoDetailSerializer(many=True, read_only=True)
     class Meta:
         model = Repuesto
-        fields = ['id', 'nombre', 'tipo_repuesto', 'tipo_unidad', 'fabricante', 'modelo', 'es_critico', 'equipos', 'proveedores', 'stocks_minimos', 'descatalogado', 'observaciones', 'nombre_comun']
+        fields = '__all__'
 
 class TipoRepuestoSerilizer(serializers.ModelSerializer):
     class Meta:
@@ -194,11 +194,11 @@ class MovimientoTrazabilidadSerializer(serializers.ModelSerializer):
 class PrecioRepuestoSerializer(serializers.ModelSerializer):
     class Meta:
         model = PrecioRepuesto
-        fields = ['id', 'proveedor', 'repuesto', 'precio', 'descuento', 'descripcion_proveedor', 'modelo_proveedor', 'fabricante']
+        fields = '__all__'
 
 class RepuestoConPrecioSerializer(serializers.ModelSerializer):
-    repuesto = RepuestoListSerializer(many=False, read_only=True) 
+    repuesto = RepuestoDetailSerializer(many=False, read_only=True) 
     proveedor = ProveedorSerializer(many=False, read_only=True)
     class Meta:
         model = PrecioRepuesto
-        fields = ['id', 'proveedor', 'repuesto', 'precio', 'descuento' , 'descripcion_proveedor', 'modelo_proveedor', 'fabricante']
+        fields = '__all__'
