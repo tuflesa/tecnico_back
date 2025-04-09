@@ -1,11 +1,12 @@
 from rest_framework import routers
-from .views import RepuestoListSinPaginarViewSet, Filtro_RepuestoConPrecioViewSet, LineaPedidoDetalleViewSet, LineaAdicionalDetalleViewSet, RepuestoConPrecioViewSet, PrecioRepuestoViewSet, MovimientoTrazabilidadViewSet, ArticulosFueraStockViewSet, LineaPedidoPendViewSet, EntregaViewSet, LineaAdicionalPedidoViewSet, LineasSalidaVieSet, MovimientoDetailViewSet, PedidoViewSet, InventarioViewSet, LineaPedidoViewSet, PedidoDetailViewSet, ContactoViewSet, MovimientoViewSet, PedidoListViewSet, ProveedorDetailViewSet, ProveedorViewSet, RepuestoListViewSet, RepuestoDetailViewSet, SalidaVieSet, StockMinimoDetailViewSet, StockMinimoViewSet, AlmacenViewSet, LineaInventarioViewSet, TipoRepuestoViewSet, TipoUnidadViewSet, PedidoFueraFechaViewSet, LineasSalida_numparteVieSet
+from .views import RepuestoListSinPaginarViewSet, Filtro_RepuestoConPrecioViewSet, LineaPedidoDetalleViewSet, LineaAdicionalDetalleViewSet, RepuestoConPrecioViewSet, PrecioRepuestoViewSet, MovimientoTrazabilidadViewSet, ArticulosFueraStockViewSet, LineaPedidoPendViewSet, EntregaViewSet, LineaAdicionalPedidoViewSet, LineasSalidaVieSet, MovimientoDetailViewSet, PedidoViewSet, InventarioViewSet, LineaPedidoViewSet, PedidoDetailViewSet, ContactoViewSet, MovimientoViewSet, PedidoListViewSet, ProveedorDetailViewSet, ProveedorViewSet, RepuestoListViewSet, RepuestoDetailViewSet, SalidaVieSet, StockMinimoDetailViewSet, StockMinimoViewSet, AlmacenViewSet, LineaInventarioViewSet, TipoRepuestoViewSet, TipoUnidadViewSet, PedidoFueraFechaViewSet, LineasSalida_numparteVieSet, RepuestoPrecioStockViewSet
 
 router = routers.DefaultRouter()
 router.register('pedido', PedidoViewSet)
 router.register('lineas_salidas', LineasSalida_numparteVieSet)
 router.register('linea_pedido_pend', LineaPedidoPendViewSet)
 router.register('repuesto_precio', RepuestoConPrecioViewSet)
+router.register('repuesto_precio_stock', RepuestoPrecioStockViewSet)
 router.register('filtro_repuesto_precio', Filtro_RepuestoConPrecioViewSet)
 router.register('precio_detalle', PrecioRepuestoViewSet)
 router.register('precio', PrecioRepuestoViewSet)
