@@ -40,6 +40,10 @@ class AlmacenSerilizer(serializers.ModelSerializer):
         model = Almacen
         fields = ['id', 'nombre', 'empresa', 'empresa_siglas', 'empresa_id']
 
+class SinStockMinimoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = StockMinimo
+        fields = '__all__'
 class RepuestoListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Repuesto
@@ -196,14 +200,25 @@ class PrecioRepuestoSerializer(serializers.ModelSerializer):
         model = PrecioRepuesto
         fields = '__all__'
 
+class RepuestoSinStockSerializer(serializers.ModelSerializer): #saca los repuesto con los stock minimos que esten a cero
+    stocks_minimos = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Repuesto
+        fields = '__all__'
+
+    def get_stocks_minimos(self, obj):
+        stock_filtrado = obj.stocks_minimos.filter(stock_act=0)
+        return SinStockMinimoSerializer(stock_filtrado, many=True).data
+
 class RepuestoConPrecioSerializer(serializers.ModelSerializer):
-    repuesto = RepuestoListSerializer(many=False, read_only=True) 
+    repuesto = RepuestoSinStockSerializer(many=False, read_only=True) 
     proveedor = ProveedorSerializer(many=False, read_only=True)
     class Meta:
         model = PrecioRepuesto
         fields = '__all__'
 
-class RepuestoDetailPrecioStockSerializer(serializers.ModelSerializer):
+""" class RepuestoDetailPrecioStockSerializer(serializers.ModelSerializer):
     equipos = EquipoSerializer(many=True, read_only=True)
     proveedores = ProveedorSerializer(many=True, read_only=True)
     stocks_minimos = StockMinimoDetailSerializer(many=True, read_only=True)
@@ -230,9 +245,9 @@ class RepuestoDetailPrecioStockSerializer(serializers.ModelSerializer):
             if stock.almacen and stock.almacen.empresa_id == empresa_id:
                 total_stock += stock.stock_act or 0
                 
-        return total_stock
+        return total_stock """
     
-class RepuestoPrecioStockSerializer(serializers.ModelSerializer):
+""" class RepuestoPrecioStockSerializer(serializers.ModelSerializer):
     repuesto = serializers.SerializerMethodField()
     proveedor = ProveedorSerializer(many=False, read_only=True)
     
@@ -242,4 +257,4 @@ class RepuestoPrecioStockSerializer(serializers.ModelSerializer):
     
     def get_repuesto(self, obj):
         # Pasamos el contexto de la solicitud al serializador de repuesto
-        return RepuestoDetailPrecioStockSerializer(obj.repuesto, context=self.context).data
+        return RepuestoDetailPrecioStockSerializer(obj.repuesto, context=self.context).data """

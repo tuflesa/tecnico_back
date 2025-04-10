@@ -3,7 +3,7 @@ from rest_framework import viewsets
 from rest_framework import serializers
 from django.db.models import Q, F
 from rest_framework.serializers import Serializer
-from .serializers import LineaPedidoDetailSerilizer, LineasAdicionalesDetalleSerilizer, RepuestoConPrecioSerializer, PrecioRepuestoSerializer, MovimientoTrazabilidadSerializer, LineaPedidoPendSerilizer, EntregaSerializer, LineasAdicionalesSerilizer, MovimientoDetailSerializer, SalidasSerializer, StockMinimoDetailSerializer, PedidoSerilizer, LineaPedidoSerilizer, PedidoListSerilizer, PedidoDetailSerilizer, ProveedorDetailSerializer, AlmacenSerilizer, ContactoSerializer, InventarioSerializer, MovimientoSerializer, ProveedorSerializer, RepuestoListSerializer, RepuestoDetailSerializer, StockMinimoDetailSerializer, StockMinimoSerializer, LineaInventarioSerializer, TipoRepuestoSerilizer, TipoUnidadSerilizer, LineaSalidaSerializer, LineaSalidaTrazaSerializer, RepuestoPrecioStockSerializer
+from .serializers import LineaPedidoDetailSerilizer, LineasAdicionalesDetalleSerilizer, RepuestoConPrecioSerializer, PrecioRepuestoSerializer, MovimientoTrazabilidadSerializer, LineaPedidoPendSerilizer, EntregaSerializer, LineasAdicionalesSerilizer, MovimientoDetailSerializer, SalidasSerializer, StockMinimoDetailSerializer, PedidoSerilizer, LineaPedidoSerilizer, PedidoListSerilizer, PedidoDetailSerilizer, ProveedorDetailSerializer, AlmacenSerilizer, ContactoSerializer, InventarioSerializer, MovimientoSerializer, ProveedorSerializer, RepuestoListSerializer, RepuestoDetailSerializer, StockMinimoDetailSerializer, StockMinimoSerializer, LineaInventarioSerializer, TipoRepuestoSerilizer, TipoUnidadSerilizer, LineaSalidaSerializer, LineaSalidaTrazaSerializer, SinStockMinimoSerializer
 from .models import PrecioRepuesto, Almacen, Entrega, Inventario, Contacto, LineaAdicional, LineaInventario, LineaPedido, Movimiento, Pedido, Proveedor, Repuesto, StockMinimo, TipoRepuesto, TipoUnidad, Salida, LineaSalida
 from django_filters import filterset, rest_framework as filters
 from rest_framework.pagination import PageNumberPagination
@@ -361,14 +361,14 @@ class RepuestoConPrecioViewSet(viewsets.ModelViewSet):
     queryset = PrecioRepuesto.objects.all().order_by('repuesto__nombre').distinct()
     filterset_class = PrecioRepuestoFilter
 
-class RepuestoPrecioStockViewSet(viewsets.ModelViewSet):
+""" class RepuestoPrecioStockViewSet(viewsets.ModelViewSet):
     serializer_class = RepuestoPrecioStockSerializer
     queryset = PrecioRepuesto.objects.all().order_by('repuesto__nombre').distinct()
     filterset_class = PrecioRepuestoFilter
     
     def get_serializer_context(self):
         context = super().get_serializer_context()
-        return context  # Esto ya incluye 'request' por defecto
+        return context  # Esto ya incluye 'request' por defecto """
 
 class Filtro_RepuestoConPrecioViewSet(viewsets.ModelViewSet):
     serializer_class = RepuestoConPrecioSerializer
