@@ -200,7 +200,7 @@ class PrecioRepuestoSerializer(serializers.ModelSerializer):
         model = PrecioRepuesto
         fields = '__all__'
 
-class RepuestoSinStockSerializer(serializers.ModelSerializer): #saca los repuesto con los stock minimos que esten a cero
+class RepuestoSinStockSerializer(serializers.ModelSerializer): #saca los repuesto con los stock minimos que esten a cero por almacén
     stocks_minimos = serializers.SerializerMethodField()
 
     class Meta:
@@ -212,7 +212,7 @@ class RepuestoSinStockSerializer(serializers.ModelSerializer): #saca los repuest
         return SinStockMinimoSerializer(stock_filtrado, many=True).data
 
 class RepuestoConPrecioSerializer(serializers.ModelSerializer):
-    repuesto = RepuestoSinStockSerializer(many=False, read_only=True) 
+    repuesto = RepuestoListSerializer(many=False, read_only=True) 
     proveedor = ProveedorSerializer(many=False, read_only=True)
     class Meta:
         model = PrecioRepuesto
