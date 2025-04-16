@@ -40,10 +40,14 @@ class AlmacenSerilizer(serializers.ModelSerializer):
         model = Almacen
         fields = ['id', 'nombre', 'empresa', 'empresa_siglas', 'empresa_id']
 
+class SinStockMinimoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = StockMinimo
+        fields = '__all__'
 class RepuestoListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Repuesto
-        fields = ['id', 'nombre', 'unidad_nombre', 'unidad_siglas', 'tipo_repuesto', 'tipo_unidad','fabricante', 'modelo', 'es_critico', 'descatalogado', 'equipos', 'proveedores', 'observaciones', 'nombre_comun']
+        fields = '__all__'
 
 class StockMinimoSerializer(serializers.ModelSerializer):
     #almacen = AlmacenSerilizer(many=False, read_only=True)
@@ -64,7 +68,7 @@ class RepuestoDetailSerializer(serializers.ModelSerializer):
     stocks_minimos = StockMinimoDetailSerializer(many=True, read_only=True)
     class Meta:
         model = Repuesto
-        fields = ['id', 'nombre', 'tipo_repuesto', 'tipo_unidad', 'fabricante', 'modelo', 'es_critico', 'equipos', 'proveedores', 'stocks_minimos', 'descatalogado', 'observaciones', 'nombre_comun']
+        fields = '__all__'
 
 class TipoRepuestoSerilizer(serializers.ModelSerializer):
     class Meta:
@@ -194,11 +198,63 @@ class MovimientoTrazabilidadSerializer(serializers.ModelSerializer):
 class PrecioRepuestoSerializer(serializers.ModelSerializer):
     class Meta:
         model = PrecioRepuesto
-        fields = ['id', 'proveedor', 'repuesto', 'precio', 'descuento', 'descripcion_proveedor', 'modelo_proveedor', 'fabricante']
+        fields = '__all__'
+
+class RepuestoSinStockSerializer(serializers.ModelSerializer): #saca los repuesto con los stock minimos que esten a cero por almacén
+    stocks_minimos = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Repuesto
+        fields = '__all__'
+
+    def get_stocks_minimos(self, obj):
+        stock_filtrado = obj.stocks_minimos.filter(stock_act=0)
+        return SinStockMinimoSerializer(stock_filtrado, many=True).data
 
 class RepuestoConPrecioSerializer(serializers.ModelSerializer):
     repuesto = RepuestoListSerializer(many=False, read_only=True) 
     proveedor = ProveedorSerializer(many=False, read_only=True)
     class Meta:
         model = PrecioRepuesto
-        fields = ['id', 'proveedor', 'repuesto', 'precio', 'descuento' , 'descripcion_proveedor', 'modelo_proveedor', 'fabricante']
+        fields = '__all__'
+
+""" class RepuestoDetailPrecioStockSerializer(serializers.ModelSerializer):
+    equipos = EquipoSerializer(many=True, read_only=True)
+    proveedores = ProveedorSerializer(many=True, read_only=True)
+    stocks_minimos = StockMinimoDetailSerializer(many=True, read_only=True)
+    stock_total = serializers.SerializerMethodField()
+    
+    class Meta:
+        model = Repuesto
+        fields = '__all__'
+    
+    def get_stock_total(self, obj):
+        # Obtenemos la empresa del usuario que hace la petición
+        request = self.context.get('request')
+        if not request or not request.user.is_authenticated:
+            return 0
+        
+        try:
+            empresa_id = request.user.perfil.empresa.id
+        except AttributeError:
+            return 0
+        
+        # Sumamos el stock_act de todos los stocks_minimos que pertenecen a la empresa del usuario
+        total_stock = 0
+        for stock in obj.stocks_minimos.all():
+            if stock.almacen and stock.almacen.empresa_id == empresa_id:
+                total_stock += stock.stock_act or 0
+                
+        return total_stock """
+    
+""" class RepuestoPrecioStockSerializer(serializers.ModelSerializer):
+    repuesto = serializers.SerializerMethodField()
+    proveedor = ProveedorSerializer(many=False, read_only=True)
+    
+    class Meta:
+        model = PrecioRepuesto
+        fields = '__all__'
+    
+    def get_repuesto(self, obj):
+        # Pasamos el contexto de la solicitud al serializador de repuesto
+        return RepuestoDetailPrecioStockSerializer(obj.repuesto, context=self.context).data """
