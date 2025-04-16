@@ -497,7 +497,7 @@ def enviarVariantePLC(request):
     set_dint(to_PLC, 352, cb4_lat_mo_d)
     set_dint(to_PLC, 356, is1_dext_d)
     set_dint(to_PLC, 360, is2_dext_d)
-    set_dint(to_PLC, 364, is2_dext_d)
+    set_dint(to_PLC, 364, is3_dext_d)
 
     plc = snap7.client.Client()
     plc.connect(IP, RACK, SLOT)
