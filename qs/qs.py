@@ -368,14 +368,17 @@ def enviarVariantePLC(request):
     bd2_sup_d = int(variante['BD2_SUP_D']*100) # 2 decimales
     is1_ancho_d = int(variante['IS1_ANCHO_D']*100) # 2 decimales
     is1_alto_d = int(variante['IS1_ALTO_D']*100) # 2 decimales
+    is1_dext_d = int(variante['IS1_Dext_D']*100) # 2 decimales
     fp1_inf_d = int(variante['FP1_INF_D']*100) # 2 decimales
     fp1_sup_d = int(variante['FP1_SUP_D']*100) # 2 decimales
     is2_ancho_d = int(variante['IS2_ANCHO_D']*100) # 2 decimales
     is2_alto_d = int(variante['IS2_ALTO_D']*100) # 2 decimales
+    is2_dext_d = int(variante['IS2_Dext_D']*100) # 2 decimales
     fp2_inf_d = int(variante['FP2_INF_D']*100) # 2 decimales
     fp2_sup_d = int(variante['FP2_SUP_D']*100) # 2 decimales
     is3_ancho_d = int(variante['IS3_ANCHO_D']*100) # 2 decimales
     is3_alto_d = int(variante['IS3_ALTO_D']*100) # 2 decimales
+    is3_dext_d = int(variante['IS3_Dext_D']*100) # 2 decimales
     fp3_inf_d = int(variante['FP3_INF_D']*100) # 2 decimales
     fp3_sup_d = int(variante['FP3_SUP_D']*100) # 2 decimales
     w_inf_d = int(variante['W_INF_D']*1000) # 3 decimales
@@ -400,7 +403,7 @@ def enviarVariantePLC(request):
     cb4_lat_op_d = int(variante['CB4_LAT_OP_D']*1000) # 3 decimales
     cb4_lat_mo_d = int(variante['CB4_LAT_MO_D']*1000) # 3 decimales
 
-    to_PLC = bytearray(356)
+    to_PLC = bytearray(368)
 
     set_dint(to_PLC, 0, 1) # 1 para indicar que hay datos nuevos
     set_dint(to_PLC, 4, pinch_roll_inf)
@@ -492,9 +495,12 @@ def enviarVariantePLC(request):
     set_dint(to_PLC, 344, cb4_inf_d)
     set_dint(to_PLC, 348, cb4_lat_op_d)
     set_dint(to_PLC, 352, cb4_lat_mo_d)
+    set_dint(to_PLC, 356, is1_dext_d)
+    set_dint(to_PLC, 360, is2_dext_d)
+    set_dint(to_PLC, 364, is2_dext_d)
 
     plc = snap7.client.Client()
     plc.connect(IP, RACK, SLOT)
-
+ 
     plc.db_write(46, 700, to_PLC)
     return Response('OK')
