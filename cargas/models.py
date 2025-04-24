@@ -34,7 +34,7 @@ class Carga(models.Model):
     bruto = models.IntegerField(null=True, blank=True)
     fecha_salida = models.DateTimeField(null=True, blank=True)
     puerta = models.IntegerField(null=True, blank=True)
-    observaciones = models.CharField(max_length=200, null=True, blank=True)
+    observaciones = models.CharField(max_length=300, null=True, blank=True)
 
 class Llamada(models.Model):
     carga = models.ForeignKey(Carga, on_delete=models.CASCADE)
