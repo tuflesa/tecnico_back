@@ -158,7 +158,7 @@ class Rodillo(models.Model):
     diametro = models.FloatField(blank=True, null=True)
     forma = models.ForeignKey(Forma, on_delete=models.CASCADE, null=True, blank=True)
     descripcion_perfil = models.CharField(max_length=50, null=True, blank=True)
-    dimension_perfil = models.CharField(max_length=3, null=True, blank=True)
+    dimension_perfil = models.CharField(max_length=5, null=True, blank=True)
     espesor_1 = models.DecimalField(max_digits=5, decimal_places=2, default=0)
     espesor_2 = models.DecimalField(max_digits=5, decimal_places=2, default=0)
     espesor = models.BooleanField(default=False)
