@@ -135,18 +135,19 @@ class LineaPedido(models.Model):
     repuesto = models.ForeignKey(Repuesto, on_delete=models.CASCADE, related_name='lineas_repuesto')
     descripcion_proveedor = models.CharField(max_length = 150, blank= True, null=True)
     modelo_proveedor = models.CharField(max_length=90, null=True, blank=True)
-    cantidad = models.IntegerField(default=0)
+    cantidad = models.DecimalField(max_digits=13, decimal_places=2, default=0)
     precio = models.DecimalField(max_digits=13, decimal_places=4, blank=True, null=True)
-    por_recibir = models.IntegerField(default=0)
+    por_recibir = models.DecimalField(max_digits=13, decimal_places=2, default=0)
     descuento = models.DecimalField(max_digits=5, decimal_places=2, blank= True, null=True)
     total = models.DecimalField(max_digits=13, decimal_places=4, blank=True, null=True)
+    tipo_unidad = models.ForeignKey(TipoUnidad, on_delete=models.PROTECT, default=1)
    
 class LineaAdicional(models.Model):
     pedido = models.ForeignKey(Pedido, on_delete=models.CASCADE, related_name='lineas_adicionales')
     descripcion = models.CharField(max_length=250)
-    cantidad = models.IntegerField()
+    cantidad = models.DecimalField(max_digits=13, decimal_places=2)
     precio = models.DecimalField(max_digits=13, decimal_places=4, blank=True, null=True)
-    por_recibir = models.IntegerField()
+    por_recibir = models.DecimalField(max_digits=13, decimal_places=2)
     descuento = models.DecimalField(max_digits=5, decimal_places=2, blank= True, null=True)
     total = models.DecimalField(max_digits=13, decimal_places=4, blank=True, null=True)
 
@@ -163,7 +164,7 @@ class LineaAdicional(models.Model):
 class Entrega(models.Model):
     linea_adicional = models.ForeignKey(LineaAdicional, on_delete=models.CASCADE)
     fecha = models.DateField(default=timezone.now)
-    cantidad = models.IntegerField()
+    cantidad = models.DecimalField(max_digits=13, decimal_places=2)
     usuario = models.ForeignKey(User, on_delete=models.SET_NULL, blank=True, null=True)
     albaran = models.CharField(max_length=50, null=True, blank=True, default='')
 
@@ -180,10 +181,10 @@ class Almacen(models.Model):
 class StockMinimo(models.Model):
     repuesto = models.ForeignKey(Repuesto, on_delete=models.CASCADE, related_name='stocks_minimos')
     almacen = models.ForeignKey(Almacen, on_delete=models.CASCADE, related_name='stocks_minimos')
-    cantidad = models.IntegerField(default=0) #cantidad mínima, stock mínimo del repuesto si este es crítico
-    cantidad_aconsejable = models.IntegerField(default=0) #cantidad mínima de stock aconsejable cuando no es crítico
+    cantidad = models.DecimalField(max_digits=13, decimal_places=2, default=0) #cantidad mínima, stock mínimo del repuesto si este es crítico
+    cantidad_aconsejable = models.DecimalField(max_digits=13, decimal_places=2, default=0) #cantidad mínima de stock aconsejable cuando no es crítico
     localizacion = models.CharField(max_length=50, null=True, blank=True)
-    stock_act = models.IntegerField(default=0)
+    stock_act = models.DecimalField(max_digits=13, decimal_places=2, default=0)
 
     def __str__(self):
         return self.repuesto.nombre
@@ -200,7 +201,7 @@ class LineaInventario(models.Model):
     inventario = models.ForeignKey(Inventario, on_delete=models.CASCADE)
     repuesto = models.ForeignKey(Repuesto, on_delete=models.CASCADE)
     almacen = models.ForeignKey(Almacen, on_delete=models.CASCADE)
-    cantidad = models.IntegerField(default=0)
+    cantidad = models.DecimalField(max_digits=13, decimal_places=2, default=0)
 
 class Salida(models.Model):
     nombre = models.CharField(max_length = 100, default='Salida almacén')
@@ -215,11 +216,11 @@ class LineaSalida(models.Model):
     salida = models.ForeignKey(Salida, on_delete=models.CASCADE, related_name='lineas')
     repuesto = models.ForeignKey(Repuesto, on_delete=models.CASCADE)
     almacen = models.ForeignKey(Almacen, on_delete=models.CASCADE)
-    cantidad = models.IntegerField(default=0)
+    cantidad = models.DecimalField(max_digits=13, decimal_places=2, default=0)
 
 class Movimiento(models.Model):
     fecha = models.DateField(default=datetime.date.today)
-    cantidad = models.IntegerField()
+    cantidad = models.DecimalField(max_digits=13, decimal_places=2)
     almacen = models.ForeignKey(Almacen, on_delete=models.CASCADE, blank=True, null=True)
     usuario = models.ForeignKey(User, on_delete=models.SET_NULL, blank=True, null=True)
     linea_pedido = models.ForeignKey(LineaPedido, on_delete=models.CASCADE, blank=True, null=True)
