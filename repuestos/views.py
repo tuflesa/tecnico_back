@@ -202,7 +202,6 @@ class PrecioRepuestoFilter(filters.FilterSet):
 class StandardResultsSetPagination(PageNumberPagination):
     page_size = 20
     page_size_query_param = 'page_size'
-    paginator=1
     max_page_size = 1000 
 
 class TipoRepuestoViewSet(viewsets.ModelViewSet):
