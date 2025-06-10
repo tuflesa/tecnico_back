@@ -30,5 +30,6 @@ urlpatterns = [
     path('api/mantenimiento/', include('mantenimiento.urls')),
     path('api/rodillos/', include('rodillos.urls')),
     path('api/qs/', include('qs.urls')),
+    path('api/trazabilidad/', include('trazabilidad.urls')),
     path('auth/', CustomAuthToken.as_view())
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
