@@ -60,7 +60,7 @@ class ConjuntoAdmin(admin.ModelAdmin):
     search_fields=("tubo_madre",)
 
 class BancadaAdmin(admin.ModelAdmin):
-    list_display=("id","seccion", "tubo_madre")
+    list_display=("id","seccion", "tubo_madre", "espesores")
     search_fields=("tubo_madre",)
 
 class MontajesAdmin(admin.ModelAdmin):
