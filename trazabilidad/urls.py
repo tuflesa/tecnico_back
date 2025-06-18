@@ -1,5 +1,5 @@
 from django.urls import path
-from .trazabilidad import leerFlejesEnAcumuladores, resetPLC
+from .trazabilidad import leerFlejesEnAcumuladores, resetPLC, leerEstadoPLC
 from rest_framework import routers
 from .views import AcumuladorViewSet, FlejesProduccionDB, FlejesViewSet
 
@@ -11,5 +11,6 @@ router.register('flejes', FlejesViewSet)
 urlpatterns = [
     path('leerFlejes/', leerFlejesEnAcumuladores),
     path('resetPLC/', resetPLC),
-    path('leerFlejesProduccionDB/', FlejesProduccionDB.as_view())
+    path('leerFlejesProduccionDB/', FlejesProduccionDB.as_view()),
+    path('leerEstadoPLC/', leerEstadoPLC),
 ] + router.urls

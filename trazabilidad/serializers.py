@@ -11,4 +11,4 @@ class AcumuladorSerializer(serializers.ModelSerializer):
 class FlejesSerializer(serializers.ModelSerializer):
     class Meta:
         model = Flejes
-        fields = ['pos', 'idProduccion', 'IdArticulo', 'peso', 'of', 'maquina_siglas', 'descripcion', 'acumulador', 'ancho', 'espesor', 'metros_teorico']
+        fields = ['pos', 'idProduccion', 'IdArticulo', 'peso', 'of', 'maquina_siglas', 'descripcion', 'acumulador', 'ancho', 'espesor', 'metros_teorico', 'metros_medido']

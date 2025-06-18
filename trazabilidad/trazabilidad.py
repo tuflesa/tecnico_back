@@ -5,6 +5,7 @@ from datetime import datetime
 # import time
 from rest_framework.decorators import api_view
 from django.http import HttpResponse
+from rest_framework.response import Response
 from .models import Acumulador, Flejes
 
 # Constantes
@@ -18,7 +19,7 @@ FLEJE_NULO = {
     'descripcion': '',
     'peso': 0,
     'of': '',
-    'metros_teorico': 0,
+    'metros_teoricos': 0,
     'IdArticulo': 'F00000001001'
 }
 
@@ -29,7 +30,7 @@ def leerFlejePLC(data, pos):
         'idProduccion': get_fstring(data, pos+14, 10, False),
         'descripcion': get_fstring(data, pos+26, 50, True),
         'peso': get_int(data, pos+76),
-        'metros_teorico': get_real(data, pos+78),
+        'metros_teoricos': get_real(data, pos+78),
         'metros_medidos': get_real(data, pos+82),
         'fecha_entrada': get_date(data, pos+86),
         'hora_entrada': get_time(data, pos+88),
@@ -47,8 +48,8 @@ def leerFIFO_FlejePLC(data, pos):
     return nFlejes, FIFO
 
 def metros(fleje):
-    print('calculo metros teoricos')
-    print(fleje)
+    # print('calculo metros teoricos')
+    # print(fleje)
     espesor = float(fleje['IdArticulo'][9:])/10.0
     ancho = float(fleje['IdArticulo'][6:-3])
     metros = (fleje['peso'] *1000) / (espesor * ancho * 7.85)
@@ -89,10 +90,9 @@ def escribe_N_FIFO(N):
     set_int(to_PLC, 0, N)
     return to_PLC
 
-
 def actualizarFIFO_PLC(FIFO, nFlejesNuevo, acumulador):
-    print('Actualizar Flejes PLC ...')
-    print(FIFO)
+    # print('Actualizar Flejes PLC ...')
+    # print(FIFO)
     to_PLC = escribe_N_FIFO(nFlejesNuevo)
     for i in range(nFlejesNuevo):
         to_PLC += escribe_flejePLC(FIFO[i])
@@ -196,9 +196,12 @@ def leerFlejesEnAcumuladores(request):
                 # print('Bobina actual ...')
                 fleje_ActualPLC = leerFlejePLC(from_PLC,FLEJE_ACTUAL)
                 # print(fleje_ActualPLC)
+                # print('Fleje actual')
+                # print(fleje_ActualPLC)
                 
                 flejeActualPLC_valido = False
                 if (ultimo_flejePLC['of'] == acc.of_activa and ultimo_flejePLC['pos'] == acc.n_bobina_activa):
+                    print('bobina terminada')
                     f = Flejes.objects.get(of=ultimo_flejePLC['of'], pos=ultimo_flejePLC['pos'])
                     f.metros_medido = ultimo_flejePLC['metros_medidos']
                     f.fecha_entrada = ultimo_flejePLC['fecha_entrada']
@@ -211,7 +214,9 @@ def leerFlejesEnAcumuladores(request):
                     acc.of_activa = fleje_ActualPLC['of']
                     acc.save()
                 else:
+                    print('Misma bobina')
                     if (fleje_ActualPLC['pos']!=0):
+                        print('Actualizar bobina actual')
                         f = Flejes.objects.get(of=fleje_ActualPLC['of'], pos=fleje_ActualPLC['pos'])
                         f.metros_medido = fleje_ActualPLC['metros_medidos']
                         f.save()
@@ -239,7 +244,8 @@ def leerFlejesEnAcumuladores(request):
                                 add = False
                         if (fleje.pos == fleje_ActualPLC['pos'] and nFlejesPLC==0):
                             add = True
-                        if (nFlejesPLC != 0 and fleje.pos == FIFO_PLC[nFlejesPLC]['pos']):
+                        if (nFlejesPLC != 0 and fleje.pos == FIFO_PLC[nFlejesPLC-1]['pos']):
+                            print('Add true')
                             add = True
                     if (data_to_send >0): 
                         # print('data_to_send', data_to_send)
@@ -278,3 +284,30 @@ def resetPLC(request):
     plc.db_write(DB, ULTIMO_FLEJE, to_PLC)
 
     return HttpResponse(status=201)
+
+@api_view(['GET'])
+def leerEstadoPLC(request):
+    datos = []
+
+    acu_id = request.GET.get('acu_id')
+    acumulador = Acumulador.objects.get(id=acu_id)
+    IP = acumulador.ip
+    RACK = acumulador.rack
+    SLOT = acumulador.slot
+    DB = acumulador.db
+
+    plc = snap7.client.Client()
+    plc.connect(IP, RACK, SLOT)
+
+    from_PLC = plc.db_read(DB,0,589)
+    ultimo_fleje = leerFlejePLC(from_PLC,0)
+    fleje_actual = leerFlejePLC(from_PLC,98)
+    nFlejesPLC, FIFO_PLC = leerFIFO_FlejePLC(from_PLC, 196)
+    plc_status = {
+        'ultimo_fleje': ultimo_fleje,
+        'fleje_actual': fleje_actual,
+        'nFlejesFIFO': nFlejesPLC,
+        'fifo': FIFO_PLC
+        
+    }
+    return Response(plc_status)
