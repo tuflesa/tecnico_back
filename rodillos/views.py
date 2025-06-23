@@ -1,6 +1,6 @@
 from rest_framework import status, viewsets
 from rodillos.models import Rodillo, Tipo_rodillo, Seccion, Operacion, Eje, Plano, Revision, Material, Grupo, Tipo_Plano, Nombres_Parametros, Tipo_Seccion, Parametros_Estandar, Bancada, Conjunto, Elemento, Celda, Forma, Montaje, Icono, Instancia, Rectificacion, LineaRectificacion, Posicion, Icono_celda, Anotaciones
-from rodillos.serializers import RodilloSerializer, PlanoNuevoSerializer, RevisionSerializer, SeccionSerializer, OperacionSerializer, TipoRodilloSerializer, MaterialSerializer, GrupoSerializer, TipoPlanoSerializer, RodilloListSerializer, PlanoParametrosSerializer, Nombres_ParametrosSerializer, TipoSeccionSerializer, PlanoSerializer, RevisionConjuntosSerializer, Parametros_estandarSerializer, Plano_existenteSerializer, EjeSerializer, BancadaSerializer, ConjuntoSerializer, ElementoSerializer, Elemento_SelectSerializer, Bancada_GruposSerializer, Bancada_SelectSerializer, CeldaSerializer, Celda_SelectSerializer, Grupo_onlySerializer, FormaSerializer, Celda_DuplicarSerializer, Bancada_CTSerializer, MontajeSerializer, MontajeListadoSerializer, MontajeToolingSerializer, RodillosSerializer, Conjunto_OperacionSerializer, RevisionPlanosSerializer, IconoSerializer, EjeOperacionSerializer, InstanciaSerializer, InstanciaListadoSerializer, RectificacionSerializer, RectificacionListaSerializer, LineaRectificacionSerializer, ListadoLineaRectificacionSerializer, PosicionSerializer, MontajeQSSerializer, Icono_celdaSerializer, BancadaQSSerializer, CeldaQSSerializer, AnotacionesSerializer, LineaRectificacion_toolingSerializer
+from rodillos.serializers import RodilloSerializer, PlanoNuevoSerializer, RevisionSerializer, SeccionSerializer, OperacionSerializer, TipoRodilloSerializer, MaterialSerializer, GrupoSerializer, TipoPlanoSerializer, RodilloListSerializer, PlanoParametrosSerializer, Nombres_ParametrosSerializer, TipoSeccionSerializer, PlanoSerializer, RevisionConjuntosSerializer, Parametros_estandarSerializer, Plano_existenteSerializer, EjeSerializer, BancadaSerializer, ConjuntoSerializer, ElementoSerializer, Elemento_SelectSerializer, Bancada_GruposSerializer, Bancada_SelectSerializer, CeldaSerializer, Celda_SelectSerializer, Grupo_onlySerializer, FormaSerializer, Celda_DuplicarSerializer, Bancada_CTSerializer, MontajeSerializer, MontajeListadoSerializer, MontajeToolingSerializer, RodillosSerializer, Conjunto_OperacionSerializer, RevisionPlanosSerializer, IconoSerializer, EjeOperacionSerializer, InstanciaSerializer, InstanciaListadoSerializer, RectificacionSerializer, RectificacionListaSerializer, LineaRectificacionSerializer, ListadoLineaRectificacionSerializer, PosicionSerializer, MontajeQSSerializer, Icono_celdaSerializer, BancadaQSSerializer, CeldaQSSerializer, AnotacionesSerializer, LineaRectificacion_toolingSerializer, Celda_programadoresSerializer
 from django_filters import rest_framework as filters
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
@@ -9,6 +9,7 @@ from django.db.models.functions import Concat
 from rest_framework.decorators import action
 from django.db.models import Max
 from ftplib import FTP
+from django.db.models import Count
 import django_filters
 class EliminarViewSet(viewsets.ViewSet):
     @action(detail=False, methods=['post'], url_path='eliminar_archivos')
@@ -137,6 +138,7 @@ class RodilloFilter(filters.FilterSet):
             'operacion__id':['exact'],
             'tipo_plano':['exact'],
             'grupo':['exact'],
+            'grupo__tubo_madre':['exact'],
             'nombre':['icontains'],
             'num_instancias':['exact'],
         }
@@ -214,6 +216,7 @@ class SeccionFilter(filters.FilterSet):
         }
 
 class OperacionFilter(filters.FilterSet):
+    posiciones_count = django_filters.NumberFilter(field_name='posiciones_count', lookup_expr='exact')
     class Meta:
         model = Operacion
         fields = {
@@ -479,7 +482,7 @@ class RodillosViewSet(viewsets.ModelViewSet):
 
 class Rodillo_listViewSet(viewsets.ModelViewSet):
     serializer_class = RodilloListSerializer
-    queryset = Rodillo.objects.all().order_by('-grupo__nombre')
+    queryset = Rodillo.objects.all().order_by('-grupo__nombre','operacion__orden')
     filterset_class = RodilloFilter
     pagination_class = StandardResultsSetPagination
 
@@ -563,7 +566,7 @@ class Operacion_CTViewSet(viewsets.ModelViewSet):#ESTO MEJOR PARA MONTAR CT FILT
 
 class OperacionViewSet(viewsets.ModelViewSet):
     serializer_class = OperacionSerializer
-    queryset = Operacion.objects.all().order_by('orden')
+    queryset = Operacion.objects.annotate(posiciones_count=Count('posiciones')).order_by('orden')
     filterset_class = OperacionFilter
 
 class TipoRodilloViewSet(viewsets.ModelViewSet):
@@ -647,8 +650,35 @@ class ConjuntoViewSet(viewsets.ModelViewSet):
 
 class Conjunto_OperacionViewSet(viewsets.ModelViewSet):
     serializer_class = Conjunto_OperacionSerializer
-    queryset = Conjunto.objects.all()
-    filterset_class = ConjuntoOperacionFilter
+    queryset = Conjunto.objects.none()  # solo para evitar el error del router
+
+    def get_queryset(self):
+        queryset = Conjunto.objects.select_related('operacion').annotate(
+            posiciones_count=Count('operacion__posiciones')
+        )
+
+        # Filtros individuales
+        posiciones_count = self.request.query_params.get('posiciones_count')
+        if posiciones_count:
+            queryset = queryset.filter(posiciones_count=posiciones_count)
+
+        seccion_id = self.request.query_params.get('operacion__seccion__id')
+        if seccion_id:
+            queryset = queryset.filter(operacion__seccion__id=seccion_id)
+
+        operacion_id = self.request.query_params.get('operacion__id')
+        if operacion_id:
+            queryset = queryset.filter(operacion__id=operacion_id)
+
+        tubo_madre_gte = self.request.query_params.get('tubo_madre__gte')
+        if tubo_madre_gte:
+            queryset = queryset.filter(tubo_madre__gte=tubo_madre_gte)
+
+        tubo_madre_lte = self.request.query_params.get('tubo_madre__lte')
+        if tubo_madre_lte:
+            queryset = queryset.filter(tubo_madre__lte=tubo_madre_lte)
+
+        return queryset.order_by('operacion')
 
 class ElementoViewSet(viewsets.ModelViewSet):
     serializer_class = ElementoSerializer
@@ -674,7 +704,10 @@ class Celda_SelectViewSet(viewsets.ModelViewSet):
     serializer_class = Celda_SelectSerializer
     queryset = Celda.objects.all().order_by('conjunto__operacion')
     filterset_class = CeldaFilter
-
+class Celda_programadoresViewSet(viewsets.ModelViewSet):
+    serializer_class = Celda_programadoresSerializer
+    queryset = Celda.objects.all().order_by('conjunto__operacion')
+    filterset_class = CeldaFilter
 class CeldaViewSet(viewsets.ModelViewSet):
     serializer_class = CeldaSerializer
     queryset = Celda.objects.all()

@@ -158,6 +158,12 @@ class LineasAdicionalesDetalleSerilizer(serializers.ModelSerializer):
     class Meta:
         model = LineaAdicional
         fields = '__all__'
+class LineasPedidoPorAlbaranSerilizer(serializers.ModelSerializer):
+    pedido = PedidoListSerilizer(many=False, read_only=True)
+    movimiento = MovimientoSerializer (many=True)
+    class Meta:
+        model = LineaPedido
+        fields = '__all__'
 
 class PedidoDetailSerilizer(serializers.ModelSerializer):
     proveedor = ProveedorSerializer(many=False, read_only=True)

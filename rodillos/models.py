@@ -122,9 +122,10 @@ class Conjunto(models.Model):
 # Son las celdas del Tooling Chart para las formaciones raras
 class Celda (models.Model):
     bancada = models.ForeignKey(Bancada, on_delete=models.CASCADE, related_name='celdas')
-    conjunto = models.ForeignKey(Conjunto, on_delete=models.CASCADE)
+    conjunto = models.ForeignKey(Conjunto, on_delete=models.CASCADE, related_name='conjunto_celda')
     operacion = models.ForeignKey(Operacion, on_delete=models.CASCADE, blank=True, null=True)
     icono = models.ForeignKey(Icono_celda,  on_delete=models.CASCADE, blank=True, null=True)
+    color_celda = models.CharField(max_length=20, blank=True, null=True)
 
     class Meta:
         ordering = ['operacion__orden', 'id']

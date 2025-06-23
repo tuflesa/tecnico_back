@@ -6,6 +6,7 @@ from .views import *
 router = routers.DefaultRouter()
 
 router.register('bancada_montaje_ct', BancadaMontajeCTViewSet)
+router.register('celda_program', Celda_programadoresViewSet)
 router.register('celda_qs', CeldaQSViewSet)
 router.register('anotaciones', AnotacionesViewSet)
 router.register('eliminar', EliminarViewSet, basename='eliminar_archivos')

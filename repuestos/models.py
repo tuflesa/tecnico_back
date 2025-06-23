@@ -223,7 +223,7 @@ class Movimiento(models.Model):
     cantidad = models.DecimalField(max_digits=13, decimal_places=2)
     almacen = models.ForeignKey(Almacen, on_delete=models.CASCADE, blank=True, null=True)
     usuario = models.ForeignKey(User, on_delete=models.SET_NULL, blank=True, null=True)
-    linea_pedido = models.ForeignKey(LineaPedido, on_delete=models.CASCADE, blank=True, null=True)
+    linea_pedido = models.ForeignKey(LineaPedido, on_delete=models.CASCADE, blank=True, null=True, related_name='movimiento')
     linea_inventario = models.ForeignKey(LineaInventario, on_delete=models.CASCADE, blank=True, null=True)
     linea_salida = models.ForeignKey(LineaSalida, on_delete=models.CASCADE, blank=True, null=True)
     albaran = models.CharField(max_length=50, null=True, blank=True, default='')
