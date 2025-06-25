@@ -3,7 +3,7 @@ from rest_framework import viewsets
 from rest_framework import serializers
 from django.db.models import Q, F
 from rest_framework.serializers import Serializer
-from .serializers import LineaPedidoDetailSerilizer, LineasAdicionalesDetalleSerilizer, RepuestoConPrecioSerializer, PrecioRepuestoSerializer, MovimientoTrazabilidadSerializer, LineaPedidoPendSerilizer, EntregaSerializer, LineasAdicionalesSerilizer, MovimientoDetailSerializer, SalidasSerializer, StockMinimoDetailSerializer, PedidoSerilizer, LineaPedidoSerilizer, PedidoListSerilizer, PedidoDetailSerilizer, ProveedorDetailSerializer, AlmacenSerilizer, ContactoSerializer, InventarioSerializer, MovimientoSerializer, ProveedorSerializer, RepuestoListSerializer, RepuestoDetailSerializer, StockMinimoDetailSerializer, StockMinimoSerializer, LineaInventarioSerializer, TipoRepuestoSerilizer, TipoUnidadSerilizer, LineaSalidaSerializer, LineaSalidaTrazaSerializer, SinStockMinimoSerializer, LineasPedidoPorAlbaranSerilizer
+from .serializers import LineaPedidoDetailSerilizer, LineasAdicionalesDetalleSerilizer, RepuestoConPrecioSerializer, PrecioRepuestoSerializer, MovimientoTrazabilidadSerializer, LineaPedidoPendSerilizer, EntregaSerializer, LineasAdicionalesSerilizer, MovimientoDetailSerializer, SalidasSerializer, StockMinimoDetailSerializer, PedidoSerilizer, LineaPedidoSerilizer, PedidoListSerilizer, PedidoDetailSerilizer, ProveedorDetailSerializer, AlmacenSerilizer, ContactoSerializer, InventarioSerializer, MovimientoSerializer, ProveedorSerializer, RepuestoListSerializer, RepuestoDetailSerializer, StockMinimoDetailSerializer, StockMinimoSerializer, LineaInventarioSerializer, TipoRepuestoSerilizer, TipoUnidadSerilizer, LineaSalidaSerializer, LineaSalidaTrazaSerializer, SinStockMinimoSerializer, PedidoPorAlbaranSerilizer
 from .models import PrecioRepuesto, Almacen, Entrega, Inventario, Contacto, LineaAdicional, LineaInventario, LineaPedido, Movimiento, Pedido, Proveedor, Repuesto, StockMinimo, TipoRepuesto, TipoUnidad, Salida, LineaSalida
 from django_filters import filterset, rest_framework as filters
 from rest_framework.pagination import PageNumberPagination
@@ -125,17 +125,21 @@ class LineaPedidoFilter(filters.FilterSet):
             'repuesto__tipo_repuesto': ['exact'],
             'pedido__proveedor__nombre':['icontains'],
         }
-class LineaPedidoPorAlbaranFilter(filters.FilterSet):
+class PedidoPorAlbaranFilter(filters.FilterSet):
+    numero_albaran = filters.CharFilter(method='filtro_por_albaran')
     class Meta:
-        model = LineaPedido
+        model = Pedido
         fields = {
-            'pedido__finalizado': ['exact'],
-            'pedido__numero': ['icontains'],
-            'pedido__empresa__id': ['exact'],
-            'descripcion_proveedor': ['icontains'],
-            'pedido__proveedor__nombre':['icontains'],
-            'movimiento__albaran':['icontains'],
+            'empresa__id': ['exact'],
+            'proveedor__nombre':['icontains'],
         }
+    def filtro_por_albaran(self, queryset, name, value):
+        if value:
+            return queryset.filter(
+                Q(lineas_pedido__movimiento__albaran__icontains=value) |
+                Q(lineas_adicionales__entregas__albaran__icontains=value)
+            ).distinct()
+        return queryset
 
 class LineaAdicionalFilter(filters.FilterSet):
     class Meta:
@@ -340,10 +344,10 @@ class LineaAdicionalDetalleViewSet(viewsets.ModelViewSet):
     filterset_class = LineaAdicionalFilter
     pagination_class = StandardResultsSetPagination
 
-class LineaPedidoPorAlbaranViewSet(viewsets.ModelViewSet):
-    serializer_class = LineasPedidoPorAlbaranSerilizer
-    queryset = LineaPedido.objects.all().order_by('id')
-    filterset_class = LineaPedidoPorAlbaranFilter
+class PedidoPorAlbaranViewSet(viewsets.ModelViewSet):
+    serializer_class = PedidoPorAlbaranSerilizer
+    queryset = Pedido.objects.all().order_by('numero')
+    filterset_class = PedidoPorAlbaranFilter
     pagination_class = StandardResultsSetPagination
 
 class PedidoViewSet(viewsets.ModelViewSet):

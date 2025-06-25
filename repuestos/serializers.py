@@ -158,13 +158,25 @@ class LineasAdicionalesDetalleSerilizer(serializers.ModelSerializer):
     class Meta:
         model = LineaAdicional
         fields = '__all__'
+class LineasAdicionalesAlbaranSerilizer(serializers.ModelSerializer):
+    entregas = EntregaSerializer(many=True)
+    class Meta:
+        model = LineaAdicional
+        fields = '__all__'
 class LineasPedidoPorAlbaranSerilizer(serializers.ModelSerializer):
-    pedido = PedidoListSerilizer(many=False, read_only=True)
     movimiento = MovimientoSerializer (many=True)
     class Meta:
         model = LineaPedido
         fields = '__all__'
-
+class PedidoPorAlbaranSerilizer(serializers.ModelSerializer):
+    lineas_pedido = LineasPedidoPorAlbaranSerilizer (many=True)
+    lineas_adicionales = LineasAdicionalesAlbaranSerilizer (many=True)
+    proveedor = ProveedorSerializer(many=False, read_only=True)
+    empresa = EmpresaSerializer(many=False)
+    creado_por = UserSerializer(many=False, read_only=True)
+    class Meta:
+        model = Pedido
+        fields = '__all__'
 class PedidoDetailSerilizer(serializers.ModelSerializer):
     proveedor = ProveedorSerializer(many=False, read_only=True)
     lineas_pedido = LineaPedidoDetailSerilizer(many=True, read_only=True)

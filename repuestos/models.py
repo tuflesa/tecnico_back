@@ -162,7 +162,7 @@ class LineaAdicional(models.Model):
         return self.pendiente() <= 0 """
 
 class Entrega(models.Model):
-    linea_adicional = models.ForeignKey(LineaAdicional, on_delete=models.CASCADE)
+    linea_adicional = models.ForeignKey(LineaAdicional, on_delete=models.CASCADE, related_name='entregas')
     fecha = models.DateField(default=timezone.now)
     cantidad = models.DecimalField(max_digits=13, decimal_places=2)
     usuario = models.ForeignKey(User, on_delete=models.SET_NULL, blank=True, null=True)
