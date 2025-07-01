@@ -40,8 +40,12 @@ class IconoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Icono
         fields = '__all__'
-
+class Eje_programadoresSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Eje
+        fields = '__all__'
 class OperacionSerializer(serializers.ModelSerializer):
+    posiciones = Eje_programadoresSerializer(many=True)
     seccion = SeccionSerializer(many=False, read_only=False)
     icono = IconoSerializer(many=False)
     class Meta:
@@ -169,8 +173,20 @@ class ConjuntoSerializer(serializers.ModelSerializer):
         model = Conjunto
         fields = '__all__'
 
+class Icono_celdaSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Icono_celda
+        fields = '__all__'
+
+class Conjunto_celdaSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Celda
+        fields = '__all__'
+
 class Conjunto_OperacionSerializer(serializers.ModelSerializer):
     operacion = OperacionSerializer()
+    conjunto_celda = Conjunto_celdaSerializer(many=True, read_only=True)
     class Meta:
         model = Conjunto
         fields = '__all__'
@@ -180,11 +196,11 @@ class ElementoSerializer(serializers.ModelSerializer):
         model = Elemento
         fields = ['id', 'conjunto', 'eje', 'rodillo', 'anotciones_montaje']
 
-class Conjunto_OperacionSerializer(serializers.ModelSerializer):
+""" class Conjunto_OperacionSerializer(serializers.ModelSerializer):
     operacion = OperacionSerializer(many=False)
     class Meta:
         model = Conjunto
-        fields = '__all__'
+        fields = '__all__' """
 
 class Elemento_SelectSerializer(serializers.ModelSerializer):
     conjunto = Conjunto_OperacionSerializer(many=False)
@@ -193,11 +209,6 @@ class Elemento_SelectSerializer(serializers.ModelSerializer):
     class Meta:
         model = Elemento
         fields = ['id', 'conjunto', 'eje', 'rodillo', 'anotciones_montaje']
-
-class Icono_celdaSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Icono_celda
-        fields = '__all__'
 
 class Celda_DuplicarSerializer(serializers.ModelSerializer):
     conjunto = Conjunto_OperacionSerializer(many=False)
@@ -392,7 +403,20 @@ class Celda_SelectSerializer(serializers.ModelSerializer):
     class Meta:
         model = Celda
         fields = '__all__'
-
+class Operacion_programadoresSerializer(serializers.ModelSerializer):
+    posiciones = Eje_programadoresSerializer(many=True, read_only=True)
+    class Meta:
+        model = Operacion
+        fields = '__all__'
+        
+class Celda_programadoresSerializer(serializers.ModelSerializer):
+    icono = Icono_celdaSerializer(many=False)
+    conjunto = ConjuntoQSSerializer(many=False)
+    operacion = Operacion_programadoresSerializer(many=False)
+    bancada = BancadaToolingSerializer()
+    class Meta:
+        model = Celda
+        fields = '__all__'
 class GrupoQSSerializer(serializers.ModelSerializer):
     bancadas = BancadaToolingSerializer(many=True)
     class Meta:

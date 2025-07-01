@@ -43,6 +43,11 @@ class SinStockMinimoSerializer(serializers.ModelSerializer):
     class Meta:
         model = StockMinimo
         fields = '__all__'
+class StockMinimoAlmacenSerializer(serializers.ModelSerializer):
+    almacen = AlmacenSerilizer(many=False)
+    class Meta:
+        model = StockMinimo
+        fields = '__all__'
 
 class PrecioRepuestoSerializer(serializers.ModelSerializer):
     class Meta:
@@ -52,6 +57,7 @@ class PrecioRepuestoSerializer(serializers.ModelSerializer):
 class RepuestoListSerializer(serializers.ModelSerializer):
     tipo_unidad_siglas = serializers.CharField(source='tipo_unidad.siglas', read_only=True)
     precios = PrecioRepuestoSerializer(many=True)
+    stocks_minimos = StockMinimoAlmacenSerializer(many=True)
     class Meta:
         model = Repuesto
         fields = '__all__'
@@ -158,7 +164,25 @@ class LineasAdicionalesDetalleSerilizer(serializers.ModelSerializer):
     class Meta:
         model = LineaAdicional
         fields = '__all__'
-
+class LineasAdicionalesAlbaranSerilizer(serializers.ModelSerializer):
+    entregas = EntregaSerializer(many=True)
+    class Meta:
+        model = LineaAdicional
+        fields = '__all__'
+class LineasPedidoPorAlbaranSerilizer(serializers.ModelSerializer):
+    movimiento = MovimientoSerializer (many=True)
+    class Meta:
+        model = LineaPedido
+        fields = '__all__'
+class PedidoPorAlbaranSerilizer(serializers.ModelSerializer):
+    lineas_pedido = LineasPedidoPorAlbaranSerilizer (many=True)
+    lineas_adicionales = LineasAdicionalesAlbaranSerilizer (many=True)
+    proveedor = ProveedorSerializer(many=False, read_only=True)
+    empresa = EmpresaSerializer(many=False)
+    creado_por = UserSerializer(many=False, read_only=True)
+    class Meta:
+        model = Pedido
+        fields = '__all__'
 class PedidoDetailSerilizer(serializers.ModelSerializer):
     proveedor = ProveedorSerializer(many=False, read_only=True)
     lineas_pedido = LineaPedidoDetailSerilizer(many=True, read_only=True)

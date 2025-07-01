@@ -47,7 +47,7 @@ class ElementoAdmin(admin.ModelAdmin):
     list_filter=("eje", "rodillo")
 
 class GrupoAdmin(admin.ModelAdmin):
-    list_display=("id","nombre")
+    list_display=("id","nombre", "maquina")
 
 class SeccionAdmin(admin.ModelAdmin):
     list_display=("id","nombre")
@@ -60,7 +60,7 @@ class ConjuntoAdmin(admin.ModelAdmin):
     search_fields=("tubo_madre",)
 
 class BancadaAdmin(admin.ModelAdmin):
-    list_display=("id","seccion", "tubo_madre", "espesores")
+    list_display=("id","seccion", "tubo_madre", "dimensiones", "espesores")
     search_fields=("tubo_madre",)
 
 class MontajesAdmin(admin.ModelAdmin):
