@@ -6,7 +6,8 @@ from datetime import datetime
 from rest_framework.decorators import api_view
 from django.http import HttpResponse
 from rest_framework.response import Response
-from .models import Acumulador, Flejes
+from .models import Acumulador, Flejes, Tubos
+from django.db.models import Q
 
 # Constantes
 ULTIMO_FLEJE = 0
@@ -22,6 +23,16 @@ FLEJE_NULO = {
     'metros_teoricos': 0,
     'IdArticulo': 'F00000001001'
 }
+
+def leerTubosPLC(data, pos):
+    tubo = {
+        'of': get_fstring(data, pos+2, 8, False),
+        'pos': get_int(data, pos+10),
+        'idProduccion': get_fstring(data, pos+14, 10, False),
+        'largo': get_real(data, pos+24),
+        'n_tubos': get_int(data, pos+28)
+    }
+    return tubo
 
 def leerFlejePLC(data, pos):
     fleje = {
@@ -153,9 +164,22 @@ def leerFlejesEnAcumuladores(request):
             flejes_of_siguiente = [f for f in flejes_maquina if f['of'] != of_actual]
             flejes_of_siguiente = sorted(flejes_of_siguiente, key=lambda f: f['pos']) # Ordenamos por posición
 
-            flejes_ordenados = flejes_of_actual + flejes_of_siguiente
+            # Cambio de of
+            if len(flejes_of_actual) == 0 and len(flejes_of_siguiente)>0:
+                next_of = flejes_of_siguiente[0]['of']
+                flejes_of_siguiente = [f for f in flejes_of_siguiente if f['of'] == next_of]
+                acc.n_bobina_activa = flejes_of_siguiente[0]['pos'] # será la 1 normalmente
+                acc.of_activa = next_of
+                acc.save()
+                flejes_ordenados = flejes_of_siguiente
+                add = True
+            else: 
+                flejes_ordenados = flejes_of_actual
+                add = False
 
-            add = False
+            # TODO: Comprobar que no hay cambios en el orden de las bobinas leidas
+            # Si hay errores, borrar las bobinas a partir de la última que está bien 
+            
             flejes_a_guardar = []
             for fleje in flejes_ordenados:
                 if (add):
@@ -189,15 +213,45 @@ def leerFlejesEnAcumuladores(request):
                 plc = snap7.client.Client()
                 plc.connect(IP, RACK, SLOT)
 
-                from_PLC = plc.db_read(DB,0,889)
-                # print('Ultima bobina')
+                from_PLC = plc.db_read(DB,0,775)
                 ultimo_flejePLC = leerFlejePLC(from_PLC,ULTIMO_FLEJE)
-                # print(ultimo_flejePLC)
-                # print('Bobina actual ...')
                 fleje_ActualPLC = leerFlejePLC(from_PLC,FLEJE_ACTUAL)
-                # print(fleje_ActualPLC)
-                # print('Fleje actual')
-                # print(fleje_ActualPLC)
+                # Leer ultimo tubo del PLC
+                ultimo_tubo = leerTubosPLC(from_PLC, 590)
+                tubo_actual = leerTubosPLC(from_PLC, 620)
+
+                last_t = Tubos.objects.filter(fleje__acumulador__id=acc.id).order_by('id').last()
+                if last_t == None:
+                    print('No hay tubos ...')
+                    fl = Flejes.objects.filter(of=ultimo_tubo['of'], pos=ultimo_tubo['pos'], idProduccion=ultimo_tubo['idProduccion']).last()
+                    if fl != None:
+                        new_t = Tubos(n_tubos=ultimo_tubo['n_tubos'] , largo=ultimo_tubo['largo'], fleje= fl)
+                        new_t.save()
+                    fl = Flejes.objects.filter(of=tubo_actual['of'], pos=tubo_actual['pos'], idProduccion=tubo_actual['idProduccion']).last()
+                    if fl != None:
+                        new_t = Tubos(n_tubos=tubo_actual['n_tubos'] , largo=tubo_actual['largo'], fleje= fl)
+                        new_t.save()
+                else:
+                    print('Hay tubos')
+                    if (last_t.fleje.of == ultimo_tubo['of'] and last_t.fleje.pos == ultimo_tubo['pos']
+                        and last_t.fleje.idProduccion == ultimo_tubo['idProduccion'] and last_t.largo == ultimo_tubo['largo']):
+                        print('actualizar ultimo tubo y crear uno nuevo')
+                        last_t.n_tubos = ultimo_tubo['n_tubos']
+                        last_t.save()
+                        fl = Flejes.objects.filter(of=tubo_actual['of'], pos=tubo_actual['pos'], idProduccion=tubo_actual['idProduccion']).last()
+                        if fl != None:
+                            new_t = Tubos(n_tubos=tubo_actual['n_tubos'] , largo=tubo_actual['largo'], fleje= fl)
+                            new_t.save()
+                    else:
+                        if (last_t.fleje.of == tubo_actual['of'] and last_t.fleje.pos == tubo_actual['pos']
+                            and last_t.fleje.idProduccion == tubo_actual['idProduccion'] and last_t.largo == tubo_actual['largo']):
+                            print('Actualizar tubo actual')
+                            last_t.n_tubos = tubo_actual['n_tubos']
+                            last_t.save()
+                        else:
+                            print(tubo_actual['of'], tubo_actual['pos'], tubo_actual['idProduccion'], tubo_actual['largo'])
+                            print(last_t.fleje.of, last_t.fleje.pos, last_t.fleje.idProduccion, last_t.largo)
+                            print('Error')
                 
                 flejeActualPLC_valido = False
                 if (ultimo_flejePLC['of'] == acc.of_activa and ultimo_flejePLC['pos'] == acc.n_bobina_activa):
@@ -210,8 +264,7 @@ def leerFlejesEnAcumuladores(request):
                     f.hora_salida = ultimo_flejePLC['hora_salida']
                     f.finalizada = True
                     f.save()
-                    acc.n_bobina_activa = fleje_ActualPLC['pos']
-                    acc.of_activa = fleje_ActualPLC['of']
+                    acc.n_bobina_activa = fleje_ActualPLC['pos'] 
                     acc.save()
                 else:
                     print('Misma bobina')
@@ -245,16 +298,15 @@ def leerFlejesEnAcumuladores(request):
                         if (fleje.pos == fleje_ActualPLC['pos'] and nFlejesPLC==0):
                             add = True
                         if (nFlejesPLC != 0 and fleje.pos == FIFO_PLC[nFlejesPLC-1]['pos']):
-                            print('Add true')
                             add = True
+                    
                     if (data_to_send >0): 
                         # print('data_to_send', data_to_send)
                         # print('nFlejesPLC', nFlejesPLC)
                         # print('Datos para actualizar FIFO')
                         # print(FIFO_PLC)
                         actualizarFIFO_PLC(FIFO_PLC, nFlejesPLC + data_to_send, acc)
-                        
-
+                    
             else:
                 print('No hay configuración de la conexión al PLC')
 

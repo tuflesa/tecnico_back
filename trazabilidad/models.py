@@ -42,4 +42,14 @@ class Flejes(models.Model):
     def metros_teorico(self):
         metros = (self.peso *1000) / (self.espesor() * self.ancho() * 7.85)
         return metros
+    
+    def metros_tubo(self):
+        metros = 0
+        for tubo in self.tubos.all():
+            metros += tubo.n_tubos * tubo.largo/1000
+        return metros
 
+class Tubos(models.Model):
+    n_tubos = models.IntegerField(default=0)
+    largo = models.FloatField()
+    fleje = models.ForeignKey(Flejes, on_delete=models.CASCADE, related_name='tubos')
