@@ -118,9 +118,18 @@ def actualizarFIFO_PLC(FIFO, nFlejesNuevo, acumulador):
 
 def leerFlejesProduccionDB():
     consultaSQL = 'select a.xIdPos, a.xIdFleje, a.xIdArticulo, a.xPeso, a.xIdOF, xIdMaquina, art.xdescripcion from imp.tb_tubo_acumulador a inner join imp.tb_tubo_orden o on a.xIdOF = o.xIdOF  left join F126_DATA.imp.pl_articulos art on art.xarticulo_id = a.xIdArticulo WHERE xPesoConsumido = 0 and xTrazabilidad = 0' 
+    conn_str = (
+        "DRIVER={ODBC Driver 18 for SQL Server};"
+        "SERVER=10.128.0.203;"
+        "DATABASE=Produccion_BD;"
+        "UID=reader;"
+        "PWD=sololectura;"
+        "TrustServerCertificate=yes;"
+    )
     datos = []
     try:
-        conexion = pyodbc.connect('DRIVER={SQL Server}; SERVER=10.128.0.203;DATABASE=Produccion_BD;UID=reader;PWD=sololectura')
+        # conexion = pyodbc.connect('DRIVER={SQL Server}; SERVER=10.128.0.203;DATABASE=Produccion_BD;UID=reader;PWD=sololectura')
+        conexion = pyodbc.connect(conn_str)
         cursor = conexion.cursor()
         cursor.execute(consultaSQL)
         flejes = cursor.fetchall()
