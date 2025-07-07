@@ -25,7 +25,7 @@ SECRET_KEY = '#+ompm3l5o6ie5!*4(=-ot_-bjc!nl&^ex9ujyg9j9)8-0b15h'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['10.128.100.242']
 
 # Application definition
 
@@ -49,7 +49,7 @@ INSTALLED_APPS = [
     'rodillos',
     'qs',
     'articulos',
-    'trazabilidad'
+    'trazabilidad',
 ]
 
 MIDDLEWARE = [
@@ -67,6 +67,7 @@ CORS_ORIGIN_WHITELIST = ["http://localhost:3000"]
 CORS_EXPOSE_HEADERS = ['X-CSRFToken', 'csrftoken']
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOWED_ORIGINS = [
+    "http://10.128.100.242",
     "http://localhost:3000",
 ]
 CSRF_COOKIE_SAMESITE = None
@@ -98,21 +99,14 @@ WSGI_APPLICATION = 'tecnico.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': BASE_DIR / 'db.sqlite3',
-#     }
-# }
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'tecnico',
-        'USER': 'tecnico',
-        'PASSWORD': 'popTuf242',
-        'HOST': 'localhost',
-        'PORT': '5432',
+        'NAME': 'tecnico', 
+	'USER': 'tecnico',
+	'PASSWORD': 'popTuf242',
+	'HOST': '10.128.100.242',
+	'PORT': '5432',
     }
 }
 
