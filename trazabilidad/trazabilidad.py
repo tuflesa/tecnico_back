@@ -177,9 +177,9 @@ def leerFlejesEnAcumuladores(request):
             if len(flejes_of_actual) == 0 and len(flejes_of_siguiente)>0:
                 next_of = flejes_of_siguiente[0]['of']
                 flejes_of_siguiente = [f for f in flejes_of_siguiente if f['of'] == next_of]
-                acc.n_bobina_activa = flejes_of_siguiente[0]['pos'] # será la 1 normalmente
-                acc.of_activa = next_of
-                acc.save()
+                # acc.n_bobina_activa = flejes_of_siguiente[0]['pos'] # será la 1 normalmente
+                # acc.of_activa = next_of
+                # acc.save()
                 flejes_ordenados = flejes_of_siguiente
                 add = True
             else: 
@@ -263,29 +263,19 @@ def leerFlejesEnAcumuladores(request):
                             print('Error')
                 
                 flejeActualPLC_valido = False
-                if ((ultimo_flejePLC['of'] == acc.of_activa and ultimo_flejePLC['pos'] == acc.n_bobina_activa) or (ultimo_flejePLC['of'] != acc.of_activa)):
+                if (ultimo_flejePLC['of'] == acc.of_activa and ultimo_flejePLC['pos'] == acc.n_bobina_activa):
                     print('bobina terminada')
-                    if (ultimo_flejePLC['of'] == acc.of_activa):
-                        f = Flejes.objects.get(of=ultimo_flejePLC['of'], pos=ultimo_flejePLC['pos'])
-                        f.metros_medido = ultimo_flejePLC['metros_medidos']
-                        f.fecha_entrada = ultimo_flejePLC['fecha_entrada']
-                        f.hora_entrada = ultimo_flejePLC['hora_entrada']
-                        f.fecha_salida = ultimo_flejePLC['fecha_salida']
-                        f.hora_salida = ultimo_flejePLC['hora_salida']
-                        f.finalizada = True
-                        f.save()
-                        acc.n_bobina_activa = fleje_ActualPLC['pos'] 
-                        acc.save()
-                    else: # Cambio de orden
-                        f = Flejes.objects.get(of=ultimo_flejePLC['of'], pos=ultimo_flejePLC['pos'])
-                        if (f.finalizada == False):
-                            f.metros_medido = ultimo_flejePLC['metros_medidos']
-                            f.fecha_entrada = ultimo_flejePLC['fecha_entrada']
-                            f.hora_entrada = ultimo_flejePLC['hora_entrada']
-                            f.fecha_salida = ultimo_flejePLC['fecha_salida']
-                            f.hora_salida = ultimo_flejePLC['hora_salida']
-                            f.finalizada = True
-                            f.save()
+                    f = Flejes.objects.get(of=ultimo_flejePLC['of'], pos=ultimo_flejePLC['pos'])
+                    f.metros_medido = ultimo_flejePLC['metros_medidos']
+                    f.fecha_entrada = ultimo_flejePLC['fecha_entrada']
+                    f.hora_entrada = ultimo_flejePLC['hora_entrada']
+                    f.fecha_salida = ultimo_flejePLC['fecha_salida']
+                    f.hora_salida = ultimo_flejePLC['hora_salida']
+                    f.finalizada = True
+                    f.save()
+                    acc.of_activa = fleje_ActualPLC['of']
+                    acc.n_bobina_activa = fleje_ActualPLC['pos'] 
+                    acc.save()
                 else:
                     print('Misma bobina')
                     if (fleje_ActualPLC['pos']!=0):
