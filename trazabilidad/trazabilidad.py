@@ -191,10 +191,9 @@ def leerFlejesEnAcumuladores(request):
             
             flejes_a_guardar = []
             for fleje in flejes_ordenados:
-                if (add):
+                fl = Flejes.objects.filter(pos=fleje['pos'], idProduccion=fleje['idProduccion']).last()
+                if (fl == None):
                     flejes_a_guardar.append(fleje) 
-                if ( not add and fleje['pos'] == acc.n_bobina_ultima):
-                    add = True
 
             # print('Flejes a guardar')
             for fleje in flejes_a_guardar:
