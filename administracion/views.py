@@ -31,7 +31,7 @@ class AplicacionViewSet(viewsets.ModelViewSet):
 
 class UserViewSet(viewsets.ModelViewSet):
     serializer_class = UserSerializer
-    queryset = User.objects.all()
+    queryset = User.objects.all().order_by('username')
     filterset_class = UserFilter
 
 class CustomAuthToken(ObtainAuthToken):
