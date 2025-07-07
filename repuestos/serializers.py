@@ -7,6 +7,7 @@ from estructura.serializers import EquipoSerializer
 from estructura.serializers import EstructuraSerializer
 from estructura.serializers import EmpresaSerializer
 from administracion.serializers import UserSerializer
+from mantenimiento.serializers import ParteTrabajoSerializer
 
 class ContactoSerializer(serializers.ModelSerializer):
     class Meta:
@@ -86,7 +87,7 @@ class RepuestoDetailSerializer(serializers.ModelSerializer):
 class TipoRepuestoSerilizer(serializers.ModelSerializer):
     class Meta:
         model = TipoRepuesto
-        fields = ['id', 'nombre'] 
+        fields = '__all__' 
 
 class InventarioSerializer(serializers.ModelSerializer):
     class Meta:
@@ -204,12 +205,18 @@ class SalidasSerializer(serializers.ModelSerializer):
         model = Salida
         fields = '__all__'
 
+class SalidasTrazaSerializer(serializers.ModelSerializer):
+    num_parte = ParteTrabajoSerializer(many=False)
+    class Meta:
+        model = Salida
+        fields = '__all__'
+
 class LineaSalidaSerializer(serializers.ModelSerializer):
     class Meta:
         model = LineaSalida
         fields = '__all__'
 class LineaSalidaTrazaSerializer(serializers.ModelSerializer):
-    salida = SalidasSerializer(many=False, read_only=True)
+    salida = SalidasTrazaSerializer(many=False, read_only=True)
     repuesto = RepuestoListSerializer(many=False, read_only=True)
     class Meta:
         model = LineaSalida

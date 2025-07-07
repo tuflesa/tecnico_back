@@ -105,7 +105,7 @@ DATABASES = {
         'NAME': 'tecnico', 
 	'USER': 'tecnico',
 	'PASSWORD': 'popTuf242',
-	'HOST': '10.128.100.242',
+	'HOST': 'localhost',
 	'PORT': '5432',
     }
 }

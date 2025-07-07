@@ -7,7 +7,24 @@ from .serializers import LineaPedidoDetailSerilizer, LineasAdicionalesDetalleSer
 from .models import PrecioRepuesto, Almacen, Entrega, Inventario, Contacto, LineaAdicional, LineaInventario, LineaPedido, Movimiento, Pedido, Proveedor, Repuesto, StockMinimo, TipoRepuesto, TipoUnidad, Salida, LineaSalida
 from django_filters import filterset, rest_framework as filters
 from rest_framework.pagination import PageNumberPagination
+# En views.py
+from rest_framework.viewsets import ViewSet
+from rest_framework.response import Response
+from rest_framework import status
+from rest_framework.permissions import AllowAny  # ← Añadir esta línea
+from django.utils import timezone
+from .models import ContadorPedidos
 
+class ResetContadoresViewSet(ViewSet):
+    """ViewSet temporal para resetear contadores"""
+    permission_classes = [AllowAny]  # ← Añadir esta línea
+    
+    def list(self, request):
+        year = timezone.now().year
+        count = ContadorPedidos.objects.filter(year=year).update(contador=0)
+        return Response({
+            'message': f'Se resetearon {count} contadores para el año {year}'
+        })
 
 class AlmacenFilter(filters.FilterSet):
     class Meta:
@@ -63,7 +80,7 @@ class MovimientoTrazabilidadFilter(filters.FilterSet):
             'linea_inventario__repuesto':['exact'],
             'linea_pedido__repuesto':['exact'],
             'almacen__id': ['exact'],
-            'linea_salida__salida__num_parte': ['exact']
+            'linea_salida__salida__num_parte': ['exact'],
         }
 
 class RepuestoListFilter(filters.FilterSet):
@@ -310,7 +327,7 @@ class PedidoListViewSet(viewsets.ModelViewSet):
 
 class PedidoFueraFechaViewSet(viewsets.ModelViewSet):
     serializer_class = PedidoListSerilizer
-    queryset = Pedido.objects.all().order_by('numero')
+    queryset = Pedido.objects.all().order_by('-numero')
     filterset_class = PedidoListFilter
     pagination_class = StandardResultsSetPagination
 
