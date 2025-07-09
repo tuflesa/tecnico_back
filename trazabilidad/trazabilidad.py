@@ -128,8 +128,8 @@ def leerFlejesProduccionDB():
     )
     datos = []
     try:
-        # conexion = pyodbc.connect('DRIVER={SQL Server}; SERVER=10.128.0.203;DATABASE=Produccion_BD;UID=reader;PWD=sololectura')
-        conexion = pyodbc.connect(conn_str)
+        conexion = pyodbc.connect('DRIVER={SQL Server}; SERVER=10.128.0.203;DATABASE=Produccion_BD;UID=reader;PWD=sololectura')
+        # conexion = pyodbc.connect(conn_str)
         cursor = conexion.cursor()
         cursor.execute(consultaSQL)
         flejes = cursor.fetchall()
