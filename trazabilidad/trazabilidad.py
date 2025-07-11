@@ -12,6 +12,7 @@ from django.db.models import Q
 # Constantes
 ULTIMO_FLEJE = 0
 FLEJE_SIZE = 98
+TUBO_SIZE = 30
 FIFO_POS = 196
 FLEJE_ACTUAL = 98
 FLEJE_NULO = {
@@ -22,6 +23,13 @@ FLEJE_NULO = {
     'of': '',
     'metros_teoricos': 0,
     'IdArticulo': 'F00000001001'
+}
+TUBO_NULO = {
+    'of': '',
+    'pos': 0,
+    'idProduccion': '',
+    'largo': 0,
+    'nTubos':0
 }
 
 def leerTubosPLC(data, pos):
@@ -67,6 +75,17 @@ def metros(fleje):
 
     return float(metros)
 
+def reset_tuboPLC(tubo):
+    to_PLC = bytearray(TUBO_SIZE)
+
+    set_string(to_PLC, 0, tubo['of'], 8)
+    set_int(to_PLC, 10, tubo['pos'])
+    set_string(to_PLC, 12, tubo['idProduccion'], 10)
+    set_real(to_PLC, 24, tubo['largo'])
+    set_int(to_PLC, 28, tubo['nTubos'])
+
+    return to_PLC
+
 def reset_flejePLC(fleje):
     # print(fleje)
     to_PLC = bytearray(FLEJE_SIZE)
@@ -94,6 +113,11 @@ def escribe_flejePLC(fleje):
     set_string(to_PLC, 24, fleje['descripcion'], 50)
     set_int(to_PLC, 76, fleje['peso'])
     set_real(to_PLC, 78, fleje['metros_teoricos'])
+    return to_PLC
+
+def reset_N_Tubos(N):
+    to_PLC = bytearray(2)
+    set_int(to_PLC, 0, N)
     return to_PLC
 
 def escribe_N_FIFO(N):
@@ -174,6 +198,10 @@ def leerFlejesEnAcumuladores(request):
             flejes_of_siguiente = sorted(flejes_of_siguiente, key=lambda f: f['pos']) # Ordenamos por posición
 
             # Cambio de of
+            print('of actual')
+            print(flejes_of_actual)
+            print('of siguiente')
+            print(flejes_of_siguiente)
             if len(flejes_of_actual) == 0 and len(flejes_of_siguiente)>0:
                 next_of = flejes_of_siguiente[0]['of']
                 flejes_of_siguiente = [f for f in flejes_of_siguiente if f['of'] == next_of]
@@ -241,6 +269,7 @@ def leerFlejesEnAcumuladores(request):
                         new_t.save()
                 else:
                     print('Hay tubos')
+                    print('last_t', last_t.largo)
                     if (last_t.fleje.of == ultimo_tubo['of'] and last_t.fleje.pos == ultimo_tubo['pos']
                         and last_t.fleje.idProduccion == ultimo_tubo['idProduccion'] and last_t.largo == ultimo_tubo['largo']):
                         print('actualizar ultimo tubo y crear uno nuevo')
@@ -251,15 +280,10 @@ def leerFlejesEnAcumuladores(request):
                             new_t = Tubos(n_tubos=tubo_actual['n_tubos'] , largo=tubo_actual['largo'], fleje= fl)
                             new_t.save()
                     else:
-                        if (last_t.fleje.of == tubo_actual['of'] and last_t.fleje.pos == tubo_actual['pos']
-                            and last_t.fleje.idProduccion == tubo_actual['idProduccion'] and last_t.largo == tubo_actual['largo']):
-                            print('Actualizar tubo actual')
-                            last_t.n_tubos = tubo_actual['n_tubos']
-                            last_t.save()
-                        else:
-                            print(tubo_actual['of'], tubo_actual['pos'], tubo_actual['idProduccion'], tubo_actual['largo'])
-                            print(last_t.fleje.of, last_t.fleje.pos, last_t.fleje.idProduccion, last_t.largo)
-                            print('Error')
+                        print('Actualizar tubo actual')
+                        last_t.n_tubos = tubo_actual['n_tubos']
+                        last_t.largo = tubo_actual['largo']
+                        last_t.save()
                 
                 flejeActualPLC_valido = False
                 if (ultimo_flejePLC['of'] == acc.of_activa and ultimo_flejePLC['pos'] == acc.n_bobina_activa):
@@ -327,8 +351,51 @@ def leerFlejesEnAcumuladores(request):
 @api_view(['POST'])
 def resetPLC(request):
     fleje = request.data
+    tubo1 = {
+        'of': fleje['of'],
+        'pos': fleje['pos'],
+        'idProduccion': fleje['idProduccion'],
+        'largo': 0,
+        'nTubos':0
+    }
+    tubo2 = {
+        'of': fleje['of'],
+        'pos': fleje['pos'],
+        'idProduccion': fleje['idProduccion'],
+        'largo': 6000.0,
+        'nTubos':0
+    }
     acumulador = Acumulador.objects.get(pk = fleje['acumulador'])
 
+    # Borramos todos los flejes no finalizados
+    Flejes.objects.filter(acumulador=acumulador.id, finalizada=False).delete()
+
+    # Guarda el fleje seleccionado en la tabla de Flejes
+    fl = Flejes.objects.filter(pos=fleje['pos'], idProduccion=fleje['idProduccion']).last()
+    if (fl == None): # Si no existe lo crea
+        fl = Flejes(pos=fleje['pos'], idProduccion=fleje['idProduccion'], IdArticulo=fleje['IdArticulo'],
+                        peso=fleje['peso'], of=fleje['of'], maquina_siglas=fleje['maquina_siglas'],
+                        descripcion=fleje['descripcion'], acumulador=acumulador)
+        fl.save()
+    else: #Si existe, lo actualiza
+        fl.finalizada = False
+        fl.save()
+
+    # Borra todos los flejes de esa máquina y of con posición mayor que la seleccionada
+    Flejes.objects.filter(acumulador=acumulador.id, of=fleje['of'], pos__gt=fleje['pos']).delete()
+
+    # Creamos un tubo de fleje actual con 0 tubos
+    Tubos.objects.filter(fleje__pos=fleje['pos'], fleje__idProduccion=fleje['idProduccion']).delete()
+    t = Tubos(fleje=fl, largo=6000.0, n_tubos=0)
+    t.save()
+
+    # Actualiza el acumulador
+    acumulador.of_activa = fleje['of']
+    acumulador.n_bobina_activa = fleje['pos']
+    acumulador.n_bobina_ultima = fleje['pos']
+    acumulador.save()
+
+    # Reseteamos Flejes PLC
     IP = acumulador.ip
     RACK = acumulador.rack
     SLOT = acumulador.slot
@@ -342,9 +409,29 @@ def resetPLC(request):
     for i in range(1,5):
         to_PLC += reset_flejePLC(FLEJE_NULO)
 
+    to_PLC += reset_tuboPLC(tubo1) # Ultimo tubo
+    to_PLC += reset_tuboPLC(tubo2) # Tubo actual
+    to_PLC += reset_N_Tubos(0) # N tubos en fifo
+    for i in range(1,5):
+        to_PLC += reset_tuboPLC(TUBO_NULO)
+
     plc.db_write(DB, ULTIMO_FLEJE, to_PLC)
 
-    return HttpResponse(status=201)
+    data = {
+        'id': fleje['acumulador'],
+        'nombre': acumulador.nombre,
+        'zona': acumulador.zona.id,
+        'maquina_siglas': acumulador.maquina_siglas,
+        'of_activa': acumulador.of_activa,
+        'n_bobina_activa': acumulador.n_bobina_activa,
+        'n_bobina_ultima': acumulador.n_bobina_ultima,
+        'ip': acumulador.ip,
+        'rack': acumulador.rack,
+        'slot': acumulador.slot,
+        'db': acumulador.db
+    }
+
+    return Response(data) # HttpResponse(status=201)
 
 @api_view(['GET'])
 def leerEstadoPLC(request):
