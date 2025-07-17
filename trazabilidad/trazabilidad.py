@@ -10,6 +10,7 @@ from .models import Acumulador, Flejes, Tubos
 from django.db.models import Q
 
 # Constantes
+DEBUG = False
 ULTIMO_FLEJE = 0
 FLEJE_SIZE = 98
 TUBO_SIZE = 30
@@ -152,8 +153,10 @@ def leerFlejesProduccionDB():
     )
     datos = []
     try:
-        # conexion = pyodbc.connect('DRIVER={SQL Server}; SERVER=10.128.0.203;DATABASE=Produccion_BD;UID=reader;PWD=sololectura')
-        conexion = pyodbc.connect(conn_str)
+        if DEBUG:
+            conexion = pyodbc.connect('DRIVER={SQL Server}; SERVER=10.128.0.203;DATABASE=Produccion_BD;UID=reader;PWD=sololectura')
+        else:
+            conexion = pyodbc.connect(conn_str)
         cursor = conexion.cursor()
         cursor.execute(consultaSQL)
         flejes = cursor.fetchall()
@@ -198,32 +201,48 @@ def leerFlejesEnAcumuladores(request):
             flejes_of_siguiente = sorted(flejes_of_siguiente, key=lambda f: f['pos']) # Ordenamos por posición
 
             # Cambio de of
-            print('of actual')
-            print(flejes_of_actual)
-            print('of siguiente')
-            print(flejes_of_siguiente)
             if len(flejes_of_actual) == 0 and len(flejes_of_siguiente)>0:
                 next_of = flejes_of_siguiente[0]['of']
                 flejes_of_siguiente = [f for f in flejes_of_siguiente if f['of'] == next_of]
-                # acc.n_bobina_activa = flejes_of_siguiente[0]['pos'] # será la 1 normalmente
-                # acc.of_activa = next_of
-                # acc.save()
                 flejes_ordenados = flejes_of_siguiente
                 add = True
             else: 
                 flejes_ordenados = flejes_of_actual
                 add = False
 
-            # TODO: Comprobar que no hay cambios en el orden de las bobinas leidas
-            # Si hay errores, borrar las bobinas a partir de la última que está bien 
+            # Comprobar que no hay cambios en el orden de las bobinas leidas
+            # Si hay errores, borrar las bobinas a partir de la última que está bien y actualizar PLC si es necesario
+            fl = Flejes.objects.filter(of=of_actual, finalizada=False)
+            print('numero de flejes no consumidos ', len(fl))
+            orden_flejes_OK = True
+            for fleje in fl:
+                pos = fleje.pos
+                flejeDB = list(filter(lambda f: f['pos'] == pos, flejes_of_actual))
+                if len(flejeDB)>0:
+                    if fleje.idProduccion != flejeDB[0]['idProduccion']: # No coincide el orden
+                        print('Cambio de orden de los flejes ...')
+                        Flejes.objects.filter(of=of_actual, finalizada=False, pos__gte=pos).delete()
+                        acc.n_bobina_ultima = pos - 1
+                        acc.save()
+                        orden_flejes_OK = False
+                        break # Sale del bucle for
+                else: # El fleje se ha borrado de producción DB
+                    if len(fl)>1 and fleje.pos > acc.n_bobina_activa:
+                        print('Fleje borrado de produccion DB...')
+                        Flejes.objects.filter(of=of_actual, finalizada=False, pos__gte=pos).delete()
+                        acc.n_bobina_ultima = pos - 1
+                        acc.save()
+                        orden_flejes_OK = False
+                        break # Sale del bucle for
             
+            # Añadir flejes nuevos
             flejes_a_guardar = []
             for fleje in flejes_ordenados:
                 fl = Flejes.objects.filter(pos=fleje['pos'], idProduccion=fleje['idProduccion']).last()
                 if (fl == None):
                     flejes_a_guardar.append(fleje) 
 
-            # print('Flejes a guardar')
+            # Guardar flejes nuevos en la base de datos de Técnico
             for fleje in flejes_a_guardar:
                 # print(fleje)
                 f = Flejes(pos=fleje['pos'], idProduccion=fleje['idProduccion'], IdArticulo=fleje['IdArticulo'],
@@ -303,6 +322,8 @@ def leerFlejesEnAcumuladores(request):
                     print('Misma bobina')
                     if (fleje_ActualPLC['pos']!=0):
                         print('Actualizar bobina actual')
+                        print('of ', fleje_ActualPLC['of'])
+                        print('pos ', fleje_ActualPLC['pos'])
                         f = Flejes.objects.get(of=fleje_ActualPLC['of'], pos=fleje_ActualPLC['pos'])
                         f.metros_medido = fleje_ActualPLC['metros_medidos']
                         f.save()
@@ -311,10 +332,15 @@ def leerFlejesEnAcumuladores(request):
                         print('Fleje actual PLC no valido')
 
                 nFlejesPLC, FIFO_PLC = leerFIFO_FlejePLC(from_PLC, 196)
+                if not orden_flejes_OK: # Sobre escribe lo guardado en el PLC para corregir el orden
+                    print('Corregir orden en PLC, nFlejes=0')
+                    nFlejesPLC = 0
+                else:
+                    print('Orden de flejes ok ...')
                 if (nFlejesPLC<4 and flejeActualPLC_valido):
                     add = False
                     data_to_send = 0
-                    for fleje in Flejes.objects.filter(finalizada = False).order_by('id'):
+                    for fleje in Flejes.objects.filter(acumulador__id=acc.id ,finalizada = False).order_by('id'):
                         if (add):
                             FIFO_PLC[nFlejesPLC+data_to_send] = {
                                 'of': fleje.of,
@@ -439,23 +465,28 @@ def leerEstadoPLC(request):
 
     acu_id = request.GET.get('acu_id')
     acumulador = Acumulador.objects.get(id=acu_id)
-    IP = acumulador.ip
-    RACK = acumulador.rack
-    SLOT = acumulador.slot
-    DB = acumulador.db
 
-    plc = snap7.client.Client()
-    plc.connect(IP, RACK, SLOT)
+    if (acumulador.ip):
+        IP = acumulador.ip
+        RACK = acumulador.rack
+        SLOT = acumulador.slot
+        DB = acumulador.db
 
-    from_PLC = plc.db_read(DB,0,589)
-    ultimo_fleje = leerFlejePLC(from_PLC,0)
-    fleje_actual = leerFlejePLC(from_PLC,98)
-    nFlejesPLC, FIFO_PLC = leerFIFO_FlejePLC(from_PLC, 196)
-    plc_status = {
-        'ultimo_fleje': ultimo_fleje,
-        'fleje_actual': fleje_actual,
-        'nFlejesFIFO': nFlejesPLC,
-        'fifo': FIFO_PLC
-        
-    }
+        plc = snap7.client.Client()
+        plc.connect(IP, RACK, SLOT)
+
+        from_PLC = plc.db_read(DB,0,589)
+        ultimo_fleje = leerFlejePLC(from_PLC,0)
+        fleje_actual = leerFlejePLC(from_PLC,98)
+        nFlejesPLC, FIFO_PLC = leerFIFO_FlejePLC(from_PLC, 196)
+        plc_status = {
+            'ultimo_fleje': ultimo_fleje,
+            'fleje_actual': fleje_actual,
+            'nFlejesFIFO': nFlejesPLC,
+            'fifo': FIFO_PLC
+            
+        }
+    else:
+        plc_status = {}
+
     return Response(plc_status)
