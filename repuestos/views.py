@@ -1,7 +1,8 @@
 from django.db.models import fields
 from rest_framework import viewsets
 from rest_framework import serializers
-from django.db.models import Q, F
+#from django.db.models import Q, F
+from django.db.models import Exists, OuterRef, Q, F
 from rest_framework.serializers import Serializer
 from .serializers import LineaPedidoDetailSerilizer, LineasAdicionalesDetalleSerilizer, RepuestoConPrecioSerializer, PrecioRepuestoSerializer, MovimientoTrazabilidadSerializer, LineaPedidoPendSerilizer, EntregaSerializer, LineasAdicionalesSerilizer, MovimientoDetailSerializer, SalidasSerializer, StockMinimoDetailSerializer, PedidoSerilizer, LineaPedidoSerilizer, PedidoListSerilizer, PedidoDetailSerilizer, ProveedorDetailSerializer, AlmacenSerilizer, ContactoSerializer, InventarioSerializer, MovimientoSerializer, ProveedorSerializer, RepuestoListSerializer, RepuestoDetailSerializer, StockMinimoDetailSerializer, StockMinimoSerializer, LineaInventarioSerializer, TipoRepuestoSerilizer, TipoUnidadSerilizer, LineaSalidaSerializer, LineaSalidaTrazaSerializer, SinStockMinimoSerializer, LineasPedidoPorAlbaranSerilizer
 from .models import PrecioRepuesto, Almacen, Entrega, Inventario, Contacto, LineaAdicional, LineaInventario, LineaPedido, Movimiento, Pedido, Proveedor, Repuesto, StockMinimo, TipoRepuesto, TipoUnidad, Salida, LineaSalida
@@ -375,8 +376,19 @@ class PrecioRepuestoViewSet(viewsets.ModelViewSet):
 
 class RepuestoConPrecioViewSet(viewsets.ModelViewSet):
     serializer_class = RepuestoConPrecioSerializer
-    queryset = PrecioRepuesto.objects.all().order_by('repuesto__nombre').distinct()
+    #queryset = PrecioRepuesto.objects.all().order_by('repuesto__nombre').distinct()
+    queryset = PrecioRepuesto.objects.all().distinct()  # Solo para DRF
     filterset_class = PrecioRepuestoFilter
+    def get_queryset(self):
+        cond_subquery = StockMinimo.objects.filter(
+            repuesto=OuterRef('repuesto')
+        ).filter(
+            Q(stock_act__lt=F('cantidad_aconsejable')) | Q(stock_act__lt=F('cantidad'))
+        )
+
+        return PrecioRepuesto.objects.annotate(
+            necesita_stock=Exists(cond_subquery)
+        ).order_by('-necesita_stock', 'repuesto__nombre').select_related('repuesto').distinct()
 
 """ class RepuestoPrecioStockViewSet(viewsets.ModelViewSet):
     serializer_class = RepuestoPrecioStockSerializer
