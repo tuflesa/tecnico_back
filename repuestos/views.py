@@ -407,8 +407,14 @@ class RepuestoConPrecioViewSet(viewsets.ModelViewSet):
             Q(stock_act__lt=F('cantidad_aconsejable')) | Q(stock_act__lt=F('cantidad'))
         )
 
+        cond_pedido = LineaPedido.objects.filter(
+            repuesto=OuterRef('repuesto'),
+            por_recibir__gt=0
+        )
+
         return PrecioRepuesto.objects.annotate(
-            necesita_stock=Exists(cond_subquery)
+            necesita_stock=Exists(cond_subquery),
+            pedido=Exists(cond_pedido)
         ).order_by('-necesita_stock', 'repuesto__nombre').select_related('repuesto').distinct()
 
 """ class RepuestoPrecioStockViewSet(viewsets.ModelViewSet):

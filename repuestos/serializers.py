@@ -68,10 +68,16 @@ class StockMinimoDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = StockMinimo
         fields = '__all__'
+class LineaPedidoSerilizer(serializers.ModelSerializer):
+    #pedido = PedidoListSerilizer(many=False, read_only=True)
+    class Meta:
+        model = LineaPedido
+        fields = '__all__'
 class RepuestoList_PedidoSerializer(serializers.ModelSerializer):
     tipo_unidad_siglas = serializers.CharField(source='tipo_unidad.siglas', read_only=True)
     precios = PrecioRepuestoSerializer(many=True)
     stocks_minimos = StockMinimoDetailSerializer(many=True, read_only=True)
+    lineas_repuesto = LineaPedidoSerilizer(many=True)
     class Meta:
         model = Repuesto
         fields = '__all__'
@@ -144,12 +150,6 @@ class LineaPedidoDetailSerilizer(serializers.ModelSerializer):
 class LineaPedidoTrazaSerilizer(serializers.ModelSerializer):
     repuesto = RepuestoListSerializer(many=False, read_only=True)    
     pedido = PedidoListSerilizer(many=False, read_only=True)
-    class Meta:
-        model = LineaPedido
-        fields = '__all__'
-
-class LineaPedidoSerilizer(serializers.ModelSerializer):
-    #pedido = PedidoListSerilizer(many=False, read_only=True)
     class Meta:
         model = LineaPedido
         fields = '__all__'
@@ -253,6 +253,7 @@ class RepuestoConPrecioSerializer(serializers.ModelSerializer):
     repuesto = RepuestoList_PedidoSerializer(many=False, read_only=True) 
     proveedor = ProveedorSerializer(many=False, read_only=True)
     necesita_stock = serializers.BooleanField(read_only=True) # Campo creado en la views que ve los articulos por debajo de stock minimo
+    pedido = serializers.BooleanField(read_only=True) # Campo creado en la views, será true si tenemos linea en pedidos con por_recibir > 0
     class Meta:
         model = PrecioRepuesto
         fields = '__all__'
