@@ -58,20 +58,26 @@ class PrecioRepuestoSerializer(serializers.ModelSerializer):
 class RepuestoListSerializer(serializers.ModelSerializer):
     tipo_unidad_siglas = serializers.CharField(source='tipo_unidad.siglas', read_only=True)
     precios = PrecioRepuestoSerializer(many=True)
-    stocks_minimos = StockMinimoAlmacenSerializer(many=True)
+    class Meta:
+        model = Repuesto
+        fields = '__all__'
+
+class StockMinimoDetailSerializer(serializers.ModelSerializer):
+    almacen = AlmacenSerilizer(many=False, read_only=True)
+    repuesto = RepuestoListSerializer(many=False, read_only=True)
+    class Meta:
+        model = StockMinimo
+        fields = '__all__'
+class RepuestoList_PedidoSerializer(serializers.ModelSerializer):
+    tipo_unidad_siglas = serializers.CharField(source='tipo_unidad.siglas', read_only=True)
+    precios = PrecioRepuestoSerializer(many=True)
+    stocks_minimos = StockMinimoDetailSerializer(many=True, read_only=True)
     class Meta:
         model = Repuesto
         fields = '__all__'
 
 class StockMinimoSerializer(serializers.ModelSerializer):
     #almacen = AlmacenSerilizer(many=False, read_only=True)
-    class Meta:
-        model = StockMinimo
-        fields = '__all__'
-
-class StockMinimoDetailSerializer(serializers.ModelSerializer):
-    almacen = AlmacenSerilizer(many=False, read_only=True)
-    repuesto = RepuestoListSerializer(many=False, read_only=True)
     class Meta:
         model = StockMinimo
         fields = '__all__'
@@ -87,7 +93,7 @@ class RepuestoDetailSerializer(serializers.ModelSerializer):
 class TipoRepuestoSerilizer(serializers.ModelSerializer):
     class Meta:
         model = TipoRepuesto
-        fields = '__all__' 
+        fields = '__all__'
 
 class InventarioSerializer(serializers.ModelSerializer):
     class Meta:
@@ -244,8 +250,9 @@ class RepuestoSinStockSerializer(serializers.ModelSerializer): #saca los repuest
         return SinStockMinimoSerializer(stock_filtrado, many=True).data
 
 class RepuestoConPrecioSerializer(serializers.ModelSerializer):
-    repuesto = RepuestoListSerializer(many=False, read_only=True) 
+    repuesto = RepuestoList_PedidoSerializer(many=False, read_only=True) 
     proveedor = ProveedorSerializer(many=False, read_only=True)
+    necesita_stock = serializers.BooleanField(read_only=True) # Campo creado en la views que ve los articulos por debajo de stock minimo
     class Meta:
         model = PrecioRepuesto
         fields = '__all__'
