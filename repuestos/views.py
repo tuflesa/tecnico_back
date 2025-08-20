@@ -401,8 +401,11 @@ class RepuestoConPrecioViewSet(viewsets.ModelViewSet):
     queryset = PrecioRepuesto.objects.all().distinct()  # Solo para DRF
     filterset_class = PrecioRepuestoFilter
     def get_queryset(self):
+        user = self.request.user
+        empresa = user.perfil.empresa
         cond_subquery = StockMinimo.objects.filter(
-            repuesto=OuterRef('repuesto')
+            repuesto=OuterRef('repuesto'),
+            almacen__empresa=empresa
         ).filter(
             Q(stock_act__lt=F('cantidad_aconsejable')) | Q(stock_act__lt=F('cantidad'))
         )
