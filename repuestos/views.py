@@ -412,7 +412,9 @@ class RepuestoConPrecioViewSet(viewsets.ModelViewSet):
 
         cond_pedido = LineaPedido.objects.filter(
             repuesto=OuterRef('repuesto'),
-            por_recibir__gt=0
+            por_recibir__gt=0,
+            pedido__finalizado=False,
+            pedido__empresa=empresa
         )
 
         return PrecioRepuesto.objects.annotate(
