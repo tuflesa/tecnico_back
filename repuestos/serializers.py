@@ -58,6 +58,7 @@ class PrecioRepuestoSerializer(serializers.ModelSerializer):
 class RepuestoListSerializer(serializers.ModelSerializer):
     tipo_unidad_siglas = serializers.CharField(source='tipo_unidad.siglas', read_only=True)
     precios = PrecioRepuestoSerializer(many=True)
+    stocks_minimos = StockMinimoAlmacenSerializer(many=True)
     class Meta:
         model = Repuesto
         fields = '__all__'
