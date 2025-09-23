@@ -299,10 +299,18 @@ def leerFlejesEnAcumuladores(request):
                             new_t = Tubos(n_tubos=tubo_actual['n_tubos'] , largo=tubo_actual['largo'], fleje= fl)
                             new_t.save()
                     else:
-                        print('Actualizar tubo actual')
-                        last_t.n_tubos = tubo_actual['n_tubos']
-                        last_t.largo = tubo_actual['largo']
-                        last_t.save()
+                        if (last_t.fleje.of == tubo_actual['of'] and last_t.fleje.pos == tubo_actual['pos']
+                            and last_t.fleje.idProduccion == tubo_actual['idProduccion'] and last_t.largo == tubo_actual['largo']):
+                            print('Actualizar tubo actual')
+                            last_t.n_tubos = tubo_actual['n_tubos']
+                            last_t.largo = tubo_actual['largo']
+                            last_t.save()
+                        else:
+                            print('Se crea un nuevo tubo si hay flejes ...')
+                            fl = Flejes.objects.filter(of=tubo_actual['of'], pos=tubo_actual['pos'], idProduccion=tubo_actual['idProduccion']).last()
+                            if fl != None:
+                                new_t = Tubos(n_tubos=tubo_actual['n_tubos'] , largo=tubo_actual['largo'], fleje= fl)
+                                new_t.save()
                 
                 flejeActualPLC_valido = False
                 if (ultimo_flejePLC['of'] == acc.of_activa and ultimo_flejePLC['pos'] == acc.n_bobina_activa):

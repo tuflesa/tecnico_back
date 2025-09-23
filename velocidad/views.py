@@ -1,4 +1,5 @@
 from rest_framework import viewsets
+from django.http import JsonResponse
 from django_filters import rest_framework as filters
 from .serializers import RegistroSerializer, ZonaPerfilVelocidadSerilizer
 from .models import Registro, ZonaPerfilVelocidad
@@ -17,6 +18,7 @@ class ZonaPerfilVelocidadFilter(filters.FilterSet):
         model = ZonaPerfilVelocidad
         fields = {
             'zona__empresa': ['exact'],
+            'id': ['exact'],
         }
 
 class ZonaPerfilVelocidadViewSet(viewsets.ReadOnlyModelViewSet):
@@ -28,3 +30,12 @@ class RegistroViewSet(viewsets.ModelViewSet):
     serializer_class = RegistroSerializer
     queryset = Registro.objects.all().order_by('fecha', 'hora')
     filterset_class = RegistroFilter
+
+def estado_maquina(request, id):
+    # Simulación de datos
+    data = {
+        "id": id,
+        "estado": "activo",
+        "temperatura": 36.5
+    }
+    return JsonResponse(data)
