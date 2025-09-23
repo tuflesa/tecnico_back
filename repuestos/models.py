@@ -218,6 +218,7 @@ class LineaSalida(models.Model):
     repuesto = models.ForeignKey(Repuesto, on_delete=models.CASCADE)
     almacen = models.ForeignKey(Almacen, on_delete=models.CASCADE)
     cantidad = models.DecimalField(max_digits=13, decimal_places=2, default=0)
+    consumido_en = models.CharField(max_length = 100, blank= True, null=True)
 
 class Movimiento(models.Model):
     fecha = models.DateField(default=datetime.date.today)
