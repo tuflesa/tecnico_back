@@ -3,6 +3,10 @@ from django.http import JsonResponse
 from django_filters import rest_framework as filters
 from .serializers import RegistroSerializer, ZonaPerfilVelocidadSerilizer
 from .models import Registro, ZonaPerfilVelocidad
+from estructura.models import Zona
+from trazabilidad.models import Flejes
+from django.forms.models import model_to_dict
+from django.db.models import Q
 
 class RegistroFilter(filters.FilterSet):
     class Meta:
@@ -32,10 +36,62 @@ class RegistroViewSet(viewsets.ModelViewSet):
     filterset_class = RegistroFilter
 
 def estado_maquina(request, id):
-    # Simulación de datos
+    fecha = request.GET.get('fecha')
+    hora_inicio = request.GET.get('hora_inicio')
+    hora_fin = request.GET.get('hora_fin')
+
+    # Datos de la máquina
+    maquina = Zona.objects.get(id=id)
+    maquina_dict = model_to_dict(maquina)
+
+
+    # Registros de velocidad
+    registros = Registro.objects.filter(
+        fecha=fecha,
+        hora__gte=hora_inicio,
+        hora__lte=hora_fin,
+        zona=id
+    )
+
+    velocidad = [{
+        'fecha': r.fecha.isoformat(),
+        'hora': r.hora.isoformat(),
+        'zona': r.zona.siglas,
+        'velocidad':  float(r.velocidad)
+    } for r in registros]
+
+    # Flejes fabricados
+    # Condición 1: fecha_entrada >= fecha y hora_entrada >= hora_inicio
+    entrada_qs = Flejes.objects.filter(
+        Q(fecha_entrada__gte=fecha) &
+        Q(hora_entrada__gte=hora_inicio)
+    )
+    # Condición 2: fecha_salida <= fecha y hora_salida <= hora_fin
+    salida_qs = Flejes.objects.filter(
+        Q(fecha_salida__lte=fecha) &
+        Q(hora_salida__lte=hora_fin)
+    )
+    # Unir ambos querysets
+    resultado = entrada_qs.union(salida_qs)
+
+    # Serializar resultados
+    flejes = [{
+        'id': f.id,
+        'idProduccion': f.idProduccion,
+        'IdArticulo': f.IdArticulo,
+        'peso': f.peso,
+        'of': f.of,
+        'maquina_siglas': f.maquina_siglas,
+        'fecha_entrada': f.fecha_entrada.isoformat() if f.fecha_entrada else None,
+        'hora_entrada': f.hora_entrada.isoformat() if f.hora_entrada else None,
+        'fecha_salida': f.fecha_salida.isoformat() if f.fecha_salida else None,
+        'hora_salida': f.hora_salida.isoformat() if f.hora_salida else None,
+        'finalizada': f.finalizada
+    } for f in resultado]
+
     data = {
-        "id": id,
-        "estado": "activo",
-        "temperatura": 36.5
+        "maquina": maquina_dict,
+        "velocidad": velocidad,
+        "flejes": flejes
     }
     return JsonResponse(data)
