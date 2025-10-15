@@ -7,6 +7,7 @@ from estructura.models import Zona
 from trazabilidad.models import Flejes
 from django.forms.models import model_to_dict
 from django.db.models import Q
+from datetime import datetime
 
 class RegistroFilter(filters.FilterSet):
     class Meta:
@@ -37,8 +38,15 @@ class RegistroViewSet(viewsets.ModelViewSet):
 
 def estado_maquina(request, id):
     fecha = request.GET.get('fecha')
-    hora_inicio = request.GET.get('hora_inicio')
-    hora_fin = request.GET.get('hora_fin')
+    hora_inicio_str = request.GET.get('hora_inicio')
+    hora_fin_str = request.GET.get('hora_fin')
+
+    try:
+        hora_inicio = datetime.strptime(hora_inicio_str, '%H:%M').time()
+        hora_fin = datetime.strptime(hora_fin_str, '%H:%M').time()
+    except (ValueError, TypeError):
+        return JsonResponse({'error': 'Formato de hora inválido'}, status=400)
+
 
     # Datos de la máquina
     maquina = Zona.objects.get(id=id)
@@ -64,9 +72,10 @@ def estado_maquina(request, id):
     # Condición 1: fecha_entrada >= fecha y hora_entrada >= hora_inicio
     # Condición 2: fecha_salida <= fecha y hora_salida <= hora_fin
     resultado = Flejes.objects.filter(
-        Q(fecha_entrada=fecha, hora_entrada__gte=hora_inicio) |
-        Q(fecha_salida=fecha, hora_salida__lte=hora_fin)
-    ).order_by('fecha_entrada', 'hora_entrada')
+        Q(fecha_entrada=fecha, hora_entrada__gte=hora_inicio, hora_entrada__lte=hora_fin) |
+        Q(fecha_salida=fecha, hora_salida__gte=hora_inicio, hora_salida__lte=hora_fin) |
+        Q(fecha_entrada=fecha, hora_entrada__gte=hora_inicio, fecha_salida__isnull=True, hora_salida__isnull=True)
+    ).distinct().order_by('fecha_entrada', 'hora_entrada')
     # Serializar resultados
     flejes = [{
         'id': f.id,
