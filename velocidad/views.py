@@ -64,8 +64,8 @@ def estado_maquina(request, id):
     # Condición 1: fecha_entrada >= fecha y hora_entrada >= hora_inicio
     # Condición 2: fecha_salida <= fecha y hora_salida <= hora_fin
     resultado = Flejes.objects.filter(
-        Q(fecha_entrada__gte=fecha, hora_entrada__gte=hora_inicio) |
-        Q(fecha_salida__lte=fecha, hora_salida__lte=hora_fin)
+        Q(fecha_entrada=fecha, hora_entrada__gte=hora_inicio) |
+        Q(fecha_salida=fecha, hora_salida__lte=hora_fin)
     ).order_by('fecha_entrada', 'hora_entrada')
     # Serializar resultados
     flejes = [{
