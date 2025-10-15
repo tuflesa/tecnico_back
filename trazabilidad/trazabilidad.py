@@ -326,6 +326,10 @@ def leerFlejesEnAcumuladores(request):
                     acc.of_activa = fleje_ActualPLC['of']
                     acc.n_bobina_activa = fleje_ActualPLC['pos'] 
                     acc.save()
+                    f = Flejes.objects.get(of=fleje_ActualPLC['of'], pos=fleje_ActualPLC['pos'])
+                    f.fecha_entrada = ultimo_flejePLC['fecha_salida']
+                    f.hora_entrada = ultimo_flejePLC['hora_salida']
+                    f.save()
                 else:
                     print('Misma bobina')
                     if (fleje_ActualPLC['pos']!=0):
