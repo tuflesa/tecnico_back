@@ -37,11 +37,12 @@ class RegistroViewSet(viewsets.ModelViewSet):
     filterset_class = RegistroFilter
 
 def estado_maquina(request, id):
-    fecha = request.GET.get('fecha')
+    fecha_str = request.GET.get('fecha')
     hora_inicio_str = request.GET.get('hora_inicio')
     hora_fin_str = request.GET.get('hora_fin')
 
     try:
+        fecha = datetime.strptime(fecha_str, '%Y-%m-%d').date()
         hora_inicio = datetime.strptime(hora_inicio_str, '%H:%M').time()
         hora_fin = datetime.strptime(hora_fin_str, '%H:%M').time()
     except (ValueError, TypeError):
