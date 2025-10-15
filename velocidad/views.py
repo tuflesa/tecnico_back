@@ -63,12 +63,12 @@ def estado_maquina(request, id):
     # Flejes fabricados
     # Condición 1: fecha_entrada >= fecha y hora_entrada >= hora_inicio
     entrada_qs = Flejes.objects.filter(
-        Q(fecha_entrada__gte=fecha) &
+        Q(fecha_entrada=fecha) &
         Q(hora_entrada__gte=hora_inicio)
     )
     # Condición 2: fecha_salida <= fecha y hora_salida <= hora_fin
     salida_qs = Flejes.objects.filter(
-        Q(fecha_salida__lte=fecha) &
+        Q(fecha_salida=fecha) &
         Q(hora_salida__lte=hora_fin)
     )
     # Unir ambos querysets
