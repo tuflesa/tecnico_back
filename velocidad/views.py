@@ -83,11 +83,20 @@ def estado_maquina(request, id):
         'peso': f.peso,
         'of': f.of,
         'maquina_siglas': f.maquina_siglas,
+        'descripcion': f.descripcion,
         'fecha_entrada': f.fecha_entrada.isoformat() if f.fecha_entrada else None,
         'hora_entrada': f.hora_entrada.isoformat() if f.hora_entrada else None,
         'fecha_salida': f.fecha_salida.isoformat() if f.fecha_salida else None,
         'hora_salida': f.hora_salida.isoformat() if f.hora_salida else None,
-        'finalizada': f.finalizada
+        'finalizada': f.finalizada,
+        'ancho': f.ancho(),
+        'espesor': f.espesor(),
+        'metros_teoricos': f.metros_teorico(),
+        'metros_tubo': f.metros_tubo(),
+        'tubos': [{
+            'n_tubos': t.n_tubos,
+            'largo': t.largo
+        } for t in f.tubos.all()]
     } for f in resultado]
 
     data = {
