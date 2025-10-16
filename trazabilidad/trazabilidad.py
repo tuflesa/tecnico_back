@@ -33,6 +33,18 @@ TUBO_NULO = {
     'nTubos':0
 }
 
+# Funcion auxiliar para adecuar el formato del PLC a la BD
+def parse_hora_plc(hora_str):
+    partes = hora_str.split(':')
+    if len(partes) == 4:
+        _, h, m, s = partes
+        if '.' in s:
+            seg, ms = s.split('.')
+        else:
+            seg, ms = s, '000'
+        return f"{int(h):02}:{int(m):02}:{int(seg):02}:{int(ms):03}"
+    return hora_str
+
 def leerTubosPLC(data, pos):
     tubo = {
         'of': get_fstring(data, pos+2, 8, False),
@@ -53,9 +65,9 @@ def leerFlejePLC(data, pos):
         'metros_teoricos': get_real(data, pos+78),
         'metros_medidos': get_real(data, pos+82),
         'fecha_entrada': get_date(data, pos+86),
-        'hora_entrada': get_time(data, pos+88),
+        'hora_entrada': parse_hora_plc(get_time(data, pos+88)),
         'fecha_salida': get_date(data, pos+92),
-        'hora_salida': get_time(data, pos+94),
+        'hora_salida': parse_hora_plc(get_time(data, pos+94)),
     }
     return fleje
 

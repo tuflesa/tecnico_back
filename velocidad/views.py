@@ -7,7 +7,7 @@ from estructura.models import Zona
 from trazabilidad.models import Flejes
 from django.forms.models import model_to_dict
 from django.db.models import Q
-from datetime import datetime
+from datetime import datetime, time
 
 class RegistroFilter(filters.FilterSet):
     class Meta:
@@ -70,11 +70,9 @@ def estado_maquina(request, id):
     } for r in registros]
 
     # Flejes fabricados
-    # Condición 1: fecha_entrada >= fecha y hora_entrada >= hora_inicio
-    # Condición 2: fecha_salida <= fecha y hora_salida <= hora_fin
     resultado = Flejes.objects.filter(
-        Q(fecha_entrada=fecha, hora_entrada__gte=hora_inicio, hora_entrada__lte=hora_fin) |
-        Q(fecha_salida=fecha, hora_salida__gte=hora_inicio, hora_salida__lte=hora_fin) |
+        Q(fecha_entrada=fecha, hora_entrada__range=[hora_inicio, hora_fin]) | 
+        Q(fecha_salida=fecha, hora_salida__range=[hora_inicio, hora_fin]) |
         Q(fecha_entrada=fecha, hora_entrada__gte=hora_inicio, fecha_salida__isnull=True, hora_salida__isnull=True)
     ).distinct().order_by('fecha_entrada', 'hora_entrada')
     # Serializar resultados
