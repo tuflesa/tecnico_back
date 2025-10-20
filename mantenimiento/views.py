@@ -216,6 +216,10 @@ class ListadoLineaActivasViewSet(viewsets.ModelViewSet):
             estados = [int(e) for e in estados_excluir.split(',')]
             queryset = queryset.exclude(estado__in=estados)
         return queryset
+class ListadoLineaCerradasPreventivasViewSet(viewsets.ModelViewSet):
+     serializer_class = ListadoLineasActivasSerializer
+     queryset = LineaParteTrabajo.objects.filter(estado__id=3).order_by('-fecha_fin', 'fecha_plan')
+     filterset_class = LineasFilter
 class ListadoLineaActivasDestrezasViewSet(viewsets.ModelViewSet):
     serializer_class = ListadoLineasActivasSerializer
     filterset_class = LineasFilter
