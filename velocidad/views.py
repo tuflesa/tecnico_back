@@ -78,6 +78,7 @@ def estado_maquina(request, id):
     # Serializar resultados
     flejes = [{
         'id': f.id,
+        'pos': f.pos,
         'idProduccion': f.idProduccion,
         'IdArticulo': f.IdArticulo,
         'peso': f.peso,
