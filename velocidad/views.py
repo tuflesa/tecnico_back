@@ -54,12 +54,27 @@ def estado_maquina(request, id):
     maquina_dict = model_to_dict(maquina)
 
     # Registros de velocidad
+    from itertools import chain
+
+    # Consulta principal
     registros = Registro.objects.filter(
         fecha=fecha,
         hora__gte=hora_inicio,
         hora__lte=hora_fin,
         zona=id
-    )
+    ).order_by('hora')
+
+    # Obtener el registro anterior si hay resultados
+    anterior = Registro.objects.filter(
+        zona=id
+        ).filter(
+            # Fecha anterior o misma fecha con hora menor
+            Q(fecha__lt=fecha) |
+            Q(fecha=fecha, hora__lt=hora_inicio)
+        ).order_by('-fecha', '-hora').first()
+
+    if anterior:
+        registros = list(chain([anterior], registros))
 
     velocidad = [{
         'fecha': r.fecha.isoformat(),
