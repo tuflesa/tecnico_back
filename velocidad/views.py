@@ -74,7 +74,7 @@ def estado_maquina(request, id):
         Q(maquina_siglas=siglas, fecha_entrada=fecha, hora_entrada__range=[hora_inicio, hora_fin]) | 
         Q(maquina_siglas=siglas, fecha_salida=fecha, hora_salida__range=[hora_inicio, hora_fin]) |
         Q(maquina_siglas=siglas, fecha_entrada=fecha, hora_entrada__gte=hora_inicio, fecha_salida__isnull=True, hora_salida__isnull=True)
-    ).distinct().order_by('fecha_entrada', 'hora_entrada')
+    ).distinct().order_by('-fecha_entrada', '-hora_entrada')
     # Serializar resultados
     flejes = [{
         'id': f.id,
