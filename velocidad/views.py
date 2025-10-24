@@ -71,14 +71,14 @@ def estado_maquina(request, id):
 
     # Flejes fabricados
     resultado = Flejes.objects.filter(
-        Q(fecha_entrada=fecha, hora_entrada__range=[hora_inicio, hora_fin]) | 
-        Q(fecha_salida=fecha, hora_salida__range=[hora_inicio, hora_fin]) |
-        Q(fecha_entrada=fecha, hora_entrada__gte=hora_inicio, fecha_salida__isnull=True, hora_salida__isnull=True)
+        Q(maquina_siglas=maquina.siglas , fecha_entrada=fecha, hora_entrada__range=[hora_inicio, hora_fin]) | 
+        Q(maquina_siglas=maquina.siglas ,fecha_salida=fecha, hora_salida__range=[hora_inicio, hora_fin]) |
+        Q(maquina_siglas=maquina.siglas ,fecha_entrada=fecha, hora_entrada__gte=hora_inicio, fecha_salida__isnull=True, hora_salida__isnull=True)
     ).distinct().order_by('fecha_entrada', 'hora_entrada')
     # Serializar resultados
     flejes = [{
         'id': f.id,
-        'pos': f.pos,
+        'pos': f.pos,4
         'idProduccion': f.idProduccion,
         'IdArticulo': f.IdArticulo,
         'peso': f.peso,
