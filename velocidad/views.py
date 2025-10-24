@@ -93,6 +93,7 @@ def estado_maquina(request, id):
         'ancho': f.ancho(),
         'espesor': f.espesor(),
         'metros_teorico': f.metros_teorico(),
+        'metros_medido': f.metros_medido,
         'metros_tubo': f.metros_tubo(),
         'tubos': [{
             'n_tubos': t.n_tubos,
