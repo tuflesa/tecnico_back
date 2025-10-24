@@ -53,7 +53,6 @@ def estado_maquina(request, id):
     maquina = Zona.objects.get(id=id)
     maquina_dict = model_to_dict(maquina)
 
-
     # Registros de velocidad
     registros = Registro.objects.filter(
         fecha=fecha,
@@ -70,10 +69,11 @@ def estado_maquina(request, id):
     } for r in registros]
 
     # Flejes fabricados
+    siglas = maquina.siglas.upper()
     resultado = Flejes.objects.filter(
-        Q(maquina_siglas=maquina.siglas , fecha_entrada=fecha, hora_entrada__range=[hora_inicio, hora_fin]) | 
-        Q(maquina_siglas=maquina.siglas ,fecha_salida=fecha, hora_salida__range=[hora_inicio, hora_fin]) |
-        Q(maquina_siglas=maquina.siglas ,fecha_entrada=fecha, hora_entrada__gte=hora_inicio, fecha_salida__isnull=True, hora_salida__isnull=True)
+        Q(maquina_siglas=siglas, fecha_entrada=fecha, hora_entrada__range=[hora_inicio, hora_fin]) | 
+        Q(maquina_siglas=siglas, fecha_salida=fecha, hora_salida__range=[hora_inicio, hora_fin]) |
+        Q(maquina_siglas=siglas, fecha_entrada=fecha, hora_entrada__gte=hora_inicio, fecha_salida__isnull=True, hora_salida__isnull=True)
     ).distinct().order_by('fecha_entrada', 'hora_entrada')
     # Serializar resultados
     flejes = [{
