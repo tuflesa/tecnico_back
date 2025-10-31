@@ -50,8 +50,12 @@ def estado_maquina(request, id):
 
 
     # Datos de la máquina
-    maquina = Zona.objects.get(id=id)
+    zona = Zona.objects.get(id=id)
+    maquina = ZonaPerfilVelocidad.objects.get(zona=zona)
     maquina_dict = model_to_dict(maquina)
+    zona_dict = model_to_dict(zona)
+    maquina_dict['zona'] = zona_dict
+
 
     # Registros de velocidad
     from itertools import chain
@@ -84,7 +88,7 @@ def estado_maquina(request, id):
     } for r in registros]
 
     # Flejes fabricados
-    siglas = maquina.siglas.upper()
+    siglas = maquina.zona.siglas.upper()
     resultado = Flejes.objects.filter(
         Q(maquina_siglas=siglas, fecha_entrada=fecha, hora_entrada__range=[hora_inicio, hora_fin]) | 
         Q(maquina_siglas=siglas, fecha_salida=fecha, hora_salida__range=[hora_inicio, hora_fin]) |
