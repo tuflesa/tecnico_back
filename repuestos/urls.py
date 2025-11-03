@@ -1,5 +1,6 @@
 from rest_framework import routers
-from .views import ResetContadoresViewSet,RepuestoListSinPaginarViewSet, Filtro_RepuestoConPrecioViewSet, LineaPedidoDetalleViewSet, LineaAdicionalDetalleViewSet, RepuestoConPrecioViewSet, PrecioRepuestoViewSet, MovimientoTrazabilidadViewSet, ArticulosFueraStockViewSet, LineaPedidoPendViewSet, EntregaViewSet, LineaAdicionalPedidoViewSet, LineasSalidaVieSet, MovimientoDetailViewSet, PedidoViewSet, InventarioViewSet, LineaPedidoViewSet, PedidoDetailViewSet, ContactoViewSet, MovimientoViewSet, PedidoListViewSet, ProveedorDetailViewSet, ProveedorViewSet, RepuestoListViewSet, RepuestoDetailViewSet, SalidaVieSet, StockMinimoDetailViewSet, StockMinimoViewSet, AlmacenViewSet, LineaInventarioViewSet, TipoRepuestoViewSet, TipoUnidadViewSet, PedidoFueraFechaViewSet, LineasSalida_numparteVieSet, PedidoPorAlbaranViewSet
+from django.urls import path
+from .views import ResetContadoresViewSet,RepuestoListSinPaginarViewSet, Filtro_RepuestoConPrecioViewSet, LineaPedidoDetalleViewSet, LineaAdicionalDetalleViewSet, RepuestoConPrecioViewSet, PrecioRepuestoViewSet, MovimientoTrazabilidadViewSet, ArticulosFueraStockViewSet, LineaPedidoPendViewSet, EntregaViewSet, LineaAdicionalPedidoViewSet, LineasSalidaVieSet, MovimientoDetailViewSet, PedidoViewSet, InventarioViewSet, LineaPedidoViewSet, PedidoDetailViewSet, ContactoViewSet, MovimientoViewSet, PedidoListViewSet, ProveedorDetailViewSet, ProveedorViewSet, RepuestoListViewSet, RepuestoDetailViewSet, SalidaVieSet, StockMinimoDetailViewSet, StockMinimoViewSet, AlmacenViewSet, LineaInventarioViewSet, TipoRepuestoViewSet, TipoUnidadViewSet, PedidoFueraFechaViewSet, LineasSalida_numparteVieSet, PedidoPorAlbaranViewSet, obtener_precios_compra_batch
 
 router = routers.DefaultRouter()
 router.register('reset-contadores', ResetContadoresViewSet, basename='reset-contadores') #http://localhost:8000/api/repuestos/reset-contadores/
@@ -41,4 +42,10 @@ router.register('salida', SalidaVieSet)
 router.register('lineasalida', LineasSalidaVieSet)
 
 
-urlpatterns = router.urls
+#urlpatterns = router.urls
+
+urlpatterns = [
+    path('precios-batch/', obtener_precios_compra_batch, name='precios-batch'),
+]
+
+urlpatterns += router.urls
