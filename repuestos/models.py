@@ -219,6 +219,7 @@ class LineaSalida(models.Model):
     almacen = models.ForeignKey(Almacen, on_delete=models.CASCADE)
     cantidad = models.DecimalField(max_digits=13, decimal_places=2, default=0)
     consumido_en = models.CharField(max_length = 100, blank= True, null=True)
+    precio_ultima_compra = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
 
 class Movimiento(models.Model):
     fecha = models.DateField(default=datetime.date.today)

@@ -40,6 +40,7 @@ class salidas_numparteFilter(filters.FilterSet):
         model = LineaSalida
         fields = {
             'salida__num_parte': ['exact'],
+            'salida__num_parte__id': ['exact'],
         }
         
 class ProveedorFilter(filters.FilterSet):
