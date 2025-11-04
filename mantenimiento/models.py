@@ -18,7 +18,7 @@ class ContadorNotificaciones(models.Model):
 
 class Notificacion(models.Model): # Notificación 5W+2H Plus
     # 5W+2H
-    que = models.TextField(max_length=250) # What. Que sucede
+    que = models.TextField(max_length=750) # What. Que sucede
     cuando = models.TextField(max_length=150) # When. Cuando sucede, en que momento del día
     donde = models.TextField(max_length=150) # Where. Donde está el problema
     quien = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='notificaciones_enviadas') # Who. Quien informa del problema
@@ -203,7 +203,17 @@ class LineaParteTrabajo(models.Model):
 
     def __str__(self):
         return self.tarea.nombre
-        
+
+class GastosParte(models.Model):
+    parte = models.ForeignKey(ParteTrabajo, on_delete=models.CASCADE, related_name='gastos')
+    linea = models.ForeignKey(LineaParteTrabajo, on_delete=models.CASCADE, related_name='gastos', blank=True, null=True)
+    descripcion = models.CharField(max_length=150)
+    cantidad = models.DecimalField(max_digits=13, decimal_places=2, default=0)
+    precio = models.DecimalField(max_digits=13, decimal_places=4, blank=True, null=True)
+    descuento = models.DecimalField(max_digits=5, decimal_places=2, blank= True, null=True, default=0)
+    total = models.DecimalField(max_digits=13, decimal_places=4, blank=True, null=True)
+    creado_por = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True) 
+
 class TrabajadoresLineaParte(models.Model):
     linea = models.ForeignKey(LineaParteTrabajo, on_delete=models.CASCADE, related_name='lineas')
     fecha_inicio = models.DateField(blank=True, null=True)

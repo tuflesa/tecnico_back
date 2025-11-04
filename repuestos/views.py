@@ -2,7 +2,7 @@ from django.db.models import fields
 from rest_framework import viewsets
 from rest_framework import serializers
 #from django.db.models import Q, F
-from django.db.models import Exists, OuterRef, Q, F
+from django.db.models import Exists, OuterRef, Q, F, Max
 from rest_framework.serializers import Serializer
 from .serializers import LineaPedidoDetailSerilizer, LineasAdicionalesDetalleSerilizer, RepuestoConPrecioSerializer, PrecioRepuestoSerializer, MovimientoTrazabilidadSerializer, LineaPedidoPendSerilizer, EntregaSerializer, LineasAdicionalesSerilizer, MovimientoDetailSerializer, SalidasSerializer, StockMinimoDetailSerializer, PedidoSerilizer, LineaPedidoSerilizer, PedidoListSerilizer, PedidoDetailSerilizer, ProveedorDetailSerializer, AlmacenSerilizer, ContactoSerializer, InventarioSerializer, MovimientoSerializer, ProveedorSerializer, RepuestoListSerializer, RepuestoDetailSerializer, StockMinimoDetailSerializer, StockMinimoSerializer, LineaInventarioSerializer, TipoRepuestoSerilizer, TipoUnidadSerilizer, LineaSalidaSerializer, LineaSalidaTrazaSerializer, SinStockMinimoSerializer, PedidoPorAlbaranSerilizer
 from .models import PrecioRepuesto, Almacen, Entrega, Inventario, Contacto, LineaAdicional, LineaInventario, LineaPedido, Movimiento, Pedido, Proveedor, Repuesto, StockMinimo, TipoRepuesto, TipoUnidad, Salida, LineaSalida
@@ -12,9 +12,10 @@ from rest_framework.pagination import PageNumberPagination
 from rest_framework.viewsets import ViewSet
 from rest_framework.response import Response
 from rest_framework import status
-from rest_framework.permissions import AllowAny  # ← Añadir esta línea
+from rest_framework.permissions import AllowAny, IsAuthenticated  # ← Añadir esta línea
 from django.utils import timezone
 from .models import ContadorPedidos
+from rest_framework.decorators import api_view, permission_classes
 
 class ResetContadoresViewSet(ViewSet):
     """ViewSet temporal para resetear contadores"""
@@ -40,6 +41,7 @@ class salidas_numparteFilter(filters.FilterSet):
         model = LineaSalida
         fields = {
             'salida__num_parte': ['exact'],
+            'salida__num_parte__id': ['exact'],
         }
         
 class ProveedorFilter(filters.FilterSet):
@@ -436,3 +438,60 @@ class Filtro_RepuestoConPrecioViewSet(viewsets.ModelViewSet):
     queryset = PrecioRepuesto.objects.all().order_by('repuesto__nombre')
     filterset_class = PrecioRepuestoFilter
     pagination_class = StandardResultsSetPagination
+
+# ============================================
+# NUEVA FUNCIÓN INDEPENDIENTE
+# ============================================
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def obtener_precios_compra_batch(request):
+    """
+    Obtiene los precios de la última compra de múltiples repuestos
+    Request body: {"repuestos": [1, 2, 3, 4]}
+    Response: {
+        "precios": {1: 25.50, 2: 30.00, 3: 0, 4: 15.75},
+        "descuentos": {1: 5.0, 2: 10.0, 3: 0, 4: 2.5}
+    }
+    """
+    
+    repuesto_ids = request.data.get('repuestos', [])
+
+    precios = {}
+    descuentos = {}
+    
+    for repuesto_id in repuesto_ids:
+        try:            
+            # Buscar todas las líneas para debug
+            todas_lineas = LineaPedido.objects.filter(repuesto_id=repuesto_id)
+            print(f"Total de líneas encontradas para repuesto {repuesto_id}: {todas_lineas.count()}")
+            
+            # Buscar la última línea de pedido SOLO POR ID (más reciente = ID más alto)
+            ultima_linea = LineaPedido.objects.filter(
+                repuesto_id=repuesto_id,
+                pedido__finalizado=True
+            ).order_by('-id').first()  # SOLO POR ID DESCENDENTE
+            
+            if ultima_linea:
+                print(f"Última línea encontrada - ID: {ultima_linea.id}, Precio: {ultima_linea.precio}, Descuento: {ultima_linea.descuento}")
+                precios[repuesto_id] = float(ultima_linea.precio) if ultima_linea.precio else 0
+                descuentos[repuesto_id] = float(ultima_linea.descuento) if ultima_linea.descuento else 0
+            else:
+                print(f"No se encontró ninguna línea para repuesto {repuesto_id}")
+                precios[repuesto_id] = 0
+                descuentos[repuesto_id] = 0
+                
+        except Exception as e:
+            print(f"ERROR procesando repuesto {repuesto_id}: {str(e)}")
+            import traceback
+            traceback.print_exc()
+            precios[repuesto_id] = 0
+            descuentos[repuesto_id] = 0
+    
+    print(f"\nPrecios finales: {precios}")
+    print(f"Descuentos finales: {descuentos}")
+    print("=== FIN obtener_precios_compra_batch ===")
+    
+    return Response({
+        'precios': precios,
+        'descuentos': descuentos
+    })

@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from mantenimiento.models import Especialidad, EstadoLineasTareas, LineaParteTrabajo, Notificacion, ParteTrabajo, Tarea, TipoPeriodo, TipoTarea, TrabajadoresLineaParte, Reclamo
+from mantenimiento.models import Especialidad, EstadoLineasTareas, LineaParteTrabajo, Notificacion, ParteTrabajo, Tarea, TipoPeriodo, TipoTarea, TrabajadoresLineaParte, Reclamo, GastosParte
 
 class ParteTrabajoAdmin(admin.ModelAdmin):
     list_filter=("estado",)
@@ -34,3 +34,4 @@ admin.site.register(Tarea, TareasAdmin)
 admin.site.register(EstadoLineasTareas, EstadoAdmin)
 admin.site.register(TrabajadoresLineaParte, TrabajadorLineasAdmin)
 admin.site.register(Reclamo)
+admin.site.register(GastosParte)
