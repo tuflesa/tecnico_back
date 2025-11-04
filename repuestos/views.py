@@ -381,13 +381,6 @@ class SalidaVieSet(viewsets.ModelViewSet):
 class LineasSalidaVieSet(viewsets.ModelViewSet):
     serializer_class = LineaSalidaSerializer
     queryset = LineaSalida.objects.all()
-    def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        if not serializer.is_valid():
-            print("❌ Errores serializer:", serializer.errors)
-            return Response(serializer.errors, status=400)
-        self.perform_create(serializer)
-        return Response(serializer.data, status=201)
 
 class LineasSalida_numparteVieSet(viewsets.ModelViewSet):
     serializer_class = LineaSalidaTrazaSerializer
@@ -447,7 +440,7 @@ class Filtro_RepuestoConPrecioViewSet(viewsets.ModelViewSet):
     pagination_class = StandardResultsSetPagination
 
 # ============================================
-# NUEVA FUNCIÓN INDEPENDIENTE (al final)
+# NUEVA FUNCIÓN INDEPENDIENTE
 # ============================================
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
@@ -455,46 +448,50 @@ def obtener_precios_compra_batch(request):
     """
     Obtiene los precios de la última compra de múltiples repuestos
     Request body: {"repuestos": [1, 2, 3, 4]}
-    Response: {1: 25.50, 2: 30.00, 3: None, 4: 15.75}
+    Response: {
+        "precios": {1: 25.50, 2: 30.00, 3: 0, 4: 15.75},
+        "descuentos": {1: 5.0, 2: 10.0, 3: 0, 4: 2.5}
+    }
     """
-    print("=== INICIO obtener_precios_compra_batch ===")
-    print(f"Request data: {request.data}")
     
     repuesto_ids = request.data.get('repuestos', [])
-    print(f"IDs de repuestos recibidos: {repuesto_ids}")
-    
+
     precios = {}
+    descuentos = {}
     
     for repuesto_id in repuesto_ids:
-        print("repuesto_id:", repuesto_id)
-        print("queryset:", LineaPedido.objects.filter(repuesto__id=repuesto_id))
-        try:
-            print(f"\nBuscando última compra para repuesto ID: {repuesto_id}")
+        try:            
+            # Buscar todas las líneas para debug
+            todas_lineas = LineaPedido.objects.filter(repuesto_id=repuesto_id)
+            print(f"Total de líneas encontradas para repuesto {repuesto_id}: {todas_lineas.count()}")
             
-            # Primero buscar sin filtro de estado para debug
-            todas_lineas = LineaPedido.objects.filter(repuesto_id=repuesto_id) #CAMBIO REPUESTO_ID POR REPUESTO
-            print(f"Precio de líneas encontradas: {todas_lineas.count()}")
-            
-            # Buscar la última línea de pedido
+            # Buscar la última línea de pedido SOLO POR ID (más reciente = ID más alto)
             ultima_linea = LineaPedido.objects.filter(
                 repuesto_id=repuesto_id,
-                # pedido__estado='recibido'  # Descomenta si necesitas filtrar por estado
-            ).order_by('-pedido__fecha_entrega', '-id').first()
+                pedido__finalizado=True
+            ).order_by('-id').first()  # SOLO POR ID DESCENDENTE
             
             if ultima_linea:
-                print(f"Última línea encontrada - ID: {ultima_linea.id}, Precio: {ultima_linea.precio}")
-                precios[repuesto_id] = float(ultima_linea.precio) if ultima_linea.precio else None
+                print(f"Última línea encontrada - ID: {ultima_linea.id}, Precio: {ultima_linea.precio}, Descuento: {ultima_linea.descuento}")
+                precios[repuesto_id] = float(ultima_linea.precio) if ultima_linea.precio else 0
+                descuentos[repuesto_id] = float(ultima_linea.descuento) if ultima_linea.descuento else 0
             else:
                 print(f"No se encontró ninguna línea para repuesto {repuesto_id}")
-                precios[repuesto_id] = None
+                precios[repuesto_id] = 0
+                descuentos[repuesto_id] = 0
                 
         except Exception as e:
             print(f"ERROR procesando repuesto {repuesto_id}: {str(e)}")
             import traceback
             traceback.print_exc()
-            precios[repuesto_id] = None
+            precios[repuesto_id] = 0
+            descuentos[repuesto_id] = 0
     
     print(f"\nPrecios finales: {precios}")
+    print(f"Descuentos finales: {descuentos}")
     print("=== FIN obtener_precios_compra_batch ===")
     
-    return Response(precios)
+    return Response({
+        'precios': precios,
+        'descuentos': descuentos
+    })

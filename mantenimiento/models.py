@@ -18,7 +18,7 @@ class ContadorNotificaciones(models.Model):
 
 class Notificacion(models.Model): # Notificación 5W+2H Plus
     # 5W+2H
-    que = models.TextField(max_length=250) # What. Que sucede
+    que = models.TextField(max_length=750) # What. Que sucede
     cuando = models.TextField(max_length=150) # When. Cuando sucede, en que momento del día
     donde = models.TextField(max_length=150) # Where. Donde está el problema
     quien = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='notificaciones_enviadas') # Who. Quien informa del problema
