@@ -1,7 +1,7 @@
 # from asyncio.windows_events import NULL
 from rest_framework import viewsets
 from mantenimiento.models import Notificacion, ParteTrabajo, Tarea, Especialidad, TipoPeriodo, TipoTarea, LineaParteTrabajo, EstadoLineasTareas, TrabajadoresLineaParte, Reclamo, GastosParte
-from mantenimiento.serializers import LineasDeUnTrabajadorSerializer, PartesFiltradosSerializer, ParteTrabajoEditarSerializer, NotificacionSerializer, NotificacionNuevaSerializer, TareaSerializer, EspecialidadSerializer, TipoTareaSerializer, TipoPeriodoSerializer, TareaNuevaSerializer, ParteTrabajoSerializer, ParteTrabajoDetalleSerializer, LineaParteTrabajoSerializer, LineaParteTrabajoNuevaSerializer, LineaParteTrabajoMovSerializer, ListadoLineasPartesSerializer, EstadoLineasTareasSerializer, TrabajadoresLineaParteSerializer, ListadoLineasActivasSerializer, TrabajadoresEnLineaSerializer,  ReclamoDetalleSerializer, ReclamoSerializer, LineaParteTrabajoTrabajadorSerializer, LineasGastosSerilizer
+from mantenimiento.serializers import LineasDeUnTrabajadorSerializer, PartesFiltradosSerializer, ParteTrabajoEditarSerializer, NotificacionSerializer, NotificacionNuevaSerializer, TareaSerializer, EspecialidadSerializer, TipoTareaSerializer, TipoPeriodoSerializer, TareaNuevaSerializer, ParteTrabajoSerializer, ParteTrabajoDetalleSerializer, LineaParteTrabajoSerializer, LineaParteTrabajoNuevaSerializer, LineaParteTrabajoMovSerializer, ListadoLineasPartesSerializer, EstadoLineasTareasSerializer, TrabajadoresLineaParteSerializer, ListadoLineasActivasSerializer, TrabajadoresEnLineaSerializer,  ReclamoDetalleSerializer, ReclamoSerializer, LineaParteTrabajoTrabajadorSerializer, LineasGastosSerilizer, LineasGastosUserSerilizer
 from django_filters import rest_framework as filters
 from django.db.models import Count, F, Value
 from rest_framework.pagination import PageNumberPagination
@@ -315,7 +315,12 @@ class ReclamoViewSet(viewsets.ModelViewSet):
     queryset = Reclamo.objects.all()
     filterset_class = ReclamoFilter
 
+class LineaGastosUserViewSet(viewsets.ModelViewSet):
+    serializer_class = LineasGastosUserSerilizer
+    queryset = GastosParte.objects.all().order_by('id')
+    filterset_class = GastosFilter
+
 class LineaGastosViewSet(viewsets.ModelViewSet):
     serializer_class = LineasGastosSerilizer
-    queryset = GastosParte.objects.all()
+    queryset = GastosParte.objects.all().order_by('id')
     filterset_class = GastosFilter

@@ -151,8 +151,13 @@ class ReclamoSerializer(serializers.ModelSerializer):
         model = Reclamo
         fields = ['id', 'notificacion', 'fecha', 'trabajador']
 
-class LineasGastosSerilizer(serializers.ModelSerializer):
+class LineasGastosUserSerilizer(serializers.ModelSerializer):
     creado_por = UserSerializer(many=False, read_only=True)
+    class Meta:
+        model = GastosParte
+        fields = '__all__'
+
+class LineasGastosSerilizer(serializers.ModelSerializer):
     class Meta:
         model = GastosParte
         fields = '__all__'
