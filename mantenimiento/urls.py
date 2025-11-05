@@ -1,9 +1,10 @@
 from rest_framework import routers
-from .views import Notificacion_sinpaginarViewSet, ListadoLineaCerradasPreventivasViewSet, ListadoLineaActivasSinPaginarViewSet, ParteActivosTrabajoViewSet, LineasdeunTrabajadorViewSet, TrabajadoresLineaParteFechaNullViewSet, PartesFiltradosViewSet, ParteTrabajoEditarViewSet, NotificacionViewSet, NotificacionNuevaViewSet, TareaViewSet, EspecialidadViewSet, TipoTareaViewSet, TipoPeriodoViewSet, TareaNuevaViewSet, ParteTrabajoViewSet, ParteTrabajoDetalleViewSet, LineaParteTrabajoViewSet, LineaParteTrabajoNuevaViewSet, LineaParteTrabajoMovViewSet, ListadoLineaParteViewSet, EstadoLineasTareasViewSet, TrabajadoresLineaParteViewSet, ListadoLineaActivasViewSet, TrabajadoresEnLineaViewSet, ReclamoDetalleViewSet, ReclamoViewSet, ListadoLineaActivasDestrezasViewSet, LineaParteTrabajoTrabajadorViewSet, LineaGastosViewSet
+from .views import Notificacion_sinpaginarViewSet, ListadoLineaCerradasPreventivasViewSet, ListadoLineaActivasSinPaginarViewSet, ParteActivosTrabajoViewSet, LineasdeunTrabajadorViewSet, TrabajadoresLineaParteFechaNullViewSet, PartesFiltradosViewSet, ParteTrabajoEditarViewSet, NotificacionViewSet, NotificacionNuevaViewSet, TareaViewSet, EspecialidadViewSet, TipoTareaViewSet, TipoPeriodoViewSet, TareaNuevaViewSet, ParteTrabajoViewSet, ParteTrabajoDetalleViewSet, LineaParteTrabajoViewSet, LineaParteTrabajoNuevaViewSet, LineaParteTrabajoMovViewSet, ListadoLineaParteViewSet, EstadoLineasTareasViewSet, TrabajadoresLineaParteViewSet, ListadoLineaActivasViewSet, TrabajadoresEnLineaViewSet, ReclamoDetalleViewSet, ReclamoViewSet, ListadoLineaActivasDestrezasViewSet, LineaParteTrabajoTrabajadorViewSet, LineaGastosViewSet, LineaGastosUserViewSet
 
 router = routers.DefaultRouter()
 router.register('reclamos', ReclamoViewSet)
-router.register('lineas_gastos', LineaGastosViewSet)
+router.register('gastos', LineaGastosViewSet)
+router.register('lineas_gastos', LineaGastosUserViewSet)
 router.register('listado_lineas_cerradas_preventivas', ListadoLineaCerradasPreventivasViewSet)
 router.register('reclamos_detalle', ReclamoDetalleViewSet)
 router.register('estados', EstadoLineasTareasViewSet)
