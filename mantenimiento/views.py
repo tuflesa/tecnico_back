@@ -20,6 +20,7 @@ class NotificacionFilter(filters.FilterSet):
             'zona__id' : ['exact'],
             'numero' : ['icontains'],
             'zona__nombre':['exact'],
+            'seguridad':['exact'],
         }
 class TareaFilter(filters.FilterSet):
     class Meta:
