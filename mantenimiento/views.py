@@ -1,7 +1,7 @@
 # from asyncio.windows_events import NULL
 from rest_framework import viewsets
-from mantenimiento.models import Notificacion, ParteTrabajo, Tarea, Especialidad, TipoPeriodo, TipoTarea, LineaParteTrabajo, EstadoLineasTareas, TrabajadoresLineaParte, Reclamo
-from mantenimiento.serializers import LineasDeUnTrabajadorSerializer, PartesFiltradosSerializer, ParteTrabajoEditarSerializer, NotificacionSerializer, NotificacionNuevaSerializer, TareaSerializer, EspecialidadSerializer, TipoTareaSerializer, TipoPeriodoSerializer, TareaNuevaSerializer, ParteTrabajoSerializer, ParteTrabajoDetalleSerializer, LineaParteTrabajoSerializer, LineaParteTrabajoNuevaSerializer, LineaParteTrabajoMovSerializer, ListadoLineasPartesSerializer, EstadoLineasTareasSerializer, TrabajadoresLineaParteSerializer, ListadoLineasActivasSerializer, TrabajadoresEnLineaSerializer,  ReclamoDetalleSerializer, ReclamoSerializer, LineaParteTrabajoTrabajadorSerializer
+from mantenimiento.models import Notificacion, ParteTrabajo, Tarea, Especialidad, TipoPeriodo, TipoTarea, LineaParteTrabajo, EstadoLineasTareas, TrabajadoresLineaParte, Reclamo, GastosParte
+from mantenimiento.serializers import LineasDeUnTrabajadorSerializer, PartesFiltradosSerializer, ParteTrabajoEditarSerializer, NotificacionSerializer, NotificacionNuevaSerializer, TareaSerializer, EspecialidadSerializer, TipoTareaSerializer, TipoPeriodoSerializer, TareaNuevaSerializer, ParteTrabajoSerializer, ParteTrabajoDetalleSerializer, LineaParteTrabajoSerializer, LineaParteTrabajoNuevaSerializer, LineaParteTrabajoMovSerializer, ListadoLineasPartesSerializer, EstadoLineasTareasSerializer, TrabajadoresLineaParteSerializer, ListadoLineasActivasSerializer, TrabajadoresEnLineaSerializer,  ReclamoDetalleSerializer, ReclamoSerializer, LineaParteTrabajoTrabajadorSerializer, LineasGastosSerilizer, LineasGastosUserSerilizer
 from django_filters import rest_framework as filters
 from django.db.models import Count, F, Value
 from rest_framework.pagination import PageNumberPagination
@@ -20,6 +20,7 @@ class NotificacionFilter(filters.FilterSet):
             'zona__id' : ['exact'],
             'numero' : ['icontains'],
             'zona__nombre':['exact'],
+            'seguridad':['exact'],
         }
 class TareaFilter(filters.FilterSet):
     class Meta:
@@ -125,6 +126,15 @@ class ReclamoFilter(filters.FilterSet):
             'notificacion': ['exact'],
             'trabajador': ['exact'],
             'fecha': ['lte', 'gte'],
+        }
+
+class GastosFilter(filters.FilterSet):
+    class Meta:
+        model = GastosParte
+        fields = {
+            'parte': ['exact'],
+            'parte__num_parte':['exact'],
+            'linea': ['exact'],
         }
 
 class StandardResultsSetPagination(PageNumberPagination):
@@ -305,3 +315,13 @@ class ReclamoViewSet(viewsets.ModelViewSet):
     serializer_class = ReclamoSerializer
     queryset = Reclamo.objects.all()
     filterset_class = ReclamoFilter
+
+class LineaGastosUserViewSet(viewsets.ModelViewSet):
+    serializer_class = LineasGastosUserSerilizer
+    queryset = GastosParte.objects.all().order_by('id')
+    filterset_class = GastosFilter
+
+class LineaGastosViewSet(viewsets.ModelViewSet):
+    serializer_class = LineasGastosSerilizer
+    queryset = GastosParte.objects.all().order_by('id')
+    filterset_class = GastosFilter
