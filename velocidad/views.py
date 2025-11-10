@@ -80,11 +80,14 @@ def estado_maquina(request, id):
     if anterior:
         registros = list(chain([anterior], registros))
 
-    velocidad = [{
+    regs = [{
         'fecha': r.fecha.isoformat(),
         'hora': r.hora.isoformat(),
         'zona': r.zona.siglas,
-        'velocidad':  float(r.velocidad)
+        'velocidad':  float(r.velocidad),
+        'potencia': float(r.potencia),
+        'frecuencia': float(r.frecuencia),
+        'presion': float(r.presion)
     } for r in registros]
 
     # Flejes fabricados
@@ -122,7 +125,7 @@ def estado_maquina(request, id):
 
     data = {
         "maquina": maquina_dict,
-        "velocidad": velocidad,
+        "registros": regs,
         "flejes": flejes
     }
     return JsonResponse(data)
