@@ -123,9 +123,32 @@ def estado_maquina(request, id):
         } for t in f.tubos.all()]
     } for f in resultado]
 
+    # Estado actual
+    estado_act = Registro.objects.filter(zona=id).last()
+    fleje_act = Flejes.objects.filter(maquina_siglas=siglas, fecha_salida__isnull=True).order_by('-fecha_entrada', '-hora_entrada').last()
+    if (fleje_act == None):
+        from types import SimpleNamespace
+        fleje_act = SimpleNamespace(
+            of='',
+            pos='',
+            descripcion=''
+        )
+
+
+    estado_act = {
+        'velocidad':  float(estado_act.velocidad),
+        'potencia': float(estado_act.potencia),
+        'frecuencia': float(estado_act.frecuencia),
+        'fuerza': float(estado_act.presion),
+        'of': fleje_act.of,
+        'fleje_pos': fleje_act.pos,
+        'fleje_descripcion': fleje_act.descripcion
+    }
+
     data = {
         "maquina": maquina_dict,
         "registros": regs,
-        "flejes": flejes
+        "flejes": flejes,
+        "estado_act": estado_act
     }
     return JsonResponse(data)
