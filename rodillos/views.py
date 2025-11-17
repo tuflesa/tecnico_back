@@ -296,7 +296,7 @@ class GrupoFilter(filters.FilterSet):
             'id': ['exact'],
             'nombre': ['icontains'],
             'maquina': ['exact'],
-            'tubo_madre': ['exact'],
+            'tubo_madre': ['lte', 'gte'],
             'maquina__siglas': ['exact'],
             'maquina__id':['exact'],
             'maquina__empresa': ['exact'],
