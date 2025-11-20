@@ -89,7 +89,7 @@ class Pedido(models.Model):
     fecha_entrega = models.DateField(blank=True, null=True)
     fecha_prevista_entrega = models.DateField(blank=True, null=True)
     finalizado = models.BooleanField(default=False)
-    numero = models.CharField(max_length=12, null=True, blank=True, default=None)
+    numero = models.CharField(max_length=13, null=True, blank=True, default=None)
     empresa = models.ForeignKey(Empresa, on_delete=models.CASCADE)
     creado_por = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     direccion_envio = models.ForeignKey(Direcciones, on_delete= models.SET_NULL, null= True, blank= True)
@@ -119,7 +119,7 @@ class Pedido(models.Model):
             contador.contador = numero
             contador.save()
 
-            self.numero = self.empresa.siglas + '-' + year + '-' + str(numero).zfill(3)
+            self.numero = self.empresa.siglas + '-' + year + '-' + str(numero).zfill(4)
         # Llamar al metodo save por defecto de la clase
         super(Pedido,self).save(*args, **kwargs)
 
