@@ -21,10 +21,14 @@ class EspecialidadAdmin(admin.ModelAdmin):
 class EstadoAdmin(admin.ModelAdmin):
     list_display=("nombre", "id",)
 class TareasAdmin(admin.ModelAdmin):
-    list_display=("id","nombre",)
+    list_display=("id","nombre")
     search_fields=("nombre",)
 
-admin.site.register(Notificacion)
+class NotificacionesAdmin(admin.ModelAdmin):
+    list_display=("id","zona","empresa","numero","quien",)
+    search_fields=("numero",)
+
+admin.site.register(Notificacion, NotificacionesAdmin)
 admin.site.register(ParteTrabajo, ParteTrabajoAdmin)
 admin.site.register(LineaParteTrabajo, LineasTrabajoAdmin)
 admin.site.register(TipoPeriodo)

@@ -90,7 +90,7 @@ class GrupoSerializer(serializers.ModelSerializer):
     bancadas = Bancada_GruposSerializer(many=True, read_only=False)
     class Meta:
         model = Grupo
-        fields = ['id', 'nombre', 'maquina', 'tubo_madre', 'bancadas', 'espesor_1', 'espesor_2']
+        fields = '__all__'
 
 class GrupoBancadaSerializer(serializers.ModelSerializer):
     maquina = ZonaSerializer_Rodillos(many=False, read_only=False)

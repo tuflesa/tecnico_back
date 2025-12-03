@@ -330,7 +330,7 @@ class PedidoListViewSet(viewsets.ModelViewSet):
 
 class PedidoFueraFechaViewSet(viewsets.ModelViewSet):
     serializer_class = PedidoListSerilizer
-    queryset = Pedido.objects.all().order_by('-numero')
+    queryset = Pedido.objects.all().order_by('-id')
     filterset_class = PedidoListFilter
     pagination_class = StandardResultsSetPagination
 
@@ -439,9 +439,7 @@ class Filtro_RepuestoConPrecioViewSet(viewsets.ModelViewSet):
     filterset_class = PrecioRepuestoFilter
     pagination_class = StandardResultsSetPagination
 
-# ============================================
 # NUEVA FUNCIÓN INDEPENDIENTE
-# ============================================
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def obtener_precios_compra_batch(request):
