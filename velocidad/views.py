@@ -161,6 +161,7 @@ def estado_maquina(request, id):
     ).distinct().order_by('-id')
 
     paradas = [{
+        'id': p.id,
         'codigo': p.codigo.nombre,
         'inicio': p.inicio().strftime("%Y-%m-%d %H:%M:%S") if p.inicio else None,
         'fin': p.fin().strftime("%Y-%m-%d %H:%M:%S") if p.fin else None,
