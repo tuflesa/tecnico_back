@@ -10,6 +10,10 @@ from django.db.models import Q
 from datetime import datetime
 from django.utils import timezone
 from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from .calendario import generar_horario_anual
+from .models import HorarioDia
+import datetime
 
 
 class RegistroFilter(filters.FilterSet):
@@ -219,3 +223,41 @@ def nuevo_periodo(request):
     periodo = Periodo.objects.create(parada=parada, inicio=fecha_dt, velocidad=velocidad)
 
     return JsonResponse({"status": "created", "fecha": fecha_str}, status=201)
+
+@api_view(["POST"])
+def generar_anual(request):
+    generar_horario_anual()
+    return Response({"ok": True, "mensaje": "Horarios generados"})
+
+@api_view(["GET"])
+def obtener_semana(request):
+    hoy = datetime.date.today()
+    lunes = hoy - datetime.timedelta(days=hoy.weekday())
+    dias = [lunes + datetime.timedelta(days=i) for i in range(14)]
+
+    queryset = HorarioDia.objects.filter(fecha__in=dias).order_by("fecha")
+    data = [
+        {
+            "fecha": d.fecha.strftime('%Y-%m-%d'),
+            "nombreDia": d.nombre_dia,
+            "inicio": str(d.inicio),
+            "fin": str(d.fin),
+            "es_fin_de_semana": d.es_fin_de_semana
+        }
+        for d in queryset
+    ]
+
+    return Response(data)
+
+@api_view(["PUT"])
+def actualizar_horario(request, fecha):
+    try:
+        dia = HorarioDia.objects.get(fecha=fecha)
+    except HorarioDia.DoesNotExist:
+        return Response({"error": "No existe"}, status=404)
+
+    dia.inicio = request.data.get("inicio", dia.inicio)
+    dia.fin = request.data.get("fin", dia.fin)
+    dia.save()
+
+    return Response({"ok": True, "mensaje": "Horario actualizado"})

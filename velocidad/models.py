@@ -87,3 +87,13 @@ class Periodo(models.Model):
     inicio = models.DateTimeField(null=True)
     fin = models.DateTimeField(null=True)
     velocidad = models.FloatField(default=0)
+
+class HorarioDia(models.Model):
+    fecha = models.DateField(unique=True)
+    nombre_dia = models.CharField(max_length=20, default="")
+    inicio = models.TimeField(default="06:00")
+    fin = models.TimeField(default="22:00")
+    es_fin_de_semana = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"{self.nombre_dia} {self.fecha} - {self.inicio}-{self.fin}" 
