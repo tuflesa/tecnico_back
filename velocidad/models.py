@@ -89,11 +89,14 @@ class Periodo(models.Model):
     velocidad = models.FloatField(default=0)
 
 class HorarioDia(models.Model):
-    fecha = models.DateField(unique=True)
+    fecha = models.DateField()
     nombre_dia = models.CharField(max_length=20, default="")
     inicio = models.TimeField(default="06:00")
     fin = models.TimeField(default="22:00")
     es_fin_de_semana = models.BooleanField(default=False)
+    zona = models.ForeignKey(Zona, on_delete=models.CASCADE, related_name='horarios', null=True, blank=True)
+    class Meta:
+        unique_together = ('fecha', 'zona')
 
     def __str__(self):
         return f"{self.nombre_dia} {self.fecha} - {self.inicio}-{self.fin}" 
