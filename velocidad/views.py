@@ -227,22 +227,30 @@ def nuevo_periodo(request):
 @api_view(["POST"])
 def generar_anual(request):
     generar_horario_anual()
-    return Response({"ok": True, "mensaje": "Horarios generados"})
+    return Response({"ok": True, "mensaje": "Horarios generados para todas las máquinas"})
 
 @api_view(["GET"])
-def obtener_semana(request):
-    hoy = datetime.date.today()
-    lunes = hoy - datetime.timedelta(days=hoy.weekday())
-    dias = [lunes + datetime.timedelta(days=i) for i in range(14)]
+def obtener_anual(request):
+    # Obtener TODO el calendario generado por zonas
+    zona_id = request.GET.get('zona')
+    queryset = HorarioDia.objects.all().order_by("fecha")
+    if not zona_id:
+        return Response({"error": "Falta parámetro zona"}, status=400)
+    #si tenemos zona obtenemos todo el calendario de la zona
+    queryset = HorarioDia.objects.filter(zona_id=zona_id).order_by("fecha")
 
-    queryset = HorarioDia.objects.filter(fecha__in=dias).order_by("fecha")
     data = [
         {
             "fecha": d.fecha.strftime('%Y-%m-%d'),
             "nombreDia": d.nombre_dia,
             "inicio": str(d.inicio),
             "fin": str(d.fin),
-            "es_fin_de_semana": d.es_fin_de_semana
+            "es_fin_de_semana": d.es_fin_de_semana,
+            "zona": d.zona.id,
+            "zona_siglas": d.zona.siglas, 
+            "mes": d.fecha.month,
+            "dia": d.fecha.day,
+            "anio": d.fecha.year
         }
         for d in queryset
     ]
@@ -251,13 +259,47 @@ def obtener_semana(request):
 
 @api_view(["PUT"])
 def actualizar_horario(request, fecha):
+    zona_id = request.data.get('zona_id')
+    if not zona_id:
+        return Response({"error": "Falta zona_id en el body"}, status=400)
     try:
-        dia = HorarioDia.objects.get(fecha=fecha)
+        dia = HorarioDia.objects.get(fecha=fecha, zona_id=zona_id)
     except HorarioDia.DoesNotExist:
-        return Response({"error": "No existe"}, status=404)
+        return Response({"error": "No existe ese día para esa máquina"}, status=404)
 
     dia.inicio = request.data.get("inicio", dia.inicio)
     dia.fin = request.data.get("fin", dia.fin)
     dia.save()
 
     return Response({"ok": True, "mensaje": "Horario actualizado"})
+
+@api_view(["POST"])
+def guardar_festivos(request):
+    fechas = request.data.get("fechas")
+    zona_id = request.data.get("zona_id")
+
+    if not fechas:
+        return Response({"error": "No se recibieron fechas"}, status=400)
+    if not zona_id:
+        return Response({"error": "No se recibió zona_id"}, status=400)
+
+    # Convertimos a objetos datetime
+    import datetime
+    
+    for f in fechas:
+        try:
+            fecha_obj = datetime.datetime.strptime(f, "%Y-%m-%d").date()
+        except ValueError:
+            return Response({"error": f"Formato de fecha inválido: {f}"}, status=400)
+
+        try:
+            dia = HorarioDia.objects.get(fecha=fecha_obj, zona_id=zona_id)
+        except HorarioDia.DoesNotExist:
+            continue  # Si no existe el día, lo saltamos
+
+        dia.es_fin_de_semana = True
+        dia.inicio = datetime.time(0, 0)
+        dia.fin = datetime.time(0, 0)
+        dia.save()
+
+    return Response({"ok": True, "mensaje": "Festivos actualizados"})
