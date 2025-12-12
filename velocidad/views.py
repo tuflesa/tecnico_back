@@ -1,8 +1,8 @@
 from rest_framework import viewsets
 from django.http import JsonResponse
 from django_filters import rest_framework as filters
-from .serializers import RegistroSerializer, ZonaPerfilVelocidadSerilizer, ParadaSerializer
-from .models import Registro, ZonaPerfilVelocidad, Parada, CodigoParada, Periodo
+from .serializers import RegistroSerializer, ZonaPerfilVelocidadSerilizer, HorarioDiaSerializer
+from .models import Registro, ZonaPerfilVelocidad, Parada, CodigoParada, Periodo, HorarioDia
 from estructura.models import Zona
 from trazabilidad.models import Flejes
 from django.forms.models import model_to_dict
@@ -12,8 +12,7 @@ from django.utils import timezone
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from .calendario import generar_horario_anual
-from .models import HorarioDia
-import datetime
+from datetime import datetime
 
 
 class RegistroFilter(filters.FilterSet):
@@ -33,6 +32,14 @@ class ZonaPerfilVelocidadFilter(filters.FilterSet):
             'id': ['exact'],
         }
 
+class HorarioDiaFilter(filters.FilterSet):
+    class Meta:
+        model = HorarioDia
+        fields = {
+            'fecha': ['exact'],
+            'zona': ['exact']
+        }
+
 class ZonaPerfilVelocidadViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = ZonaPerfilVelocidadSerilizer
     queryset = ZonaPerfilVelocidad.objects.all()
@@ -42,6 +49,11 @@ class RegistroViewSet(viewsets.ModelViewSet):
     serializer_class = RegistroSerializer
     queryset = Registro.objects.all().order_by('fecha', 'hora')
     filterset_class = RegistroFilter
+
+class HorarioDiaViewSet(viewsets.ModelViewSet):
+    serializer_class = HorarioDiaSerializer
+    queryset = HorarioDia.objects.all()
+    filterset_class = HorarioDiaFilter
 
 def estado_maquina(request, id):
     fecha_str = request.GET.get('fecha')
