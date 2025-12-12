@@ -7,7 +7,7 @@ from estructura.models import Zona
 from trazabilidad.models import Flejes
 from django.forms.models import model_to_dict
 from django.db.models import Q
-from datetime import datetime
+from datetime import datetime, date
 from django.utils import timezone
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -232,13 +232,19 @@ def generar_anual(request):
 
 @api_view(["GET"])
 def obtener_anual(request):
-    # Obtener TODO el calendario generado por zonas
     zona_id = request.GET.get('zona')
+    #ano = request.GET.get('ano') si queremos que sea una petición del frontend
     queryset = HorarioDia.objects.all().order_by("fecha")
     if not zona_id:
         return Response({"error": "Falta parámetro zona"}, status=400)
-    #si tenemos zona obtenemos todo el calendario de la zona
-    queryset = HorarioDia.objects.filter(zona_id=zona_id).order_by("fecha")
+    
+    ano_actual = date.today().year #SOLO MUESTRA EL AÑO ACTUAL
+    queryset = HorarioDia.objects.filter(zona_id=zona_id, fecha__year=ano_actual).order_by("fecha")
+    
+    """ queryset = HorarioDia.objects.filter(zona_id=zona_id) ---------> PARA QUE FILTRE LA PETICIÓN DEL FRONTEND
+    if ano:
+        queryset = queryset.filter(fecha__year=ano)
+    queryset = queryset.order_by("fecha") """
 
     data = [
         {
