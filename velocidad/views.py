@@ -199,11 +199,13 @@ def nuevo_periodo(request):
     datos = request.data
     fecha_str = datos['fecha']
     fecha_dt = datetime.strptime(fecha_str, "%Y-%m-%d %H:%M:%S")
-    # madrid_tz = pytz.timezone("Europe/Madrid")
-    # fecha_dt = timezone.make_aware(fecha_dt, madrid_tz)
     fecha_dt = timezone.make_aware(fecha_dt, timezone.utc)
     zona_id = datos['zona']
     velocidad = float(datos['velocidad'])
+    print(f"tipo tnp: {type(datos['tnp'])}")
+    print(f"tnp antes de convertir: {datos['tnp']}")
+    tnp = datos['tnp'].lower() == "true"
+    print(f'tnp {tnp}')
 
     ultima_parada = Parada.objects.filter(zona = zona_id).last()
     zona = Zona.objects.get(id=zona_id)
@@ -220,17 +222,23 @@ def nuevo_periodo(request):
         else: # Parada desconocida o perdida de conexion PLC
             if velocidad < 0.0: # NO_PLC
                 codigo = CodigoParada.objects.filter(siglas='NO_PLC').first()
-            else: # UNKNOWN
-                codigo = CodigoParada.objects.filter(siglas='UNKNOWN').first()
+            else: # UNKNOWN o TNP
+                if tnp:
+                    codigo = CodigoParada.objects.filter(siglas='TNP').first()
+                else:
+                    codigo = CodigoParada.objects.filter(siglas='UNKNOWN').first()
             parada = Parada.objects.create(codigo=codigo, zona=zona)
-    else: # Desde UNKNOWN o NO_PLC
+    else: # Desde UNKNOWN o NO_PLC o TNP
         if velocidad > 0.0: # RUN
             codigo = CodigoParada.objects.filter(siglas='RUN').first()
         else:
             if velocidad < 0.0: # NO_PLC
                 codigo = CodigoParada.objects.filter(siglas='NO_PLC').first()
-            else: # UNKNOWN
-                codigo = CodigoParada.objects.filter(siglas='UNKNOWN').first()
+            else: # UNKNOWN o TNP
+                if tnp:
+                    codigo = CodigoParada.objects.filter(siglas='TNP').first()
+                else:
+                    codigo = CodigoParada.objects.filter(siglas='UNKNOWN').first()
         parada = Parada.objects.create(codigo=codigo, zona=zona)
 
     periodo = Periodo.objects.create(parada=parada, inicio=fecha_dt, velocidad=velocidad)
@@ -239,7 +247,8 @@ def nuevo_periodo(request):
 
 @api_view(["POST"])
 def generar_anual(request):
-    generar_horario_anual()
+    year = request.GET.get('year')
+    generar_horario_anual(year)
     return Response({"ok": True, "mensaje": "Horarios generados para todas las máquinas"})
 
 @api_view(["GET"])
@@ -264,7 +273,7 @@ def obtener_anual(request):
             "nombreDia": d.nombre_dia,
             "inicio": str(d.inicio),
             "fin": str(d.fin),
-            "es_fin_de_semana": d.es_fin_de_semana,
+            "es_festivo": d.es_festivo,
             "zona": d.zona.id,
             "zona_siglas": d.zona.siglas, 
             "mes": d.fecha.month,
@@ -316,7 +325,7 @@ def guardar_festivos(request):
         except HorarioDia.DoesNotExist:
             continue  # Si no existe el día, lo saltamos
 
-        dia.es_fin_de_semana = True
+        dia.es_festivo = True
         dia.inicio = datetime.time(0, 0)
         dia.fin = datetime.time(0, 0)
         dia.save()

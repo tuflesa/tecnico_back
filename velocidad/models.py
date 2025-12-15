@@ -93,7 +93,7 @@ class HorarioDia(models.Model):
     nombre_dia = models.CharField(max_length=20, default="")
     inicio = models.TimeField(default="06:00")
     fin = models.TimeField(default="22:00")
-    es_fin_de_semana = models.BooleanField(default=False) # o vacaciones = es_no_laborable
+    es_festivo = models.BooleanField(default=False) # o vacaciones = es_no_laborable
     zona = models.ForeignKey(Zona, on_delete=models.CASCADE, related_name='horarios', null=True, blank=True)
     class Meta:
         unique_together = ('fecha', 'zona')

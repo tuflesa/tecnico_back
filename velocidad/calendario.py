@@ -2,12 +2,10 @@ import datetime
 from .models import HorarioDia
 from estructura.models import Zona
 
-def generar_horario_anual(zona_id=None):
-    hoy = datetime.date.today()
-    año = hoy.year
+def generar_horario_anual (year):
 
-    inicio = datetime.date(año, 1, 1)
-    fin = datetime.date(año, 12, 31)
+    inicio = datetime.date(year, 1, 1)
+    fin = datetime.date(year, 12, 31)
 
     nombresDias = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo']
 
@@ -20,8 +18,8 @@ def generar_horario_anual(zona_id=None):
     for zona in zonas:
         dia = inicio
         while dia <= fin:
-            es_fin_semana = dia.weekday() >= 5
-            if es_fin_semana:
+            es_festivo = dia.weekday() >= 5
+            if es_festivo:
                 hora_inicio = datetime.time(0, 0)
                 hora_fin = datetime.time(0, 0)
             else:
@@ -35,7 +33,7 @@ def generar_horario_anual(zona_id=None):
                     "nombre_dia": nombresDias[dia.weekday()],
                     "inicio": hora_inicio,
                     "fin": hora_fin,
-                    "es_fin_de_semana": es_fin_semana,
+                    "es_festivo": es_festivo,
                 }
             )
             dia += delta
