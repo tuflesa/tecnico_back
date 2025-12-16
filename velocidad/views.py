@@ -247,9 +247,17 @@ def nuevo_periodo(request):
 
 @api_view(["POST"])
 def generar_anual(request):
-    year = request.GET.get('year')
-    generar_horario_anual(year)
-    return Response({"ok": True, "mensaje": "Horarios generados para todas las máquinas"})
+    year = request.data.get('year')
+    if not year:
+        return Response({"error": "Falta el año"}, status=400)
+    try:
+        year=int(year)
+        generar_horario_anual(year)
+        return Response({"ok": True, "mensaje": "Horarios generados para el año {year} para todas las máquinas"})
+    except ValueError:
+        return Response({"error": "El año no es válido"}, status=400)
+    except Exception as e:
+        return Response({"error": str(e)}, status=500)
 
 @api_view(["GET"])
 def obtener_anual(request):
