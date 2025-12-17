@@ -7,12 +7,11 @@ from estructura.models import Zona
 from trazabilidad.models import Flejes
 from django.forms.models import model_to_dict
 from django.db.models import Q
-from datetime import datetime, date
+from datetime import datetime, date, time
 from django.utils import timezone
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from .calendario import generar_horario_anual
-from datetime import datetime
 
 
 class RegistroFilter(filters.FilterSet):
@@ -295,6 +294,8 @@ def obtener_anual(request):
 
 @api_view(["PUT"])
 def actualizar_horario(request, fecha):
+    #import datetime
+
     zona_id = request.data.get('zona_id')
     if not zona_id:
         return Response({"error": "Falta zona_id en el body"}, status=400)
@@ -303,8 +304,16 @@ def actualizar_horario(request, fecha):
     except HorarioDia.DoesNotExist:
         return Response({"error": "No existe ese día para esa máquina"}, status=404)
 
-    dia.inicio = request.data.get("inicio", dia.inicio)
-    dia.fin = request.data.get("fin", dia.fin)
+    # Obtener los valores como strings
+    inicio = request.data.get("inicio", dia.inicio)
+    fin = request.data.get("fin", dia.fin)
+
+    dia.inicio = inicio
+    dia.fin = fin
+    
+    #si hora inicio y fin es 0.0 pondrá es_festivo a true
+    dia.es_festivo = (dia.inicio == time(0, 0) and dia.fin == time(0, 0))
+    
     dia.save()
 
     return Response({"ok": True, "mensaje": "Horario actualizado"})
