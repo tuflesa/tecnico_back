@@ -3,14 +3,13 @@ from .models import HorarioDia
 from estructura.models import Zona
 
 def generar_horario_anual (year):
-
+    year = int(year)
     inicio = datetime.date(year, 1, 1)
     fin = datetime.date(year, 12, 31)
 
     nombresDias = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo']
 
-    zonas = Zona.objects.filter(es_maquina_tubo=True).exclude(empresa=3) #obtenemos todas las zonas
-    print("Zonas encontradas:", zonas)
+    zonas = Zona.objects.filter(es_maquina_tubo=True) #obtenemos todas las zonas
 
     delta = datetime.timedelta(days=1)
 
