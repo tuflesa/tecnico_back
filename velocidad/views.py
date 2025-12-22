@@ -202,33 +202,76 @@ def nuevo_periodo(request):
     fecha_dt = timezone.make_aware(fecha_dt, timezone.utc)
     zona_id = datos['zona']
     velocidad = float(datos['velocidad'])
-    print(f"tipo tnp: {type(datos['tnp'])}")
-    print(f"tnp antes de convertir: {datos['tnp']}")
     tnp = datos['tnp'].lower() == "true"
-    print(f'tnp {tnp}')
 
     ultima_parada = Parada.objects.filter(zona = zona_id).last()
     zona = Zona.objects.get(id=zona_id)
 
-    # Siempre que existe la ultima parada cerramos el periodo anteior
     if ultima_parada != None:
+        # Cerramos el periodo anteior
         ultimo_periodo = ultima_parada.periodos.order_by('inicio').last() 
         ultimo_periodo.fin = fecha_dt
         ultimo_periodo.save()
+
+        # Maquina de estados
+        if ultima_parada.codigo.siglas == 'RUN': # Desde RUN
+            if velocidad > 0.0: # RUN a RUN: Cambio de velocidad, crear un nuevo periodo en la ultima parada
+                parada=ultima_parada
+            else: 
+                if velocidad < 0.0: # RUN a NO_PLC
+                    codigo = CodigoParada.objects.filter(siglas='NO_PLC').first()
+                else: 
+                    if tnp: #RUN a TNP
+                        codigo = CodigoParada.objects.filter(siglas='TNP').first()
+                    else: # RUN a TNP
+                        codigo = CodigoParada.objects.filter(siglas='UNKNOWN').first()
+                parada = Parada.objects.create(codigo=codigo, zona=zona)
+
+        elif ultima_parada.codigo.siglas == 'TNP': # Desde TNP
+            if velocidad > 0.0: # TNP a RUN
+                codigo = CodigoParada.objects.filter(siglas='RUN').first()
+                parada = Parada.objects.create(codigo=codigo, zona=zona)
+            else:
+                if velocidad < 0.0: # TNP a NO_PLC
+                    codigo = CodigoParada.objects.filter(siglas='NO_PLC').first()
+                    parada = Parada.objects.create(codigo=codigo, zona=zona)
+                else: 
+                    if tnp: # TNP a TNP
+                        parada = ultima_parada
+                    else: # TNP a UNKNOWN
+                        codigo = CodigoParada.objects.filter(siglas='UNKNOWN').first()  
+                        parada = Parada.objects.create(codigo=codigo, zona=zona)
+
+        elif ultima_parada.codigo.siglas == 'UNKNOWN': # Desde UNKNOWN
+            if velocidad > 0.0: # UNKNOWN a RUN
+                codigo = CodigoParada.objects.filter(siglas='RUN').first()
+                parada = Parada.objects.create(codigo=codigo, zona=zona)
+            else:
+                if velocidad < 0.0: # UNKNOWN a NO_PLC
+                    codigo = CodigoParada.objects.filter(siglas='NO_PLC').first()
+                    parada = Parada.objects.create(codigo=codigo, zona=zona)
+                else: 
+                    if tnp: # UNKNOWN a TNP
+                        codigo = CodigoParada.objects.filter(siglas='TNP').first()  
+                        parada = Parada.objects.create(codigo=codigo, zona=zona)
+                    else: # TNP a UNKNOWN
+                        parada = ultima_parada
         
-    if ultima_parada and ultima_parada.codigo.siglas == 'RUN': # Desde RUN
-        if velocidad > 0.0: # RUN: Cambio de velocidad, crear un nuevo periodo en la ultima parada
-            parada=ultima_parada
-        else: # Parada desconocida o perdida de conexion PLC
-            if velocidad < 0.0: # NO_PLC
-                codigo = CodigoParada.objects.filter(siglas='NO_PLC').first()
-            else: # UNKNOWN o TNP
-                if tnp:
-                    codigo = CodigoParada.objects.filter(siglas='TNP').first()
-                else:
-                    codigo = CodigoParada.objects.filter(siglas='UNKNOWN').first()
+        else: # Cualquier otro tipo por implementar
+            if velocidad > 0.0: # RUN
+                codigo = CodigoParada.objects.filter(siglas='RUN').first()
+            else:
+                if velocidad < 0.0: # NO_PLC
+                    codigo = CodigoParada.objects.filter(siglas='NO_PLC').first()
+                else: # UNKNOWN o TNP
+                    if tnp:
+                        codigo = CodigoParada.objects.filter(siglas='TNP').first()
+                    else:
+                        codigo = CodigoParada.objects.filter(siglas='UNKNOWN').first()
             parada = Parada.objects.create(codigo=codigo, zona=zona)
-    else: # Desde UNKNOWN o NO_PLC o TNP
+                        
+
+    else: # Si no hay ultima parada
         if velocidad > 0.0: # RUN
             codigo = CodigoParada.objects.filter(siglas='RUN').first()
         else:
