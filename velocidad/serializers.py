@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import ZonaPerfilVelocidad, Registro, Periodo, Parada, HorarioDia
+from .models import ZonaPerfilVelocidad, Registro, Periodo, Parada, HorarioDia, TipoParada, CodigoParada
 from estructura.serializers import ZonaSerializer
 
 class ZonaPerfilVelocidadSerilizer(serializers.ModelSerializer):
@@ -27,4 +27,14 @@ class ParadaSerializer(serializers.ModelSerializer):
 class HorarioDiaSerializer(serializers.ModelSerializer):
     class Meta:
         model = HorarioDia
+        fields = '__all__'
+
+class TipoParadaSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TipoParada
+        fields = '__all__'
+
+class CodigoParadaSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CodigoParada
         fields = '__all__'

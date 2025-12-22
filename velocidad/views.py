@@ -1,8 +1,8 @@
 from rest_framework import viewsets
 from django.http import JsonResponse
 from django_filters import rest_framework as filters
-from .serializers import RegistroSerializer, ZonaPerfilVelocidadSerilizer, HorarioDiaSerializer
-from .models import Registro, ZonaPerfilVelocidad, Parada, CodigoParada, Periodo, HorarioDia
+from .serializers import RegistroSerializer, ZonaPerfilVelocidadSerilizer, HorarioDiaSerializer, TipoParadaSerializer, CodigoParadaSerializer
+from .models import Registro, ZonaPerfilVelocidad, Parada, CodigoParada, Periodo, HorarioDia, TipoParada
 from estructura.models import Zona
 from trazabilidad.models import Flejes
 from django.forms.models import model_to_dict
@@ -38,6 +38,30 @@ class HorarioDiaFilter(filters.FilterSet):
             'fecha': ['exact'],
             'zona': ['exact']
         }
+
+class TipoParadaFilter(filters.FilterSet):
+    class Meta:
+        model = TipoParada
+        fields = {
+            'para_informar': ['exact'],
+        }
+
+class CodigoParadaFilter(filters.FilterSet):
+    class Meta:
+        model = CodigoParada
+        fields = {
+            'nombre': ['icontains'],
+        }
+
+class TipoParadaViewSet(viewsets.ModelViewSet):
+    serializer_class = TipoParadaSerializer
+    queryset = TipoParada.objects.all()
+    filterset_class = TipoParadaFilter
+
+class CodigoParadaViewSet(viewsets.ModelViewSet):
+    serializer_class = CodigoParadaSerializer
+    queryset = CodigoParada.objects.all()
+    filterset_class = CodigoParadaFilter
 
 class ZonaPerfilVelocidadViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = ZonaPerfilVelocidadSerilizer
@@ -391,3 +415,16 @@ def guardar_festivos(request):
         dia.save()
 
     return Response({"ok": True, "mensaje": "Festivos actualizados"})
+
+@api_view(["GET"])
+def obtener_codigos(request):
+    zona_id = request.GET.get('zona')
+    tipo_parada = request.GET.get('tipo_parada')
+
+    codigos = CodigoParada.objects.filter(
+        Q(zona=zona_id, tipo=tipo_parada) |
+        Q(zona__isnull = True, tipo=tipo_parada)
+    ).distinct().order_by('nombre')
+
+    serializer = CodigoParadaSerializer(codigos, many=True)
+    return Response(serializer.data)
