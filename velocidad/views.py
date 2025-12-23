@@ -428,3 +428,7 @@ def obtener_codigos(request):
 
     serializer = CodigoParadaSerializer(codigos, many=True)
     return Response(serializer.data)
+
+@api_view(["POST"])
+def guardar_paradas_agrupadas(request):
+    return Response({"mensaje": "Paradas agrupadas correctamente"})
