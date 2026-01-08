@@ -1,12 +1,13 @@
 from rest_framework import viewsets
 from django.http import JsonResponse
 from django_filters import rest_framework as filters
-from .serializers import RegistroSerializer, ZonaPerfilVelocidadSerilizer, HorarioDiaSerializer, TipoParadaSerializer, CodigoParadaSerializer
-from .models import Registro, ZonaPerfilVelocidad, Parada, CodigoParada, Periodo, HorarioDia, TipoParada
+from .serializers import RegistroSerializer, ZonaPerfilVelocidadSerilizer, HorarioDiaSerializer, TipoParadaSerializer, CodigoParadaSerializer, ParadaSerializer
+from .models import Registro, ZonaPerfilVelocidad, Parada, CodigoParada, Periodo, HorarioDia, TipoParada, Periodo
 from estructura.models import Zona
 from trazabilidad.models import Flejes
 from django.forms.models import model_to_dict
 from django.db.models import Q
+from django.db.models import Min, Max
 from datetime import datetime, date, time
 from django.utils import timezone
 from rest_framework.decorators import api_view
@@ -431,4 +432,45 @@ def obtener_codigos(request):
 
 @api_view(["POST"])
 def guardar_paradas_agrupadas(request):
-    return Response({"mensaje": "Paradas agrupadas correctamente"})
+    tipo_parada_id = request.data.get("tipo_parada_id")
+    codigo_parada_id = request.data.get("codigo_parada_id")
+    paradas = request.data.get("paradas")
+    tipo_parada = TipoParada.objects.get(id=tipo_parada_id)
+    codigo_parada = CodigoParada.objects.get(id=codigo_parada_id)
+
+    ids = []
+    for parada in paradas:
+        ids.append(int(parada['id']))
+
+    if tipo_parada.nombre == 'Cambio':
+        primera_id = paradas[0]['id']       
+        Parada.objects.filter(id=primera_id).update(codigo=codigo_parada)
+        Periodo.objects.filter(parada__in=ids).update(parada=primera_id)
+    else:
+        Parada.objects.filter(id__in=ids).update(codigo=codigo_parada)
+
+    return Response({"mensaje": "Paradas agrupadas correctamente"}, status=200)
+
+@api_view(["GET"])
+def leer_paradas(request):
+    fecha_inicio = request.GET.get("fecha_inicio")
+    fecha_fin = request.GET.get("fecha_fin")
+    hora_inicio = request.GET.get("hora_inicio")
+    hora_fin = request.GET.get("hora_fin")
+    id = request.GET.get("zona")
+
+    inicio_str = f'{fecha_inicio} {hora_inicio}'
+    inicio_dt = datetime.strptime(inicio_str, "%Y-%m-%d %H:%M:%S")
+    inicio = timezone.make_aware(inicio_dt, timezone.utc)
+
+    fin_str = f'{fecha_fin} {hora_fin}'
+    fin_dt = datetime.strptime(fin_str, "%Y-%m-%d %H:%M:%S")
+    fin = timezone.make_aware(fin_dt, timezone.utc)
+
+    paradas = Parada.objects.annotate(
+        inicio_min=Min('periodos__inicio'),
+        fin_max=Max('periodos__fin')
+        ).filter(zona = id, inicio_min__gt=inicio, fin_max__lt=fin)
+    
+    serializer = ParadaSerializer(paradas, many=True)
+    return Response(serializer.data)

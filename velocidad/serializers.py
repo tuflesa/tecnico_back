@@ -19,10 +19,23 @@ class PeriodoSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class ParadaSerializer(serializers.ModelSerializer):
-    periodo = PeriodoSerializer(many=False)
+    inicio = serializers.SerializerMethodField()
+    fin = serializers.SerializerMethodField()
+    duracion = serializers.SerializerMethodField()
+
     class Meta:
         model = Parada
-        fields = '__all__'
+        fields = ['id', 'codigo', 'zona', 'inicio', 'fin', 'duracion']
+        
+    def get_inicio(self, obj):
+        return obj.inicio()
+
+    def get_fin(self, obj):
+        return obj.fin()
+
+    def get_duracion(self, obj):
+        return obj.duracion()
+
 
 class HorarioDiaSerializer(serializers.ModelSerializer):
     class Meta:
