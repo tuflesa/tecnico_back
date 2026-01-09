@@ -452,7 +452,7 @@ def guardar_paradas_agrupadas(request):
     return Response({"mensaje": "Paradas agrupadas correctamente"}, status=200)
 
 @api_view(["GET"])
-def leer_paradas(request):
+def leer_paradas_run(request):
     fecha_inicio = request.GET.get("fecha_inicio")
     fecha_fin = request.GET.get("fecha_fin")
     hora_inicio = request.GET.get("hora_inicio")
@@ -470,7 +470,7 @@ def leer_paradas(request):
     paradas = Parada.objects.annotate(
         inicio_min=Min('periodos__inicio'),
         fin_max=Max('periodos__fin')
-        ).filter(zona = id, inicio_min__gt=inicio, fin_max__lt=fin)
+        ).filter(zona=id, codigo__siglas='RUN', inicio_min__gt=inicio, fin_max__lt=fin)
     
     serializer = ParadaSerializer(paradas, many=True)
     return Response(serializer.data)
