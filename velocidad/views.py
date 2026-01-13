@@ -81,11 +81,13 @@ class HorarioDiaViewSet(viewsets.ModelViewSet):
 
 def estado_maquina(request, id):
     fecha_str = request.GET.get('fecha')
+    fecha_fin_str = request.GET.get('fecha_fin')
     hora_inicio_str = request.GET.get('hora_inicio')
     hora_fin_str = request.GET.get('hora_fin')
 
     try:
         fecha = datetime.strptime(fecha_str, '%Y-%m-%d').date()
+        fecha_fin = datetime.strptime(fecha_fin_str, '%Y-%m-%d').date()
         hora_inicio = datetime.strptime(hora_inicio_str, '%H:%M').time()
         hora_fin = datetime.strptime(hora_fin_str, '%H:%M').time()
     except (ValueError, TypeError):
@@ -104,21 +106,33 @@ def estado_maquina(request, id):
     from itertools import chain
 
     # Consulta principal
-    registros = Registro.objects.filter(
-        fecha=fecha,
-        hora__gte=hora_inicio,
-        hora__lte=hora_fin,
-        zona=id
-    ).order_by('hora')
+    if fecha == fecha_fin:
+        # Mismo día: filtrar solo por horas
+        registros = Registro.objects.filter(
+            zona=id,
+            fecha=fecha,
+            hora__gte=hora_inicio,
+            hora__lte=hora_fin
+        ).order_by('fecha', 'hora')
+    else:
+        # Rango de días
+        registros = Registro.objects.filter(
+            zona=id
+        ).filter(
+            Q(fecha__gt=fecha, fecha__lt=fecha_fin) |
+            Q(fecha=fecha, hora__gte=hora_inicio) |
+            Q(fecha=fecha_fin, hora__lte=hora_fin)
+        ).order_by('fecha', 'hora')
+
 
     # Obtener el registro anterior si hay resultados
     anterior = Registro.objects.filter(
         zona=id
-        ).filter(
-            # Fecha anterior o misma fecha con hora menor
-            Q(fecha__lt=fecha) |
-            Q(fecha=fecha, hora__lt=hora_inicio)
-        ).order_by('-fecha', '-hora').first()
+    ).filter(
+        Q(fecha__lt=fecha) |
+        Q(fecha=fecha, hora__lt=hora_inicio)
+    ).order_by('-fecha', '-hora').first()
+
 
     if anterior:
         registros = list(chain([anterior], registros))
@@ -136,10 +150,13 @@ def estado_maquina(request, id):
     # Flejes fabricados
     siglas = maquina.zona.siglas.upper()
     resultado = Flejes.objects.filter(
-        Q(maquina_siglas=siglas, fecha_entrada=fecha, hora_entrada__range=[hora_inicio, hora_fin]) | 
-        Q(maquina_siglas=siglas, fecha_salida=fecha, hora_salida__range=[hora_inicio, hora_fin]) |
-        Q(maquina_siglas=siglas, fecha_entrada__isnull= False, hora_entrada__isnull=False, fecha_salida__isnull=True, hora_salida__isnull=True)
+        maquina_siglas=siglas
+    ).filter(
+        Q(fecha_entrada__gte=fecha, fecha_entrada__lte=fecha_fin) |
+        Q(fecha_salida__gte=fecha, fecha_salida__lte=fecha_fin) |
+        Q(fecha_entrada__lte=fecha_fin, fecha_salida__isnull=True)  # En proceso
     ).distinct().order_by('-fecha_entrada', '-hora_entrada')
+
     # Serializar resultados
     flejes = [{
         'id': f.id,
@@ -192,7 +209,8 @@ def estado_maquina(request, id):
     inicio_str = fecha_str + ' ' + hora_inicio_str
     inicio_dt = datetime.strptime(inicio_str, "%Y-%m-%d %H:%M")
     inicio_dt = timezone.make_aware(inicio_dt, timezone.utc)
-    fin_str = fecha_str + ' ' + hora_fin_str
+
+    fin_str = fecha_fin_str + ' ' + hora_fin_str
     fin_dt = datetime.strptime(fin_str, "%Y-%m-%d %H:%M")
     fin_dt = timezone.make_aware(fin_dt, timezone.utc)
     resultado = Parada.objects.filter(
