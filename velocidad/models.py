@@ -4,6 +4,7 @@ from estructura.models import Zona
 from datetime import datetime
 from django.db.models import Min, Max
 from django.utils import timezone
+from mantenimiento.models import ParteTrabajo
 
 class ZonaPerfilVelocidad(models.Model):
     zona = models.OneToOneField(Zona, on_delete=models.CASCADE)
@@ -60,6 +61,7 @@ class CodigoParada(models.Model):
 class Parada(models.Model):
     codigo = models.ForeignKey(CodigoParada, on_delete=models.CASCADE, related_name='paradas')
     zona = models.ForeignKey(Zona, on_delete=models.CASCADE, related_name='paradas')
+    observaciones = models.CharField(max_length=500, blank=True, null=True)
 
     def inicio(self):
         return self.periodos.aggregate(Min('inicio'))['inicio__min']

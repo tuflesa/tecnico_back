@@ -441,6 +441,7 @@ def guardar_paradas_agrupadas(request):
     tipo_parada_id = request.data.get("tipo_parada_id")
     codigo_parada_id = request.data.get("codigo_parada_id")
     paradas = request.data.get("paradas")
+    observaciones = request.data.get("observaciones")
     tipo_parada = TipoParada.objects.get(id=tipo_parada_id)
     codigo_parada = CodigoParada.objects.get(id=codigo_parada_id)
 
