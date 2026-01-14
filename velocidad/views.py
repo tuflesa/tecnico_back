@@ -105,25 +105,13 @@ def estado_maquina(request, id):
     # Registros de velocidad
     from itertools import chain
 
-    # Consulta principal
-    if fecha == fecha_fin:
-        # Mismo día: filtrar solo por horas
-        registros = Registro.objects.filter(
-            zona=id,
-            fecha=fecha,
-            hora__gte=hora_inicio,
-            hora__lte=hora_fin
-        ).order_by('fecha', 'hora')
-    else:
-        # Rango de días
-        registros = Registro.objects.filter(
-            zona=id
-        ).filter(
-            Q(fecha__gt=fecha, fecha__lt=fecha_fin) |
-            Q(fecha=fecha, hora__gte=hora_inicio) |
-            Q(fecha=fecha_fin, hora__lte=hora_fin)
-        ).order_by('fecha', 'hora')
-
+    registros = Registro.objects.filter(
+    zona=id
+    ).filter(
+        Q(fecha__gte=fecha, fecha__lte=fecha_fin) |
+        Q(fecha=fecha, hora__gte=hora_inicio) |
+        Q(fecha=fecha_fin, hora__lte=hora_fin)
+    ).order_by('fecha', 'hora')
 
     # Obtener el registro anterior si hay resultados
     anterior = Registro.objects.filter(
