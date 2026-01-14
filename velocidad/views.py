@@ -451,10 +451,10 @@ def guardar_paradas_agrupadas(request):
 
     if tipo_parada.nombre == 'Cambio':
         primera_id = paradas[0]['id']       
-        Parada.objects.filter(id=primera_id).update(codigo=codigo_parada)
+        Parada.objects.filter(id=primera_id).update(codigo=codigo_parada, observaciones=observaciones)
         Periodo.objects.filter(parada__in=ids).update(parada=primera_id)
     else:
-        Parada.objects.filter(id__in=ids).update(codigo=codigo_parada)
+        Parada.objects.filter(id__in=ids).update(codigo=codigo_parada, observaciones=observaciones)
 
     return Response({"mensaje": "Paradas agrupadas correctamente"}, status=200)
 
