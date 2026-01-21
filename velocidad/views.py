@@ -1,8 +1,8 @@
 from rest_framework import viewsets
 from django.http import JsonResponse
 from django_filters import rest_framework as filters
-from .serializers import RegistroSerializer, ZonaPerfilVelocidadSerilizer, HorarioDiaSerializer, TipoParadaSerializer, CodigoParadaSerializer, ParadaSerializer
-from .models import Registro, ZonaPerfilVelocidad, Parada, CodigoParada, Periodo, HorarioDia, TipoParada, Periodo
+from .serializers import RegistroSerializer, ZonaPerfilVelocidadSerilizer, HorarioDiaSerializer, TipoParadaSerializer, CodigoParadaSerializer, ParadaSerializer, DestrezasVelocidadSerializer
+from .models import Registro, ZonaPerfilVelocidad, Parada, CodigoParada, Periodo, HorarioDia, TipoParada, Periodo, DestrezasVelocidad
 from estructura.models import Zona
 from trazabilidad.models import Flejes
 from django.forms.models import model_to_dict
@@ -15,6 +15,14 @@ from rest_framework.response import Response
 from .calendario import generar_horario_anual
 
 
+class DestrezasVelocidadFilter(filters.FilterSet):
+    class Meta:
+        model = DestrezasVelocidad
+        fields = {
+            'nombre': ['icontains'],
+            'nombre': ['exact'],
+            'id': ['exact'],
+        }
 class RegistroFilter(filters.FilterSet):
     class Meta:
         model = Registro
@@ -78,6 +86,11 @@ class HorarioDiaViewSet(viewsets.ModelViewSet):
     serializer_class = HorarioDiaSerializer
     queryset = HorarioDia.objects.all()
     filterset_class = HorarioDiaFilter
+
+class DestrezasVelocidadViewSet(viewsets.ModelViewSet):
+    serializer_class = DestrezasVelocidadSerializer
+    queryset = DestrezasVelocidad.objects.all()
+    filterset_class = DestrezasVelocidadFilter
 
 def estado_maquina(request, id):
     fecha_str = request.GET.get('fecha')
@@ -212,7 +225,8 @@ def estado_maquina(request, id):
         'inicio': p.inicio().strftime("%Y-%m-%d %H:%M:%S") if p.inicio else None,
         'fin': p.fin().strftime("%Y-%m-%d %H:%M:%S") if p.fin else None,
         'duracion': p.duracion(),
-        'color': p.codigo.tipo.color
+        'color': p.codigo.tipo.color,
+        'observaciones': p.observaciones 
     } for p in resultado]
     
     data = {

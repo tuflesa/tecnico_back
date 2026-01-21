@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import ZonaPerfilVelocidad, Registro, TipoParada, CodigoParada, Parada, Periodo, HorarioDia
+from .models import ZonaPerfilVelocidad, Registro, TipoParada, CodigoParada, Parada, Periodo, HorarioDia, DestrezasVelocidad
 
 class ParadasAdmin(admin.ModelAdmin):
     # Añadimos los métodos al list_display
@@ -27,6 +27,7 @@ class HorarioDiaAdmin(admin.ModelAdmin):
 
 admin.site.register(ZonaPerfilVelocidad)
 admin.site.register(Registro)
+admin.site.register(DestrezasVelocidad)
 admin.site.register(TipoParada)
 admin.site.register(CodigoParada)
 admin.site.register(Parada, ParadasAdmin)

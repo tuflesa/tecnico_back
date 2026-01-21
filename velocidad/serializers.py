@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import ZonaPerfilVelocidad, Registro, Periodo, Parada, HorarioDia, TipoParada, CodigoParada
+from .models import ZonaPerfilVelocidad, Registro, Periodo, Parada, HorarioDia, TipoParada, CodigoParada, DestrezasVelocidad
 from estructura.serializers import ZonaSerializer
 
 class ZonaPerfilVelocidadSerilizer(serializers.ModelSerializer):
@@ -22,10 +22,18 @@ class ParadaSerializer(serializers.ModelSerializer):
     inicio = serializers.SerializerMethodField()
     fin = serializers.SerializerMethodField()
     duracion = serializers.SerializerMethodField()
+    codigo = serializers.SerializerMethodField()
+    color = serializers.SerializerMethodField()
 
     class Meta:
         model = Parada
-        fields = ['id', 'codigo', 'zona', 'inicio', 'fin', 'duracion']
+        fields = ['id', 'codigo', 'zona', 'observaciones', 'inicio', 'fin', 'duracion', 'color']
+    
+    def get_codigo(self, obj):
+        return obj.codigo.nombre
+    
+    def get_color(self, obj):
+        return obj.codigo.tipo.color
         
     def get_inicio(self, obj):
         return obj.inicio()
@@ -51,3 +59,8 @@ class CodigoParadaSerializer(serializers.ModelSerializer):
     class Meta:
         model = CodigoParada
         fields = '__all__'
+
+class DestrezasVelocidadSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = DestrezasVelocidad
+        fields = ['id', 'nombre']

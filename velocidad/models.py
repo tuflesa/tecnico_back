@@ -103,3 +103,9 @@ class HorarioDia(models.Model):
 
     def __str__(self):
         return f"{self.nombre_dia} {self.fecha} - {self.inicio}-{self.fin}" 
+
+class DestrezasVelocidad(models.Model): # Escritura, lectura, edicion....
+    nombre = models.CharField(max_length=50)
+
+    def __str__(self):
+        return self.nombre

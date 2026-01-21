@@ -3,6 +3,7 @@ from rest_framework import serializers
 from .models import Aplicacion, Perfil, Puesto, NivelAcceso
 from estructura.serializers import EmpresaSerializer, ZonaSerializer, SeccionSerializer
 #from mantenimiento.serializers import EspecialidadSerializer
+from velocidad.serializers import DestrezasVelocidadSerializer
 
 class AplicacionSerializer(serializers.ModelSerializer):
     class Meta:
@@ -25,9 +26,10 @@ class PerfilSerializer(serializers.ModelSerializer):
     seccion = SeccionSerializer(many=False) 
     puesto = PuestoSerializer(many=False)
     nivel_acceso = NivelAccesoSerializer(many=False)
+    destrezas_velocidad = DestrezasVelocidadSerializer(many=True, read_only=True)
     class Meta:
         model = Perfil
-        fields = ['usuario', 'empresa', 'zona', 'seccion', 'puesto', 'nivel_acceso', 'destrezas']
+        fields = ['usuario', 'empresa', 'zona', 'seccion', 'puesto', 'nivel_acceso', 'destrezas', 'destrezas_velocidad']
 
 
 class UserSerializer(serializers.ModelSerializer):
