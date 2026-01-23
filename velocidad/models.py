@@ -106,6 +106,7 @@ class HorarioDia(models.Model):
 
 class DestrezasVelocidad(models.Model): # Escritura, lectura, edicion....
     nombre = models.CharField(max_length=50)
+    descripcion = models.CharField(max_length=200, blank=True, null=True)
 
     def __str__(self):
         return self.nombre

@@ -18,6 +18,11 @@ class PeriodoSerializer(serializers.ModelSerializer):
         model = Periodo
         fields = '__all__'
 
+class ParadasActualizarSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Parada
+        fields = '__all__'
+
 class ParadaSerializer(serializers.ModelSerializer):
     inicio = serializers.SerializerMethodField()
     fin = serializers.SerializerMethodField()
