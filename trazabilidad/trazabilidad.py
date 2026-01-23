@@ -1,12 +1,14 @@
 import pyodbc
 import snap7
 from snap7.util import get_fstring, get_int, get_real, get_date, get_time, set_string, set_int, set_real, set_date, set_dint
+from snap7.util import get_bool
 from datetime import datetime
 # import time
 from rest_framework.decorators import api_view
 from django.http import HttpResponse
 from rest_framework.response import Response
-from .models import Acumulador, Flejes, Tubos
+from .models import Acumulador, Flejes, Tubos, OF
+from velocidad.models import Parada
 from django.db.models import Q
 
 # Constantes
@@ -213,6 +215,27 @@ def leerFlejesEnAcumuladores(request):
             flejes_of_siguiente = sorted(flejes_of_siguiente, key=lambda f: f['pos']) # Ordenamos por posición
 
             # Cambio de of
+            if (acc.ip):
+                IP = acc.ip
+                RACK = acc.rack
+                SLOT = acc.slot
+                DB = acc.db
+                plc = snap7.client.Client()
+                plc.connect(IP, RACK, SLOT)
+                data = plc.read_area(snap7.type.Areas.MK, 0, 11, 1)
+                cambio_OF = get_bool(data, 0, 2)
+                if (cambio_OF and len(flejes_of_siguiente)>0):
+                    next_of = flejes_of_siguiente[0]['of']
+                    if (OF.objects.filter(nombre=next_of).last() == None):
+                        ultima_parada = Parada.objects.filter(
+                                            zona=acc.zona,
+                                            codigo__siglas='UNKNOWN'
+                                        ).last()
+                        hora_cambio_OF = ultima_parada.inicio()
+                        OF.objects.filter(nombre=of_actual).update(fin=hora_cambio_OF)
+                        nueva_OF = OF.objects.create(nombre=next_of, inicio=hora_cambio_OF)                  
+                plc.disconnect()
+
             if len(flejes_of_actual) == 0 and len(flejes_of_siguiente)>0:
                 next_of = flejes_of_siguiente[0]['of']
                 flejes_of_siguiente = [f for f in flejes_of_siguiente if f['of'] == next_of]

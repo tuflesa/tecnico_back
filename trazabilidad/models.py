@@ -16,6 +16,11 @@ class Acumulador(models.Model):
     def __str__(self):
         return self.nombre
 
+class OF(models.Model):
+    numero = models.CharField(max_length=8)
+    inicio = models.DateTimeField()
+    fin = models.DateTimeField(null=True, blank=True)
+
 # Registra todos los flejes que entran en los acumuladores    
 class Flejes(models.Model):
     pos = models.IntegerField()
@@ -32,6 +37,7 @@ class Flejes(models.Model):
     fecha_salida = models.DateField(blank=True, null=True)
     hora_salida = models.TimeField(blank=True, null=True)
     finalizada = models.BooleanField(default=False)
+    orden = models.ForeignKey(OF, on_delete=models.SET_NULL, null=True, blank=True, related_name='flejes')
 
     def ancho(self):
         return int(self.IdArticulo[6:-3])
@@ -53,3 +59,5 @@ class Tubos(models.Model):
     n_tubos = models.IntegerField(default=0)
     largo = models.FloatField()
     fleje = models.ForeignKey(Flejes, on_delete=models.CASCADE, related_name='tubos')
+    dim1 = models.FloatField(null=True, blank=True) # 0 si el tubo es redondo, ancho en cuadrado o rectangular
+    dim2 = models.FloatField(null=True, blank=True) # diametro si es redondo, alto si es cuadrado o rectangular

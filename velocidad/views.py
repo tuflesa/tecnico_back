@@ -121,7 +121,7 @@ def estado_maquina(request, id):
     registros = Registro.objects.filter(
     zona=id
     ).filter(
-        Q(fecha__gte=fecha, fecha__lte=fecha_fin) |
+        Q(fecha__gt=fecha, fecha__lt=fecha_fin) |
         Q(fecha=fecha, hora__gte=hora_inicio) |
         Q(fecha=fecha_fin, hora__lte=hora_fin)
     ).order_by('fecha', 'hora')
