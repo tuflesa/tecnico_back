@@ -1,7 +1,7 @@
 from rest_framework import viewsets
 from django.http import JsonResponse
 from django_filters import rest_framework as filters
-from .serializers import RegistroSerializer, ZonaPerfilVelocidadSerilizer, HorarioDiaSerializer, TipoParadaSerializer, CodigoParadaSerializer, ParadaSerializer, DestrezasVelocidadSerializer
+from .serializers import RegistroSerializer, ZonaPerfilVelocidadSerilizer, HorarioDiaSerializer, TipoParadaSerializer, CodigoParadaSerializer, ParadaSerializer, DestrezasVelocidadSerializer, ParadasActualizarSerializer
 from .models import Registro, ZonaPerfilVelocidad, Parada, CodigoParada, Periodo, HorarioDia, TipoParada, Periodo, DestrezasVelocidad
 from estructura.models import Zona
 from trazabilidad.models import Flejes
@@ -61,6 +61,10 @@ class CodigoParadaFilter(filters.FilterSet):
         fields = {
             'nombre': ['icontains'],
         }
+
+class ParadaActualizarViewSet(viewsets.ModelViewSet):
+    serializer_class = ParadasActualizarSerializer
+    queryset = Parada.objects.all()
 
 class TipoParadaViewSet(viewsets.ModelViewSet):
     serializer_class = TipoParadaSerializer
@@ -222,11 +226,14 @@ def estado_maquina(request, id):
     paradas = [{
         'id': p.id,
         'codigo': p.codigo.nombre,
+        'codigo_id': p.codigo.id,
+        'tipo_parada_id':p.codigo.tipo.id,
         'inicio': p.inicio().strftime("%Y-%m-%d %H:%M:%S") if p.inicio else None,
         'fin': p.fin().strftime("%Y-%m-%d %H:%M:%S") if p.fin else None,
         'duracion': p.duracion(),
         'color': p.codigo.tipo.color,
-        'observaciones': p.observaciones 
+        'observaciones': p.observaciones,
+        'zona_id': p.zona.id,
     } for p in resultado]
     
     data = {
