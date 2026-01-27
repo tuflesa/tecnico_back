@@ -224,16 +224,30 @@ def leerFlejesEnAcumuladores(request):
                 plc.connect(IP, RACK, SLOT)
                 data = plc.read_area(snap7.type.Areas.MK, 0, 11, 1)
                 cambio_OF = get_bool(data, 0, 2)
-                if (cambio_OF and len(flejes_of_siguiente)>0 and flejes_of_siguiente[0]['pos']==1):
+
+                # Comprobar si el último fleje ha superado el 80% de su teorico
+                fl = Flejes.objects.filter(of=of_actual, finalizada=False)
+                if (len(fl) == 1):
+                    ultimo_fleje = fl[0]
+                    porcentaje = ultimo_fleje.metros_medido / ultimo_fleje.metros_teorico() 
+                    if (porcentaje > 0.8):
+                        ultimo_fleje_terminado =True
+                    else:
+                        ultimo_fleje_terminado = False
+                # Condicion de cambio de OF: señal desde el PLC que indica fleje cortado + ultimo fleje terminado + hay flejes preparados de la siguiente OF
+                if (cambio_OF and len(flejes_of_siguiente)>0 and ultimo_fleje_terminado):
+                    # Cierra la of actual
                     next_of = flejes_of_siguiente[0]['of']
-                    if (OF.objects.filter(nombre=next_of).last() == None):
-                        ultima_parada = Parada.objects.filter(
+                    ultima_parada = Parada.objects.filter(
                                             zona=acc.zona,
                                             codigo__siglas='UNKNOWN'
                                         ).last()
-                        hora_cambio_OF = ultima_parada.inicio()
-                        OF.objects.filter(nombre=of_actual).update(fin=hora_cambio_OF)
-                        nueva_OF = OF.objects.create(nombre=next_of, inicio=hora_cambio_OF, zona=acc.zona)                  
+                    hora_cambio_OF = ultima_parada.inicio()
+                    OF.objects.filter(nombre=of_actual).update(fin=hora_cambio_OF)
+                    if (OF.objects.filter(nombre=next_of).last() == None): # Si aún no se ha creado la OF
+                        nueva_OF = OF.objects.create(nombre=next_of, inicio=hora_cambio_OF, zona=acc.zona)
+                    else: # Si ya está creada y hay flejes de esa of es que se ha vuelto a abrir
+                        print('TODO: Ver si se ha reabierto una OF ya creada ...')                  
                 plc.disconnect()
 
             if len(flejes_of_actual) == 0 and len(flejes_of_siguiente)>0:
