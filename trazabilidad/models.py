@@ -46,6 +46,10 @@ class Flejes(models.Model):
     def espesor(self):
         return float(self.IdArticulo[9:])/10.0
     
+    def calidadSTR(self):
+        array = self.descripcion.split()
+        return array[1]
+    
     def metros_teorico(self):
         metros = (self.peso *1000) / (self.espesor() * self.ancho() * 7.85)
         return metros
@@ -62,3 +66,17 @@ class Tubos(models.Model):
     fleje = models.ForeignKey(Flejes, on_delete=models.CASCADE, related_name='tubos')
     dim1 = models.FloatField(null=True, blank=True) # 0 si el tubo es redondo, ancho en cuadrado o rectangular
     dim2 = models.FloatField(null=True, blank=True) # diametro si es redondo, alto si es cuadrado o rectangular
+
+    def descripcion(self):
+        if self.dim1 == 0: #Tubo redondo
+            tipo_tubo = 'Red. ' + str(self.dim2)
+        else: # Tubo cuadrado o rectangular
+            if (self.dim1 == self.dim2): # Cuadrado
+                tipo_tubo = 'Cuad. ' + str(self.dim1) + ' x ' + str(self.dim2)
+            else:
+                tipo_tubo = 'Rect. ' + str(self.dim1) + ' x ' + str(self.dim2)
+
+        return tipo_tubo + ' x ' + str(self.fleje.espesor()) + self.fleje.calidadSTR()  + ' x ' + self.largo
+    
+    def __str__(self):
+        return self.descripcion()
