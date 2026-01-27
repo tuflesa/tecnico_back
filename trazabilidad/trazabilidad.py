@@ -15,7 +15,7 @@ from django.db.models import Q
 DEBUG = False
 ULTIMO_FLEJE = 0
 FLEJE_SIZE = 98
-TUBO_SIZE = 30
+TUBO_SIZE = 38
 FIFO_POS = 196
 FLEJE_ACTUAL = 98
 FLEJE_NULO = {
@@ -32,7 +32,9 @@ TUBO_NULO = {
     'pos': 0,
     'idProduccion': '',
     'largo': 0,
-    'nTubos':0
+    'nTubos':0,
+    'base': 0,
+    'altura': 0
 }
 
 # Funcion auxiliar para adecuar el formato del PLC a la BD
@@ -53,7 +55,9 @@ def leerTubosPLC(data, pos):
         'pos': get_int(data, pos+10),
         'idProduccion': get_fstring(data, pos+14, 10, False),
         'largo': get_real(data, pos+24),
-        'n_tubos': get_int(data, pos+28)
+        'n_tubos': get_int(data, pos+28),
+        'base': get_real(data, pos+30),
+        'altura': get_real(data, pos + 34)
     }
     return tubo
 
@@ -98,6 +102,8 @@ def reset_tuboPLC(tubo):
     set_string(to_PLC, 12, tubo['idProduccion'], 10)
     set_real(to_PLC, 24, tubo['largo'])
     set_int(to_PLC, 28, tubo['nTubos'])
+    set_real(to_PLC, 30, tubo['base'])
+    set_real(to_PLC, 34, tubo['altura'])
 
     return to_PLC
 
@@ -214,16 +220,16 @@ def leerFlejesEnAcumuladores(request):
             flejes_of_siguiente = [f for f in flejes_maquina if f['of'] != of_actual]
             flejes_of_siguiente = sorted(flejes_of_siguiente, key=lambda f: f['pos']) # Ordenamos por posición
 
-            # Cambio de of
             if (acc.ip):
+                # Cambio de of
                 IP = acc.ip
                 RACK = acc.rack
                 SLOT = acc.slot
                 DB = acc.db
                 plc = snap7.client.Client()
                 plc.connect(IP, RACK, SLOT)
-                data = plc.read_area(snap7.type.Areas.MK, 0, 11, 1)
-                cambio_OF = get_bool(data, 0, 2)
+                data = plc.read_area(snap7.type.Areas.DB, DB, 820, 1)
+                cambio_OF = get_bool(data, 0, 0)
 
                 # Comprobar si el último fleje ha superado el 80% de su teorico
                 fl = Flejes.objects.filter(of=of_actual, finalizada=False)
@@ -317,48 +323,50 @@ def leerFlejesEnAcumuladores(request):
                 plc = snap7.client.Client()
                 plc.connect(IP, RACK, SLOT)
 
-                from_PLC = plc.db_read(DB,0,775)
+                from_PLC = plc.db_read(DB,0,820)
                 ultimo_flejePLC = leerFlejePLC(from_PLC,ULTIMO_FLEJE)
                 fleje_ActualPLC = leerFlejePLC(from_PLC,FLEJE_ACTUAL)
                 # Leer ultimo tubo del PLC
                 ultimo_tubo = leerTubosPLC(from_PLC, 590)
-                tubo_actual = leerTubosPLC(from_PLC, 620)
+                tubo_actual = leerTubosPLC(from_PLC, 628)
 
                 last_t = Tubos.objects.filter(fleje__acumulador__id=acc.id).order_by('id').last()
                 if last_t == None:
                     print('No hay tubos ...')
                     fl = Flejes.objects.filter(of=ultimo_tubo['of'], pos=ultimo_tubo['pos'], idProduccion=ultimo_tubo['idProduccion']).last()
                     if fl != None:
-                        new_t = Tubos(n_tubos=ultimo_tubo['n_tubos'] , largo=ultimo_tubo['largo'], fleje= fl)
+                        new_t = Tubos(n_tubos=ultimo_tubo['n_tubos'] , largo=ultimo_tubo['largo'], fleje= fl, dim1=ultimo_tubo['base'], dim2=ultimo_tubo['altura'])
                         new_t.save()
                     fl = Flejes.objects.filter(of=tubo_actual['of'], pos=tubo_actual['pos'], idProduccion=tubo_actual['idProduccion']).last()
                     if fl != None:
-                        new_t = Tubos(n_tubos=tubo_actual['n_tubos'] , largo=tubo_actual['largo'], fleje= fl)
+                        new_t = Tubos(n_tubos=tubo_actual['n_tubos'] , largo=tubo_actual['largo'], fleje= fl, dim1=tubo_actual['base'], dim2=tubo_actual['altura'])
                         new_t.save()
                 else:
                     print('Hay tubos')
                     print('last_t', last_t.largo)
                     if (last_t.fleje.of == ultimo_tubo['of'] and last_t.fleje.pos == ultimo_tubo['pos']
-                        and last_t.fleje.idProduccion == ultimo_tubo['idProduccion'] and last_t.largo == ultimo_tubo['largo']):
+                        and last_t.fleje.idProduccion == ultimo_tubo['idProduccion'] and last_t.largo == ultimo_tubo['largo']
+                        and last_t.dim1 == ultimo_tubo['base'] and last_t.dim2 == ultimo_tubo['altura']):
                         print('actualizar ultimo tubo y crear uno nuevo')
                         last_t.n_tubos = ultimo_tubo['n_tubos']
                         last_t.save()
                         fl = Flejes.objects.filter(of=tubo_actual['of'], pos=tubo_actual['pos'], idProduccion=tubo_actual['idProduccion']).last()
                         if fl != None:
-                            new_t = Tubos(n_tubos=tubo_actual['n_tubos'] , largo=tubo_actual['largo'], fleje= fl)
+                            new_t = Tubos(n_tubos=tubo_actual['n_tubos'] , largo=tubo_actual['largo'], fleje= fl, dim1=tubo_actual['base'], dim2=tubo_actual['altura'])
                             new_t.save()
                     else:
                         if (last_t.fleje.of == tubo_actual['of'] and last_t.fleje.pos == tubo_actual['pos']
-                            and last_t.fleje.idProduccion == tubo_actual['idProduccion'] and last_t.largo == tubo_actual['largo']):
+                            and last_t.fleje.idProduccion == tubo_actual['idProduccion'] and last_t.largo == tubo_actual['largo']
+                            and last_t.dim1 == tubo_actual['base'] and last_t.dim2 == tubo_actual['altura']):
                             print('Actualizar tubo actual')
                             last_t.n_tubos = tubo_actual['n_tubos']
-                            last_t.largo = tubo_actual['largo']
+                            last_t.largo = tubo_actual['largo'] 
                             last_t.save()
                         else:
                             print('Se crea un nuevo tubo si hay flejes ...')
                             fl = Flejes.objects.filter(of=tubo_actual['of'], pos=tubo_actual['pos'], idProduccion=tubo_actual['idProduccion']).last()
                             if fl != None:
-                                new_t = Tubos(n_tubos=tubo_actual['n_tubos'] , largo=tubo_actual['largo'], fleje= fl)
+                                new_t = Tubos(n_tubos=tubo_actual['n_tubos'] , largo=tubo_actual['largo'], fleje= fl, dim1=tubo_actual['base'], dim2=tubo_actual['altura']))
                                 new_t.save()
                 
                 flejeActualPLC_valido = False
@@ -443,14 +451,18 @@ def resetPLC(request):
         'pos': fleje['pos'],
         'idProduccion': fleje['idProduccion'],
         'largo': 0,
-        'nTubos':0
+        'nTubos':0,
+        'base': 0,
+        'altura':0
     }
     tubo2 = {
         'of': fleje['of'],
         'pos': fleje['pos'],
         'idProduccion': fleje['idProduccion'],
         'largo': 6000.0,
-        'nTubos':0
+        'nTubos':0,
+        'base': 0,
+        'altura':0
     }
     acumulador = Acumulador.objects.get(pk = fleje['acumulador'])
 
