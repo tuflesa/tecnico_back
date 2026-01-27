@@ -18,6 +18,7 @@ class Acumulador(models.Model):
 
 class OF(models.Model):
     numero = models.CharField(max_length=8)
+    zona = models.ForeignKey(Zona, on_delete=models.CASCADE, null=True)
     inicio = models.DateTimeField()
     fin = models.DateTimeField(null=True, blank=True)
 
