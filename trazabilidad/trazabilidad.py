@@ -366,7 +366,7 @@ def leerFlejesEnAcumuladores(request):
                             print('Se crea un nuevo tubo si hay flejes ...')
                             fl = Flejes.objects.filter(of=tubo_actual['of'], pos=tubo_actual['pos'], idProduccion=tubo_actual['idProduccion']).last()
                             if fl != None:
-                                new_t = Tubos(n_tubos=tubo_actual['n_tubos'] , largo=tubo_actual['largo'], fleje= fl, dim1=tubo_actual['base'], dim2=tubo_actual['altura']))
+                                new_t = Tubos(n_tubos=tubo_actual['n_tubos'] , largo=tubo_actual['largo'], fleje= fl, dim1=tubo_actual['base'], dim2=tubo_actual['altura'])
                                 new_t.save()
                 
                 flejeActualPLC_valido = False
