@@ -233,7 +233,7 @@ def leerFlejesEnAcumuladores(request):
                                         ).last()
                         hora_cambio_OF = ultima_parada.inicio()
                         OF.objects.filter(nombre=of_actual).update(fin=hora_cambio_OF)
-                        nueva_OF = OF.objects.create(nombre=next_of, inicio=hora_cambio_OF)                  
+                        nueva_OF = OF.objects.create(nombre=next_of, inicio=hora_cambio_OF, zona=acc.zona)                  
                 plc.disconnect()
 
             if len(flejes_of_actual) == 0 and len(flejes_of_siguiente)>0:
