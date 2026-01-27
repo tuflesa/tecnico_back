@@ -224,7 +224,7 @@ def leerFlejesEnAcumuladores(request):
                 plc.connect(IP, RACK, SLOT)
                 data = plc.read_area(snap7.type.Areas.MK, 0, 11, 1)
                 cambio_OF = get_bool(data, 0, 2)
-                if (cambio_OF and len(flejes_of_siguiente)>0):
+                if (cambio_OF and len(flejes_of_siguiente)>0 and flejes_of_siguiente[0]['pos']==1):
                     next_of = flejes_of_siguiente[0]['of']
                     if (OF.objects.filter(nombre=next_of).last() == None):
                         ultima_parada = Parada.objects.filter(
