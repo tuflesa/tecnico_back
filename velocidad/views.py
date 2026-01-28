@@ -1,7 +1,7 @@
 from rest_framework import viewsets
 from django.http import JsonResponse
 from django_filters import rest_framework as filters
-from .serializers import RegistroSerializer, ZonaPerfilVelocidadSerilizer, HorarioDiaSerializer, TipoParadaSerializer, CodigoParadaSerializer, ParadaSerializer, DestrezasVelocidadSerializer, ParadasActualizarSerializer
+from .serializers import RegistroSerializer, ZonaPerfilVelocidadSerilizer, HorarioDiaSerializer, TipoParadaSerializer, CodigoParadaSerializer, ParadaSerializer, DestrezasVelocidadSerializer, ParadasActualizarSerializer, ParadasCrearSerializer
 from .models import Registro, ZonaPerfilVelocidad, Parada, CodigoParada, Periodo, HorarioDia, TipoParada, Periodo, DestrezasVelocidad
 from estructura.models import Zona
 from trazabilidad.models import Flejes
@@ -64,6 +64,10 @@ class CodigoParadaFilter(filters.FilterSet):
 
 class ParadaActualizarViewSet(viewsets.ModelViewSet):
     serializer_class = ParadasActualizarSerializer
+    queryset = Parada.objects.all()
+
+class ParadaCrearViewSet(viewsets.ModelViewSet):
+    serializer_class = ParadasCrearSerializer
     queryset = Parada.objects.all()
 
 class TipoParadaViewSet(viewsets.ModelViewSet):
@@ -228,7 +232,10 @@ def estado_maquina(request, id):
     resultado = Parada.objects.filter(
         Q(zona=id, periodos__inicio__gte=inicio_dt, periodos__inicio__lte=fin_dt) |
         Q(zona=id, periodos__fin__gte=inicio_dt, periodos__fin__lte=fin_dt) 
-    ).distinct().order_by('-id')
+    ).annotate(
+    # Para que no repita por cada periodo la parada ya que pueden estar unidas y ser la misma
+    fecha_referencia=Min('periodos__inicio')
+    ).distinct().order_by('-fecha_referencia')
 
     paradas = [{
         'id': p.id,
@@ -473,18 +480,39 @@ def guardar_paradas_agrupadas(request):
     tipo_parada = TipoParada.objects.get(id=tipo_parada_id)
     codigo_parada = CodigoParada.objects.get(id=codigo_parada_id)
 
-    ids = []
-    for parada in paradas:
-        ids.append(int(parada['id']))
+    tipo_parada = TipoParada.objects.get(id=tipo_parada_id)
+    codigo_parada = CodigoParada.objects.get(id=codigo_parada_id)
 
-    if tipo_parada.nombre == 'Cambio':
-        primera_id = paradas[0]['id']       
-        Parada.objects.filter(id=primera_id).update(codigo=codigo_parada, observaciones=observaciones)
+    # Creamos la lista de todos los IDs seleccionados
+    ids = [int(parada['id']) for parada in paradas]
+
+    if tipo_parada.nombre == 'Cambio' and len(ids) > 0:
+        primera_id = ids[0]
+        # IDs restantes son todos los de la lista menos el primero
+        ids_a_eliminar = ids[1:] 
+        
+        # 1. Actualizamos la parada principal
+        Parada.objects.filter(id=primera_id).update(
+            codigo=codigo_parada, 
+            observaciones=observaciones
+        )
+        
+        # 2. Reasignamos todos los periodos de las otras paradas a la primera
+        # Esto evita que los periodos se borren si tienen una relación de Cascada
         Periodo.objects.filter(parada__in=ids).update(parada=primera_id)
+        
+        # 3. Borramos las paradas que ya no tienen periodos asociados
+        if ids_a_eliminar:
+            Parada.objects.filter(id__in=ids_a_eliminar).delete()
+            
     else:
-        Parada.objects.filter(id__in=ids).update(codigo=codigo_parada, observaciones=observaciones)
+        # Si no es "Cambio", solo actualizamos la información de todas
+        Parada.objects.filter(id__in=ids).update(
+            codigo=codigo_parada, 
+            observaciones=observaciones
+        )
 
-    return Response({"mensaje": "Paradas agrupadas correctamente"}, status=200)
+    return Response({"mensaje": "Paradas procesadas y limpieza realizada"}, status=200)
 
 @api_view(["GET"])
 def leer_paradas_run(request):
