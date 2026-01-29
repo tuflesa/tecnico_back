@@ -259,8 +259,10 @@ def estado_maquina(request, id):
             )
     # OF Actual
     OF_actual = OF.objects.filter(zona=id).last()
-    current_of = OF_actual.numero if OF_actual.numero else fleje_act.of
-    
+    if (OF_actual == None):
+        current_of =  fleje_act.of
+    else:
+        current_of = OF_actual.numero
 
     estado_act = {
         'velocidad':  float(estado_act.velocidad),
