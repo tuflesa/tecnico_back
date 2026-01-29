@@ -75,9 +75,9 @@ class Tubos(models.Model):
             tipo_tubo = 'Red. ' + f"{self.dim2:.1f}"
         else: # Tubo cuadrado o rectangular
             if (self.dim1 == self.dim2): # Cuadrado
-                tipo_tubo = 'Cuad. ' + f"{self.dim1:.1f}" + ' x ' + f"{self.dim2:.1f}"
+                tipo_tubo = 'Cuad. ' + str(self.dim1) + ' x ' + str(self.dim2) #f"{self.dim1:.1f}" + ' x ' + f"{self.dim2:.1f}"
             else:
-                tipo_tubo = 'Rect. ' + f"{self.dim1:.1f}" + ' x ' + f"{self.dim2:.1f}"
+                tipo_tubo = 'Rect. ' + + str(self.dim1) + ' x ' + str(self.dim2) # f"{self.dim1:.1f}" + ' x ' + f"{self.dim2:.1f}"
 
         return tipo_tubo + ' x ' + str(self.fleje.espesor()) + ' - ' + self.fleje.calidadSTR()  + ' x ' + f"{self.largo:.0f}"
     
