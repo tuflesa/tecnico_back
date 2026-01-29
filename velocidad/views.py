@@ -167,8 +167,9 @@ def estado_maquina(request, id):
     resultado = OF.objects.filter(
         zona=id
     ).filter(
-        Q(inicio__gt=fecha, fin__lt=fecha_fin) |
+        Q(inicio__gte=fecha, fin__lte=fecha_fin) |
         Q(fin__gte=fecha, fin__lte=fecha_fin) |
+        Q(inicio__gte=fecha, inicio__lte=fecha_fin) |
         Q(inicio__lte=fecha_fin, fin__isnull=True) 
     ).distinct().order_by('-inicio')
     # Serializar resultados
@@ -185,6 +186,7 @@ def estado_maquina(request, id):
     ).filter(
         Q(fecha_entrada__gte=fecha, fecha_entrada__lte=fecha_fin) |
         Q(fecha_salida__gte=fecha, fecha_salida__lte=fecha_fin) |
+        Q(fecha_entrada__gte=fecha, fecha_entrada__lte=fecha_fin) |
         Q(fecha_entrada__lte=fecha_fin, fecha_salida__isnull=True)  # En proceso
     ).distinct().order_by('-fecha_entrada', '-hora_entrada')
     # Serializar resultados
