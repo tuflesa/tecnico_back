@@ -163,6 +163,21 @@ def estado_maquina(request, id):
         'presion': float(r.presion)
     } for r in registros]
 
+    # Ordenes de fabricación
+    resultado = OF.objects.filter(
+        zona=id
+    ).filter(
+        Q(inicio__gt=fecha, fin__lt=fecha_fin) |
+        Q(fin__gte=fecha, fin__lte=fecha_fin) |
+        Q(inicio__lte=fecha_fin, fin__isnull=True) 
+    ).distinct().order_by('-inicio')
+    # Serializar resultados
+    OFs = [{
+        'numero': of.numero,
+        'inicio': of.inicio.isoformat() if of.inicio else None,
+        'fin': of.fin.isoformat() if of.fin else None
+    } for of in resultado]
+
     # Flejes fabricados
     siglas = maquina.zona.siglas.upper()
     resultado = Flejes.objects.filter(
@@ -172,7 +187,6 @@ def estado_maquina(request, id):
         Q(fecha_salida__gte=fecha, fecha_salida__lte=fecha_fin) |
         Q(fecha_entrada__lte=fecha_fin, fecha_salida__isnull=True)  # En proceso
     ).distinct().order_by('-fecha_entrada', '-hora_entrada')
-
     # Serializar resultados
     flejes = [{
         'id': f.id,
@@ -208,9 +222,7 @@ def estado_maquina(request, id):
         Q(fleje__fecha_salida__gte=fecha, fleje__fecha_salida__lte=fecha_fin) |
         Q(fleje__fecha_entrada__lte=fecha_fin, fleje__fecha_salida__isnull=True) 
     ).distinct().order_by('-fleje__fecha_entrada', '-fleje__hora_entrada')
-
     # Serializar resultados
-    
     tubos = [{
         'descripcion': t.descripcion(),
         'n_tubos': t.n_tubos
@@ -298,7 +310,8 @@ def estado_maquina(request, id):
         "flejes": flejes,
         "estado_act": estado_act,
         "paradas": paradas,
-        "tubos": tubos
+        "tubos": tubos,
+        "OFs": OFs
     }
     return JsonResponse(data)
 
