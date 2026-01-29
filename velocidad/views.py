@@ -4,7 +4,7 @@ from django_filters import rest_framework as filters
 from .serializers import RegistroSerializer, ZonaPerfilVelocidadSerilizer, HorarioDiaSerializer, TipoParadaSerializer, CodigoParadaSerializer, ParadaSerializer, DestrezasVelocidadSerializer, ParadasActualizarSerializer, ParadasCrearSerializer
 from .models import Registro, ZonaPerfilVelocidad, Parada, CodigoParada, Periodo, HorarioDia, TipoParada, Periodo, DestrezasVelocidad
 from estructura.models import Zona
-from trazabilidad.models import Flejes, Tubos
+from trazabilidad.models import Flejes, Tubos, OF
 from django.forms.models import model_to_dict
 from django.db.models import Q
 from django.db.models import Min, Max
@@ -218,6 +218,14 @@ def estado_maquina(request, id):
     
 
     # Estado actual
+    # OF Actual
+    OF_actual = OF.object.filter(zona=id).last()
+    if (OF_actual == None):
+        current_of = OF_actual.numero
+    else:
+        current_of = fleje_act.of
+
+    # Fleje y Tubo actual
     estado_act = Registro.objects.filter(zona=id).last()
     fleje_act = Flejes.objects.filter(maquina_siglas=siglas, fecha_salida__isnull=True).order_by('-fecha_entrada', '-hora_entrada').last()
     if (fleje_act == None):
@@ -248,7 +256,7 @@ def estado_maquina(request, id):
         'potencia': float(estado_act.potencia),
         'frecuencia': float(estado_act.frecuencia),
         'fuerza': float(estado_act.presion),
-        'of': fleje_act.of,
+        'of': current_of,
         'fleje_pos': fleje_act.pos,
         'fleje_descripcion': fleje_act.descripcion,
         'n_tubos': tubo_act.n_tubos,

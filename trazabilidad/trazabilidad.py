@@ -234,14 +234,6 @@ def leerFlejesEnAcumuladores(request):
                 # Comprobar si el último fleje ha superado el 80% de su teorico
                 fl = Flejes.objects.filter(of=of_actual, finalizada=False).order_by('pos')
 
-                # Borrar
-                print(f'Cambio_OF leido del PLC: {cambio_OF}')
-                ultimo_fleje = fl[0]
-                porcentaje = ultimo_fleje.metros_medido / ultimo_fleje.metros_teorico()
-                print(f'ultimo fleje: {ultimo_fleje.pos} - {ultimo_fleje.descripcion} porcentaje: {porcentaje}')
-                print(f'Nº de flejes de la siguiente OF {len(flejes_of_siguiente)}')
-                # Fin de borrar
-
                 if (len(fl) == 1):
                     ultimo_fleje = fl[0]
                     porcentaje = ultimo_fleje.metros_medido / ultimo_fleje.metros_teorico() 
