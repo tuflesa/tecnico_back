@@ -4,7 +4,7 @@ from django_filters import rest_framework as filters
 from .serializers import RegistroSerializer, ZonaPerfilVelocidadSerilizer, HorarioDiaSerializer, TipoParadaSerializer, CodigoParadaSerializer, ParadaSerializer, DestrezasVelocidadSerializer, ParadasActualizarSerializer, ParadasCrearSerializer
 from .models import Registro, ZonaPerfilVelocidad, Parada, CodigoParada, Periodo, HorarioDia, TipoParada, Periodo, DestrezasVelocidad
 from estructura.models import Zona
-from trazabilidad.models import Flejes
+from trazabilidad.models import Flejes, Tubos
 from django.forms.models import model_to_dict
 from django.db.models import Q
 from django.db.models import Min, Max
@@ -209,7 +209,12 @@ def estado_maquina(request, id):
             pos='',
             descripcion=''
         )
-
+    tubo_act = Tubos.objects.filter(fleje=fleje_act).last()
+    if(tubo_act == None):
+        tubo_act = SimpleNamespace(
+            n_tubos='',
+            descripcion=''
+        )
 
     estado_act = {
         'velocidad':  float(estado_act.velocidad),
@@ -218,7 +223,9 @@ def estado_maquina(request, id):
         'fuerza': float(estado_act.presion),
         'of': fleje_act.of,
         'fleje_pos': fleje_act.pos,
-        'fleje_descripcion': fleje_act.descripcion
+        'fleje_descripcion': fleje_act.descripcion,
+        'n_tubos': tubo_act.n_tubos,
+        'tubo_descripcion': tubo_act.descripcion()
     }
 
     # Paradas
