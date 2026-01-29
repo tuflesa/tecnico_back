@@ -232,7 +232,7 @@ def leerFlejesEnAcumuladores(request):
                 cambio_OF = get_bool(data, 0, 0)
 
                 # Comprobar si el último fleje ha superado el 80% de su teorico
-                fl = Flejes.objects.filter(of=of_actual, finalizada=False)
+                fl = Flejes.objects.filter(of=of_actual, finalizada=False).order_by('pos')
 
                 # Borrar
                 print(f'Cambio_OF leido del PLC: {cambio_OF}')
