@@ -200,7 +200,7 @@ def estado_maquina(request, id):
         } for t in f.tubos.all()]
     } for f in resultado]
 
-    # Flejes fabricados
+    # Tubos fabricados
     resultado = Tubos.objects.filter(
         fleje__maquina_siglas=siglas
     ).filter(
@@ -210,10 +210,12 @@ def estado_maquina(request, id):
     ).distinct().order_by('-fleje__fecha_entrada', '-fleje__hora_entrada')
 
     # Serializar resultados
+    
     tubos = [{
         'descripcion': t.descripcion(),
         'n_tubos': t.n_tubos
     } for t in resultado]
+    
 
     # Estado actual
     estado_act = Registro.objects.filter(zona=id).last()
@@ -225,12 +227,17 @@ def estado_maquina(request, id):
             pos='',
             descripcion=''
         )
-    tubo_act = Tubos.objects.filter(fleje=fleje_act).last()
-    if(tubo_act == None):
         tubo_act = SimpleNamespace(
             n_tubos='',
             descripcion=''
         )
+    else:
+        tubo_act = Tubos.objects.filter(fleje=fleje_act).last()
+        if(tubo_act == None):
+            tubo_act = SimpleNamespace(
+                n_tubos='',
+                descripcion=''
+            )
 
     estado_act = {
         'velocidad':  float(estado_act.velocidad),
