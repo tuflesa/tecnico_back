@@ -231,7 +231,7 @@ def estado_maquina(request, id):
 
     # Estado actual
     # OF Actual
-    OF_actual = OF.object.filter(zona=id).last()
+    OF_actual = OF.objects.filter(zona=id).last()
     if (OF_actual == None):
         current_of = OF_actual.numero
     else:
