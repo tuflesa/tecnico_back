@@ -195,9 +195,25 @@ def estado_maquina(request, id):
         'metros_tubo': f.metros_tubo(),
         'tubos': [{
             'n_tubos': t.n_tubos,
-            'largo': t.largo
+            'largo': t.largo,
+            'descripcion': t.descripcion()
         } for t in f.tubos.all()]
     } for f in resultado]
+
+    # Flejes fabricados
+    resultado = Tubos.objects.filter(
+        fleje__maquina_siglas=siglas
+    ).filter(
+        Q(fleje__fecha_entrada__gte=fecha, fleje__fecha_entrada__lte=fecha_fin) |
+        Q(fleje__fecha_salida__gte=fecha, fleje__fecha_salida__lte=fecha_fin) |
+        Q(fleje__fecha_entrada__lte=fecha_fin, fleje__fecha_salida__isnull=True) 
+    ).distinct().order_by('-fleje__fecha_entrada', '-fleje__hora_entrada')
+
+    # Serializar resultados
+    tubos = [{
+        'descripcion': t.descripcion(),
+        'n_tubos': t.n_tubos
+    } for t in resultado]
 
     # Estado actual
     estado_act = Registro.objects.filter(zona=id).last()
@@ -262,7 +278,8 @@ def estado_maquina(request, id):
         "registros": regs,
         "flejes": flejes,
         "estado_act": estado_act,
-        "paradas": paradas
+        "paradas": paradas,
+        "tubos": tubos
     }
     return JsonResponse(data)
 

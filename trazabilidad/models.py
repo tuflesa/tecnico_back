@@ -79,7 +79,7 @@ class Tubos(models.Model):
             else:
                 tipo_tubo = 'Rect. ' + f"{self.dim1:.1f}" + ' x ' + f"{self.dim2:.1f}"
 
-        return tipo_tubo + ' x ' + str(self.fleje.espesor()) + ' - ' + self.fleje.calidadSTR()  + ' x ' + str(self.largo)
+        return tipo_tubo + ' x ' + str(self.fleje.espesor()) + ' - ' + self.fleje.calidadSTR()  + ' x ' + f"{self.largo:.0f}"
     
     def __str__(self):
         return self.descripcion()
