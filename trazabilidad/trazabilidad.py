@@ -261,7 +261,7 @@ def leerFlejesEnAcumuladores(request):
                                         ).last()
                     hora_cambio_OF = ultima_parada.inicio()
                     print(f'Hora inicio OF {hora_cambio_OF}')
-                    OF.objects.filter(nuemro=of_actual).update(fin=hora_cambio_OF)
+                    OF.objects.filter(numero=of_actual).update(fin=hora_cambio_OF)
                     if (OF.objects.filter(numero=next_of).last() == None): # Si aún no se ha creado la OF
                         print('Crear OF ...')
                         nueva_OF = OF.objects.create(numero=next_of, inicio=hora_cambio_OF, zona=acc.zona)
