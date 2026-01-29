@@ -13,7 +13,7 @@ from django.utils import timezone
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from .calendario import generar_horario_anual
-
+from types import SimpleNamespace
 
 class DestrezasVelocidadFilter(filters.FilterSet):
     class Meta:
@@ -221,7 +221,6 @@ def estado_maquina(request, id):
     estado_act = Registro.objects.filter(zona=id).last()
     fleje_act = Flejes.objects.filter(maquina_siglas=siglas, fecha_salida__isnull=True).order_by('-fecha_entrada', '-hora_entrada').last()
     if (fleje_act == None):
-        from types import SimpleNamespace
         fleje_act = SimpleNamespace(
             of='',
             pos='',
@@ -238,6 +237,11 @@ def estado_maquina(request, id):
                 n_tubos='',
                 descripcion=''
             )
+        else:
+            tubo_act = SimpleNamespace(
+                n_tubos = tubo_actual.n_tubos,
+                descripcion = tubo_actual.descripcion()
+            )
 
     estado_act = {
         'velocidad':  float(estado_act.velocidad),
@@ -248,7 +252,7 @@ def estado_maquina(request, id):
         'fleje_pos': fleje_act.pos,
         'fleje_descripcion': fleje_act.descripcion,
         'n_tubos': tubo_act.n_tubos,
-        'tubo_descripcion': ''
+        'tubo_descripcion': tubo_act.descripcion
     }
 
     # Paradas
