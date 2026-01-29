@@ -230,13 +230,6 @@ def estado_maquina(request, id):
     
 
     # Estado actual
-    # OF Actual
-    OF_actual = OF.objects.filter(zona=id).last()
-    if (OF_actual == None):
-        current_of = OF_actual.numero
-    else:
-        current_of = fleje_act.of
-
     # Fleje y Tubo actual
     estado_act = Registro.objects.filter(zona=id).last()
     fleje_act = Flejes.objects.filter(maquina_siglas=siglas, fecha_salida__isnull=True).order_by('-fecha_entrada', '-hora_entrada').last()
@@ -262,6 +255,12 @@ def estado_maquina(request, id):
                 n_tubos = tubo_actual.n_tubos,
                 descripcion = tubo_actual.descripcion()
             )
+    # OF Actual
+    OF_actual = OF.objects.filter(zona=id).last()
+    if (OF_actual == None):
+        current_of = OF_actual.numero
+    else:
+        current_of = fleje_act.of
 
     estado_act = {
         'velocidad':  float(estado_act.velocidad),
