@@ -59,6 +59,9 @@ class Flejes(models.Model):
         for tubo in self.tubos.all():
             metros += tubo.n_tubos * tubo.largo/1000
         return metros
+    
+    def __str__(self):
+        return str(self.pos) + ' - ' + self.descripcion
 
 class Tubos(models.Model):
     n_tubos = models.IntegerField(default=0)
