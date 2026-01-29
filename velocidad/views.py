@@ -238,12 +238,6 @@ def estado_maquina(request, id):
                 n_tubos='',
                 descripcion=''
             )
-        else:
-            tubo_act = SimpleNamespace(
-                n_tubos=tubo_actual.n_tubos,
-                descripcion=tubo_actual.descripcion()
-            )
-
 
     estado_act = {
         'velocidad':  float(estado_act.velocidad),
@@ -254,7 +248,7 @@ def estado_maquina(request, id):
         'fleje_pos': fleje_act.pos,
         'fleje_descripcion': fleje_act.descripcion,
         'n_tubos': tubo_act.n_tubos,
-        'tubo_descripcion': tubo_act.descripcion
+        'tubo_descripcion': ''
     }
 
     # Paradas
