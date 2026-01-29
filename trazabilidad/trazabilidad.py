@@ -259,7 +259,7 @@ def leerFlejesEnAcumuladores(request):
                                             codigo__siglas='UNKNOWN'
                                         ).last()
                     hora_cambio_OF = ultima_parada.inicio()
-                    OF.objects.filter(nombre=of_actual).update(fin=hora_cambio_OF)
+                    OF.objects.filter(nuemro=of_actual).update(fin=hora_cambio_OF)
                     if (OF.objects.filter(numero=next_of).last() == None): # Si aún no se ha creado la OF
                         nueva_OF = OF.objects.create(numero=next_of, inicio=hora_cambio_OF, zona=acc.zona)
                     else: # Si ya está creada y hay flejes de esa of es que se ha vuelto a abrir
