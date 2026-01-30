@@ -3,7 +3,7 @@ import snap7
 from snap7.util import get_fstring, get_int, get_real, get_date, get_time, set_string, set_int, set_real, set_date, set_dint
 from snap7.util import get_bool
 from datetime import datetime
-# import time
+from django.utils.timezone import make_aware, get_default_timezone
 from rest_framework.decorators import api_view
 from django.http import HttpResponse
 from rest_framework.response import Response
@@ -252,7 +252,7 @@ def leerFlejesEnAcumuladores(request):
                                             codigo__siglas='UNKNOWN'
                                         ).last()
                     hora_cambio_OF = ultima_parada.inicio()
-                    print(f'Hora inicio OF {hora_cambio_OF}')
+                    hora_cambio_OF = make_aware(hora_cambio_OF, get_default_timezone())
                     OF.objects.filter(numero=of_actual).update(fin=hora_cambio_OF)
                     if (OF.objects.filter(numero=next_of).last() == None): # Si aún no se ha creado la OF
                         print('Crear OF ...')
