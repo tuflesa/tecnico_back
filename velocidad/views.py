@@ -108,9 +108,11 @@ def estado_maquina(request, id):
 
     try:
         fecha = datetime.strptime(fecha_str, '%Y-%m-%d').date()
-        fecha_fin = datetime.strptime(fecha_fin_str, '%Y-%m-%d').date()
         hora_inicio = datetime.strptime(hora_inicio_str, '%H:%M').time()
+        fecha_fin = datetime.strptime(fecha_fin_str, '%Y-%m-%d').date()
         hora_fin = datetime.strptime(hora_fin_str, '%H:%M').time()
+        fecha_inico_dt = datetime.combine(fecha, hora_inicio)
+        fecha_fin_dt = datetime.combine(fecha_fin, hora_fin)
     except (ValueError, TypeError):
         return JsonResponse({'error': 'Formato de hora inválido'}, status=400)
 
@@ -167,10 +169,10 @@ def estado_maquina(request, id):
     resultado = OF.objects.filter(
         zona=id
     ).filter(
-        Q(inicio__gte=fecha, fin__lte=fecha_fin) |
-        Q(fin__gte=fecha, fin__lte=fecha_fin) |
-        Q(inicio__gte=fecha, inicio__lte=fecha_fin) |
-        Q(inicio__lte=fecha_fin, fin__isnull=True) 
+        Q(inicio__gte=fecha_inico_dt, fin__lte=fecha_fin_dt) |
+        Q(fin__gte=fecha_inico_dt, fin__lte=fecha_fin_dt) |
+        Q(inicio__gte=fecha_inico_dt, inicio__lte=fecha_fin_dt) |
+        Q(inicio__lte=fecha_fin_dt, fin__isnull=True) 
     ).distinct().order_by('-inicio')
     # Serializar resultados
     OFs = [{
