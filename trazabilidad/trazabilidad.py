@@ -232,20 +232,6 @@ def leerFlejesEnAcumuladores(request):
                 data = plc.read_area(snap7.type.Areas.DB, DB, 820, 1)
                 cambio_OF = get_bool(data, 0, 0)
 
-                # Borrar
-                ultima_parada = Parada.objects.filter(
-                    zona=acc.zona,
-                    codigo__siglas='UNKNOWN'
-                ).last()
-                hora_cambio_OF = ultima_parada.inicio()
-                print(f'Lectura hora ultima parada: {hora_cambio_OF}')
-                print(f'timezone {hora_cambio_OF.tzinfo}')
-                tz = pytz.timezone("Europe/Madrid")  # UTC+1 en invierno
-                hora_cambio_OF = hora_cambio_OF.replace(tzinfo=tz)
-                print(f'Lectura hora ultima parada Madrid: {hora_cambio_OF}')
-                print(f'timezone {hora_cambio_OF.tzinfo}')
-                # Fin de borrar
-
                 # Comprobar si el último fleje ha superado el 80% de su teorico
                 fl = Flejes.objects.filter(of=of_actual, finalizada=False).order_by('pos')
 
@@ -267,7 +253,8 @@ def leerFlejesEnAcumuladores(request):
                                             codigo__siglas='UNKNOWN'
                                         ).last()
                     hora_cambio_OF = ultima_parada.inicio()
-                    hora_cambio_OF = make_aware(hora_cambio_OF, get_default_timezone())
+                    tz = pytz.timezone("Europe/Madrid")  # UTC+1 en invierno
+                    hora_cambio_OF = hora_cambio_OF.replace(tzinfo=tz)
                     OF.objects.filter(numero=of_actual).update(fin=hora_cambio_OF)
                     if (OF.objects.filter(numero=next_of).last() == None): # Si aún no se ha creado la OF
                         print('Crear OF ...')
