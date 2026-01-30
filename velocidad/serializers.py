@@ -38,14 +38,14 @@ class PeriodoCrearSerializer(serializers.ModelSerializer):
         return value
 
 class ParadasCrearSerializer(serializers.ModelSerializer):
-    periodos = PeriodoCrearSerializer(many=True)
+    periodos = PeriodoCrearSerializer(many=True, required=False)
 
     class Meta:
         model = Parada
         fields = ['id', 'codigo', 'zona', 'observaciones', 'periodos']
 
     def create(self, validated_data):
-        periodos_data = validated_data.pop('periodos')
+        periodos_data = validated_data.pop('periodos', [])
         parada = Parada.objects.create(**validated_data)
         for periodo in periodos_data:
             # Aquí asignamos la parada manualmente
