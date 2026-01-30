@@ -1,7 +1,7 @@
 from rest_framework import viewsets
 from django.http import JsonResponse
 from django_filters import rest_framework as filters
-from .serializers import RegistroSerializer, ZonaPerfilVelocidadSerilizer, HorarioDiaSerializer, TipoParadaSerializer, CodigoParadaSerializer, ParadaSerializer, DestrezasVelocidadSerializer, ParadasActualizarSerializer, ParadasCrearSerializer
+from .serializers import RegistroSerializer, ZonaPerfilVelocidadSerilizer, HorarioDiaSerializer, TipoParadaSerializer, CodigoParadaSerializer, ParadaSerializer, DestrezasVelocidadSerializer, ParadasActualizarSerializer, ParadasCrearSerializer, PeriodoSerializer
 from .models import Registro, ZonaPerfilVelocidad, Parada, CodigoParada, Periodo, HorarioDia, TipoParada, Periodo, DestrezasVelocidad
 from estructura.models import Zona
 from trazabilidad.models import Flejes, Tubos, OF
@@ -30,6 +30,13 @@ class RegistroFilter(filters.FilterSet):
             'zona__empresa': ['exact'],
             'fecha': ['exact'],
             'hora': ['gte', 'lte']
+        }
+
+class PeriodoFilter(filters.FilterSet):
+    class Meta:
+        model = Periodo
+        fields = {
+            'parada': ['exact'],
         }
 
 class ZonaPerfilVelocidadFilter(filters.FilterSet):
@@ -67,8 +74,14 @@ class ParadaActualizarViewSet(viewsets.ModelViewSet):
     queryset = Parada.objects.all()
 
 class ParadaCrearViewSet(viewsets.ModelViewSet):
-    serializer_class = ParadasCrearSerializer
+    #serializer_class = ParadasCrearSerializer
     queryset = Parada.objects.all()
+    def get_serializer_class(self):
+        if self.action == 'create':
+            return ParadasCrearSerializer
+        elif self.action in ['update', 'partial_update']:
+            return ParadasActualizarSerializer
+        return ParadasCrearSerializer
 
 class TipoParadaViewSet(viewsets.ModelViewSet):
     serializer_class = TipoParadaSerializer
@@ -99,6 +112,11 @@ class DestrezasVelocidadViewSet(viewsets.ModelViewSet):
     serializer_class = DestrezasVelocidadSerializer
     queryset = DestrezasVelocidad.objects.all()
     filterset_class = DestrezasVelocidadFilter
+
+class PeriodoViewSet(viewsets.ModelViewSet):
+    serializer_class = PeriodoSerializer
+    queryset = Periodo.objects.all()
+    filterset_class = PeriodoFilter
 
 def estado_maquina(request, id):
     fecha_str = request.GET.get('fecha')
