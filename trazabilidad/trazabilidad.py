@@ -231,6 +231,17 @@ def leerFlejesEnAcumuladores(request):
                 data = plc.read_area(snap7.type.Areas.DB, DB, 820, 1)
                 cambio_OF = get_bool(data, 0, 0)
 
+                # Borrar
+                ultima_parada = Parada.objects.filter(
+                    zona=acc.zona,
+                    codigo__siglas='UNKNOWN'
+                ).last()
+                hora_cambio_OF = ultima_parada.inicio()
+                print(f'Lectura hora ultima parada: {hora_cambio_OF}')
+                hora_cambio_OF = make_aware(hora_cambio_OF, get_default_timezone())
+                print(f'Lectura hora ultima parada aware: {hora_cambio_OF}')
+                # Fin de borrar
+
                 # Comprobar si el último fleje ha superado el 80% de su teorico
                 fl = Flejes.objects.filter(of=of_actual, finalizada=False).order_by('pos')
 
