@@ -241,7 +241,7 @@ def leerFlejesEnAcumuladores(request):
                 print(f'Lectura hora ultima parada: {hora_cambio_OF}')
                 print(f'timezone {hora_cambio_OF.tzinfo}')
                 tz = pytz.timezone("Europe/Madrid")  # UTC+1 en invierno
-                hora_inicio_OF = hora_inicio_OF.replace(tzinfo=tz)
+                hora_cambio_OF = hora_cambio_OF.replace(tzinfo=tz)
                 print(f'Lectura hora ultima parada Madrid: {hora_cambio_OF}')
                 # Fin de borrar
 
