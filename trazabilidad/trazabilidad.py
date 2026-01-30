@@ -238,8 +238,7 @@ def leerFlejesEnAcumuladores(request):
                 ).last()
                 hora_cambio_OF = ultima_parada.inicio()
                 print(f'Lectura hora ultima parada: {hora_cambio_OF}')
-                hora_cambio_OF = make_aware(hora_cambio_OF)
-                print(f'Lectura hora ultima parada aware: {hora_cambio_OF}')
+                print(f'timezone {hora_cambio_OF.tzinfo}')
                 # Fin de borrar
 
                 # Comprobar si el último fleje ha superado el 80% de su teorico
