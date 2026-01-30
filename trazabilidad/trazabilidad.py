@@ -10,6 +10,7 @@ from rest_framework.response import Response
 from .models import Acumulador, Flejes, Tubos, OF
 from velocidad.models import Parada
 from django.db.models import Q
+import pytz
 
 # Constantes
 DEBUG = False
@@ -239,6 +240,9 @@ def leerFlejesEnAcumuladores(request):
                 hora_cambio_OF = ultima_parada.inicio()
                 print(f'Lectura hora ultima parada: {hora_cambio_OF}')
                 print(f'timezone {hora_cambio_OF.tzinfo}')
+                tz = pytz.timezone("Europe/Madrid")  # UTC+1 en invierno
+                hora_inicio_OF = hora_inicio_OF.replace(tzinfo=tz)
+                print(f'Lectura hora ultima parada Madrid: {hora_cambio_OF}')
                 # Fin de borrar
 
                 # Comprobar si el último fleje ha superado el 80% de su teorico
