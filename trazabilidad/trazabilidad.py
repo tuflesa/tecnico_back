@@ -3,7 +3,7 @@ import snap7
 from snap7.util import get_fstring, get_int, get_real, get_date, get_time, set_string, set_int, set_real, set_date, set_dint
 from snap7.util import get_bool
 from datetime import datetime
-from django.utils.timezone import make_aware, get_default_timezone
+from django.utils.timezone import now
 from rest_framework.decorators import api_view
 from django.http import HttpResponse
 from rest_framework.response import Response
@@ -11,6 +11,7 @@ from .models import Acumulador, Flejes, Tubos, OF
 from velocidad.models import Parada
 from django.db.models import Q
 import pytz
+from datetime import date
 
 # Constantes
 DEBUG = False
@@ -336,17 +337,20 @@ def leerFlejesEnAcumuladores(request):
                 # Leer ultimo tubo del PLC
                 ultimo_tubo = leerTubosPLC(from_PLC, 590)
                 tubo_actual = leerTubosPLC(from_PLC, 628)
-
+                
                 last_t = Tubos.objects.filter(fleje__acumulador__id=acc.id).order_by('id').last()
+                ahora = now()
                 if last_t == None:
                     print('No hay tubos ...')
                     fl = Flejes.objects.filter(of=ultimo_tubo['of'], pos=ultimo_tubo['pos'], idProduccion=ultimo_tubo['idProduccion']).last()
                     if fl != None:
-                        new_t = Tubos(n_tubos=ultimo_tubo['n_tubos'] , largo=ultimo_tubo['largo'], fleje= fl, dim1=ultimo_tubo['base'], dim2=ultimo_tubo['altura'])
+                        new_t = Tubos(n_tubos=ultimo_tubo['n_tubos'] , largo=ultimo_tubo['largo'], fleje= fl, dim1=ultimo_tubo['base'], dim2=ultimo_tubo['altura'],
+                                      fecha_entrada=ahora)
                         new_t.save()
                     fl = Flejes.objects.filter(of=tubo_actual['of'], pos=tubo_actual['pos'], idProduccion=tubo_actual['idProduccion']).last()
                     if fl != None:
-                        new_t = Tubos(n_tubos=tubo_actual['n_tubos'] , largo=tubo_actual['largo'], fleje= fl, dim1=tubo_actual['base'], dim2=tubo_actual['altura'])
+                        new_t = Tubos(n_tubos=tubo_actual['n_tubos'] , largo=tubo_actual['largo'], fleje= fl, dim1=tubo_actual['base'], dim2=tubo_actual['altura'],
+                                      fecha_entrada=ahora)
                         new_t.save()
                 else:
                     print('Hay tubos')
@@ -356,10 +360,12 @@ def leerFlejesEnAcumuladores(request):
                         and last_t.dim1 == ultimo_tubo['base'] and last_t.dim2 == ultimo_tubo['altura']):
                         print('actualizar ultimo tubo y crear uno nuevo')
                         last_t.n_tubos = ultimo_tubo['n_tubos']
+                        last_t.fecha_salida = ahora
                         last_t.save()
                         fl = Flejes.objects.filter(of=tubo_actual['of'], pos=tubo_actual['pos'], idProduccion=tubo_actual['idProduccion']).last()
                         if fl != None:
-                            new_t = Tubos(n_tubos=tubo_actual['n_tubos'] , largo=tubo_actual['largo'], fleje= fl, dim1=tubo_actual['base'], dim2=tubo_actual['altura'])
+                            new_t = Tubos(n_tubos=tubo_actual['n_tubos'] , largo=tubo_actual['largo'], fleje= fl, dim1=tubo_actual['base'], dim2=tubo_actual['altura'],
+                                          fecha_entrada=ahora)
                             new_t.save()
                     else:
                         if (last_t.fleje.of == tubo_actual['of'] and last_t.fleje.pos == tubo_actual['pos']
@@ -373,7 +379,8 @@ def leerFlejesEnAcumuladores(request):
                             print('Se crea un nuevo tubo si hay flejes ...')
                             fl = Flejes.objects.filter(of=tubo_actual['of'], pos=tubo_actual['pos'], idProduccion=tubo_actual['idProduccion']).last()
                             if fl != None:
-                                new_t = Tubos(n_tubos=tubo_actual['n_tubos'] , largo=tubo_actual['largo'], fleje= fl, dim1=tubo_actual['base'], dim2=tubo_actual['altura'])
+                                new_t = Tubos(n_tubos=tubo_actual['n_tubos'] , largo=tubo_actual['largo'], fleje= fl, dim1=tubo_actual['base'], dim2=tubo_actual['altura'],
+                                              fecha_entrada=ahora)
                                 new_t.save()
                 
                 flejeActualPLC_valido = False

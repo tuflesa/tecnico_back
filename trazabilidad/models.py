@@ -69,6 +69,8 @@ class Tubos(models.Model):
     fleje = models.ForeignKey(Flejes, on_delete=models.CASCADE, related_name='tubos')
     dim1 = models.FloatField(null=True, blank=True) # 0 si el tubo es redondo, ancho en cuadrado o rectangular
     dim2 = models.FloatField(null=True, blank=True) # diametro si es redondo, alto si es cuadrado o rectangular
+    fecha_entrada = models.DateTimeField(blank=True, null=True)
+    fecha_salida = models.DateTimeField(blank=True, null=True)
 
     def descripcion(self):
         if (self.dim2):
