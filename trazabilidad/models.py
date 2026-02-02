@@ -71,7 +71,7 @@ class Tubos(models.Model):
     dim2 = models.FloatField(null=True, blank=True) # diametro si es redondo, alto si es cuadrado o rectangular
 
     def descripcion(self):
-        if (self.dim1 and self.dim2):
+        if (self.dim2):
             if self.dim1 == 0: #Tubo redondo
                 tipo_tubo = 'Red. ' + f"{self.dim2:.1f}"
             else: # Tubo cuadrado o rectangular
