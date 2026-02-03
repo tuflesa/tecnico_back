@@ -549,10 +549,26 @@ def obtener_codigos(request):
     tipo_parada = request.GET.get('tipo_parada')
     palabra_clave = request.GET.get('palabra_clave')
 
+    """ if ( type(palabra_clave) != int):
+        palabra_clave = 0
+    print(f'palabra_clave {palabra_clave}') """
+
     codigos = CodigoParada.objects.filter(
         Q(palabra_clave = palabra_clave, tipo = tipo_parada, zona = zona_id) |
-        Q(palabra_clave = palabra_clave, tipo = tipo_parada, zona__isnull = True) |
-        Q(palabra_clave__isnull = True, tipo = tipo_parada)
+        Q(palabra_clave = palabra_clave, tipo = tipo_parada, zona__isnull = True) 
+    ).distinct().order_by('nombre')
+
+    serializer = CodigoParadaSerializer(codigos, many=True)
+    return Response(serializer.data)
+
+@api_view(["GET"])
+def obtener_codigos_resto(request):
+    zona_id = request.GET.get('zona')
+    tipo_parada = request.GET.get('tipo_parada')
+
+    codigos = CodigoParada.objects.filter(
+        Q(tipo = tipo_parada, zona = zona_id) |
+        Q(tipo = tipo_parada, zona__isnull = True) 
     ).distinct().order_by('nombre')
 
     serializer = CodigoParadaSerializer(codigos, many=True)
@@ -566,7 +582,7 @@ def obtener_palabraclave(request):
         Q(zona=zona_id) |
         Q(zona__isnull = True)
     ).distinct().order_by('nombre')
-    print(f'codigos{codigos[0]}')
+    
     serializer = PalabrasClaveSerializer(codigos, many=True)
     return Response(serializer.data)
 
