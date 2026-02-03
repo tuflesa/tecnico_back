@@ -25,6 +25,9 @@ class HorarioDiaAdmin(admin.ModelAdmin):
     list_filter=("zona",)
     search_fields=("fecha",)
 
+class CodigoParadaAdmin(admin.ModelAdmin):
+    list_filter=("palabra_clave","zona")
+
 class PeriodoAdmin(admin.ModelAdmin):
     list_display =("id","parada", "inicio", "fin", "velocidad",)
     search_fields=("parada__id",)
@@ -37,7 +40,7 @@ admin.site.register(ZonaPerfilVelocidad)
 admin.site.register(Registro)
 admin.site.register(DestrezasVelocidad, DestrezasAdmin)
 admin.site.register(TipoParada)
-admin.site.register(CodigoParada)
+admin.site.register(CodigoParada, CodigoParadaAdmin)
 admin.site.register(PalabrasClave)
 admin.site.register(Parada, ParadasAdmin)
 admin.site.register(Periodo, PeriodoAdmin)

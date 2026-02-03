@@ -545,12 +545,13 @@ def guardar_festivos(request):
 
 @api_view(["GET"])
 def obtener_codigos(request):
-    """ zona_id = request.GET.get('zona') """
+    zona_id = request.GET.get('zona')
     tipo_parada = request.GET.get('tipo_parada')
     palabra_clave = request.GET.get('palabra_clave')
 
     codigos = CodigoParada.objects.filter(
-        Q(palabra_clave = palabra_clave, tipo = tipo_parada)
+        Q(palabra_clave = palabra_clave, tipo = tipo_parada, zona = zona_id) |
+        Q(palabra_clave = palabra_clave, tipo = tipo_parada, zona__isnull = True)
     ).distinct().order_by('nombre')
 
     serializer = CodigoParadaSerializer(codigos, many=True)
