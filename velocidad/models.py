@@ -44,12 +44,20 @@ class TipoParada(models.Model):
 
     def __str__(self):
         return self.nombre
+    
+class PalabrasClave(models.Model):
+    nombre = models.CharField(max_length=40)
+    zona = models.ForeignKey(Zona, on_delete=models.CASCADE, null=True, blank=True) # null para codigos validos para todas las máquinas, no null para codigos especificos de una máquina
+
+    def __str__(self):
+        return self.nombre
 
 class CodigoParada(models.Model):
     nombre = models.CharField(max_length=40)
     tipo = models.ForeignKey(TipoParada, on_delete=models.CASCADE, related_name='codigos')
     zona = models.ForeignKey(Zona, on_delete=models.CASCADE, related_name='codigos_parada', null=True, blank=True) # null para codigos validos para todas las máquinas, no null para codigos especificos de una máquina
     siglas = models.CharField(max_length=10, blank=True, null=True)
+    palabra_clave = models.ForeignKey(PalabrasClave, on_delete=models.CASCADE, null=True, blank=True, related_name='codigos')
 
     def __str__(self):
         if self.zona :

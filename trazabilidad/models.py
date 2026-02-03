@@ -22,6 +22,9 @@ class OF(models.Model):
     inicio = models.DateTimeField()
     fin = models.DateTimeField(null=True, blank=True)
 
+    def __str__(self):
+        return self.numero
+
 # Registra todos los flejes que entran en los acumuladores    
 class Flejes(models.Model):
     pos = models.IntegerField()

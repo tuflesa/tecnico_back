@@ -1,8 +1,8 @@
 from rest_framework import viewsets
 from django.http import JsonResponse
 from django_filters import rest_framework as filters
-from .serializers import RegistroSerializer, ZonaPerfilVelocidadSerilizer, HorarioDiaSerializer, TipoParadaSerializer, CodigoParadaSerializer, ParadaSerializer, DestrezasVelocidadSerializer, ParadasActualizarSerializer, ParadasCrearSerializer, PeriodoSerializer
-from .models import Registro, ZonaPerfilVelocidad, Parada, CodigoParada, Periodo, HorarioDia, TipoParada, Periodo, DestrezasVelocidad
+from .serializers import RegistroSerializer, ZonaPerfilVelocidadSerilizer, HorarioDiaSerializer, TipoParadaSerializer, CodigoParadaSerializer, ParadaSerializer, DestrezasVelocidadSerializer, ParadasActualizarSerializer, ParadasCrearSerializer, PeriodoSerializer, PalabrasClaveSerializer
+from .models import Registro, ZonaPerfilVelocidad, Parada, CodigoParada, Periodo, HorarioDia, TipoParada, Periodo, DestrezasVelocidad, PalabrasClave
 from estructura.models import Zona
 from trazabilidad.models import Flejes, Tubos, OF
 from django.forms.models import model_to_dict
@@ -37,6 +37,14 @@ class PeriodoFilter(filters.FilterSet):
         model = Periodo
         fields = {
             'parada': ['exact'],
+        }
+
+class PalabrasClaveFilter(filters.FilterSet):
+    class Meta:
+        model = PalabrasClave
+        fields = {
+            'nombre': ['exact'],
+            'zona': ['exact'],
         }
 
 class ZonaPerfilVelocidadFilter(filters.FilterSet):
@@ -537,15 +545,27 @@ def guardar_festivos(request):
 
 @api_view(["GET"])
 def obtener_codigos(request):
-    zona_id = request.GET.get('zona')
+    """ zona_id = request.GET.get('zona') """
     tipo_parada = request.GET.get('tipo_parada')
+    palabra_clave = request.GET.get('palabra_clave')
 
     codigos = CodigoParada.objects.filter(
-        Q(zona=zona_id, tipo=tipo_parada) |
-        Q(zona__isnull = True, tipo=tipo_parada)
+        Q(palabra_clave = palabra_clave, tipo = tipo_parada)
     ).distinct().order_by('nombre')
 
     serializer = CodigoParadaSerializer(codigos, many=True)
+    return Response(serializer.data)
+
+@api_view(["GET"])
+def obtener_palabraclave(request):
+    zona_id = request.GET.get('zona')
+
+    codigos = PalabrasClave.objects.filter(
+        Q(zona=zona_id) |
+        Q(zona__isnull = True)
+    ).distinct().order_by('nombre')
+    print(f'codigos{codigos[0]}')
+    serializer = PalabrasClaveSerializer(codigos, many=True)
     return Response(serializer.data)
 
 @api_view(["POST"])
