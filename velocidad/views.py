@@ -551,7 +551,8 @@ def obtener_codigos(request):
 
     codigos = CodigoParada.objects.filter(
         Q(palabra_clave = palabra_clave, tipo = tipo_parada, zona = zona_id) |
-        Q(palabra_clave = palabra_clave, tipo = tipo_parada, zona__isnull = True)
+        Q(palabra_clave = palabra_clave, tipo = tipo_parada, zona__isnull = True) |
+        Q(palabra_clave__isnull = True, tipo = tipo_parada)
     ).distinct().order_by('nombre')
 
     serializer = CodigoParadaSerializer(codigos, many=True)
