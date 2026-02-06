@@ -331,6 +331,8 @@ def estado_maquina(request, id):
         'color': p.codigo.tipo.color,
         'observaciones': p.observaciones,
         'zona_id': p.zona.id,
+        'palabraclave_id':p.codigo.palabra_clave.id if p.codigo.palabra_clave else "",
+        'tipo_parada_nombre':p.codigo.tipo.nombre,
     } for p in resultado]
     
     data = {
