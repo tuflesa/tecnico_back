@@ -99,6 +99,21 @@ class ParadaSerializer(serializers.ModelSerializer):
 
     def get_duracion(self, obj):
         return obj.duracion()
+    
+    def get_codigo(self, obj):
+        return obj.codigo.nombre
+    
+    def get_color(self, obj):
+        return obj.codigo.tipo.color
+        
+    def get_inicio(self, obj):
+        return obj.inicio()
+
+    def get_fin(self, obj):
+        return obj.fin()
+
+    def get_duracion(self, obj):
+        return obj.duracion()
 
 
 class HorarioDiaSerializer(serializers.ModelSerializer):

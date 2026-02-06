@@ -4,13 +4,13 @@ from snap7.util import get_fstring, get_int, get_real, get_date, get_time, set_s
 from snap7.util import get_bool
 from datetime import datetime
 from django.utils.timezone import now
+from django.utils import timezone
 from rest_framework.decorators import api_view
 from django.http import HttpResponse
 from rest_framework.response import Response
 from .models import Acumulador, Flejes, Tubos, OF
 from velocidad.models import Parada
 from django.db.models import Q
-import pytz
 from datetime import date
 
 # Constantes
@@ -254,8 +254,6 @@ def leerFlejesEnAcumuladores(request):
                                             codigo__siglas='UNKNOWN'
                                         ).last()
                     hora_cambio_OF = ultima_parada.inicio()
-                    tz = pytz.timezone("Europe/Madrid")  # UTC+1 en invierno
-                    hora_cambio_OF = hora_cambio_OF.replace(tzinfo=tz)
                     OF.objects.filter(numero=of_actual).update(fin=hora_cambio_OF)
                     if (OF.objects.filter(numero=next_of).last() == None): # Si aún no se ha creado la OF
                         print('Crear OF ...')

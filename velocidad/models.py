@@ -73,6 +73,14 @@ class Parada(models.Model):
 
     def inicio(self):
         return self.periodos.aggregate(Min('inicio'))['inicio__min']
+    
+    # def fin(self):
+    #     qs = self.periodos.filter(fin__isnull=True)
+    #     if qs.exists():
+    #         return timezone.now()  # aware en UTC
+    #     else:
+    #         return self.periodos.aggregate(Max('fin'))['fin__max']
+
 
     def fin(self):
         qs = self.periodos.filter(fin__isnull=True)
@@ -80,6 +88,18 @@ class Parada(models.Model):
             return datetime.now()
         else:
             return self.periodos.aggregate(Max('fin'))['fin__max']
+        
+    # def duracion(self):
+    #     t = 0
+    #     for p in self.periodos.all():
+    #         if p.fin:
+    #             final = p.fin
+    #         else:
+    #             final = timezone.now()  # aware en UTC
+
+    #         diferencia = final - p.inicio
+    #         t += abs(diferencia.total_seconds()) / 60
+    #     return t
 
     def duracion(self):
         t=0
