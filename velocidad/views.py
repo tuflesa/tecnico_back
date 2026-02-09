@@ -356,14 +356,16 @@ def nuevo_periodo(request):
     velocidad = float(datos['velocidad'])
     tnp = datos['tnp'].lower() == "true"
 
-    ultima_parada = Parada.objects.filter(zona = zona_id).last()
-    zona = Zona.objects.get(id=zona_id)
+    ultimo_periodo = Periodo.objects.filter(parada__zona= zona_id, fin__isnull=True).last()
 
-    if ultima_parada != None:
+    if ultimo_periodo != None:
         # Cerramos el periodo anteior
-        ultimo_periodo = ultima_parada.periodos.order_by('inicio').last() 
         ultimo_periodo.fin = fecha_dt
-        ultimo_periodo.save()
+        ultimo_periodo.save()  
+
+        ultima_parada_id = ultimo_periodo.parada.id
+        ultima_parada = Parada.objects.get(id=ultima_parada_id)
+        zona = Zona.objects.get(id=zona_id)
 
         # Maquina de estados
         if ultima_parada.codigo.siglas == 'RUN': # Desde RUN
