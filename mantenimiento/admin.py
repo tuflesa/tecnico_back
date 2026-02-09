@@ -10,7 +10,7 @@ class ParteTrabajoAdmin(admin.ModelAdmin):
 class LineasTrabajoAdmin(admin.ModelAdmin):
     list_filter=("estado",)
     search_fields=("parte__num_parte",)
-    list_display=("id","tarea", "parte",)
+    list_display=("id","tarea", "parte", "fecha_inicio", "fecha_fin",)
 class TrabajadorLineasAdmin(admin.ModelAdmin):
     list_filter=("trabajador",)
     search_fields=("linea__parte__num_parte",)

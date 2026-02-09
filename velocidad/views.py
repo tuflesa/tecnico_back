@@ -1,8 +1,8 @@
 from rest_framework import viewsets
 from django.http import JsonResponse
 from django_filters import rest_framework as filters
-from .serializers import RegistroSerializer, ZonaPerfilVelocidadSerilizer, HorarioDiaSerializer, TipoParadaSerializer, CodigoParadaSerializer, ParadaSerializer, DestrezasVelocidadSerializer, ParadasActualizarSerializer, ParadasCrearSerializer, PeriodoSerializer, PalabrasClaveSerializer
-from .models import Registro, ZonaPerfilVelocidad, Parada, CodigoParada, Periodo, HorarioDia, TipoParada, Periodo, DestrezasVelocidad, PalabrasClave
+from .serializers import RegistroSerializer, ZonaPerfilVelocidadSerilizer, HorarioDiaSerializer, TipoParadaSerializer, CodigoParadaSerializer, ParadaSerializer, DestrezasVelocidadSerializer, ParadasActualizarSerializer, ParadasCrearSerializer, PeriodoSerializer, PalabrasClaveSerializer, TurnosSerializer
+from .models import Registro, ZonaPerfilVelocidad, Parada, CodigoParada, Periodo, HorarioDia, TipoParada, Periodo, DestrezasVelocidad, PalabrasClave, Turnos
 from estructura.models import Zona
 from trazabilidad.models import Flejes, Tubos, OF
 from django.forms.models import model_to_dict
@@ -77,6 +77,13 @@ class CodigoParadaFilter(filters.FilterSet):
             'nombre': ['icontains'],
         }
 
+class TurnosFilter(filters.FilterSet):
+    class Meta:
+        model = Turnos
+        fields = {
+            'zona': ['exact'],
+        }
+
 class ParadaActualizarViewSet(viewsets.ModelViewSet):
     serializer_class = ParadasActualizarSerializer
     queryset = Parada.objects.all()
@@ -125,6 +132,11 @@ class PeriodoViewSet(viewsets.ModelViewSet):
     serializer_class = PeriodoSerializer
     queryset = Periodo.objects.all()
     filterset_class = PeriodoFilter
+
+class TurnosViewSet(viewsets.ModelViewSet):
+    serializer_class = TurnosSerializer
+    queryset = Turnos.objects.all()
+    filterset_class = TurnosFilter
 
 def estado_maquina(request, id):
     fecha_str = request.GET.get('fecha')

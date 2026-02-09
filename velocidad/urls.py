@@ -1,9 +1,10 @@
 from rest_framework import routers
 from django.urls import path
 from .views import estado_maquina, nuevo_periodo, generar_anual, actualizar_horario, obtener_anual, guardar_festivos, obtener_codigos, guardar_paradas_agrupadas, leer_paradas_run, obtener_palabraclave, obtener_codigos_resto
-from .views import HorarioDiaViewSet, RegistroViewSet, ZonaPerfilVelocidadViewSet, TipoParadaViewSet, DestrezasVelocidadViewSet, ParadaActualizarViewSet, ParadaCrearViewSet, PeriodoViewSet
+from .views import HorarioDiaViewSet, RegistroViewSet, ZonaPerfilVelocidadViewSet, TipoParadaViewSet, DestrezasVelocidadViewSet, ParadaActualizarViewSet, ParadaCrearViewSet, PeriodoViewSet, TurnosViewSet
 
 router = routers.DefaultRouter()
+router.register('turnos', TurnosViewSet)
 router.register('paradas_crear', ParadaCrearViewSet)
 router.register('periodo', PeriodoViewSet)
 router.register('paradas', ParadaActualizarViewSet)

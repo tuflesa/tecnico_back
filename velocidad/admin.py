@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import ZonaPerfilVelocidad, Registro, TipoParada, CodigoParada, Parada, Periodo, HorarioDia, DestrezasVelocidad, PalabrasClave
+from .models import ZonaPerfilVelocidad, Registro, TipoParada, CodigoParada, Parada, Periodo, HorarioDia, DestrezasVelocidad, PalabrasClave, Turnos
 
 class ParadasAdmin(admin.ModelAdmin):
     # Añadimos los métodos al list_display
@@ -36,7 +36,17 @@ class DestrezasAdmin(admin.ModelAdmin):
     list_display =("id","nombre", "descripcion",)
     search_fields=("nombre",)
 
+class TurnosAdmin(admin.ModelAdmin):
+    list_display =("id", "display_turno", "zona",)
+    list_filter=("activo","zona")
+    
+    def display_turno(self, obj):
+            return str(obj)
+    display_turno.short_description = "Turno"
+
+
 admin.site.register(ZonaPerfilVelocidad)
+admin.site.register(Turnos, TurnosAdmin)
 admin.site.register(Registro)
 admin.site.register(DestrezasVelocidad, DestrezasAdmin)
 admin.site.register(TipoParada)

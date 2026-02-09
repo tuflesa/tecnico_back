@@ -5,6 +5,7 @@ from datetime import datetime
 from django.db.models import Min, Max
 from django.utils import timezone
 from mantenimiento.models import ParteTrabajo
+from django.contrib.auth.models import User
 
 class ZonaPerfilVelocidad(models.Model):
     zona = models.OneToOneField(Zona, on_delete=models.CASCADE)
@@ -118,7 +119,16 @@ class Periodo(models.Model):
     inicio = models.DateTimeField(null=True)
     fin = models.DateTimeField(null=True)
     velocidad = models.FloatField(default=0)
+    
+class Turnos(models.Model): # Escritura, lectura, edicion....
+    turno = models.CharField(max_length=10)
+    zona = models.ForeignKey(Zona, on_delete=models.CASCADE, related_name='turnos', null=True, blank=True)
+    maquinista = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    activo = models.BooleanField(default=True)
 
+    def __str__(self):
+        return f"{self.turno} - {self.maquinista}" 
+    
 class HorarioDia(models.Model):
     fecha = models.DateField()
     nombre_dia = models.CharField(max_length=20, default="")
@@ -126,6 +136,11 @@ class HorarioDia(models.Model):
     fin = models.TimeField(default="22:00")
     es_festivo = models.BooleanField(default=False) # o vacaciones = es_no_laborable
     zona = models.ForeignKey(Zona, on_delete=models.CASCADE, related_name='horarios', null=True, blank=True)
+    turno_mañana = models.ForeignKey(Turnos, on_delete=models.CASCADE, related_name='horario_mañana', null=True, blank=True)
+    turno_tarde = models.ForeignKey(Turnos, on_delete=models.CASCADE, related_name='horario_tarde', null=True, blank=True)
+    turno_noche = models.ForeignKey(Turnos, on_delete=models.CASCADE, related_name='horario_noche', null=True, blank=True)
+    cambio_turno_1 = models.TimeField(default="14:00")
+    cambio_turno_2 = models.TimeField(null=True, blank=True)
     class Meta:
         unique_together = ('fecha', 'zona')
 

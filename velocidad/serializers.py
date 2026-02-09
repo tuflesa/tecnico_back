@@ -1,7 +1,8 @@
 from rest_framework import serializers
-from .models import ZonaPerfilVelocidad, Registro, Periodo, Parada, HorarioDia, TipoParada, CodigoParada, DestrezasVelocidad, PalabrasClave
+from .models import ZonaPerfilVelocidad, Registro, Periodo, Parada, HorarioDia, TipoParada, CodigoParada, DestrezasVelocidad, PalabrasClave, Turnos
 from estructura.serializers import ZonaSerializer
 from django.utils import timezone
+#from administracion.serializers import UserSerializer
 
 class ZonaPerfilVelocidadSerilizer(serializers.ModelSerializer):
     zona = ZonaSerializer(many=False)
@@ -73,6 +74,19 @@ class ParadasActualizarSerializer(serializers.ModelSerializer):
     class Meta:
         model = Parada
         fields = '__all__'
+
+class TurnosSerializer(serializers.ModelSerializer):
+    #maquinista = UserSerializer(many=False, read_only=True)
+    maquinista = serializers.SerializerMethodField()
+    class Meta:
+        model = Turnos
+        fields = '__all__'
+    def get_maquinista(self, obj):
+            from administracion.serializers import UserSerializer
+            if obj.maquinista:
+                return UserSerializer(obj.maquinista).data
+            return None
+
 
 class ParadaSerializer(serializers.ModelSerializer):
     inicio = serializers.SerializerMethodField()
