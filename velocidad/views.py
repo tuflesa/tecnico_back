@@ -496,7 +496,13 @@ def obtener_anual(request):
             "zona_siglas": d.zona.siglas, 
             "mes": d.fecha.month,
             "dia": d.fecha.day,
-            "anio": d.fecha.year
+            "anio": d.fecha.year,
+            "turno_mañana": d.turno_mañana.id if d.turno_mañana else None,
+            "turno_tarde": d.turno_tarde.id if d.turno_tarde else None,
+            "turno_noche": d.turno_noche.id if d.turno_noche else None,
+            "cambio_turno_1": d.cambio_turno_1,
+            "cambio_turno_2": d.cambio_turno_2,
+            "semana": d.semana(),
         }
         for d in queryset
     ]
@@ -669,3 +675,87 @@ def leer_paradas_run(request):
     
     serializer = ParadaSerializer(paradas, many=True)
     return Response(serializer.data)
+
+
+@api_view(["POST"])
+def crear_turnos(request):
+    fecha_inicio_turnos = request.data.get("fecha_inicio_turnos")
+    fecha_fin_turnos = request.data.get("fecha_fin_turnos")
+    zona = request.data.get('zonaId')
+    turno_inicio = int(request.data.get('turno_inicio'))
+    numero_turnos = int(request.data.get('numero_turnos'))
+    hora_cambio_1 = request.data.get('hora_cambio_1')
+    hora_cambio_2 = request.data.get('hora_cambio_2')
+    if not hora_cambio_1:
+        hora_cambio_1 = None
+    if not hora_cambio_2:
+        hora_cambio_2 = None
+    nombre_turno = request.data.get('nombre_turno')
+
+    inicio_date = date.fromisoformat(fecha_inicio_turnos)
+    semana_inicio = inicio_date.isocalendar().week
+    fin_date = date.fromisoformat(fecha_fin_turnos)
+    semana_fin = fin_date.isocalendar().week + 1
+
+    def next_turno(turno_id, nombre_turno, n_turnos):
+        print('Calculo next turno ...')
+        print(f'numero de turnos {n_turnos} {type(n_turnos)}')
+        if n_turnos == 1:
+            return turno_id, nombre_turno
+        elif n_turnos == 2:
+            print('dos turnos ...')
+            if nombre_turno == 'A':
+                turno = Turnos.objects.filter(zona=zona, activo=True, turno='B').last()
+            else:
+                turno = Turnos.objects.filter(zona=zona, activo=True, turno='A').last()
+            print(f'turno id {turno.id} nombre {turno.turno}')
+            if turno:
+                return turno.id, turno.turno
+            else: 
+                return None, None
+        elif n_turnos == 3:
+            print('tres turnos ...')
+            if nombre_turno == 'A':
+                turno = Turnos.objects.filter(zona=zona, activo=True, turno='B').last()
+            elif nombre_turno == 'B':
+                turno = Turnos.objects.filter(zona=zona, activo=True, turno='C').last()
+            else:
+                turno = Turnos.objects.filter(zona=zona, activo=True, turno='A').last()
+            if turno:
+                return turno.id, turno.turno
+            else: 
+                return None, None
+        else:
+            print('Error en numero de turnos')
+            return None, None
+
+    turno_mañana = turno_inicio
+    turno_tarde, nonbre = next_turno(turno_mañana, nombre_turno, numero_turnos)
+    turno_noche, nombre = next_turno(turno_tarde, nonbre, numero_turnos)
+    secuencia = [turno_mañana, turno_tarde, turno_noche]
+    
+    secuencia = secuencia[:numero_turnos]
+    print(secuencia)      
+
+    for week in range(semana_inicio, semana_fin):
+        print(f'week {week}')
+
+        HorarioDia.objects.filter(
+            zona=zona,
+            fecha__week=week,
+            fecha__gte=inicio_date,
+            fecha__lte=fin_date
+        ).update(
+            turno_mañana=secuencia[0], 
+            turno_tarde=None if len(secuencia) < 2 else secuencia[1],
+            turno_noche=None if len(secuencia) < 3 else secuencia[2],
+            cambio_turno_1=hora_cambio_1, 
+            cambio_turno_2=hora_cambio_2)
+        
+        # secuencia = secuencia[-1:] + secuencia[:-1]
+        secuencia = secuencia[1:] + secuencia[:1]
+        print(secuencia)
+
+
+    return Response({"mensaje": "Turnos creados ..."}, status=200)
+

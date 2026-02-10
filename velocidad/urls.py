@@ -1,6 +1,6 @@
 from rest_framework import routers
 from django.urls import path
-from .views import estado_maquina, nuevo_periodo, generar_anual, actualizar_horario, obtener_anual, guardar_festivos, obtener_codigos, guardar_paradas_agrupadas, leer_paradas_run, obtener_palabraclave, obtener_codigos_resto
+from .views import estado_maquina, nuevo_periodo, generar_anual, actualizar_horario, obtener_anual, guardar_festivos, obtener_codigos, guardar_paradas_agrupadas, leer_paradas_run, obtener_palabraclave, obtener_codigos_resto, crear_turnos
 from .views import HorarioDiaViewSet, RegistroViewSet, ZonaPerfilVelocidadViewSet, TipoParadaViewSet, DestrezasVelocidadViewSet, ParadaActualizarViewSet, ParadaCrearViewSet, PeriodoViewSet, TurnosViewSet
 
 router = routers.DefaultRouter()
@@ -26,5 +26,6 @@ urlpatterns = [
     path('horarios/anual/', obtener_anual),
     path('horarios/generar/', generar_anual),
     path('horarios/<str:fecha>/', actualizar_horario), #mejor dejar al final
+    path('crear_turnos/', crear_turnos),
 ]
 urlpatterns += router.urls

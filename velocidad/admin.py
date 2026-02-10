@@ -24,6 +24,7 @@ class ParadasAdmin(admin.ModelAdmin):
 class HorarioDiaAdmin(admin.ModelAdmin):
     list_filter=("zona",)
     search_fields=("fecha",)
+    list_display =("id","fecha", "zona", "turno_mañana",)
 
 class CodigoParadaAdmin(admin.ModelAdmin):
     list_filter=("palabra_clave","zona")

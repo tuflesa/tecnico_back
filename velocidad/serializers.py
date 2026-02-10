@@ -131,6 +131,7 @@ class ParadaSerializer(serializers.ModelSerializer):
 
 
 class HorarioDiaSerializer(serializers.ModelSerializer):
+    turno_mañana = TurnosSerializer(many=False)
     class Meta:
         model = HorarioDia
         fields = '__all__'

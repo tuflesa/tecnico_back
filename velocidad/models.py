@@ -121,7 +121,7 @@ class Periodo(models.Model):
     velocidad = models.FloatField(default=0)
     
 class Turnos(models.Model): # Escritura, lectura, edicion....
-    turno = models.CharField(max_length=10)
+    turno = models.CharField(max_length=1)
     zona = models.ForeignKey(Zona, on_delete=models.CASCADE, related_name='turnos', null=True, blank=True)
     maquinista = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     activo = models.BooleanField(default=True)
@@ -141,8 +141,12 @@ class HorarioDia(models.Model):
     turno_noche = models.ForeignKey(Turnos, on_delete=models.CASCADE, related_name='horario_noche', null=True, blank=True)
     cambio_turno_1 = models.TimeField(default="14:00")
     cambio_turno_2 = models.TimeField(null=True, blank=True)
+
     class Meta:
         unique_together = ('fecha', 'zona')
+
+    def semana(self):
+        return self.fecha.isocalendar().week
 
     def __str__(self):
         return f"{self.nombre_dia} {self.fecha} - {self.inicio}-{self.fin}" 
