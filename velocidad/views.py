@@ -738,24 +738,40 @@ def crear_turnos(request):
     print(secuencia)      
 
     for week in range(semana_inicio, semana_fin):
-        print(f'week {week}')
-
-        HorarioDia.objects.filter(
+        laborables = HorarioDia.objects.filter(
             zona=zona,
             fecha__week=week,
-            fecha__gte=inicio_date,
-            fecha__lte=fin_date
-        ).update(
-            turno_mañana=secuencia[0], 
-            turno_tarde=None if len(secuencia) < 2 else secuencia[1],
-            turno_noche=None if len(secuencia) < 3 else secuencia[2],
-            cambio_turno_1=hora_cambio_1, 
-            cambio_turno_2=hora_cambio_2)
-        
-        # secuencia = secuencia[-1:] + secuencia[:-1]
-        secuencia = secuencia[1:] + secuencia[:1]
-        print(secuencia)
-
+            es_festivo=False,
+        )
+        if len(laborables) != 0: # Hay días laborables
+            print(f'Semana {week} no es festiva')
+            print(f'Turno de mañana {secuencia[0]}')
+            HorarioDia.objects.filter(
+                zona=zona,
+                fecha__week=week,
+                es_festivo=False,
+                fecha__gte=inicio_date,
+                fecha__lte=fin_date
+            ).update(
+                turno_mañana=secuencia[0], 
+                turno_tarde=None if len(secuencia) < 2 else secuencia[1],
+                turno_noche=None if len(secuencia) < 3 else secuencia[2],
+                cambio_turno_1=hora_cambio_1, 
+                cambio_turno_2=hora_cambio_2)
+            
+            # secuencia = secuencia[-1:] + secuencia[:-1]
+            secuencia = secuencia[1:] + secuencia[:1]
+        else:
+            print(f'Semana {week} es festiva')
+            HorarioDia.objects.filter(
+                zona=zona,
+                fecha__week=week,
+                fecha__gte=inicio_date,
+                fecha__lte=fin_date
+            ).update(
+                turno_mañana=None, 
+                turno_tarde=None,
+                turno_noche=None)
 
     return Response({"mensaje": "Turnos creados ..."}, status=200)
 
