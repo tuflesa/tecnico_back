@@ -503,6 +503,7 @@ def obtener_anual(request):
             "cambio_turno_1": d.cambio_turno_1,
             "cambio_turno_2": d.cambio_turno_2,
             "semana": d.semana(),
+            "id": d.id,
         }
         for d in queryset
     ]
@@ -524,9 +525,19 @@ def actualizar_horario(request, fecha):
     # Obtener los valores como strings
     inicio = request.data.get("inicio", dia.inicio)
     fin = request.data.get("fin", dia.fin)
+    turno_mañana = request.data.get("turno_mañana")
+    turno_tarde = request.data.get("turno_tarde")
+    turno_noche = request.data.get("turno_noche")
+    cambio_turno_1 = request.data.get("cambio_turno_1")
+    cambio_turno_2 = request.data.get("cambio_turno_2")
 
     dia.inicio = inicio
     dia.fin = fin
+    dia.turno_mañana_id = turno_mañana if turno_mañana else None
+    dia.turno_tarde_id = turno_tarde if turno_tarde else None
+    dia.turno_noche_id = turno_noche if turno_noche else None
+    dia.cambio_turno_1 = cambio_turno_1 if cambio_turno_1 else None
+    dia.cambio_turno_2 = cambio_turno_2 if cambio_turno_2 else None
     
     #si hora inicio y fin es 0.0 pondrá es_festivo a true
     dia.es_festivo = (dia.inicio == time(0, 0) and dia.fin == time(0, 0))
