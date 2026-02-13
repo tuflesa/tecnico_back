@@ -257,7 +257,31 @@ def leerFlejesEnAcumuladores(request):
                     OF.objects.filter(numero=of_actual).update(fin=hora_cambio_OF)
                     if (OF.objects.filter(numero=next_of).last() == None): # Si aún no se ha creado la OF
                         print('Crear OF ...')
-                        nueva_OF = OF.objects.create(numero=next_of, inicio=hora_cambio_OF, zona=acc.zona)
+                        consultaSQL =  """
+                            SELECT *
+                            FROM imp.tb_tubo_orden
+                            WHERE xIdOF = ?
+                        """
+
+                        conn_str = (
+                            "DRIVER={ODBC Driver 18 for SQL Server};"
+                            "SERVER=10.128.0.203;"
+                            "DATABASE=Produccion_BD;"
+                            "UID=reader;"
+                            "PWD=sololectura;"
+                            "TrustServerCertificate=yes;"
+                        )
+                        conexion = pyodbc.connect(conn_str)
+                        cursor = conexion.cursor()
+                        cursor.execute(consultaSQL, '26T00025')
+                        fila = cursor.fetchone()
+                        if fila:
+                            grupo = fila.xIdGrupo
+                        else:
+                            grupo = None
+                        cursor.close()
+                        conexion.close()
+                        nueva_OF = OF.objects.create(numero=next_of, inicio=hora_cambio_OF, zona=acc.zona, grupo=grupo)
                     else: # Si ya está creada y hay flejes de esa of es que se ha vuelto a abrir
                         print('TODO: Ver si se ha reabierto una OF ya creada ...')                  
                 plc.disconnect()
