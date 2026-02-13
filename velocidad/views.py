@@ -368,6 +368,16 @@ def nuevo_periodo(request):
     zona_id = datos['zona']
     velocidad = float(datos['velocidad'])
     tnp = datos['tnp'].lower() == "true"
+    turno_id =int(datos['turno'])
+
+    zona = Zona.objects.get(id=zona_id)
+    if turno_id == 0:
+        turno = None
+        print(f'zona {zona.siglas} - turno Nulo')
+    else:
+        turno = Turnos.objects.get(id=turno_id) 
+        print(f'zona {zona.siglas} - turno {turno.turno}')
+    
 
     ultimo_periodo = Periodo.objects.filter(parada__zona= zona_id, fin__isnull=True).last()
 
@@ -378,7 +388,6 @@ def nuevo_periodo(request):
 
         ultima_parada_id = ultimo_periodo.parada.id
         ultima_parada = Parada.objects.get(id=ultima_parada_id)
-        zona = Zona.objects.get(id=zona_id)
 
         # Maquina de estados
         if ultima_parada.codigo.siglas == 'RUN': # Desde RUN
@@ -438,7 +447,7 @@ def nuevo_periodo(request):
             parada = Parada.objects.create(codigo=codigo, zona=zona)
                         
 
-    else: # Si no hay ultima parada
+    else: # Si no hay ultimo periodo
         if velocidad > 0.0: # RUN
             codigo = CodigoParada.objects.filter(siglas='RUN').first()
         else:
@@ -451,9 +460,9 @@ def nuevo_periodo(request):
                     codigo = CodigoParada.objects.filter(siglas='UNKNOWN').first()
         parada = Parada.objects.create(codigo=codigo, zona=zona)
 
-    periodo = Periodo.objects.create(parada=parada, inicio=fecha_dt, velocidad=velocidad)
+    periodo = Periodo.objects.create(parada=parada, inicio=fecha_dt, velocidad=velocidad, turno=turno)
 
-    return JsonResponse({"status": "created", "fecha": fecha_str}, status=201)
+    return JsonResponse({"status": "created", "fecha": fecha_str, "turno": turno.turno if turno else 'Sin turno'}, status=201)
 
 @api_view(["POST"])
 def generar_anual(request):

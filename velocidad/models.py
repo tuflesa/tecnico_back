@@ -1,10 +1,8 @@
 from estructura.models import Zona
 from django.db import models
-from estructura.models import Zona
 from datetime import datetime
 from django.db.models import Min, Max
 from django.utils import timezone
-from mantenimiento.models import ParteTrabajo
 from django.contrib.auth.models import User
 
 class ZonaPerfilVelocidad(models.Model):
@@ -37,6 +35,15 @@ class Registro(models.Model):
 
     def __str__(self):
         return str(self.fecha) + ' - ' + str(self.hora) + ' - ' + self.zona.siglas + ' - ' + str(self.velocidad)  
+    
+class Turnos(models.Model): # Escritura, lectura, edicion....
+    turno = models.CharField(max_length=1)
+    zona = models.ForeignKey(Zona, on_delete=models.CASCADE, related_name='turnos', null=True, blank=True)
+    maquinista = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    activo = models.BooleanField(default=True)
+
+    def __str__(self):
+        return f"{self.turno} - {self.maquinista}" 
 
 class TipoParada(models.Model):
     nombre = models.CharField(max_length=12)
@@ -119,15 +126,7 @@ class Periodo(models.Model):
     inicio = models.DateTimeField(null=True)
     fin = models.DateTimeField(null=True)
     velocidad = models.FloatField(default=0)
-    
-class Turnos(models.Model): # Escritura, lectura, edicion....
-    turno = models.CharField(max_length=1)
-    zona = models.ForeignKey(Zona, on_delete=models.CASCADE, related_name='turnos', null=True, blank=True)
-    maquinista = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
-    activo = models.BooleanField(default=True)
-
-    def __str__(self):
-        return f"{self.turno} - {self.maquinista}" 
+    turno = models.ForeignKey(Turnos, on_delete=models.SET_NULL, null=True, blank=True)
     
 class HorarioDia(models.Model):
     fecha = models.DateField()
