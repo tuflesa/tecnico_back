@@ -23,7 +23,7 @@ class PeriodoSerializer(serializers.ModelSerializer):
 class PeriodoCrearSerializer(serializers.ModelSerializer):
     class Meta:
         model = Periodo
-        fields = ['id', 'inicio', 'fin', 'velocidad', 'parada']
+        fields = ['id', 'inicio', 'fin', 'velocidad', 'parada', 'turno']
         read_only_fields = ['parada']
 
     def validate_inicio(self, value):
