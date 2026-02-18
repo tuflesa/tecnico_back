@@ -3,6 +3,7 @@ from django.http import JsonResponse
 from django_filters import rest_framework as filters
 from .serializers import RegistroSerializer, ZonaPerfilVelocidadSerilizer, HorarioDiaSerializer, TipoParadaSerializer, CodigoParadaSerializer, ParadaSerializer, DestrezasVelocidadSerializer, ParadasActualizarSerializer, ParadasCrearSerializer, PeriodoSerializer, PalabrasClaveSerializer, TurnosSerializer
 from .models import Registro, ZonaPerfilVelocidad, Parada, CodigoParada, Periodo, HorarioDia, TipoParada, Periodo, DestrezasVelocidad, PalabrasClave, Turnos
+from trazabilidad.models import Forma
 from estructura.models import Zona
 from trazabilidad.models import Flejes, Tubos, OF
 from django.forms.models import model_to_dict
@@ -14,6 +15,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from .calendario import generar_horario_anual
 from types import SimpleNamespace
+import pyodbc
 
 class DestrezasVelocidadFilter(filters.FilterSet):
     class Meta:
@@ -637,15 +639,12 @@ def guardar_paradas_agrupadas(request):
     paradas = request.data.get("paradas")
     observaciones = request.data.get("observaciones")
     tipo_parada = TipoParada.objects.get(id=tipo_parada_id)
-    codigo_parada = CodigoParada.objects.get(id=codigo_parada_id)
-
-    tipo_parada = TipoParada.objects.get(id=tipo_parada_id)
-    codigo_parada = CodigoParada.objects.get(id=codigo_parada_id)
+    codigo_parada = CodigoParada.objects.get(id=codigo_parada_id)    
 
     # Creamos la lista de todos los IDs seleccionados
     ids = [int(parada['id']) for parada in paradas]
 
-    if tipo_parada.nombre == 'Cambio' and len(ids) > 0:
+    if len(ids) > 1: # ANTIGUO: tipo_parada.nombre == 'Cambio' and 
         primera_id = ids[0]
         # IDs restantes son todos los de la lista menos el primero
         ids_a_eliminar = ids[1:] 
@@ -796,3 +795,87 @@ def crear_turnos(request):
 
     return Response({"mensaje": "Turnos creados ..."}, status=200)
 
+@api_view(["GET"])
+def buscar_montajes_of(request):
+    id = request.GET.get("zona_id")
+    xIdTipo = request.GET.get("tipo_parada_siglas") 
+
+    # Leer OF activa de producción DB
+    zona = Zona.objects.get(id=id)
+    maquina = zona.siglas
+    
+
+    conn_str = (
+        "DRIVER={ODBC Driver 18 for SQL Server};"
+        "SERVER=10.128.0.203;"
+        "DATABASE=Produccion_BD;"
+        "UID=reader;"
+        "PWD=sololectura;"
+        "TrustServerCertificate=yes;"
+    )
+
+    try:
+        conn = pyodbc.connect(conn_str)
+        cursor = conn.cursor()
+
+        # --- 1) Obtener OF activa ---
+        consulta_of = """
+            SELECT xIdOF
+            FROM imp.tb_tubo_orden
+            WHERE xActivada <> 0
+              AND xIdMaquina = ?
+        """
+        cursor.execute(consulta_of, (maquina,))
+        fila = cursor.fetchone()
+        xIdOF = fila.xIdOF if fila else None
+
+        # --- 2) Obtener el máximo xIdPos ---
+        consulta_pos = """
+            SELECT MAX(xIdPos) AS MaxPos
+            FROM imp.tb_tubo_parada
+            WHERE xIdOF = ?
+              AND xIdTipo = ?
+        """
+        cursor.execute(consulta_pos, (xIdOF, xIdTipo))
+        fila = cursor.fetchone()
+        xIdPos = (fila.MaxPos + 1) if fila and fila.MaxPos is not None else 1
+
+        if xIdTipo == 'R':
+            consulta_mmontajes = """
+                SELECT DISTINCT
+                    SUBSTRING(xIdArticulo, 1, 1) 
+                    + SUBSTRING(xIdArticulo, 4, 6) AS Combinacion
+                FROM imp.tb_tubo_linea
+                WHERE xIdOF = ?
+                    AND xIdArticulo IS NOT NULL;
+            """
+            cursor.execute(consulta_mmontajes, (xIdOF,))
+            fila = cursor.fetchall()
+            codigos = [f.Combinacion for f in fila]
+            montajes = []
+            
+            for codigo in codigos:
+                codigo_forma = codigo[0]
+                forma = Forma.objects.filter(codigo_forma=codigo_forma).first()
+                xDescripcion = forma.abreviatura + ' ' + codigo[1:]
+                print(xDescripcion)
+                dato = {
+                    'xIdParada': codigo,
+                    'xDescripcion': xDescripcion
+                }
+                montajes.append(dato)
+
+        else:
+            montajes = None
+
+        print(montajes)
+
+        cursor.close()
+        conn.close()
+
+    except Exception as e:
+        print("Error al ejecutar la consulta:", e)
+
+    print(f'of {xIdOF} pos {xIdPos}')
+
+    return Response(montajes)

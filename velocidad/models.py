@@ -49,6 +49,7 @@ class TipoParada(models.Model):
     nombre = models.CharField(max_length=12)
     color = models.CharField(max_length=15, null=True)
     para_informar = models.BooleanField(default=False)
+    siglas = models.CharField(max_length=1, null=True, blank=True)
 
     def __str__(self):
         return self.nombre
