@@ -254,7 +254,7 @@ def leerFlejesEnAcumuladores(request):
                                             codigo__siglas='UNKNOWN'
                                         ).last()
                     hora_cambio_OF = ultima_parada.inicio()
-                    OF.objects.filter(numero=of_actual).update(fin=hora_cambio_OF)
+                    OF.objects.filter(numero=of_actual, fin__isnull=True).update(fin=hora_cambio_OF)
                     if (OF.objects.filter(numero=next_of).last() == None): # Si aún no se ha creado la OF
                         print('Crear OF ...')
                         consultaSQL =  """

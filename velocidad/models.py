@@ -66,6 +66,7 @@ class CodigoParada(models.Model):
     zona = models.ForeignKey(Zona, on_delete=models.CASCADE, related_name='codigos_parada', null=True, blank=True) # null para codigos validos para todas las máquinas, no null para codigos especificos de una máquina
     siglas = models.CharField(max_length=10, blank=True, null=True)
     palabra_clave = models.ForeignKey(PalabrasClave, on_delete=models.CASCADE, null=True, blank=True, related_name='codigos')
+    codigoProdDB = models.CharField(max_length=10, null=True, blank=True)
 
     def __str__(self):
         if self.zona :
@@ -78,6 +79,8 @@ class Parada(models.Model):
     codigo = models.ForeignKey(CodigoParada, on_delete=models.CASCADE, related_name='paradas')
     zona = models.ForeignKey(Zona, on_delete=models.CASCADE, related_name='paradas')
     observaciones = models.CharField(max_length=500, blank=True, null=True)
+    of = models.CharField(max_length=8, null=True, blank=True)
+    pos = models.CharField(max_length=3, null=True, blank=True)
 
     def inicio(self):
         return self.periodos.aggregate(Min('inicio'))['inicio__min']

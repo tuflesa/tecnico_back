@@ -216,7 +216,8 @@ def estado_maquina(request, id):
     OFs = [{
         'numero': of.numero,
         'inicio': of.inicio.isoformat() if of.inicio else None,
-        'fin': of.fin.isoformat() if of.fin else None
+        'fin': of.fin.isoformat() if of.fin else None,
+        'grupo': of.grupo if of.grupo else None
     } for of in resultado]
 
     # Flejes fabricados

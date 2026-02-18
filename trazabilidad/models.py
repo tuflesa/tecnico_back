@@ -1,6 +1,14 @@
 from django.db import models
 from estructura.models import Zona
 
+class Forma(models.Model):
+    codigo_forma = models.CharField(max_length=1, primary_key=True)
+    descripcion = models.CharField(max_length=15)
+    abreviatura = models.CharField(max_length=8)
+
+    def __str__(self):
+        return f"{self.codigo_forma} - {self.descripcion}"
+
 class Acumulador(models.Model):
     nombre = models.CharField(max_length=50)
     zona = models.ForeignKey(Zona, on_delete=models.CASCADE)
