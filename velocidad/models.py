@@ -73,7 +73,11 @@ class CodigoParada(models.Model):
             maquina = self.zona.nombre
         else:
             maquina = 'General'
-        return str(self.id) + ' - ' + maquina + ' - ' + self.tipo.nombre + ' - ' + self.nombre
+        if self.palabra_clave:
+            pc = self.palabra_clave.nombre
+        else:
+            pc = ''
+        return str(self.id) + ' - ' + maquina + ' - ' + self.tipo.nombre + ' - ' + self.nombre + ' - ' + pc
 
 class Parada(models.Model):
     codigo = models.ForeignKey(CodigoParada, on_delete=models.CASCADE, related_name='paradas')
