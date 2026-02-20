@@ -209,16 +209,17 @@ def leerFlejesEnAcumuladores(request):
     # Para todos los acumuladores vemos si hay algún fleje que no esté ya en el accumulador
     for acc in Acumulador.objects.all():
         print(acc.maquina_siglas)
-        print('Test ...')
-        primer_fleje_of_actual = Flejes.objects.filter(of=of_actual).order_by('pos').first()
-        fecha = primer_fleje_of_actual.fecha_entrada
-        hora = primer_fleje_of_actual.hora_entrada
-        hora_cambio_OF = datetime.combine(fecha, hora)
-        print(f'Hora cambio of {hora_cambio_OF}')
-        print('Fin test ...')
         if (acc.of_activa):
             # Leemos ProduccionDB y actualizamos el FIFO de flejes
             of_actual = acc.of_activa
+
+            print('Test ...')
+            primer_fleje_of_actual = Flejes.objects.filter(of=of_actual).order_by('pos').first()
+            fecha = primer_fleje_of_actual.fecha_entrada
+            hora = primer_fleje_of_actual.hora_entrada
+            hora_cambio_OF = datetime.combine(fecha, hora)
+            print(f'Hora cambio of {hora_cambio_OF}')
+            print('Fin test ...')
         
             flejes_maquina = [f for f in flejes_DB if f['maquina_siglas'] == acc.maquina_siglas] # Filtramos por máquina
             if (acc.maquila_siglas):
