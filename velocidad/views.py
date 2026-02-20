@@ -636,8 +636,9 @@ def obtener_palabraclave(request):
 def guardar_paradas_agrupadas(request):
     tipo_parada_id = request.data.get("tipo_parada_id")
     codigo_parada_id = request.data.get("codigo_parada_id")
+    of = request.data.get("xIdOF")
     paradas = request.data.get("paradas")
-    observaciones = request.data.get("observaciones")
+    observaciones = request.data.get("xObservaciones")
     tipo_parada = TipoParada.objects.get(id=tipo_parada_id)
     codigo_parada = CodigoParada.objects.get(id=codigo_parada_id)    
 
@@ -652,7 +653,8 @@ def guardar_paradas_agrupadas(request):
         # 1. Actualizamos la parada principal
         Parada.objects.filter(id=primera_id).update(
             codigo=codigo_parada, 
-            observaciones=observaciones
+            observaciones=observaciones,
+            of=of,
         )
         
         # 2. Reasignamos todos los periodos de las otras paradas a la primera
@@ -799,6 +801,7 @@ def crear_turnos(request):
 def buscar_montajes_of(request):
     id = request.GET.get("zona_id")
     xIdTipo = request.GET.get("tipo_parada_siglas") 
+    xIdOF = request.GET.get("OF_activa")
 
     # Leer OF activa de producción DB
     zona = Zona.objects.get(id=id)
@@ -839,7 +842,7 @@ def buscar_montajes_of(request):
         cursor.execute(consulta_pos, (xIdOF, xIdTipo))
         fila = cursor.fetchone()
         xIdPos = (fila.MaxPos + 1) if fila and fila.MaxPos is not None else 1
-
+        # --- 3) Si es cambio, obtener el listado de los posibles cambios según OF ---
         if xIdTipo == 'R':
             consulta_mmontajes = """
                 SELECT DISTINCT
@@ -878,4 +881,64 @@ def buscar_montajes_of(request):
 
     print(f'of {xIdOF} pos {xIdPos}')
 
-    return Response(montajes)
+    
+    return Response({
+        "montajes": montajes,
+        "xIdPos": xIdPos,
+        "xIdOF": xIdOF
+    })
+
+@api_view(["GET"])
+def buscar_descripcion_paradaProdDB(request):
+    Id_codigoProdDB = request.GET.get("Id_codigoProdDB")
+    siglasParada = request.GET.get("tipo_parada_siglas") 
+
+    conn_str = (
+        "DRIVER={ODBC Driver 18 for SQL Server};"
+        "SERVER=10.128.0.203;"
+        "DATABASE=Produccion_BD;"
+        "UID=reader;"
+        "PWD=sololectura;"
+        "TrustServerCertificate=yes;"
+    )
+
+    if siglasParada == 'I':
+        try:
+            conn = pyodbc.connect(conn_str)
+            cursor = conn.cursor()
+
+            # --- 1) Obtener descripción de la incidencia ---
+            consulta_of = """
+                SELECT xDescripcion
+                FROM imp.tb_tubo_incidencia
+                WHERE xIdIncidencia = ?
+            """
+            cursor.execute(consulta_of, (Id_codigoProdDB,))
+            fila = cursor.fetchone()
+            descripcionProdDB = fila.xDescripcion if fila else None
+            cursor.close()
+            conn.close()
+
+        except Exception as e:
+            print("Error al ejecutar la consulta:", e)
+    if siglasParada == 'A':
+        try:
+            conn = pyodbc.connect(conn_str)
+            cursor = conn.cursor()
+
+            # --- 1) Obtener descripción de la incidencia ---
+            consulta_of = """
+                SELECT xDescripcion
+                FROM imp.tb_tubo_averia
+                WHERE xIdAveria = ?
+            """
+            cursor.execute(consulta_of, (Id_codigoProdDB,))
+            fila = cursor.fetchone()
+            descripcionProdDB = fila.xDescripcion if fila else None
+            cursor.close()
+            conn.close()
+
+        except Exception as e:
+            print("Error al ejecutar la consulta:", e)
+    
+    return Response(descripcionProdDB)
