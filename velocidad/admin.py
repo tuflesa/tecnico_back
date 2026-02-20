@@ -33,6 +33,7 @@ class CodigoParadaAdmin(admin.ModelAdmin):
 class PeriodoAdmin(admin.ModelAdmin):
     list_display =("id","parada", "inicio", "fin", "velocidad",)
     search_fields=("parada__id",)
+    list_filter=("parada__zona", "parada__codigo",)
 
 class DestrezasAdmin(admin.ModelAdmin):
     list_display =("id","nombre", "descripcion",)

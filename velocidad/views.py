@@ -400,9 +400,9 @@ def nuevo_periodo(request):
                 if velocidad < 0.0: # RUN a NO_PLC
                     codigo = CodigoParada.objects.filter(siglas='NO_PLC').first()
                 else: 
-                    if tnp: #RUN a TNP
+                    if tnp: #RUN a TNP 
                         codigo = CodigoParada.objects.filter(siglas='TNP').first()
-                    else: # RUN a TNP
+                    else: # RUN a UNKNOWN
                         codigo = CodigoParada.objects.filter(siglas='UNKNOWN').first()
                 parada = Parada.objects.create(codigo=codigo, zona=zona)
 

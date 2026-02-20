@@ -409,7 +409,7 @@ def leerFlejesEnAcumuladores(request):
                 if (ultimo_flejePLC['of'] == acc.of_activa and ultimo_flejePLC['pos'] == acc.n_bobina_activa):
                     print('bobina terminada')
                     f = Flejes.objects.get(of=ultimo_flejePLC['of'], pos=ultimo_flejePLC['pos'])
-                    orden = OF.objects.filter(numero=f.Of).last()
+                    orden = OF.objects.filter(numero=f.of).last()
                     if orden:
                         f.orden = orden
                     f.metros_medido = ultimo_flejePLC['metros_medidos']
