@@ -209,12 +209,21 @@ def leerFlejesEnAcumuladores(request):
     # Para todos los acumuladores vemos si hay algún fleje que no esté ya en el accumulador
     for acc in Acumulador.objects.all():
         print(acc.maquina_siglas)
-
+        print('Test ...')
+        primer_fleje_of_actual = Flejes.objects.filter(of=of_actual).order_by('pos').first()
+        fecha = primer_fleje_of_actual.fecha_entrada
+        hora = primer_fleje_of_actual.hora_entrada
+        hora_cambio_OF = datetime.combine(fecha, hora)
+        print(f'Hora cambio of {hora_cambio_OF}')
+        print('Fin test ...')
         if (acc.of_activa):
             # Leemos ProduccionDB y actualizamos el FIFO de flejes
             of_actual = acc.of_activa
         
             flejes_maquina = [f for f in flejes_DB if f['maquina_siglas'] == acc.maquina_siglas] # Filtramos por máquina
+            if (acc.maquila_siglas):
+                flejes_maquila = [f for f in flejes_DB if f['maquina_siglas'] == acc.maquila_siglas]
+                flejes_maquina = flejes_maquina + flejes_maquila
 
             flejes_of_actual = [f for f in flejes_maquina if f['of'] == of_actual]
             flejes_of_actual = sorted(flejes_of_actual, key=lambda f: f['pos']) # Ordenamos por posición
@@ -232,6 +241,7 @@ def leerFlejesEnAcumuladores(request):
                 plc.connect(IP, RACK, SLOT)
                 data = plc.read_area(snap7.type.Areas.DB, DB, 820, 1)
                 cambio_OF = get_bool(data, 0, 0)
+                plc.disconnect()
 
                 # Comprobar si el último fleje ha superado el 80% de su teorico
                 fl = Flejes.objects.filter(of=of_actual, finalizada=False).order_by('pos')
@@ -245,6 +255,8 @@ def leerFlejesEnAcumuladores(request):
                         ultimo_fleje_terminado = False
 
                 # Condicion de cambio de OF: señal desde el PLC que indica fleje cortado + ultimo fleje terminado + hay flejes preparados de la siguiente OF
+                crear_OF = False
+                of_registro = None
                 if (cambio_OF and len(flejes_of_siguiente)>0 and ultimo_fleje_terminado):
                     # Cierra la of actual
                     print('Cambio de OF ...')
@@ -256,35 +268,47 @@ def leerFlejesEnAcumuladores(request):
                     hora_cambio_OF = ultima_parada.inicio()
                     OF.objects.filter(numero=of_actual, fin__isnull=True).update(fin=hora_cambio_OF)
                     if (OF.objects.filter(numero=next_of).last() == None): # Si aún no se ha creado la OF
-                        print('Crear OF ...')
-                        consultaSQL =  """
-                            SELECT *
-                            FROM imp.tb_tubo_orden
-                            WHERE xIdOF = ?
-                        """
+                        crear_OF = True
+                        of_registro=next_of
+                        print(f'Crear cambio de OF con sensor {of_registro}')
+                else:
+                    last_of = OF.objects.filter(numero=of_actual).last()
+                    if last_of == None: # Si no se ha creado una of como la activa en acumulador la creamos
+                        crear_OF = True
+                        of_registro = of_actual
+                        primer_fleje_of_actual = Flejes.objects.filter(of=of_actual).order_by('pos').first()
+                        fecha = primer_fleje_of_actual.fecha_entrada
+                        hora = primer_fleje_of_actual.hora_entrada
+                        hora_cambio_OF = datetime.combine(fecha, hora)
+                        print(f'Crear cambio de OF sin sensor {of_registro} hora inicio OF {hora_cambio_OF}')
 
-                        conn_str = (
-                            "DRIVER={ODBC Driver 18 for SQL Server};"
-                            "SERVER=10.128.0.203;"
-                            "DATABASE=Produccion_BD;"
-                            "UID=reader;"
-                            "PWD=sololectura;"
-                            "TrustServerCertificate=yes;"
-                        )
-                        conexion = pyodbc.connect(conn_str)
-                        cursor = conexion.cursor()
-                        cursor.execute(consultaSQL, '26T00025')
-                        fila = cursor.fetchone()
-                        if fila:
-                            grupo = fila.xIdGrupo
-                        else:
-                            grupo = None
-                        cursor.close()
-                        conexion.close()
-                        nueva_OF = OF.objects.create(numero=next_of, inicio=hora_cambio_OF, zona=acc.zona, grupo=grupo)
-                    else: # Si ya está creada y hay flejes de esa of es que se ha vuelto a abrir
-                        print('TODO: Ver si se ha reabierto una OF ya creada ...')                  
-                plc.disconnect()
+                if crear_OF:
+                    print('Crear OF ...')
+                    consultaSQL =  """
+                        SELECT *
+                        FROM imp.tb_tubo_orden
+                        WHERE xIdOF = ?
+                    """
+
+                    conn_str = (
+                        "DRIVER={ODBC Driver 18 for SQL Server};"
+                        "SERVER=10.128.0.203;"
+                        "DATABASE=Produccion_BD;"
+                        "UID=reader;"
+                        "PWD=sololectura;"
+                        "TrustServerCertificate=yes;"
+                    )
+                    conexion = pyodbc.connect(conn_str)
+                    cursor = conexion.cursor()
+                    cursor.execute(consultaSQL, '26T00025')
+                    fila = cursor.fetchone()
+                    if fila:
+                        grupo = fila.xIdGrupo
+                    else:
+                        grupo = None
+                    cursor.close()
+                    conexion.close()
+                    OF.objects.create(numero=of_registro, inicio=hora_cambio_OF, zona=acc.zona, grupo=grupo)
 
             if len(flejes_of_actual) == 0 and len(flejes_of_siguiente)>0:
                 next_of = flejes_of_siguiente[0]['of']

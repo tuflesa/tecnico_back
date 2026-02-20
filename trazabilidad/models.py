@@ -13,6 +13,7 @@ class Acumulador(models.Model):
     nombre = models.CharField(max_length=50)
     zona = models.ForeignKey(Zona, on_delete=models.CASCADE)
     maquina_siglas = models.CharField(max_length=4, null=True, blank=True)
+    maquila_siglas = models.CharField(max_length=4, null=True, blank=True)
     of_activa = models.CharField(max_length=8, null=True, blank=True)
     n_bobina_activa = models.IntegerField(null=True, blank=True)
     n_bobina_ultima = models.IntegerField(null=True, blank=True)
