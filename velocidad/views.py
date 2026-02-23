@@ -281,7 +281,8 @@ def estado_maquina(request, id):
     # Estado actual
     # Fleje y Tubo actual
     estado_act = Registro.objects.filter(zona=id).last()
-    fleje_act = Flejes.objects.filter(maquina_siglas=siglas, fecha_salida__isnull=True).order_by('-fecha_entrada', '-hora_entrada').last()
+    fleje_act = Flejes.objects.filter(Q(maquina_siglas=siglas) |
+                                      Q(maquina_siglas=siglas_maquila)).filter(fecha_salida__isnull=True).order_by('-fecha_entrada', '-hora_entrada').last()
     if (fleje_act == None):
         fleje_act = SimpleNamespace(
             of='',
