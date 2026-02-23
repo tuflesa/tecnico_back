@@ -224,18 +224,21 @@ def estado_maquina(request, id):
     } for of in resultado]
 
     # Flejes fabricados
-    siglas = maquina.zona.siglas.upper()
     acc = Acumulador.objects.filter(maquina_siglas=siglas).last()
-    siglas_maquila = acc.maquila_siglas.upper()
-    resultado = Flejes.objects.filter(
-        Q(maquina_siglas=siglas) |
-        Q(maquina_siglas=siglas_maquila)
-    ).filter(
-        Q(fecha_entrada__gte=fecha, fecha_entrada__lte=fecha_fin) |
-        Q(fecha_salida__gte=fecha, fecha_salida__lte=fecha_fin) |
-        Q(fecha_entrada__gte=fecha, fecha_entrada__lte=fecha_fin) |
-        Q(fecha_entrada__lte=fecha_fin, fecha_salida__isnull=True)  # En proceso
-    ).distinct().order_by('-fecha_entrada', '-hora_entrada')
+    if acc != None:
+        siglas = maquina.zona.siglas.upper()
+        siglas_maquila = acc.maquila_siglas.upper()
+        resultado = Flejes.objects.filter(
+            Q(maquina_siglas=siglas) |
+            Q(maquina_siglas=siglas_maquila)
+        ).filter(
+            Q(fecha_entrada__gte=fecha, fecha_entrada__lte=fecha_fin) |
+            Q(fecha_salida__gte=fecha, fecha_salida__lte=fecha_fin) |
+            Q(fecha_entrada__gte=fecha, fecha_entrada__lte=fecha_fin) |
+            Q(fecha_entrada__lte=fecha_fin, fecha_salida__isnull=True)  # En proceso
+        ).distinct().order_by('-fecha_entrada', '-hora_entrada')
+    else:
+        resultado = []
     # Serializar resultados
     flejes = [{
         'id': f.id,
