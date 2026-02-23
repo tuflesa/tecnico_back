@@ -3,6 +3,7 @@ from django.http import JsonResponse
 from django_filters import rest_framework as filters
 from .serializers import RegistroSerializer, ZonaPerfilVelocidadSerilizer, HorarioDiaSerializer, TipoParadaSerializer, CodigoParadaSerializer, ParadaSerializer, DestrezasVelocidadSerializer, ParadasActualizarSerializer, ParadasCrearSerializer, PeriodoSerializer, PalabrasClaveSerializer, TurnosSerializer
 from .models import Registro, ZonaPerfilVelocidad, Parada, CodigoParada, Periodo, HorarioDia, TipoParada, Periodo, DestrezasVelocidad, PalabrasClave, Turnos
+from trazabilidad.models import Acumulador
 from trazabilidad.models import Forma
 from estructura.models import Zona
 from trazabilidad.models import Flejes, Tubos, OF
@@ -224,8 +225,11 @@ def estado_maquina(request, id):
 
     # Flejes fabricados
     siglas = maquina.zona.siglas.upper()
+    acc = Acumulador.objects.filter(maquina_siglas=siglas).last()
+    siglas_maquila = acc.maquila_siglas
     resultado = Flejes.objects.filter(
-        maquina_siglas=siglas
+        Q(maquina_siglas=siglas) |
+        Q(maquina_siglas=siglas_maquila)
     ).filter(
         Q(fecha_entrada__gte=fecha, fecha_entrada__lte=fecha_fin) |
         Q(fecha_salida__gte=fecha, fecha_salida__lte=fecha_fin) |

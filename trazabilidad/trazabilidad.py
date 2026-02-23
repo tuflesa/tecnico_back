@@ -265,6 +265,7 @@ def leerFlejesEnAcumuladores(request):
                         of_registro=next_of
                         print(f'Crear cambio de OF con sensor {of_registro}')
                 else:
+                    print('Cambio de OF sin sensor...')
                     last_of = OF.objects.filter(numero=of_actual).last()
                     if last_of == None: # Si no se ha creado una of como la activa en acumulador la creamos
                         crear_OF = True
@@ -273,6 +274,7 @@ def leerFlejesEnAcumuladores(request):
                         fecha = primer_fleje_of_actual.fecha_entrada
                         hora = primer_fleje_of_actual.hora_entrada
                         hora_cambio_OF = datetime.combine(fecha, hora)
+                        OF.objects.filter(zona=acc.zona, fin__isnull=True).update(fin=hora_cambio_OF)
                         print(f'Crear cambio de OF sin sensor {of_registro} hora inicio OF {hora_cambio_OF}')
 
                 if crear_OF:
