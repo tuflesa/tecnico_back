@@ -226,7 +226,7 @@ def estado_maquina(request, id):
     # Flejes fabricados
     siglas = maquina.zona.siglas.upper()
     acc = Acumulador.objects.filter(maquina_siglas=siglas).last()
-    siglas_maquila = acc.maquila_siglas
+    siglas_maquila = acc.maquila_siglas.upper()
     resultado = Flejes.objects.filter(
         Q(maquina_siglas=siglas) |
         Q(maquina_siglas=siglas_maquila)
