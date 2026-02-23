@@ -8,8 +8,8 @@ from trazabilidad.models import Forma
 from estructura.models import Zona
 from trazabilidad.models import Flejes, Tubos, OF
 from django.forms.models import model_to_dict
-from django.db.models import Q
-from django.db.models import Min, Max
+from django.db.models import Q, F
+from django.db.models import Min, Max, Sum, ExpressionWrapper, DurationField
 from datetime import datetime, date, time
 from django.utils import timezone
 from rest_framework.decorators import api_view
@@ -642,6 +642,7 @@ def guardar_paradas_agrupadas(request):
     tipo_parada_id = request.data.get("tipo_parada_id")
     codigo_parada_id = request.data.get("codigo_parada_id")
     of = request.data.get("xIdOF")
+    xIdPos = request.data.get("xIdPos")
     paradas = request.data.get("paradas")
     observaciones = request.data.get("xObservaciones")
     tipo_parada = TipoParada.objects.get(id=tipo_parada_id)
@@ -650,16 +651,33 @@ def guardar_paradas_agrupadas(request):
     # Creamos la lista de todos los IDs seleccionados
     ids = [int(parada['id']) for parada in paradas]
 
+    duraciones_por_turno = [ #Solo para guardar en ProdDB, 2 turnos = 2 paradas
+        {
+            'turno': item['turno__turno'],
+            'minutos': int(item['duracion_total'].total_seconds() / 60) if item['duracion_total'] else 0,
+            'inicio': item['inicio_min'].strftime('%Y-%m-%d %H:%M:%S.000') if item['inicio_min'] else None,
+        }
+        for item in Periodo.objects
+            .filter(parada__in=ids)
+            .values('turno__turno')
+            .annotate(
+                duracion_total=Sum(
+                    ExpressionWrapper(F('fin') - F('inicio'), output_field=DurationField())
+                ),
+                inicio_min=Min('inicio')
+            )
+    ]
     if len(ids) > 1: # ANTIGUO: tipo_parada.nombre == 'Cambio' and 
+        
         primera_id = ids[0]
         # IDs restantes son todos los de la lista menos el primero
         ids_a_eliminar = ids[1:] 
-        
         # 1. Actualizamos la parada principal
         Parada.objects.filter(id=primera_id).update(
             codigo=codigo_parada, 
             observaciones=observaciones,
             of=of,
+            pos=xIdPos
         )
         
         # 2. Reasignamos todos los periodos de las otras paradas a la primera
@@ -674,10 +692,12 @@ def guardar_paradas_agrupadas(request):
         # Si no es "Cambio", solo actualizamos la información de todas
         Parada.objects.filter(id__in=ids).update(
             codigo=codigo_parada, 
-            observaciones=observaciones
+            observaciones=observaciones,
+            of=of,
+            pos=xIdPos
         )
-
-    return Response({"mensaje": "Paradas procesadas y limpieza realizada"}, status=200)
+    return Response(duraciones_por_turno)
+    #return Response({"mensaje": "Paradas procesadas y limpieza realizada"}, status=200)
 
 @api_view(["GET"])
 def leer_paradas_run(request):
@@ -907,37 +927,16 @@ def buscar_descripcion_paradaProdDB(request):
         "TrustServerCertificate=yes;"
     )
 
-    if siglasParada == 'I':
+    tablas = {
+        'I': ('imp.tb_tubo_incidencia', 'xIdIncidencia'),
+        'A': ('imp.tb_tubo_averia', 'xIdAveria'),
+    }
+    if siglasParada in tablas:
+        tabla, campo_id = tablas[siglasParada]
         try:
             conn = pyodbc.connect(conn_str)
             cursor = conn.cursor()
-
-            # --- 1) Obtener descripción de la incidencia ---
-            consulta_of = """
-                SELECT xDescripcion
-                FROM imp.tb_tubo_incidencia
-                WHERE xIdIncidencia = ?
-            """
-            cursor.execute(consulta_of, (Id_codigoProdDB,))
-            fila = cursor.fetchone()
-            descripcionProdDB = fila.xDescripcion if fila else None
-            cursor.close()
-            conn.close()
-
-        except Exception as e:
-            print("Error al ejecutar la consulta:", e)
-    if siglasParada == 'A':
-        try:
-            conn = pyodbc.connect(conn_str)
-            cursor = conn.cursor()
-
-            # --- 1) Obtener descripción de la incidencia ---
-            consulta_of = """
-                SELECT xDescripcion
-                FROM imp.tb_tubo_averia
-                WHERE xIdAveria = ?
-            """
-            cursor.execute(consulta_of, (Id_codigoProdDB,))
+            cursor.execute(f"SELECT xDescripcion FROM {tabla} WHERE {campo_id} = ?", (Id_codigoProdDB,))
             fila = cursor.fetchone()
             descripcionProdDB = fila.xDescripcion if fila else None
             cursor.close()
