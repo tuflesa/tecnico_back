@@ -226,6 +226,7 @@ def estado_maquina(request, id):
     # Flejes fabricados
     siglas = maquina.zona.siglas.upper()
     acc = Acumulador.objects.filter(maquina_siglas=siglas).last()
+    print(f'Acc: {acc}')
     if acc != None:
         siglas_maquila = acc.maquila_siglas.upper()
         resultado = Flejes.objects.filter(
