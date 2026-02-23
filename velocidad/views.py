@@ -305,7 +305,7 @@ def estado_maquina(request, id):
                 descripcion = tubo_actual.descripcion()
             )
     # OF Actual
-    OF_actual = OF.objects.filter(zona=id).last()
+    OF_actual = OF.objects.filter(zona=id, fin__isnull=True).last()
     if (OF_actual == None):
         current_of =  fleje_act.of
     else:
