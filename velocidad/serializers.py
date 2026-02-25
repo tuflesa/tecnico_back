@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import ZonaPerfilVelocidad, Registro, Periodo, Parada, HorarioDia, TipoParada, CodigoParada, DestrezasVelocidad, PalabrasClave, Turnos
+from .models import ZonaPerfilVelocidad, Registro, Periodo, Parada, HorarioDia, TipoParada, CodigoParada, DestrezasVelocidad, PalabrasClave, Turnos, ParadaProduccionDB
 from estructura.serializers import ZonaSerializer
 from django.utils import timezone
 #from administracion.serializers import UserSerializer
@@ -156,4 +156,9 @@ class DestrezasVelocidadSerializer(serializers.ModelSerializer):
 class PalabrasClaveSerializer(serializers.ModelSerializer):
     class Meta:
         model = PalabrasClave
+        fields = '__all__'
+
+class ParadaProduccionDBSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ParadaProduccionDB
         fields = '__all__'

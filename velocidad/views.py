@@ -1,7 +1,7 @@
 from rest_framework import viewsets
 from django.http import JsonResponse
 from django_filters import rest_framework as filters
-from .serializers import RegistroSerializer, ZonaPerfilVelocidadSerilizer, HorarioDiaSerializer, TipoParadaSerializer, CodigoParadaSerializer, ParadaSerializer, DestrezasVelocidadSerializer, ParadasActualizarSerializer, ParadasCrearSerializer, PeriodoSerializer, PalabrasClaveSerializer, TurnosSerializer
+from .serializers import RegistroSerializer, ZonaPerfilVelocidadSerilizer, HorarioDiaSerializer, TipoParadaSerializer, CodigoParadaSerializer, ParadaSerializer, DestrezasVelocidadSerializer, ParadasActualizarSerializer, ParadasCrearSerializer, PeriodoSerializer, PalabrasClaveSerializer, TurnosSerializer, ParadaProduccionDBSerializer
 from .models import Registro, ZonaPerfilVelocidad, Parada, CodigoParada, Periodo, HorarioDia, TipoParada, Periodo, DestrezasVelocidad, PalabrasClave, Turnos, ParadaProduccionDB
 from trazabilidad.models import Acumulador
 from trazabilidad.models import Forma
@@ -87,6 +87,13 @@ class TurnosFilter(filters.FilterSet):
             'zona': ['exact'],
         }
 
+class ParadaProduccionDBFilter(filters.FilterSet):
+    class Meta:
+        model = ParadaProduccionDB
+        fields = {
+            'parada': ['exact'],
+        }
+
 class ParadaActualizarViewSet(viewsets.ModelViewSet):
     serializer_class = ParadasActualizarSerializer
     queryset = Parada.objects.all()
@@ -140,6 +147,11 @@ class TurnosViewSet(viewsets.ModelViewSet):
     serializer_class = TurnosSerializer
     queryset = Turnos.objects.all()
     filterset_class = TurnosFilter
+
+class ParadaProduccionDBViewSet(viewsets.ModelViewSet):
+    serializer_class = ParadaProduccionDBSerializer
+    queryset = ParadaProduccionDB.objects.all()
+    filterset_class = ParadaProduccionDBFilter
 
 def estado_maquina(request, id):
     fecha_str = request.GET.get('fecha')
