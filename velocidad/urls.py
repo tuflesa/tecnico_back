@@ -7,6 +7,7 @@ router = routers.DefaultRouter()
 router.register('turnos', TurnosViewSet)
 router.register('paradas_crear', ParadaCrearViewSet)
 router.register('periodo', PeriodoViewSet)
+router.register('parada_produccion_db', ParadaProduccionDBViewSet)
 router.register('paradas', ParadaActualizarViewSet)
 router.register('lineas', ZonaPerfilVelocidadViewSet)
 router.register('registro', RegistroViewSet)
@@ -16,7 +17,6 @@ router.register('destrezas_velocidad', DestrezasVelocidadViewSet)
 
 urlpatterns = [
     path('estado/<int:id>/', estado_maquina),
-    path('parada_produccion_db/', ParadaProduccionDBViewSet),
     path('nuevo_periodo/', nuevo_periodo),
     path('buscar_descripcion_paradaProdDB/', buscar_descripcion_paradaProdDB),
     path('buscar_montajes_of/', buscar_montajes_of),
