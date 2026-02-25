@@ -865,6 +865,7 @@ def buscar_montajes_of(request):
         cursor.execute(consulta_of, (maquina,))
         fila = cursor.fetchone()
         xIdOF = fila.xIdOF if fila else None
+        print(f'OF activa: {xIdOF}')
 
         # --- 2) Obtener el máximo xIdPos ---
         consulta_pos = """
@@ -876,6 +877,7 @@ def buscar_montajes_of(request):
         cursor.execute(consulta_pos, (xIdOF, xIdTipo))
         fila = cursor.fetchone()
         xIdPos = (fila.MaxPos + 1) if fila and fila.MaxPos is not None else 1
+        print(f'Posicion: {xIdPos}')
         # --- 3) Si es cambio, obtener el listado de los posibles cambios según OF ---
         if xIdTipo == 'R':
             consulta_mmontajes = """
@@ -904,7 +906,7 @@ def buscar_montajes_of(request):
 
         else:
             montajes = None
-
+        print('Montajes ...')
         print(montajes)
 
         cursor.close()
