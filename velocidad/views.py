@@ -639,6 +639,7 @@ def obtener_palabraclave(request):
 
 @api_view(["POST"])
 def guardar_paradas_agrupadas(request):
+    modo = request.data.get("modo") # Para saber si queremos agrupar o solo identificar
     tipo_parada_id = request.data.get("tipo_parada_id")
     codigo_parada_id = request.data.get("codigo_parada_id")
     of = request.data.get("xIdOF")
@@ -667,7 +668,7 @@ def guardar_paradas_agrupadas(request):
                 inicio_min=Min('inicio')
             )
     ]
-    if len(ids) > 1: # ANTIGUO: tipo_parada.nombre == 'Cambio' and 
+    if len(ids) > 1 and modo=='agrupar': # ANTIGUO: tipo_parada.nombre == 'Cambio' and 
         
         primera_id = ids[0]
         # IDs restantes son todos los de la lista menos el primero
