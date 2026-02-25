@@ -668,7 +668,7 @@ def guardar_paradas_agrupadas(request):
         {
             'turno': item['turno__turno'],
             'minutos': int(item['duracion_total'].total_seconds() / 60) if item['duracion_total'] else 0,
-            'inicio': item['inicio_min'].strftime('%Y-%m-%d %H:%M:%S.000') if item['inicio_min'] else None,
+            'inicio': item['inicio_min'] if item['inicio_min'] else None,
         }
         for item in Periodo.objects
             .filter(parada__in=ids)
