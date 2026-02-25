@@ -664,29 +664,12 @@ def guardar_paradas_agrupadas(request):
     # Creamos la lista de todos los IDs seleccionados
     ids = [int(parada['id']) for parada in paradas]
 
-    duraciones_por_turno = [ #Solo para guardar en ProdDB, 2 turnos = 2 paradas
-        {
-            'turno': item['turno__turno'],
-            'minutos': int(item['duracion_total'].total_seconds() / 60) if item['duracion_total'] else 0,
-            'inicio': item['inicio_min'] if item['inicio_min'] else None,
-        }
-        for item in Periodo.objects
-            .filter(parada__in=ids)
-            .values('turno__turno')
-            .annotate(
-                duracion_total=Sum(
-                    ExpressionWrapper(F('fin') - F('inicio'), output_field=DurationField())
-                ),
-                inicio_min=Min('inicio')
-            )
-    ]
-    if len(ids) > 1 and modo=='agrupar': # ANTIGUO: tipo_parada.nombre == 'Cambio' and 
-        
+    if len(ids) > 1 and modo=='agrupar': # ANTIGUO: tipo_parada.nombre == 'Cambio' and   
         primera_id = ids[0]
         # IDs restantes son todos los de la lista menos el primero
         ids_a_eliminar = ids[1:] 
         # 1. Actualizamos la parada principal
-        parada = Parada.objects.filter(id=primera_id).update(
+        Parada.objects.filter(id=primera_id).update(
             codigo=codigo_parada, 
             observaciones=observaciones,
             of=of,
@@ -703,7 +686,7 @@ def guardar_paradas_agrupadas(request):
             
     else:
         # Si no es "Cambio", solo actualizamos la información de todas
-        parada = Parada.objects.filter(id__in=ids).update(
+        Parada.objects.filter(id__in=ids).update(
             codigo=codigo_parada, 
             observaciones=observaciones,
             of=of,
@@ -722,31 +705,49 @@ def guardar_paradas_agrupadas(request):
     conn = pyodbc.connect(conn_str)
     cursor = conn.cursor()
 
-    for duracion in duraciones_por_turno:
-        ParadaProduccionDB.objects.create(pos=xIdPos, parada=parada)
-        sql = """
-            INSERT INTO imp.tb_tubo_parada (
+    paradas = Parada.objects.filter(id__in=ids)
+    for parada in paradas:
+        duraciones_por_turno = [ #Solo para guardar en ProdDB, 2 turnos = 2 paradas
+        {
+            'turno': item['turno__turno'],
+            'minutos': int(item['duracion_total'].total_seconds() / 60) if item['duracion_total'] else 0,
+            'inicio': item['inicio_min'] if item['inicio_min'] else None,
+        }
+        for item in Periodo.objects
+            .filter(parada=parada)
+            .values('turno__turno')
+            .annotate(
+                duracion_total=Sum(
+                    ExpressionWrapper(F('fin') - F('inicio'), output_field=DurationField())
+                ),
+                inicio_min=Min('inicio')
+            )
+        ]
+        for duracion in duraciones_por_turno:      
+            ParadaProduccionDB.objects.create(pos=xIdPos, parada=parada)
+            sql = """
+                INSERT INTO imp.tb_tubo_parada (
+                    xIdOF, xIdTipo, xIdPos, xIdParada, xDescripcion,
+                    xFecha, xTiempo, xObservaciones, xTurno, xIgnorar
+                )
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """
+            xIdOF = of
+            if xIdTipo == 'R':
+                xIdParada = xIdParada_R
+            xObservaciones = observaciones
+            xIgnorar = False
+            xFecha = duracion['inicio']
+            xTiempo = duracion['minutos']
+            xTurno = duracion['turno']
+
+            cursor.execute(sql, (
                 xIdOF, xIdTipo, xIdPos, xIdParada, xDescripcion,
                 xFecha, xTiempo, xObservaciones, xTurno, xIgnorar
-            )
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        """
-        xIdOF = of
-        if xIdTipo == 'R':
-            xIdParada = xIdParada_R
-        xObservaciones = observaciones
-        xIgnorar = False
-        xFecha = duracion['inicio']
-        xTiempo = duracion['minutos']
-        xTurno = duracion['turno']
+            ))
 
-        cursor.execute(sql, (
-            xIdOF, xIdTipo, xIdPos, xIdParada, xDescripcion,
-            xFecha, xTiempo, xObservaciones, xTurno, xIgnorar
-        ))
-
-        conn.commit()
-        xIdPos += 1
+            conn.commit()
+            xIdPos += 1
 
     cursor.close()
     conn.close()
