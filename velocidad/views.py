@@ -733,6 +733,7 @@ def guardar_paradas_agrupadas(request):
         xIdOF = of
         if xIdTipo == 'R':
             xIdParada = xIdParada_R
+        xIdPos = 
         xObservaciones = observaciones
         xIgnorar = False
         xFecha = duracion['inicio']
@@ -745,6 +746,7 @@ def guardar_paradas_agrupadas(request):
         ))
 
         conn.commit()
+        xIdPos += 1
 
     cursor.close()
     conn.close()
