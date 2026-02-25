@@ -2,7 +2,7 @@ from rest_framework import viewsets
 from django.http import JsonResponse
 from django_filters import rest_framework as filters
 from .serializers import RegistroSerializer, ZonaPerfilVelocidadSerilizer, HorarioDiaSerializer, TipoParadaSerializer, CodigoParadaSerializer, ParadaSerializer, DestrezasVelocidadSerializer, ParadasActualizarSerializer, ParadasCrearSerializer, PeriodoSerializer, PalabrasClaveSerializer, TurnosSerializer
-from .models import Registro, ZonaPerfilVelocidad, Parada, CodigoParada, Periodo, HorarioDia, TipoParada, Periodo, DestrezasVelocidad, PalabrasClave, Turnos
+from .models import Registro, ZonaPerfilVelocidad, Parada, CodigoParada, Periodo, HorarioDia, TipoParada, Periodo, DestrezasVelocidad, PalabrasClave, Turnos, ParadaProduccionDB
 from trazabilidad.models import Acumulador
 from trazabilidad.models import Forma
 from estructura.models import Zona
@@ -686,11 +686,11 @@ def guardar_paradas_agrupadas(request):
         # IDs restantes son todos los de la lista menos el primero
         ids_a_eliminar = ids[1:] 
         # 1. Actualizamos la parada principal
-        Parada.objects.filter(id=primera_id).update(
+        parada = Parada.objects.filter(id=primera_id).update(
             codigo=codigo_parada, 
             observaciones=observaciones,
             of=of,
-            pos=xIdPos
+            # pos=xIdPos
         )
         
         # 2. Reasignamos todos los periodos de las otras paradas a la primera
@@ -703,11 +703,11 @@ def guardar_paradas_agrupadas(request):
             
     else:
         # Si no es "Cambio", solo actualizamos la información de todas
-        Parada.objects.filter(id__in=ids).update(
+        parada = Parada.objects.filter(id__in=ids).update(
             codigo=codigo_parada, 
             observaciones=observaciones,
             of=of,
-            pos=xIdPos
+            # pos=xIdPos
         )
 
     # Escribir en producción DB
@@ -723,6 +723,7 @@ def guardar_paradas_agrupadas(request):
     cursor = conn.cursor()
 
     for duracion in duraciones_por_turno:
+        ParadaProduccionDB.objects.create(pos=xIdPos, parada=parada)
         sql = """
             INSERT INTO imp.tb_tubo_parada (
                 xIdOF, xIdTipo, xIdPos, xIdParada, xDescripcion,

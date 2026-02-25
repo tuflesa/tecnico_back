@@ -85,7 +85,6 @@ class Parada(models.Model):
     zona = models.ForeignKey(Zona, on_delete=models.CASCADE, related_name='paradas')
     observaciones = models.CharField(max_length=500, blank=True, null=True)
     of = models.CharField(max_length=8, null=True, blank=True)
-    pos = models.CharField(max_length=3, null=True, blank=True)
 
     def inicio(self):
         return self.periodos.aggregate(Min('inicio'))['inicio__min']
@@ -164,3 +163,7 @@ class DestrezasVelocidad(models.Model): # Escritura, lectura, edicion....
 
     def __str__(self):
         return self.nombre
+    
+class ParadaProduccionDB(models.Model):
+    pos = models.CharField(max_length=3, null=True, blank=True)
+    parada = models.ForeignKey(Parada, on_delete=models.CASCADE, related_name='posiciones_prod_db')
