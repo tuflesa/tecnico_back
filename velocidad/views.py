@@ -652,6 +652,10 @@ def guardar_paradas_agrupadas(request):
     codigo_parada_id = request.data.get("codigo_parada_id")
     of = request.data.get("xIdOF")
     xIdPos = request.data.get("xIdPos")
+    xIdTipo = request.data.get("xIdTipo")
+    xIdParada = request.data.get("xIdParada")
+    xIdParada_R = request.data.get("xIdParada_R")
+    xDescripcion = request.data.get("xDescripcion")
     paradas = request.data.get("paradas")
     observaciones = request.data.get("xObservaciones")
     tipo_parada = TipoParada.objects.get(id=tipo_parada_id)
@@ -705,6 +709,48 @@ def guardar_paradas_agrupadas(request):
             of=of,
             pos=xIdPos
         )
+
+    # Escribir en producción DB
+    conn_str = (
+        "DRIVER={ODBC Driver 18 for SQL Server};"
+        "SERVER=10.128.0.203;"
+        "DATABASE=Produccion_BD;"
+        "UID=reader;"
+        "PWD=sololectura;"
+        "TrustServerCertificate=yes;"
+    )
+    conn = pyodbc.connect(conn_str)
+    cursor = conn.cursor()
+
+    for duracion in duraciones_por_turno:
+        sql = """
+            INSERT INTO imp.tb_tubo_parada (
+                xIdOF, xIdTipo, xIdPos, xIdParada, xDescripcion,
+                xFecha, xTiempo, xObservaciones, xTurno, xIgnorar
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """
+        xIdOF = of
+        if xIdTipo == 'R':
+            xIdParada = xIdParada_R
+        xObservaciones = observaciones
+        xIgnorar = False
+        xFecha = duracion['inicio']
+        xTiempo = duracion['minutos']
+        xTurno = duracion['turno']
+
+        cursor.execute(sql, (
+            xIdOF, xIdTipo, xIdPos, xIdParada, xDescripcion,
+            xFecha, xTiempo, xObservaciones, xTurno, xIgnorar
+        ))
+
+        conn.commit()
+
+    cursor.close()
+    conn.close()
+
+    # Fin de escribir en producción DB    
+
     return Response(duraciones_por_turno)
     #return Response({"mensaje": "Paradas procesadas y limpieza realizada"}, status=200)
 
