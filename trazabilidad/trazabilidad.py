@@ -295,7 +295,7 @@ def leerFlejesEnAcumuladores(request):
                     )
                     conexion = pyodbc.connect(conn_str)
                     cursor = conexion.cursor()
-                    cursor.execute(consultaSQL, '26T00025')
+                    cursor.execute(consultaSQL, of_registro)
                     fila = cursor.fetchone()
                     if fila:
                         grupo = fila.xIdGrupo
