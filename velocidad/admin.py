@@ -5,7 +5,7 @@ class ParadasAdmin(admin.ModelAdmin):
     # Añadimos los métodos al list_display
     list_display = ("id", "codigo", "get_inicio", "get_fin", "get_duracion")
     list_filter = ("zona", "codigo")
-    search_fields = ("zona__nombre", "codigo__nombre", "periodos__inicio")
+    search_fields = ("zona__nombre", "codigo__nombre", "periodos__inicio", "id")
 
     # Definimos métodos "puente" para personalizar las etiquetas en el Admin
     def get_inicio(self, obj):
@@ -47,6 +47,9 @@ class TurnosAdmin(admin.ModelAdmin):
             return str(obj)
     display_turno.short_description = "Turno"
 
+class ParadasProduccionAdmin(admin.ModelAdmin):
+    list_display =("id","pos", "parada",)
+    search_fields=("parada__of",)
 
 admin.site.register(ZonaPerfilVelocidad)
 admin.site.register(Turnos, TurnosAdmin)
@@ -58,4 +61,4 @@ admin.site.register(PalabrasClave)
 admin.site.register(Parada, ParadasAdmin)
 admin.site.register(Periodo, PeriodoAdmin)
 admin.site.register(HorarioDia, HorarioDiaAdmin)
-admin.site.register(ParadaProduccionDB)
+admin.site.register(ParadaProduccionDB, ParadasProduccionAdmin)

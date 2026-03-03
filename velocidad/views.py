@@ -92,8 +92,8 @@ class ParadaProduccionDBFilter(filters.FilterSet):
         model = ParadaProduccionDB
         fields = {
             'parada': ['exact'],
+            'parada__of': ['icontains'],
         }
-
 class ParadaActualizarViewSet(viewsets.ModelViewSet):
     serializer_class = ParadasActualizarSerializer
     queryset = Parada.objects.all()
@@ -374,6 +374,8 @@ def estado_maquina(request, id):
         'palabraclave_id':p.codigo.palabra_clave.id if p.codigo.palabra_clave else "",
         'palabra_clave': p.codigo.palabra_clave.nombre if p.codigo.palabra_clave else "",
         'tipo_parada_nombre':p.codigo.tipo.nombre,
+        'of': p.of,
+        
     } for p in resultado]
     
     data = {
@@ -793,7 +795,6 @@ def leer_paradas_run(request):
     serializer = ParadaSerializer(paradas, many=True)
     return Response(serializer.data)
 
-
 @api_view(["POST"])
 def crear_turnos(request):
     fecha_inicio_turnos = request.data.get("fecha_inicio_turnos")
@@ -985,6 +986,20 @@ def buscar_montajes_of(request):
         "xIdOF": xIdOF
     })
 
+# Funcion buscar la decripción en prodDB - para llamar desde varios sitios
+def get_descripcion_prodDB(Id_codigoProdDB, siglasParada, cursor):
+    tablas = {
+        'I': ('imp.tb_tubo_incidencia', 'xIdIncidencia'),
+        'A': ('imp.tb_tubo_averia', 'xIdAveria'),
+    }
+    if siglasParada not in tablas:
+        return None
+    
+    tabla, campo_id = tablas[siglasParada]
+    cursor.execute(f"SELECT xDescripcion FROM {tabla} WHERE {campo_id} = ?", (Id_codigoProdDB,))
+    fila = cursor.fetchone()
+    return fila.xDescripcion if fila else None
+
 @api_view(["GET"])
 def buscar_descripcion_paradaProdDB(request):
     Id_codigoProdDB = request.GET.get("Id_codigoProdDB")
@@ -998,23 +1013,157 @@ def buscar_descripcion_paradaProdDB(request):
         "PWD=sololectura;"
         "TrustServerCertificate=yes;"
     )
+    descripcion_prod_db = None
+    try:
+        conn = pyodbc.connect(conn_str)
+        cursor = conn.cursor()
+        descripcion_prod_db = get_descripcion_prodDB(
+            Id_codigoProdDB,
+            siglasParada,
+            cursor
+        )
+    except Exception as e:
+        print(f"Error al conectar o consultar la base de datos: {e}")
+        return Response({"error": "Error de base de datos"}, status=500)
+    finally:
+        if 'cursor' in locals(): cursor.close()
+        if 'conn' in locals(): conn.close()    
+    return Response(descripcion_prod_db)
 
-    tablas = {
-        'I': ('imp.tb_tubo_incidencia', 'xIdIncidencia'),
-        'A': ('imp.tb_tubo_averia', 'xIdAveria'),
-    }
-    if siglasParada in tablas:
-        tabla, campo_id = tablas[siglasParada]
-        try:
-            conn = pyodbc.connect(conn_str)
-            cursor = conn.cursor()
-            cursor.execute(f"SELECT xDescripcion FROM {tabla} WHERE {campo_id} = ?", (Id_codigoProdDB,))
-            fila = cursor.fetchone()
-            descripcionProdDB = fila.xDescripcion if fila else None
-            cursor.close()
-            conn.close()
-
-        except Exception as e:
-            print("Error al ejecutar la consulta:", e)
+@api_view(["PUT"])
+def actualizar_parada(request):
+    parada_id = request.data.get('parada')
+    codigoSel = request.data.get('codigoSel')
+    nuevaDescripcion = CodigoParada.objects.get(id=codigoSel)
+    codigo = request.data.get('codigo')
+    nuevaObs = request.data.get('nuevaObs')
+    tipo_nueva_parada = request.data.get('tipoSiglas')
     
-    return Response(descripcionProdDB)
+    paradas_produccion_DB = ParadaProduccionDB.objects.filter(parada=parada_id)
+    CodigoProdDB = CodigoParada.objects.get(id=codigo)
+    datos = Parada.objects.get(id=parada_id) 
+
+    # Aseguramos que nuevaObs no sea None antes de concatenar
+    obs_str = nuevaObs if nuevaObs else ""
+    texto_seguro = f"{obs_str}--{nuevaDescripcion.nombre}"[:50]
+
+    tipo_siglas = (
+        Parada.objects
+        .filter(id=parada_id)
+        .values_list("codigo__tipo__siglas", flat=True)
+        .first()
+    )
+
+    conn_str = (
+        "DRIVER={ODBC Driver 18 for SQL Server};"
+        "SERVER=10.128.0.203;"
+        "DATABASE=Produccion_BD;"
+        "UID=reader;"
+        "PWD=sololectura;"
+        "TrustServerCertificate=yes;"
+    )
+
+    # Abrir la conexión justo antes de usarla
+    conn = pyodbc.connect(conn_str)
+    cursor = conn.cursor()
+
+    try:
+        descripcion_DB = get_descripcion_prodDB(
+                CodigoProdDB.codigoProdDB,
+                tipo_nueva_parada,
+                cursor
+            )
+        
+        for p in paradas_produccion_DB:
+            cursor.execute("""
+                UPDATE imp.tb_tubo_parada
+                SET 
+                    xIdTipo        = ?,
+                    xObservaciones = ?,
+                    xDescripcion   = ?
+                WHERE 
+                    xIdOF   = ? AND
+                    xIdTipo = ? AND
+                    xIdPos  = ?
+            """,
+                #SET
+                tipo_nueva_parada,
+                texto_seguro,
+                descripcion_DB,
+                #WHERE
+                datos.of,
+                tipo_siglas,
+                p.pos
+            )
+
+        conn.commit()
+        return Response({"ok": True, "mensaje": "Parada actualizada"})
+
+    except Exception as e:
+        try:
+            conn.rollback()
+        except:
+            pass 
+        return Response({"ok": False, "mensaje": str(e)}, status=500)
+
+    finally:
+        cursor.close()
+        conn.close()
+
+@api_view(["DELETE"])
+def eliminar_paradaDB(request):
+    parada_id = request.data.get('parada')    
+    paradas_produccion_DB = ParadaProduccionDB.objects.filter(parada=parada_id)
+    datos = Parada.objects.get(id=parada_id) 
+    total_eliminados = 0
+    tipo_siglas = (
+        Parada.objects
+        .filter(id=parada_id)
+        .values_list("codigo__tipo__siglas", flat=True)
+        .first()
+    )
+    conn_str = (
+        "DRIVER={ODBC Driver 18 for SQL Server};"
+        "SERVER=10.128.0.203;"
+        "DATABASE=Produccion_BD;"
+        "UID=reader;"
+        "PWD=sololectura;"
+        "TrustServerCertificate=yes;"
+    )
+
+    # RECOMENDACIÓN: Abrir la conexión justo antes de usarla
+    conn = pyodbc.connect(conn_str)
+    cursor = conn.cursor()
+
+    try:        
+        for p in paradas_produccion_DB:
+            print(f'DATOSS: {p.pos}, {tipo_siglas}, {datos.of}')
+            cursor.execute("""
+                DELETE imp.tb_tubo_parada
+                WHERE 
+                    xIdOF   = ? AND
+                    xIdTipo = ? AND
+                    xIdPos  = ?
+            """,
+                #WHERE
+                datos.of,
+                tipo_siglas,
+                p.pos
+            )
+            total_eliminados += cursor.rowcount
+        conn.commit()
+        return Response({
+            "ok": True,
+            "mensaje": f"Se eliminaron {total_eliminados} registros"
+        })
+
+    except Exception as e:
+        try:
+            conn.rollback()
+        except:
+            pass 
+        return Response({"ok": False, "mensaje": str(e)}, status=500)
+
+    finally:
+        cursor.close()
+        conn.close()
