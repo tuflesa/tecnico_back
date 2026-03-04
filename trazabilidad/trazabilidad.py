@@ -496,7 +496,36 @@ def leerFlejesEnAcumuladores(request):
             else:
                 print('No hay configuración de la conexión al PLC')
 
-        else: print('No hay bobina activa')
+        else: # No hay trazabilidad
+            print(f'No hay trazabilidad en la maquina {acc.maquila_siglas}')
+            # Leer of activa en producción DB
+            conn_str = (
+                "DRIVER={ODBC Driver 18 for SQL Server};"
+                "SERVER=10.128.0.203;"
+                "DATABASE=Produccion_BD;"
+                "UID=reader;"
+                "PWD=sololectura;"
+                "TrustServerCertificate=yes;"
+            )
+            conn = pyodbc.connect(conn_str)
+            cursor = conn.cursor()
+
+            # --- 1) Obtener OF activa ---
+            consulta_of = """
+                SELECT xIdOF
+                FROM imp.tb_tubo_orden
+                WHERE xActivada <> 0
+                AND xIdMaquina = ?
+            """
+            cursor.execute(consulta_of, (acc.maquila_siglas,))
+            fila = cursor.fetchone()
+            xIdOF = fila.xIdOF if fila else None
+            print(f'OF activa: {xIdOF}')
+
+            cursor.close()
+            conn.close()
+            # Si no existe en la base de datos se da de alta y se da de baja la que tenga fecha fin nula
+            
 
 
     return HttpResponse(status=201)

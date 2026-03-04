@@ -427,6 +427,7 @@ def nuevo_periodo(request):
                 else: 
                     if tnp: #RUN a TNP 
                         codigo = CodigoParada.objects.filter(siglas='TNP').first()
+                        fecha_dt = timezone.now() # Puede pasar si paran despues de la hora oficial del horario
                     else: # RUN a UNKNOWN
                         codigo = CodigoParada.objects.filter(siglas='UNKNOWN').first()
                 parada = Parada.objects.create(codigo=codigo, zona=zona)
