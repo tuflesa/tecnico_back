@@ -511,12 +511,12 @@ def leerFlejesEnAcumuladores(request):
 
             # Obtener OF activa ---
             consulta_of = """
-                SELECT xIdOF
+                SELECT xIdOF, xIdGrupo
                 FROM imp.tb_tubo_orden
                 WHERE xActivada <> 0
                 AND xIdMaquina = ?
             """
-            cursor.execute(consulta_of, (acc.maquila_siglas,))
+            cursor.execute(consulta_of, (acc.maquina_siglas,))
             fila = cursor.fetchone()
             xIdOF = fila.xIdOF if fila else None
             xIdGrupo = fila.xIdGrupo if fila else None
