@@ -528,17 +528,18 @@ def leerFlejesEnAcumuladores(request):
             if xIdOF is not None:
                 of = OF.objects.filter(numero=xIdOF).last()
                 if of is None:
+                    hoy = date.today()
                     ahora = datetime.now()
-                    hora_registro = ahora.strftime("%Y-%m-%d") + ' ' + ahora.strftime("%H:%M:%S")
+                    hora_cambio_OF = hoy.strftime("%Y-%m-%d") + ' ' + ahora.strftime("%H:%M:%S")
                     last_of = OF.objects.filter(zona=acc.zona, fin__isnull=True).last()
                     if last_of is not None:
-                        last_of.fin=hora_registro
+                        last_of.fin=hora_cambio_OF
                         last_of.save()
 
                     OF.objects.create(
                         numero=xIdOF,
                         zona=acc.zona,
-                        inicio=hora_registro,
+                        inicio=hora_cambio_OF,
                         grupo=xIdGrupo
                     )
 
