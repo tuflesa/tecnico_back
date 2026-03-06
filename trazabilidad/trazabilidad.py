@@ -528,7 +528,9 @@ def leerFlejesEnAcumuladores(request):
             if xIdOF is not None:
                 of = OF.objects.filter(numero=xIdOF).last()
                 if of is None:
-                    hora_cambio_OF = timezone.localtime().strftime("%Y-%m-%d %H:%M:%S")
+                    fecha_str = timezone.localtime().strftime("%Y-%m-%d %H:%M:%S")
+                    fecha_dt = datetime.strptime(fecha_str, "%Y-%m-%d %H:%M:%S")
+                    hora_cambio_OF = timezone.make_aware(fecha_dt, timezone.utc)
                     last_of = OF.objects.filter(zona=acc.zona, fin__isnull=True).last()
                     if last_of is not None:
                         last_of.fin=hora_cambio_OF
