@@ -520,20 +520,26 @@ def leerFlejesEnAcumuladores(request):
             fila = cursor.fetchone()
             xIdOF = fila.xIdOF if fila else None
             xIdGrupo = fila.xIdGrupo if fila else None
-            print(f'Máquina {acc.maquina_siglas} sin trazabilidad. OF activa: {xIdOF}. Grupo {xIdGrupo}')
 
             cursor.close()
             conn.close()
             
             # Si no existe en la base de datos se da de alta y se da de baja la que tenga fecha fin nula
-            # of, created = OF.objects.get_or_create(
-            #     numero=xIdOF,
-            #     defaults={
-            #         'zona': zona,
-            #         'inicio': timezone.now(),
-            #         'grupo': xIdGrupo
-            #     }
-            # )
+            if xIdOF is not None:
+                of = OF.objects.filter(numero=xIdOF).last()
+                if of is None:
+                    ahora = now()
+                    last_of = OF.objects.filter(zona=acc.zona, fin__isnull=True).last()
+                    if last_of is not None:
+                        last_of.fin=ahora
+                        last_of.save()
+
+                    OF.objects.create(
+                        numero=xIdOF,
+                        zona=acc.zona,
+                        inicio=ahora,
+                        grupo=xIdGrupo
+                    )
 
 
 
