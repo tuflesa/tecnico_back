@@ -497,7 +497,6 @@ def leerFlejesEnAcumuladores(request):
                 print('No hay configuración de la conexión al PLC')
 
         else: # No hay trazabilidad
-            print(f'No hay trazabilidad en la maquina {acc.maquila_siglas}')
             # Leer of activa en producción DB
             conn_str = (
                 "DRIVER={ODBC Driver 18 for SQL Server};"
@@ -510,7 +509,7 @@ def leerFlejesEnAcumuladores(request):
             conn = pyodbc.connect(conn_str)
             cursor = conn.cursor()
 
-            # --- 1) Obtener OF activa ---
+            # Obtener OF activa ---
             consulta_of = """
                 SELECT xIdOF
                 FROM imp.tb_tubo_orden
@@ -520,12 +519,22 @@ def leerFlejesEnAcumuladores(request):
             cursor.execute(consulta_of, (acc.maquila_siglas,))
             fila = cursor.fetchone()
             xIdOF = fila.xIdOF if fila else None
-            print(f'OF activa: {xIdOF}')
+            xIdGrupo = fila.xIdGrupo if fila else None
+            print(f'Máquina {acc.maquina_siglas} sin trazabilidad. OF activa: {xIdOF}. Grupo {xIdGrupo}')
 
             cursor.close()
             conn.close()
-            # Si no existe en la base de datos se da de alta y se da de baja la que tenga fecha fin nula
             
+            # Si no existe en la base de datos se da de alta y se da de baja la que tenga fecha fin nula
+            # of, created = OF.objects.get_or_create(
+            #     numero=xIdOF,
+            #     defaults={
+            #         'zona': zona,
+            #         'inicio': timezone.now(),
+            #         'grupo': xIdGrupo
+            #     }
+            # )
+
 
 
     return HttpResponse(status=201)
