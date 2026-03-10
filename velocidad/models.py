@@ -19,7 +19,9 @@ class ZonaPerfilVelocidad(models.Model):
     hf_fmin = models.IntegerField(default=200)
     fuerza_max = models.IntegerField(default=100)
     color = models.CharField(max_length=25, blank=True, null=True)
-    control_paradas = models.BooleanField(default=False)
+    lectura_hf = models.BooleanField(default=False)
+    lectura_presion_soldadura = models.BooleanField(default=False)
+    lectura_vmax_sierra = models.BooleanField(default=False)
 
     def __str__(self) -> str:
         return self.zona.nombre
@@ -32,6 +34,7 @@ class Registro(models.Model):
     potencia = models.FloatField(null=True, blank=True, default=0)
     frecuencia = models.FloatField(null=True, blank=True, default=0)
     presion = models.FloatField(null=True, blank=True, default=0)
+    vmax = models.FloatField(null=True, blank=True, default=0)
 
     def __str__(self):
         return str(self.fecha) + ' - ' + str(self.hora) + ' - ' + self.zona.siglas + ' - ' + str(self.velocidad)  
@@ -133,6 +136,7 @@ class Periodo(models.Model):
     inicio = models.DateTimeField(null=True)
     fin = models.DateTimeField(null=True)
     velocidad = models.FloatField(default=0)
+    vmax = models.FloatField(null=True, blank=True, default=0) 
     turno = models.ForeignKey(Turnos, on_delete=models.SET_NULL, null=True, blank=True)
     
 class HorarioDia(models.Model):

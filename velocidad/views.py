@@ -397,6 +397,7 @@ def nuevo_periodo(request):
     fecha_dt = timezone.make_aware(fecha_dt, timezone.utc)
     zona_id = datos['zona']
     velocidad = float(datos['velocidad'])
+    vmax = float(datos['vmax'])
     tnp = datos['tnp'].lower() == "true"
     turno_id =int(datos['turno'])
 
@@ -491,7 +492,7 @@ def nuevo_periodo(request):
                     codigo = CodigoParada.objects.filter(siglas='UNKNOWN').first()
         parada = Parada.objects.create(codigo=codigo, zona=zona)
 
-    periodo = Periodo.objects.create(parada=parada, inicio=fecha_dt, velocidad=velocidad, turno=turno)
+    periodo = Periodo.objects.create(parada=parada, inicio=fecha_dt, velocidad=velocidad, turno=turno, vmax=vmax)
 
     return JsonResponse({"status": "created", "fecha": fecha_str, "turno": turno.turno if turno else 'Sin turno'}, status=201)
 
@@ -708,19 +709,9 @@ def guardar_paradas_agrupadas(request):
             # pos=xIdPos
         )
 
-    # Escribir en producción DB
-    conn_str = (
-        "DRIVER={ODBC Driver 18 for SQL Server};"
-        "SERVER=10.128.0.203;"
-        "DATABASE=Produccion_BD;"
-        "UID=reader;"
-        "PWD=sololectura;"
-        "TrustServerCertificate=yes;"
-    )
-    conn = pyodbc.connect(conn_str)
-    cursor = conn.cursor()
-
     paradas = Parada.objects.filter(id__in=ids)
+
+    rows_to_insert = []
     for parada in paradas:
         duraciones_por_turno = [ #Solo para guardar en ProdDB, 2 turnos = 2 paradas
         {
@@ -738,35 +729,57 @@ def guardar_paradas_agrupadas(request):
                 inicio_min=Min('inicio')
             )
         ]
+        objs = []
         for duracion in duraciones_por_turno:      
-            ParadaProduccionDB.objects.create(pos=xIdPos, parada=parada)
-            sql = """
-                INSERT INTO imp.tb_tubo_parada (
-                    xIdOF, xIdTipo, xIdPos, xIdParada, xDescripcion,
-                    xFecha, xTiempo, xObservaciones, xTurno, xIgnorar
-                )
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            """
+            # ParadaProduccionDB.objects.create(pos=xIdPos, parada=parada)
+            objs.append(ParadaProduccionDB(pos=xIdPos, parada=parada))
+
             xIdOF = of
             if xIdTipo == 'R':
                 xIdParada = xIdParada_R
-            xObservaciones = observaciones
-            xIgnorar = False
-            xFecha = duracion['inicio']
-            xTiempo = duracion['minutos']
-            xTurno = duracion['turno']
+            # xObservaciones = observaciones
+            # xIgnorar = False
+            # xFecha = duracion['inicio']
+            # xTiempo = duracion['minutos']
+            # xTurno = duracion['turno']
 
-            cursor.execute(sql, (
+            # cursor.execute(sql, (
+            #     xIdOF, xIdTipo, xIdPos, xIdParada, xDescripcion,
+            #     xFecha, xTiempo, xObservaciones, xTurno, xIgnorar
+            # ))
+            rows_to_insert.append((
                 xIdOF, xIdTipo, xIdPos, xIdParada, xDescripcion,
-                xFecha, xTiempo, xObservaciones, xTurno, xIgnorar
+                duracion['inicio'], duracion['minutos'], observaciones,
+                duracion['turno'], False
             ))
 
-            conn.commit()
             xIdPos += 1
 
+    ParadaProduccionDB.objects.bulk_create(objs)
+
+    # Escribir en producción DB
+    conn_str = (
+        "DRIVER={ODBC Driver 18 for SQL Server};"
+        "SERVER=10.128.0.203;"
+        "DATABASE=Produccion_BD;"
+        "UID=reader;"
+        "PWD=sololectura;"
+        "TrustServerCertificate=yes;"
+    )
+    sql = """
+        INSERT INTO imp.tb_tubo_parada (
+            xIdOF, xIdTipo, xIdPos, xIdParada, xDescripcion,
+            xFecha, xTiempo, xObservaciones, xTurno, xIgnorar
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    """
+
+    conn = pyodbc.connect(conn_str, autocommit=False)
+    cursor = conn.cursor()
+    cursor.executemany(sql, rows_to_insert)
+    conn.commit()
     cursor.close()
     conn.close()
-
     # Fin de escribir en producción DB    
 
     return Response(duraciones_por_turno)

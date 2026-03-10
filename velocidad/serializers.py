@@ -8,12 +8,12 @@ class ZonaPerfilVelocidadSerilizer(serializers.ModelSerializer):
     zona = ZonaSerializer(many=False)
     class Meta:
         model = ZonaPerfilVelocidad
-        fields = ['id', 'zona', 'ip', 'rack', 'slot', 'db', 'dw', 'nwords', 'color', 'v_max', 'hf_pmax', 'hf_fmax', 'hf_fmin', 'fuerza_max', 'control_paradas']
+        fields = ['id', 'zona', 'ip', 'rack', 'slot', 'db', 'dw', 'nwords', 'color', 'v_max', 'hf_pmax', 'hf_fmax', 'hf_fmin', 'fuerza_max', 'lectura_hf', 'lectura_presion_soldadura', 'lectura_vmax_sierra']
 
 class RegistroSerializer(serializers.ModelSerializer):
     class Meta:
         model = Registro
-        fields = ['id', 'fecha', 'hora', 'zona', 'velocidad', 'potencia', 'frecuencia', 'presion']
+        fields = ['id', 'fecha', 'hora', 'zona', 'velocidad', 'potencia', 'frecuencia', 'presion', 'vmax']
 
 class PeriodoSerializer(serializers.ModelSerializer):
     class Meta:
@@ -23,7 +23,7 @@ class PeriodoSerializer(serializers.ModelSerializer):
 class PeriodoCrearSerializer(serializers.ModelSerializer):
     class Meta:
         model = Periodo
-        fields = ['id', 'inicio', 'fin', 'velocidad', 'parada', 'turno']
+        fields = ['id', 'inicio', 'fin', 'velocidad', 'parada', 'turno', 'vmax']
         read_only_fields = ['parada']
 
     def validate_inicio(self, value):
