@@ -43,7 +43,7 @@ class ParadasCrearSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Parada
-        fields = ['id', 'codigo', 'zona', 'observaciones', 'periodos']
+        fields =  '__all__'
 
     def create(self, validated_data):
         periodos_data = validated_data.pop('periodos', [])
