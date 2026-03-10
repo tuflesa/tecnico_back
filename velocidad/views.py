@@ -1014,6 +1014,19 @@ def get_descripcion_prodDB(Id_codigoProdDB, siglasParada, cursor):
     fila = cursor.fetchone()
     return fila.xDescripcion if fila else None
 
+# Funcion buscar la POSICIÓN en prodDB - para llamar desde varios sitios
+def get_posicion_prodDB(xIdOF, xIdTipo, cursor):
+    consulta_pos = """
+        SELECT MAX(xIdPos) AS MaxPos
+        FROM imp.tb_tubo_parada
+        WHERE xIdOF = ?
+            AND xIdTipo = ?
+    """
+    cursor.execute(consulta_pos, (xIdOF, xIdTipo))
+    fila = cursor.fetchone()
+    xIdPos = (fila.MaxPos + 1) if fila and fila.MaxPos is not None else 1
+    return xIdPos
+
 @api_view(["GET"])
 def buscar_descripcion_paradaProdDB(request):
     Id_codigoProdDB = request.GET.get("Id_codigoProdDB")
@@ -1166,12 +1179,121 @@ def eliminar_paradaDB(request):
             )
             total_eliminados += cursor.rowcount
         conn.commit()
+        paradas_produccion_DB.delete()
         return Response({
             "ok": True,
             "mensaje": f"Se eliminaron {total_eliminados} registros"
         })
 
     except Exception as e:
+        try:
+            conn.rollback()
+        except:
+            pass 
+        return Response({"ok": False, "mensaje": str(e)}, status=500)
+
+    finally:
+        cursor.close()
+        conn.close()
+
+@api_view(["POST"])
+def crear_parada_ProdBD(request):
+    periodo = request.data.get("periodo") # Periodo elegido para añadir incidencia o avería
+    
+    # DATOS DE LA NUEVA PARADA PARA PROD-BD
+    xIdOF = request.data.get("xIdOF")
+    xIdTipo = request.data.get("xIdTipo")
+    #xIdPos = (la buscamos bajo))
+    xIdParada = request.data.get("xIdParada")
+    #xDescripcion  = (la buscamos bajo)
+    xFecha = periodo['inicio']
+    xTiempo = int(request.data.get("xTiempo")) 
+    xObservaciones = request.data.get("xObservaciones")
+    xTurno_id = request.data.get("xTurno_id")
+    Turno = Turnos.objects.get(id=xTurno_id)
+    xTurno = Turno.turno
+    #xIgnorar (siempre a false)
+    parada_id = request.data.get("parada_id")
+    Tipo_anterior = request.data.get("Tipo_anterior")
+
+    conn_str = (
+        "DRIVER={ODBC Driver 18 for SQL Server};"
+        "SERVER=10.128.0.203;"
+        "DATABASE=Produccion_BD;"
+        "UID=reader;"
+        "PWD=sololectura;"
+        "TrustServerCertificate=yes;"
+    )
+    conn = pyodbc.connect(conn_str)
+    cursor = conn.cursor()
+    try:
+        xDescripcion = get_descripcion_prodDB(
+                xIdParada,
+                xIdTipo,
+                cursor
+            )
+        xIdPos = get_posicion_prodDB(
+                xIdOF,
+                xIdTipo,
+                cursor
+            )
+        posiciones = ParadaProduccionDB.objects.filter(parada=parada_id)
+        posicion_buena = None
+        for p in posiciones:
+            cursor.execute("""
+                SELECT xIdPos, xTiempo
+                FROM imp.tb_tubo_parada
+                WHERE xIdOF = ?
+                AND xIdTipo = ?
+                AND xTurno = ?
+                AND xIdPos = ?
+            """,(xIdOF, Tipo_anterior, xTurno,p.pos))
+            posicion = cursor.fetchone()
+            if posicion:
+                posicion_antigua = posicion[0]
+                tiempo_antiguo = posicion[1]-xTiempo
+            print(f"xIdOF={xIdOF},xIdTipo={Tipo_anterior},xTurno={xTurno}xIdOF={p.pos}")
+        if isinstance(xFecha, str):
+            xFecha = datetime.fromisoformat(xFecha)
+        
+        print(f"posicion={posicion}, tipo xTiempo={type(posicion[1])}")
+        print(f'TIEMPO NUEVO: {xTiempo}, TIEMPO ANTIGUO: {posicion}, TIEMPO NUEVO ANTIGUO: {tiempo_antiguo}')
+        #return
+        cursor.execute("""
+            UPDATE imp.tb_tubo_parada
+            SET 
+                xTiempo   = ?
+            WHERE 
+                xIdOF   = ? AND
+                xIdTipo = ? AND
+                xIdPos  = ?
+        """,
+            #SET
+            tiempo_antiguo,
+            #WHERE
+            xIdOF,
+            Tipo_anterior,
+            posicion_antigua
+        )
+        #print(f'periodo = {periodo["inicio"]}, fecha_val = {xFecha}, xIdPos = {xIdPos}, xTiempo = {xTiempo}, descripcion_DB = {xDescripcion}, xIdOf = {xIdOF}, xIdTipo = {xIdTipo}, xTurno = {xTurno},  xIdParada = {xIdParada}, xObservaciones = {xObservaciones}')
+        
+        sql = """
+            INSERT INTO imp.tb_tubo_parada (
+                xIdOF, xIdTipo, xIdPos, xIdParada, xDescripcion,
+                xFecha, xTiempo, xObservaciones, xTurno, xIgnorar
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """
+        xIgnorar = False
+
+        cursor.execute(sql, (
+            xIdOF, xIdTipo, xIdPos, xIdParada, xDescripcion,
+            xFecha, xTiempo, xObservaciones, xTurno, xIgnorar
+        ))
+        conn.commit()
+        return Response({"ok": True, "xIdPos": xIdPos})
+    except Exception as e:
+        print("ERROR:", str(e))
         try:
             conn.rollback()
         except:
