@@ -496,7 +496,58 @@ def leerFlejesEnAcumuladores(request):
             else:
                 print('No hay configuración de la conexión al PLC')
 
-        else: print('No hay bobina activa')
+        else: # No hay trazabilidad
+            # Leer of activa en producción DB
+            conn_str = (
+                "DRIVER={ODBC Driver 18 for SQL Server};"
+                "SERVER=10.128.0.203;"
+                "DATABASE=Produccion_BD;"
+                "UID=reader;"
+                "PWD=sololectura;"
+                "TrustServerCertificate=yes;"
+            )
+            conn = pyodbc.connect(conn_str)
+            cursor = conn.cursor()
+
+            # Obtener OF activa ---
+            consulta_of = """
+                SELECT xIdOF, xIdGrupo
+                FROM imp.tb_tubo_orden
+                WHERE xActivada <> 0
+                AND xIdMaquina = ?
+            """
+            cursor.execute(consulta_of, (acc.maquina_siglas,))
+            fila = cursor.fetchone()
+            xIdOF = fila.xIdOF if fila else None
+            xIdGrupo = fila.xIdGrupo if fila else None
+
+            cursor.close()
+            conn.close()
+            
+            # Si no existe en la base de datos se da de alta y se da de baja la que tenga fecha fin nula
+            if xIdOF is not None:
+                of = OF.objects.filter(numero=xIdOF).last()
+                if of is None:
+                    # fecha_str = timezone.localtime().strftime("%Y-%m-%d %H:%M:%S")
+                    # fecha_dt = datetime.strptime(fecha_str, "%Y-%m-%d %H:%M:%S")
+                    # hora_cambio_OF = timezone.make_aware(fecha_dt, timezone.utc)
+                    ultima_parada = Parada.objects.filter(
+                                            zona=acc.zona,
+                                            codigo__siglas='UNKNOWN'
+                                        ).last()
+                    hora_cambio_OF = ultima_parada.inicio()
+                    last_of = OF.objects.filter(zona=acc.zona, fin__isnull=True).last()
+                    if last_of is not None:
+                        last_of.fin=hora_cambio_OF
+                        last_of.save()
+
+                    OF.objects.create(
+                        numero=xIdOF,
+                        zona=acc.zona,
+                        inicio=hora_cambio_OF,
+                        grupo=xIdGrupo
+                    )
+
 
 
     return HttpResponse(status=201)
