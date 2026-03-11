@@ -767,7 +767,7 @@ def guardar_paradas_agrupadas(request):
         "TrustServerCertificate=yes;"
     )
     sql = """
-        INSERT INTO imp.tb_tubo_parada (
+        INSERT INTO imp.tb_tubo_parada_test (
             xIdOF, xIdTipo, xIdPos, xIdParada, xDescripcion,
             xFecha, xTiempo, xObservaciones, xTurno, xIgnorar
         )
@@ -946,7 +946,7 @@ def buscar_montajes_of(request):
         # --- 2) Obtener el máximo xIdPos ---
         consulta_pos = """
             SELECT MAX(xIdPos) AS MaxPos
-            FROM imp.tb_tubo_parada
+            FROM imp.tb_tubo_parada_test
             WHERE xIdOF = ?
               AND xIdTipo = ?
         """
@@ -1018,7 +1018,7 @@ def get_descripcion_prodDB(Id_codigoProdDB, siglasParada, cursor):
 def get_posicion_prodDB(xIdOF, xIdTipo, cursor):
     consulta_pos = """
         SELECT MAX(xIdPos) AS MaxPos
-        FROM imp.tb_tubo_parada
+        FROM imp.tb_tubo_parada_test
         WHERE xIdOF = ?
             AND xIdTipo = ?
     """
@@ -1096,32 +1096,36 @@ def actualizar_parada(request):
 
     try:
         descripcion_DB = get_descripcion_prodDB(
-                CodigoProdDB.codigoProdDB,
-                tipo_nueva_parada,
-                cursor
+            CodigoProdDB.codigoProdDB,
+            tipo_nueva_parada,
+            cursor
+        )
+
+        # Construimos la lista de parámetros fuera del bucle
+        rows_to_update = [
+            (
+                tipo_nueva_parada,  # xIdTipo
+                texto_seguro,       # xObservaciones
+                descripcion_DB,     # xDescripcion
+                datos.of,           # xIdOF
+                tipo_siglas,        # xIdTipo
+                p.pos               # xIdPos
             )
-        
-        for p in paradas_produccion_DB:
-            cursor.execute("""
-                UPDATE imp.tb_tubo_parada
-                SET 
-                    xIdTipo        = ?,
-                    xObservaciones = ?,
-                    xDescripcion   = ?
-                WHERE 
-                    xIdOF   = ? AND
-                    xIdTipo = ? AND
-                    xIdPos  = ?
-            """,
-                #SET
-                tipo_nueva_parada,
-                texto_seguro,
-                descripcion_DB,
-                #WHERE
-                datos.of,
-                tipo_siglas,
-                p.pos
-            )
+            for p in paradas_produccion_DB
+        ]
+
+        # Una sola llamada a la BD
+        cursor.executemany("""
+            UPDATE imp.tb_tubo_parada_test
+            SET 
+                xIdTipo        = ?,
+                xObservaciones = ?,
+                xDescripcion   = ?
+            WHERE 
+                xIdOF   = ? AND
+                xIdTipo = ? AND
+                xIdPos  = ?
+        """, rows_to_update)
 
         conn.commit()
         return Response({"ok": True, "mensaje": "Parada actualizada"})
@@ -1149,6 +1153,12 @@ def eliminar_paradaDB(request):
         .values_list("codigo__tipo__siglas", flat=True)
         .first()
     )
+
+    rows_to_delete = [
+        (datos.of, tipo_siglas, p.pos)
+        for p in paradas_produccion_DB
+    ]
+
     conn_str = (
         "DRIVER={ODBC Driver 18 for SQL Server};"
         "SERVER=10.128.0.203;"
@@ -1163,21 +1173,16 @@ def eliminar_paradaDB(request):
     cursor = conn.cursor()
 
     try:        
-        for p in paradas_produccion_DB:
-            print(f'DATOSS: {p.pos}, {tipo_siglas}, {datos.of}')
-            cursor.execute("""
-                DELETE imp.tb_tubo_parada
-                WHERE 
-                    xIdOF   = ? AND
-                    xIdTipo = ? AND
-                    xIdPos  = ?
-            """,
-                #WHERE
-                datos.of,
-                tipo_siglas,
-                p.pos
-            )
-            total_eliminados += cursor.rowcount
+        cursor.executemany("""
+            DELETE imp.tb_tubo_parada_test
+            WHERE 
+                xIdOF   = ? AND
+                xIdTipo = ? AND
+                xIdPos  = ?
+        """, rows_to_delete)
+
+        # aquí devuelve el total de filas eliminadas
+        total_eliminados = cursor.rowcount
         conn.commit()
         paradas_produccion_DB.delete()
         return Response({
@@ -1186,10 +1191,7 @@ def eliminar_paradaDB(request):
         })
 
     except Exception as e:
-        try:
-            conn.rollback()
-        except:
-            pass 
+        conn.rollback()
         return Response({"ok": False, "mensaje": str(e)}, status=500)
 
     finally:
@@ -1208,13 +1210,20 @@ def crear_parada_ProdBD(request):
     #xDescripcion  = (la buscamos bajo)
     xFecha = periodo['inicio']
     xTiempo = int(request.data.get("xTiempo")) 
+    tiempo = request.data.get("xTiempo") #con decimales
     xObservaciones = request.data.get("xObservaciones")
     xTurno_id = request.data.get("xTurno_id")
     Turno = Turnos.objects.get(id=xTurno_id)
     xTurno = Turno.turno
     #xIgnorar (siempre a false)
+
+    #DATOS PARA RECTIFICAR EL TIEMPO DE LA PARADA QUE YA TENEMOS
     parada_id = request.data.get("parada_id")
+    parada_tiempo = request.data.get("parada_duracion")
     Tipo_anterior = request.data.get("Tipo_anterior")
+    posiciones = ParadaProduccionDB.objects.filter(parada=parada_id, turno=Turno)
+    posicion_anterior = posiciones.first().pos if posiciones.exists() else None
+    tiempo_anterior = int(parada_tiempo - tiempo)
 
     conn_str = (
         "DRIVER={ODBC Driver 18 for SQL Server};"
@@ -1227,40 +1236,14 @@ def crear_parada_ProdBD(request):
     conn = pyodbc.connect(conn_str)
     cursor = conn.cursor()
     try:
-        xDescripcion = get_descripcion_prodDB(
-                xIdParada,
-                xIdTipo,
-                cursor
-            )
-        xIdPos = get_posicion_prodDB(
-                xIdOF,
-                xIdTipo,
-                cursor
-            )
-        posiciones = ParadaProduccionDB.objects.filter(parada=parada_id)
-        posicion_buena = None
-        for p in posiciones:
-            cursor.execute("""
-                SELECT xIdPos, xTiempo
-                FROM imp.tb_tubo_parada
-                WHERE xIdOF = ?
-                AND xIdTipo = ?
-                AND xTurno = ?
-                AND xIdPos = ?
-            """,(xIdOF, Tipo_anterior, xTurno,p.pos))
-            posicion = cursor.fetchone()
-            if posicion:
-                posicion_antigua = posicion[0]
-                tiempo_antiguo = posicion[1]-xTiempo
-            print(f"xIdOF={xIdOF},xIdTipo={Tipo_anterior},xTurno={xTurno}xIdOF={p.pos}")
+        xDescripcion = get_descripcion_prodDB(xIdParada, xIdTipo, cursor)
+        xIdPos = get_posicion_prodDB(xIdOF, xIdTipo, cursor)
+
         if isinstance(xFecha, str):
             xFecha = datetime.fromisoformat(xFecha)
         
-        print(f"posicion={posicion}, tipo xTiempo={type(posicion[1])}")
-        print(f'TIEMPO NUEVO: {xTiempo}, TIEMPO ANTIGUO: {posicion}, TIEMPO NUEVO ANTIGUO: {tiempo_antiguo}')
-        #return
         cursor.execute("""
-            UPDATE imp.tb_tubo_parada
+            UPDATE imp.tb_tubo_parada_test
             SET 
                 xTiempo   = ?
             WHERE 
@@ -1269,16 +1252,16 @@ def crear_parada_ProdBD(request):
                 xIdPos  = ?
         """,
             #SET
-            tiempo_antiguo,
+            tiempo_anterior,
             #WHERE
             xIdOF,
             Tipo_anterior,
-            posicion_antigua
+            posicion_anterior
         )
         #print(f'periodo = {periodo["inicio"]}, fecha_val = {xFecha}, xIdPos = {xIdPos}, xTiempo = {xTiempo}, descripcion_DB = {xDescripcion}, xIdOf = {xIdOF}, xIdTipo = {xIdTipo}, xTurno = {xTurno},  xIdParada = {xIdParada}, xObservaciones = {xObservaciones}')
         
         sql = """
-            INSERT INTO imp.tb_tubo_parada (
+            INSERT INTO imp.tb_tubo_parada_test (
                 xIdOF, xIdTipo, xIdPos, xIdParada, xDescripcion,
                 xFecha, xTiempo, xObservaciones, xTurno, xIgnorar
             )
