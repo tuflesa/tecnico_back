@@ -3,7 +3,7 @@ from .models import ZonaPerfilVelocidad, Registro, TipoParada, CodigoParada, Par
 
 class ParadasAdmin(admin.ModelAdmin):
     # Añadimos los métodos al list_display
-    list_display = ("id", "codigo", "get_inicio", "get_fin", "get_duracion")
+    list_display = ("id", "codigo", "get_inicio", "get_fin", "get_duracion", "of")
     list_filter = ("zona", "codigo")
     search_fields = ("zona__nombre", "codigo__nombre", "periodos__inicio", "id")
 
@@ -48,7 +48,7 @@ class TurnosAdmin(admin.ModelAdmin):
     display_turno.short_description = "Turno"
 
 class ParadasProduccionAdmin(admin.ModelAdmin):
-    list_display =("id","pos", "parada",)
+    list_display =("id","pos", "parada", "turno",)
     search_fields=("parada__of",)
 
 admin.site.register(ZonaPerfilVelocidad)

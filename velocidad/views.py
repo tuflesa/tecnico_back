@@ -716,12 +716,13 @@ def guardar_paradas_agrupadas(request):
         duraciones_por_turno = [ #Solo para guardar en ProdDB, 2 turnos = 2 paradas
         {
             'turno': item['turno__turno'],
+            'turno_id': item['turno__id'],
             'minutos': int(item['duracion_total'].total_seconds() / 60) if item['duracion_total'] else 0,
             'inicio': item['inicio_min'] if item['inicio_min'] else None,
         }
         for item in Periodo.objects
             .filter(parada=parada)
-            .values('turno__turno')
+            .values('turno__turno', 'turno__id')
             .annotate(
                 duracion_total=Sum(
                     ExpressionWrapper(F('fin') - F('inicio'), output_field=DurationField())
@@ -732,7 +733,7 @@ def guardar_paradas_agrupadas(request):
         objs = []
         for duracion in duraciones_por_turno:      
             # ParadaProduccionDB.objects.create(pos=xIdPos, parada=parada)
-            objs.append(ParadaProduccionDB(pos=xIdPos, parada=parada))
+            objs.append(ParadaProduccionDB(pos=xIdPos, parada=parada, turno=duracion['turno_id']))
 
             xIdOF = of
             if xIdTipo == 'R':
@@ -1142,8 +1143,9 @@ def actualizar_parada(request):
         conn.close()
 
 @api_view(["DELETE"])
-def eliminar_paradaDB(request):
-    parada_id = request.data.get('parada')    
+def eliminar_paradaDB(request, parada_id):
+    parada_id = int(parada_id)
+    #parada_id = request.data.get('parada')    
     paradas_produccion_DB = ParadaProduccionDB.objects.filter(parada=parada_id)
     datos = Parada.objects.get(id=parada_id) 
     total_eliminados = 0
@@ -1286,3 +1288,27 @@ def crear_parada_ProdBD(request):
     finally:
         cursor.close()
         conn.close()
+
+@api_view(["POST"])
+def rellenar_turnos_ProdBD(request):
+    paradas = Parada.objects.all()
+
+    for parada in paradas:
+        paradas_prod = ParadaProduccionDB.objects.filter(parada=parada).order_by('pos')
+        periodos = Periodo.objects.filter(parada=parada).order_by('inicio')
+
+        if not paradas_prod.exists() or not periodos.exists():
+            continue
+
+        if paradas_prod.count() == 1:
+            prod = paradas_prod.first()
+            prod.turno = periodos.first().turno
+            prod.save()
+
+        elif paradas_prod.count() == 2:
+            paradas_prod[0].turno = periodos.first().turno
+            paradas_prod[0].save()
+            paradas_prod[1].turno = periodos.last().turno
+            paradas_prod[1].save()
+
+    return Response({"ok": True, "mensaje": "Turnos rellenados correctamente"})
