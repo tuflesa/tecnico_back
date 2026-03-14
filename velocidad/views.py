@@ -680,7 +680,7 @@ def guardar_paradas_agrupadas(request):
     # Creamos la lista de todos los IDs seleccionados
     ids = [int(parada['id']) for parada in paradas]
 
-    if len(ids) > 1 and modo=='agrupar': # ANTIGUO: tipo_parada.nombre == 'Cambio' and   
+    if len(ids) > 1 and modo=='agrupar':   
         primera_id = ids[0]
         # IDs restantes son todos los de la lista menos el primero
         ids_a_eliminar = ids[1:] 
@@ -689,7 +689,6 @@ def guardar_paradas_agrupadas(request):
             codigo=codigo_parada, 
             observaciones=observaciones,
             of=of,
-            # pos=xIdPos
         )
         
         # 2. Reasignamos todos los periodos de las otras paradas a la primera
@@ -701,17 +700,18 @@ def guardar_paradas_agrupadas(request):
             Parada.objects.filter(id__in=ids_a_eliminar).delete()
             
     else:
-        # Si no es "Cambio", solo actualizamos la información de todas
+        # Si no agrupamos, solo actualizamos la información de todas
         Parada.objects.filter(id__in=ids).update(
             codigo=codigo_parada, 
             observaciones=observaciones,
             of=of,
-            # pos=xIdPos
         )
 
     paradas = Parada.objects.filter(id__in=ids)
 
     rows_to_insert = []
+    objs = []
+    print(f'Paradas {paradas}')
     for parada in paradas:
         duraciones_por_turno = [ #Solo para guardar en ProdDB, 2 turnos = 2 paradas
         {
@@ -730,24 +730,16 @@ def guardar_paradas_agrupadas(request):
                 inicio_min=Min('inicio')
             )
         ]
-        objs = []
+        
         for duracion in duraciones_por_turno:      
             # ParadaProduccionDB.objects.create(pos=xIdPos, parada=parada)
-            objs.append(ParadaProduccionDB(pos=xIdPos, parada=parada, turno=duracion['turno_id']))
+            turno = Turnos.objects.get(id=duracion['turno_id'])
+            objs.append(ParadaProduccionDB(pos=xIdPos, parada=parada, turno=turno))
 
             xIdOF = of
             if xIdTipo == 'R':
                 xIdParada = xIdParada_R
-            # xObservaciones = observaciones
-            # xIgnorar = False
-            # xFecha = duracion['inicio']
-            # xTiempo = duracion['minutos']
-            # xTurno = duracion['turno']
 
-            # cursor.execute(sql, (
-            #     xIdOF, xIdTipo, xIdPos, xIdParada, xDescripcion,
-            #     xFecha, xTiempo, xObservaciones, xTurno, xIgnorar
-            # ))
             rows_to_insert.append((
                 xIdOF, xIdTipo, xIdPos, xIdParada, xDescripcion,
                 duracion['inicio'], duracion['minutos'], observaciones,
@@ -755,7 +747,7 @@ def guardar_paradas_agrupadas(request):
             ))
 
             xIdPos += 1
-
+    print(f'Actualizar Paradas producción DB {objs}')
     ParadaProduccionDB.objects.bulk_create(objs)
 
     # Escribir en producción DB
@@ -768,13 +760,13 @@ def guardar_paradas_agrupadas(request):
         "TrustServerCertificate=yes;"
     )
     sql = """
-        INSERT INTO imp.tb_tubo_parada_test (
+        INSERT INTO imp.tb_tubo_parada (
             xIdOF, xIdTipo, xIdPos, xIdParada, xDescripcion,
             xFecha, xTiempo, xObservaciones, xTurno, xIgnorar
         )
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     """
-
+    print(f'Rows to insert {rows_to_insert}')
     conn = pyodbc.connect(conn_str, autocommit=False)
     cursor = conn.cursor()
     cursor.executemany(sql, rows_to_insert)
@@ -947,7 +939,7 @@ def buscar_montajes_of(request):
         # --- 2) Obtener el máximo xIdPos ---
         consulta_pos = """
             SELECT MAX(xIdPos) AS MaxPos
-            FROM imp.tb_tubo_parada_test
+            FROM imp.tb_tubo_parada
             WHERE xIdOF = ?
               AND xIdTipo = ?
         """
@@ -1019,7 +1011,7 @@ def get_descripcion_prodDB(Id_codigoProdDB, siglasParada, cursor):
 def get_posicion_prodDB(xIdOF, xIdTipo, cursor):
     consulta_pos = """
         SELECT MAX(xIdPos) AS MaxPos
-        FROM imp.tb_tubo_parada_test
+        FROM imp.tb_tubo_parada
         WHERE xIdOF = ?
             AND xIdTipo = ?
     """
@@ -1117,7 +1109,7 @@ def actualizar_parada(request):
 
         # Una sola llamada a la BD
         cursor.executemany("""
-            UPDATE imp.tb_tubo_parada_test
+            UPDATE imp.tb_tubo_parada
             SET 
                 xIdTipo        = ?,
                 xObservaciones = ?,
@@ -1161,6 +1153,8 @@ def eliminar_paradaDB(request, parada_id):
         for p in paradas_produccion_DB
     ]
 
+    print(f'A eliminar {rows_to_delete}')
+
     conn_str = (
         "DRIVER={ODBC Driver 18 for SQL Server};"
         "SERVER=10.128.0.203;"
@@ -1174,19 +1168,21 @@ def eliminar_paradaDB(request, parada_id):
     conn = pyodbc.connect(conn_str)
     cursor = conn.cursor()
 
-    try:        
-        cursor.executemany("""
-            DELETE imp.tb_tubo_parada_test
-            WHERE 
-                xIdOF   = ? AND
-                xIdTipo = ? AND
-                xIdPos  = ?
-        """, rows_to_delete)
+    try: 
+        total_eliminados = 0
+        if len(rows_to_delete)>0:       
+            cursor.executemany("""
+                DELETE imp.tb_tubo_parada
+                WHERE 
+                    xIdOF   = ? AND
+                    xIdTipo = ? AND
+                    xIdPos  = ?
+            """, rows_to_delete)
 
-        # aquí devuelve el total de filas eliminadas
-        total_eliminados = cursor.rowcount
-        conn.commit()
-        paradas_produccion_DB.delete()
+            # aquí devuelve el total de filas eliminadas
+            total_eliminados = cursor.rowcount
+            conn.commit()
+            paradas_produccion_DB.delete()
         return Response({
             "ok": True,
             "mensaje": f"Se eliminaron {total_eliminados} registros"
@@ -1245,7 +1241,7 @@ def crear_parada_ProdBD(request):
             xFecha = datetime.fromisoformat(xFecha)
         
         cursor.execute("""
-            UPDATE imp.tb_tubo_parada_test
+            UPDATE imp.tb_tubo_parada
             SET 
                 xTiempo   = ?
             WHERE 
@@ -1263,7 +1259,7 @@ def crear_parada_ProdBD(request):
         #print(f'periodo = {periodo["inicio"]}, fecha_val = {xFecha}, xIdPos = {xIdPos}, xTiempo = {xTiempo}, descripcion_DB = {xDescripcion}, xIdOf = {xIdOF}, xIdTipo = {xIdTipo}, xTurno = {xTurno},  xIdParada = {xIdParada}, xObservaciones = {xObservaciones}')
         
         sql = """
-            INSERT INTO imp.tb_tubo_parada_test (
+            INSERT INTO imp.tb_tubo_parada (
                 xIdOF, xIdTipo, xIdPos, xIdParada, xDescripcion,
                 xFecha, xTiempo, xObservaciones, xTurno, xIgnorar
             )
@@ -1288,27 +1284,3 @@ def crear_parada_ProdBD(request):
     finally:
         cursor.close()
         conn.close()
-
-@api_view(["POST"])
-def rellenar_turnos_ProdBD(request):
-    paradas = Parada.objects.all()
-
-    for parada in paradas:
-        paradas_prod = ParadaProduccionDB.objects.filter(parada=parada).order_by('pos')
-        periodos = Periodo.objects.filter(parada=parada).order_by('inicio')
-
-        if not paradas_prod.exists() or not periodos.exists():
-            continue
-
-        if paradas_prod.count() == 1:
-            prod = paradas_prod.first()
-            prod.turno = periodos.first().turno
-            prod.save()
-
-        elif paradas_prod.count() == 2:
-            paradas_prod[0].turno = periodos.first().turno
-            paradas_prod[0].save()
-            paradas_prod[1].turno = periodos.last().turno
-            paradas_prod[1].save()
-
-    return Response({"ok": True, "mensaje": "Turnos rellenados correctamente"})
