@@ -6,7 +6,7 @@ from .models import Registro, ZonaPerfilVelocidad, Parada, CodigoParada, Periodo
 from trazabilidad.models import Acumulador
 from trazabilidad.models import Forma
 from estructura.models import Zona
-from trazabilidad.models import Flejes, Tubos, OF
+from trazabilidad.models import Flejes, Tubos, OF, Montaje
 from django.forms.models import model_to_dict
 from django.db.models import Q, F
 from django.db.models import Min, Max, Sum, ExpressionWrapper, DurationField
@@ -238,7 +238,6 @@ def estado_maquina(request, id):
     # Flejes fabricados
     siglas = maquina.zona.siglas.upper()
     acc = Acumulador.objects.filter(maquina_siglas=siglas).last()
-    print(f'Acc: {acc}')
     if acc != None:
         siglas_maquila = acc.maquila_siglas.upper()
         resultado = Flejes.objects.filter(
@@ -711,7 +710,7 @@ def guardar_paradas_agrupadas(request):
 
     rows_to_insert = []
     objs = []
-    print(f'Paradas {paradas}')
+    
     for parada in paradas:
         duraciones_por_turno = [ #Solo para guardar en ProdDB, 2 turnos = 2 paradas
         {
@@ -747,7 +746,7 @@ def guardar_paradas_agrupadas(request):
             ))
 
             xIdPos += 1
-    print(f'Actualizar Paradas producción DB {objs}')
+    
     ParadaProduccionDB.objects.bulk_create(objs)
 
     # Escribir en producción DB
@@ -766,14 +765,44 @@ def guardar_paradas_agrupadas(request):
         )
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     """
-    print(f'Rows to insert {rows_to_insert}')
-    conn = pyodbc.connect(conn_str, autocommit=False)
-    cursor = conn.cursor()
-    cursor.executemany(sql, rows_to_insert)
-    conn.commit()
-    cursor.close()
-    conn.close()
-    # Fin de escribir en producción DB    
+    
+    # conn = pyodbc.connect(conn_str, autocommit=False)
+    # cursor = conn.cursor()
+    # cursor.executemany(sql, rows_to_insert)
+    # conn.commit()
+    # cursor.close()
+    # conn.close()
+    # Fin de escribir en producción DB  
+     
+    # Ajustar hora cambio de OF y Crear montaje 
+    if tipo_parada.nombre == 'Cambio':
+        primera_id = ids[0]
+        cambio = Parada.objects.filter(id=primera_id).first()
+        hora_inicio_cambio = cambio.inicio()
+        orden = OF.objects.filter(numero=of).first()
+        # Ajustar hora cambio de OF
+        if orden != None:
+            acc = Acumulador.objects.filter(maquina_siglas=orden.zona.siglas).last()
+            if cambio.codigo.siglas == 'CG' and acc.of_activa == None: # Cambio general sin trazabilidad
+                hora_inicio_of = orden.inicio
+                if hora_inicio_of != hora_inicio_cambio:
+                    orden_anterior = OF.objects.filter(fin=hora_inicio_of)
+                    if orden_anterior != None:
+                        orden_anterior.fin = hora_inicio_cambio
+                        orden_anterior.save()
+                    orden.inicio = hora_inicio_cambio
+                    orden.save()
+            
+            # Crear montaje  
+            Montaje.objects.filter(fin__isnull=True,
+                                   of__zona=orden.zona, 
+                                   inicio__lt=hora_inicio_cambio).update(fin=hora_inicio_cambio)
+            montaje = Montaje.objects.create(xIdMontaje=xIdParada, of=orden, inicio= hora_inicio_cambio)
+            # Actualizar todos los tubos fabricados desde inicio montaje hasta ahora con el montaje
+            Tubos.objects.filter(fleje__orden=orden, 
+                                 fecha_entrada=hora_inicio_cambio.date(),
+                                 hora_entrada__gte=hora_inicio_cambio.time()).update(montaje=montaje)
+        
 
     return Response(duraciones_por_turno)
     #return Response({"mensaje": "Paradas procesadas y limpieza realizada"}, status=200)

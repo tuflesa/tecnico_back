@@ -34,6 +34,12 @@ class OF(models.Model):
 
     def __str__(self):
         return self.numero
+    
+class Montaje(models.Model):
+    xIdMontaje = models.CharField(max_length=7)
+    of = models.ForeignKey(OF, on_delete=models.CASCADE, related_name='montajes')
+    inicio = models.DateTimeField()
+    fin = models.DateTimeField(null=True, blank=True)
 
 # Registra todos los flejes que entran en los acumuladores    
 class Flejes(models.Model):
@@ -84,6 +90,7 @@ class Tubos(models.Model):
     dim2 = models.FloatField(null=True, blank=True) # diametro si es redondo, alto si es cuadrado o rectangular
     fecha_entrada = models.DateTimeField(blank=True, null=True)
     fecha_salida = models.DateTimeField(blank=True, null=True)
+    montaje = models.ForeignKey(Montaje, on_delete=models.SET_NULL, null=True, blank=True, related_name='tubos')
 
     def descripcion(self):
         if (self.dim2):
