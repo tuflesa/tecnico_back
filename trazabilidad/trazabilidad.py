@@ -394,13 +394,15 @@ def leerFlejesEnAcumuladores(request):
                                       fecha_entrada=ahora)
                         new_t.save()
                 else:
-                    print('Hay tubos')
+                    print('Hay tubos')             
                     print('last_t', last_t.largo)
+                    montaje = Montaje.objects.filter(fin__isnull=True, of__numero=ultimo_tubo['of']).last()
+                    if montaje != None:
+                        print(f'Montaje último tubo: {montaje.xIdMontaje}')
                     if (last_t.fleje.of == ultimo_tubo['of'] and last_t.fleje.pos == ultimo_tubo['pos']
                         and last_t.fleje.idProduccion == ultimo_tubo['idProduccion'] and last_t.largo == ultimo_tubo['largo']
                         and last_t.dim1 == ultimo_tubo['base'] and last_t.dim2 == ultimo_tubo['altura']):
                         print('actualizar ultimo tubo y crear uno nuevo')
-                        #montaje = Montaje.objects.filter(fin__isnull=True, of__numero=)
                         last_t.n_tubos = ultimo_tubo['n_tubos']
                         last_t.fecha_salida = ahora
                         last_t.save()
