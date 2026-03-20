@@ -821,7 +821,7 @@ def guardar_paradas_agrupadas(request):
         orden = OF.objects.filter(numero=of).first()
         # Ajustar hora cambio de OF
         if orden != None:
-            acc = Acumulador.objects.filter(maquina_siglas=orden.zona.siglas).last()
+            acc = Acumulador.objects.filter(maquina_siglas=orden.zona.siglas.upper()).last()
             if cambio.codigo.siglas == 'CG' and acc.of_activa == None: # Cambio general sin trazabilidad
                 hora_inicio_of = orden.inicio
                 if hora_inicio_of != hora_inicio_cambio:
