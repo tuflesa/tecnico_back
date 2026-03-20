@@ -841,7 +841,7 @@ def guardar_paradas_agrupadas(request):
                     zona=orden.zona
                 )
                 .annotate(inicio_min=Min('periodos__inicio'))
-                .order_by('inicio_min')
+                .order_by('-inicio_min')
                 .first()
             )
             if siguiente_cambio == None: #Si no hay paradas tipo cambio con inicio mayor a la hora de inicio de la parada  
@@ -856,6 +856,7 @@ def guardar_paradas_agrupadas(request):
             else: # Hay paradas tipo cambio posteriores a la hora de inico de la parada
                 print('Hay cambios posteriores ...')
                 hora_fin_montaje = siguiente_cambio.inicio()
+                print(f'Inicio siguiente cambio: {hora_fin_montaje}')
                 montaje = Montaje.objects.create(xIdMontaje=xIdParada, 
                                                  of=orden, 
                                                  inicio= hora_inicio_cambio,
