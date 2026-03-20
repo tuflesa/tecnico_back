@@ -394,22 +394,25 @@ def leerFlejesEnAcumuladores(request):
                                       fecha_entrada=ahora)
                         new_t.save()
                 else:
-                    print('Hay tubos')             
-                    print('last_t', last_t.largo)
-                    montaje = Montaje.objects.filter(fin__isnull=True, of__numero=ultimo_tubo['of']).last()
-                    if montaje != None:
-                        print(f'Montaje último tubo: {montaje.xIdMontaje}')
+                    print('Hay tubos ...')             
                     if (last_t.fleje.of == ultimo_tubo['of'] and last_t.fleje.pos == ultimo_tubo['pos']
                         and last_t.fleje.idProduccion == ultimo_tubo['idProduccion'] and last_t.largo == ultimo_tubo['largo']
                         and last_t.dim1 == ultimo_tubo['base'] and last_t.dim2 == ultimo_tubo['altura']):
-                        print('actualizar ultimo tubo y crear uno nuevo')
+                        print('Actualizar ultimo tubo y crear uno nuevo')
+                        montaje = Montaje.objects.filter(fin__isnull=True, of__numero=ultimo_tubo['of']).last()
+                        if montaje != None:
+                            print(f'Montaje último tubo: {montaje.xIdMontaje}')
+                            last_t.montaje=montaje
                         last_t.n_tubos = ultimo_tubo['n_tubos']
                         last_t.fecha_salida = ahora
                         last_t.save()
                         fl = Flejes.objects.filter(of=tubo_actual['of'], pos=tubo_actual['pos'], idProduccion=tubo_actual['idProduccion']).last()
                         if fl != None:
+                            montaje = Montaje.objects.filter(fin__isnull=True, of__numero=tubo_actual['of']).last()
                             new_t = Tubos(n_tubos=tubo_actual['n_tubos'] , largo=tubo_actual['largo'], fleje= fl, dim1=tubo_actual['base'], dim2=tubo_actual['altura'],
                                           fecha_entrada=ahora)
+                            if montaje != None:
+                                new_t.montaje=montaje
                             new_t.save()
                     else:
                         if (last_t.fleje.of == tubo_actual['of'] and last_t.fleje.pos == tubo_actual['pos']
@@ -418,6 +421,10 @@ def leerFlejesEnAcumuladores(request):
                             print('Actualizar tubo actual')
                             last_t.n_tubos = tubo_actual['n_tubos']
                             last_t.largo = tubo_actual['largo'] 
+                            montaje = Montaje.objects.filter(fin__isnull=True, of__numero=tubo_actual['of']).last()
+                            if montaje != None:
+                                print(f'Montaje actual: {montaje.xIdMontaje}')
+                                last_t.montaje=montaje
                             last_t.save()
                         else:
                             print('Se crea un nuevo tubo si hay flejes ...')
@@ -425,6 +432,9 @@ def leerFlejesEnAcumuladores(request):
                             if fl != None:
                                 new_t = Tubos(n_tubos=tubo_actual['n_tubos'] , largo=tubo_actual['largo'], fleje= fl, dim1=tubo_actual['base'], dim2=tubo_actual['altura'],
                                               fecha_entrada=ahora)
+                                montaje = Montaje.objects.filter(fin__isnull=True, of__numero=tubo_actual['of']).last()
+                                if montaje != None:
+                                    new_t.montaje=montaje
                                 new_t.save()
                 
                 flejeActualPLC_valido = False
