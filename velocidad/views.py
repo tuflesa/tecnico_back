@@ -840,10 +840,14 @@ def guardar_paradas_agrupadas(request):
                     codigo__tipo__nombre='Cambio',
                     zona=orden.zona
                 )
+                .exclude(id=primera_id)
                 .annotate(inicio_min=Min('periodos__inicio'))
-                .order_by('-inicio_min')
+                .filter(inicio_min__gt=hora_inicio_cambio)
+                .order_by('inicio_min')
                 .first()
             )
+
+            
             if siguiente_cambio == None: #Si no hay paradas tipo cambio con inicio mayor a la hora de inicio de la parada  
                 print('No hay cambios posteriores ...')
                 Montaje.objects.filter(fin__isnull=True,
