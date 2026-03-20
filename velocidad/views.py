@@ -832,15 +832,38 @@ def guardar_paradas_agrupadas(request):
                     orden.inicio = hora_inicio_cambio
                     orden.save()
             
-            # Crear montaje  
-            Montaje.objects.filter(fin__isnull=True,
-                                   of__zona=orden.zona, 
-                                   inicio__lt=hora_inicio_cambio).update(fin=hora_inicio_cambio)
-            montaje = Montaje.objects.create(xIdMontaje=xIdParada, of=orden, inicio= hora_inicio_cambio)
-            # Actualizar todos los tubos fabricados desde inicio montaje hasta ahora con el montaje
-            Tubos.objects.filter(fleje__orden=orden, 
-                                 fecha_entrada__gte =hora_inicio_cambio).update(montaje=montaje)
-        
+            # Crear montaje
+            # Buscar paradas tipo cambio con fecha mayor a hora inico parada
+            siguiente_cambio = (
+                Parada.objects
+                .filter(
+                    codigo__tipo__nombre='Cambio',
+                    zona=orden.zona
+                )
+                .annotate(inicio_min=Min('periodos__inicio'))
+                .order_by('inicio_min')
+                .first()
+            )
+            if siguiente_cambio == None: #Si no hay paradas tipo cambio con inicio mayor a la hora de inicio de la parada  
+                print('No hay cambios posteriores ...')
+                Montaje.objects.filter(fin__isnull=True,
+                                    of__zona=orden.zona, 
+                                    inicio__lt=hora_inicio_cambio).update(fin=hora_inicio_cambio)
+                montaje = Montaje.objects.create(xIdMontaje=xIdParada, of=orden, inicio= hora_inicio_cambio)
+                # Actualizar todos los tubos fabricados desde inicio montaje hasta ahora con el montaje
+                Tubos.objects.filter(fleje__orden=orden, 
+                                    fecha_entrada__gte =hora_inicio_cambio).update(montaje=montaje)
+            else: # Hay paradas tipo cambio posteriores a la hora de inico de la parada
+                print('Hay cambios posteriores ...')
+                hora_fin_montaje = siguiente_cambio.inicio()
+                montaje = Montaje.objects.create(xIdMontaje=xIdParada, 
+                                                 of=orden, 
+                                                 inicio= hora_inicio_cambio,
+                                                 fin= hora_fin_montaje)
+                # Actualizar todos los tubos fabricados desde inicio montaje hasta ahora con el montaje
+                Tubos.objects.filter(fleje__orden=orden, 
+                                    fecha_entrada__gte =hora_inicio_cambio,
+                                    fecha_salida__lte=hora_fin_montaje).update(montaje=montaje)
 
     return Response(duraciones_por_turno)
     #return Response({"mensaje": "Paradas procesadas y limpieza realizada"}, status=200)
