@@ -1222,6 +1222,10 @@ def eliminar_paradaDB(request, parada_id):
 
     print(f'A eliminar {rows_to_delete}')
 
+    # Si es un cambio, borramos el montaje asociado si existe
+    if (datos.codigo.tipo.nombre=='Cambio'):
+        Montaje.objects.filter(of__numero=datos.of,inicio=datos.inicio()).delete()
+
     conn_str = (
         "DRIVER={ODBC Driver 18 for SQL Server};"
         "SERVER=10.128.0.203;"
