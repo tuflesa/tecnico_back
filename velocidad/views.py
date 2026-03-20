@@ -868,7 +868,7 @@ def guardar_paradas_agrupadas(request):
                 # Actualizar todos los tubos fabricados desde inicio montaje hasta ahora con el montaje
                 Tubos.objects.filter(fleje__orden=orden, 
                                     fecha_entrada__gte =hora_inicio_cambio,
-                                    fecha_salida__lte=hora_fin_montaje).update(montaje=montaje)
+                                    fecha_entrada__lte=hora_fin_montaje).update(montaje=montaje)
 
     return Response(duraciones_por_turno)
     #return Response({"mensaje": "Paradas procesadas y limpieza realizada"}, status=200)
