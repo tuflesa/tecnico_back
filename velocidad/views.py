@@ -679,6 +679,45 @@ def guardar_paradas_agrupadas(request):
     # Creamos la lista de todos los IDs seleccionados
     ids = [int(parada['id']) for parada in paradas]
 
+    # Recuperar objetos Parada
+    paradas_objs = Parada.objects.filter(id__in=ids).select_related("codigo")
+
+    warnings_running = []
+    errors_running = []
+
+    # Detectar paradas RUNNING según duración
+    for parada in paradas_objs:
+        if parada.codigo.siglas == "RUN":
+            duracion_min = parada.duracion() 
+
+            # ≥ 10 minutos → error y bloqueamos, no continuamos con la agrupación
+            if duracion_min >= 10:
+                errors_running.append({
+                    "parada_id": parada.id,
+                    "duracion_min": round(duracion_min, 2)
+                })
+
+            # entre 5 y 10 → aviso y confirmamos si queremos seguir o no
+            elif duracion_min >= 5:
+                warnings_running.append({
+                    "parada_id": parada.id,
+                    "duracion_min": round(duracion_min, 2)
+                })
+
+    # Si hay errores RUNNING ≥ 10 min NO continuar
+    if errors_running:
+        return Response({
+            "error": "Hay un periodo RUNNING con duración igual o superior a 10 minutos. No es posible continuar.",
+            "detalles": errors_running
+        }, status=400)
+
+    # Si hay RUNNING ≥ 5 min pregunta en el frontend
+    if warnings_running and not request.data.get("forzar", False):
+        return Response({
+            "warning": "Hay un periodo RUNNING con duración entre 5 y 10 minutos.",
+            "detalles": warnings_running
+        }, status=400)
+
     if len(ids) > 1 and modo=='agrupar':   
         primera_id = ids[0]
         # IDs restantes son todos los de la lista menos el primero
