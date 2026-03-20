@@ -766,12 +766,12 @@ def guardar_paradas_agrupadas(request):
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     """
     
-    # conn = pyodbc.connect(conn_str, autocommit=False)
-    # cursor = conn.cursor()
-    # cursor.executemany(sql, rows_to_insert)
-    # conn.commit()
-    # cursor.close()
-    # conn.close()
+    conn = pyodbc.connect(conn_str, autocommit=False)
+    cursor = conn.cursor()
+    cursor.executemany(sql, rows_to_insert)
+    conn.commit()
+    cursor.close()
+    conn.close()
     # Fin de escribir en producción DB  
      
     # Ajustar hora cambio de OF y Crear montaje 
@@ -800,8 +800,7 @@ def guardar_paradas_agrupadas(request):
             montaje = Montaje.objects.create(xIdMontaje=xIdParada, of=orden, inicio= hora_inicio_cambio)
             # Actualizar todos los tubos fabricados desde inicio montaje hasta ahora con el montaje
             Tubos.objects.filter(fleje__orden=orden, 
-                                 fecha_entrada=hora_inicio_cambio.date(),
-                                 hora_entrada__gte=hora_inicio_cambio.time()).update(montaje=montaje)
+                                 fecha_entrada__gte =hora_inicio_cambio).update(montaje=montaje)
         
 
     return Response(duraciones_por_turno)

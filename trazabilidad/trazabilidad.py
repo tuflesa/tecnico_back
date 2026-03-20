@@ -8,7 +8,7 @@ from django.utils import timezone
 from rest_framework.decorators import api_view
 from django.http import HttpResponse
 from rest_framework.response import Response
-from .models import Acumulador, Flejes, Tubos, OF
+from .models import Acumulador, Flejes, Tubos, OF, Montaje
 from velocidad.models import Parada
 from django.db.models import Q
 from datetime import date
@@ -400,6 +400,7 @@ def leerFlejesEnAcumuladores(request):
                         and last_t.fleje.idProduccion == ultimo_tubo['idProduccion'] and last_t.largo == ultimo_tubo['largo']
                         and last_t.dim1 == ultimo_tubo['base'] and last_t.dim2 == ultimo_tubo['altura']):
                         print('actualizar ultimo tubo y crear uno nuevo')
+                        #montaje = Montaje.objects.filter(fin__isnull=True, of__numero=)
                         last_t.n_tubos = ultimo_tubo['n_tubos']
                         last_t.fecha_salida = ahora
                         last_t.save()
