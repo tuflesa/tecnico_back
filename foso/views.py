@@ -3,13 +3,19 @@ from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
-from .models import Linea, Posicion, Bobina, Ocupacion
+from .models import Linea, Posicion, Bobina, Ocupacion, Material, Proveedor
 from .serializers import (
     LineaSerializer, PosicionSerializer, BobinaSerializer,
-    OcupacionSerializer, FosoLineaSerializer, ColocarBobinaSerializer,
+    OcupacionSerializer, FosoLineaSerializer, ColocarBobinaSerializer, MaterialSerializer, ProveedorSerializer
 )
 
+class MaterialViewSet(viewsets.ModelViewSet):
+    queryset = Material.objects.all()
+    serializer_class = MaterialSerializer
 
+class ProveedorViewSet(viewsets.ModelViewSet):
+    queryset = Proveedor.objects.all()
+    serializer_class = ProveedorSerializer
 class LineaViewSet(viewsets.ModelViewSet):
     queryset = Linea.objects.all()
     serializer_class = LineaSerializer

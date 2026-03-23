@@ -1,7 +1,15 @@
 from rest_framework import serializers
-from .models import Linea, Posicion, Bobina, Ocupacion, COLUMNAS_POR_ALTURA
+from .models import Linea, Posicion, Bobina, Ocupacion, Material, Proveedor, COLUMNAS_POR_ALTURA
 
+class MaterialSerializer(serializers.ModelSerializer):
+    class Meta:
+        model  = Material
+        fields = "__all__"
 
+class ProveedorSerializer(serializers.ModelSerializer):
+    class Meta:
+        model  = Proveedor
+        fields = "__all__"
 class LineaSerializer(serializers.ModelSerializer):
     class Meta:
         model = Linea
@@ -11,6 +19,8 @@ class LineaSerializer(serializers.ModelSerializer):
 class BobinaSerializer(serializers.ModelSerializer):
     en_foso          = serializers.ReadOnlyField()
     posicion_actual  = serializers.SerializerMethodField()
+    material_nombre  = serializers.CharField(source='material.nombre',  read_only=True)
+    proveedor_nombre = serializers.CharField(source='proveedor.nombre', read_only=True)
 
     class Meta:
         model = Bobina

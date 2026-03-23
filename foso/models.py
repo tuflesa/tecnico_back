@@ -12,14 +12,12 @@ COLUMNAS_POR_ALTURA = {
     4: 8,
     5: 9,
 }
-
-
 class Linea(models.Model):
     """Representa una línea dentro del foso."""
-    nombre      = models.CharField(max_length=100)
+    nombre = models.CharField(max_length=100)
     descripcion = models.TextField(blank=True, null=True)
-    activa      = models.BooleanField(default=True)
-    creada_en   = models.DateTimeField(auto_now_add=True)
+    activa = models.BooleanField(default=True)
+    creada_en = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         verbose_name = "Línea"
@@ -36,8 +34,8 @@ class Posicion(models.Model):
     Cada combinación (linea, altura, columna) es única.
     La validación garantiza que columna no supere el máximo de esa altura.
     """
-    linea   = models.ForeignKey(Linea, on_delete=models.CASCADE, related_name="posiciones")
-    altura  = models.PositiveSmallIntegerField()   # 1–5
+    linea = models.ForeignKey(Linea, on_delete=models.CASCADE, related_name="posiciones")
+    altura = models.PositiveSmallIntegerField()   # 1–5
     columna = models.PositiveSmallIntegerField()   # 1–9 según altura
 
     class Meta:
@@ -71,21 +69,43 @@ class Posicion(models.Model):
     def __str__(self):
         return f"{self.linea.nombre} — Altura {self.altura}, Col {self.columna}"
 
+class Material(models.Model):
+    nombre = models.CharField(max_length=200, unique=True)
+
+    class Meta:
+        verbose_name = "Material"
+        verbose_name_plural = "Materiales"
+        ordering = ["nombre"]
+
+    def __str__(self):
+        return self.nombre
+
+
+class Proveedor(models.Model):
+    nombre = models.CharField(max_length=200, unique=True)
+
+    class Meta:
+        verbose_name = "Proveedor"
+        verbose_name_plural = "Proveedores"
+        ordering = ["nombre"]
+
+    def __str__(self):
+        return self.nombre
 
 class Bobina(models.Model):
     """Datos propios de una bobina, independientes de su ubicación."""
-    codigo          = models.CharField(max_length=100, unique=True)
-    material        = models.CharField(max_length=200, blank=True, null=True)
-    peso_kg         = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
-    diametro_mm     = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
-    ancho_mm        = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
-    colada          = models.CharField(max_length=100, blank=True, null=True)
-    proveedor       = models.CharField(max_length=200, blank=True, null=True)
-    fecha_entrada   = models.DateField(blank=True, null=True)
-    fecha_salida    = models.DateField(blank=True, null=True)
-    observaciones   = models.TextField(blank=True, null=True)
-    creada_en       = models.DateTimeField(auto_now_add=True)
-    actualizada_en  = models.DateTimeField(auto_now=True)
+    codigo  = models.CharField(max_length=100, unique=True)
+    material  = models.ForeignKey('Material',  on_delete=models.SET_NULL, blank=True, null=True)
+    peso_kg  = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
+    diametro_mm = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
+    ancho_mm = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
+    colada = models.CharField(max_length=100, blank=True, null=True)
+    proveedor = models.ForeignKey('Proveedor', on_delete=models.SET_NULL, blank=True, null=True)
+    fecha_entrada = models.DateField(blank=True, null=True)
+    fecha_salida = models.DateField(blank=True, null=True)
+    observaciones = models.TextField(blank=True, null=True)
+    creada_en = models.DateTimeField(auto_now_add=True)
+    actualizada_en = models.DateTimeField(auto_now=True)
 
     class Meta:
         verbose_name = "Bobina"
@@ -114,12 +134,12 @@ class Ocupacion(models.Model):
     Historial completo: posicion → bobinas que pasaron por ella.
                         bobina   → posiciones donde ha estado.
     """
-    posicion     = models.ForeignKey(Posicion, on_delete=models.PROTECT, related_name="ocupaciones")
-    bobina       = models.ForeignKey(Bobina,   on_delete=models.PROTECT, related_name="ocupaciones")
+    posicion = models.ForeignKey(Posicion, on_delete=models.PROTECT, related_name="ocupaciones")
+    bobina = models.ForeignKey(Bobina,   on_delete=models.PROTECT, related_name="ocupaciones")
     fecha_inicio = models.DateTimeField(auto_now_add=True)
-    fecha_fin    = models.DateTimeField(blank=True, null=True)
-    activo       = models.BooleanField(default=True)
-    notas        = models.TextField(blank=True, null=True)
+    fecha_fin = models.DateTimeField(blank=True, null=True)
+    activo = models.BooleanField(default=True)
+    notas = models.TextField(blank=True, null=True)
 
     class Meta:
         verbose_name = "Ocupación"
