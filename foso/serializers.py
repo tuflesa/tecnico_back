@@ -40,10 +40,19 @@ class BobinaSerializer(serializers.ModelSerializer):
 
 class OcupacionSerializer(serializers.ModelSerializer):
     bobina_detalle = BobinaSerializer(source="bobina", read_only=True)
+    posicion_detalle = serializers.SerializerMethodField()
 
     class Meta:
         model = Ocupacion
         fields = "__all__"
+        
+    def get_posicion_detalle(self, obj):
+        return {
+            'id':      obj.posicion.id,
+            'linea':   obj.posicion.linea.id,
+            'altura':  obj.posicion.altura,
+            'columna': obj.posicion.columna,
+        }
 
 
 class PosicionSerializer(serializers.ModelSerializer):
