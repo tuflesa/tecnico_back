@@ -1,6 +1,6 @@
 from django.contrib.auth.models import User
 from rest_framework import serializers
-from .models import Aplicacion, Perfil, Puesto, NivelAcceso
+from .models import Aplicacion, Perfil, Puesto, NivelAcceso, DestrezasFoso
 from estructura.serializers import EmpresaSerializer, ZonaSerializer, SeccionSerializer
 #from mantenimiento.serializers import EspecialidadSerializer
 from velocidad.serializers import DestrezasVelocidadSerializer
@@ -20,6 +20,11 @@ class NivelAccesoSerializer(serializers.ModelSerializer):
         model = NivelAcceso
         fields = ['id', 'nombre', 'descripcion']
 
+class DestrezasFosoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model  = DestrezasFoso
+        fields = ['id', 'nombre', 'descripcion']
+
 class PerfilSerializer(serializers.ModelSerializer):
     empresa = EmpresaSerializer(many=False)
     zona = ZonaSerializer(many=False)
@@ -27,9 +32,11 @@ class PerfilSerializer(serializers.ModelSerializer):
     puesto = PuestoSerializer(many=False)
     nivel_acceso = NivelAccesoSerializer(many=False)
     destrezas_velocidad = DestrezasVelocidadSerializer(many=True, read_only=True)
+    destrezas_foso      = DestrezasFosoSerializer(many=True, read_only=True)
+    
     class Meta:
         model = Perfil
-        fields = ['usuario', 'empresa', 'zona', 'seccion', 'puesto', 'nivel_acceso', 'destrezas', 'destrezas_velocidad']
+        fields = '__all__'
 
 
 class UserSerializer(serializers.ModelSerializer):
