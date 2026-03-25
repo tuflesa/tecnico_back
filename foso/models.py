@@ -174,3 +174,14 @@ class Ocupacion(models.Model):
     def __str__(self):
         estado = "activa" if self.activo else "finalizada"
         return f"{self.bobina} en {self.posicion} [{estado}]"
+
+class DestrezasFoso(models.Model):
+    nombre      = models.CharField(max_length=50)
+    descripcion = models.CharField(max_length=200, blank=True, null=True)
+
+    class Meta:
+        verbose_name = "Destreza"
+        verbose_name_plural = "Destrezas"
+
+    def __str__(self):
+        return self.nombre

@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Linea, Posicion, Bobina, Ocupacion, Material, Proveedor
+from .models import Linea, Posicion, Bobina, Ocupacion, Material, Proveedor, DestrezasFoso
 
 class LineaAdmin(admin.ModelAdmin):
     list_display  = ('id', 'nombre', 'activa', 'creada_en')
@@ -29,9 +29,14 @@ class ProveedorAdmin(admin.ModelAdmin):
     list_display  = ('id', 'nombre')
     search_fields = ('nombre',)
 
+class DestrezasFosoAdmin(admin.ModelAdmin):
+    list_display  = ('id', 'nombre', 'descripcion')
+    search_fields = ('nombre',)
+
 admin.site.register(Linea, LineaAdmin)
 admin.site.register(Posicion, PosicionAdmin)
 admin.site.register(Bobina, BobinaAdmin)
 admin.site.register(Ocupacion, OcupacionAdmin)
 admin.site.register(Material, MaterialAdmin)
 admin.site.register(Proveedor, ProveedorAdmin)
+admin.site.register(DestrezasFoso, DestrezasFosoAdmin)
