@@ -31,7 +31,8 @@ class BobinaSerializer(serializers.ModelSerializer):
         if pos:
             return {
                 "id": pos.id,
-                "linea": pos.linea.nombre,
+                "linea": pos.linea.id,
+                "linea_nombre": pos.linea.nombre,
                 "altura": pos.altura,
                 "columna": pos.columna,
             }
@@ -45,7 +46,7 @@ class OcupacionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Ocupacion
         fields = "__all__"
-        
+
     def get_posicion_detalle(self, obj):
         return {
             'id':      obj.posicion.id,

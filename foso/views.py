@@ -1,5 +1,5 @@
 from django.utils import timezone
-from rest_framework import viewsets, status
+from rest_framework import viewsets, status, filters
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
@@ -8,6 +8,12 @@ from .serializers import (
     LineaSerializer, PosicionSerializer, BobinaSerializer,
     OcupacionSerializer, FosoLineaSerializer, ColocarBobinaSerializer, MaterialSerializer, ProveedorSerializer
 )
+
+class BobinaViewSet(viewsets.ModelViewSet):
+    queryset = Bobina.objects.all()
+    serializer_class = BobinaSerializer
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['codigo', 'colada', 'material__nombre', 'proveedor__nombre']
 
 class MaterialViewSet(viewsets.ModelViewSet):
     queryset = Material.objects.all()
