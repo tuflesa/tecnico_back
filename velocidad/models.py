@@ -172,3 +172,4 @@ class ParadaProduccionDB(models.Model):
     pos = models.CharField(max_length=3, null=True, blank=True)
     parada = models.ForeignKey(Parada, on_delete=models.CASCADE, related_name='posiciones_prod_db')
     turno = models.ForeignKey(Turnos, on_delete=models.SET_NULL, null=True, blank=True)
+    orden_of = models.CharField(max_length=20, null=True, blank=True)

@@ -374,6 +374,7 @@ def estado_maquina(request, id):
         'palabra_clave': p.codigo.palabra_clave.nombre if p.codigo.palabra_clave else "",
         'tipo_parada_nombre':p.codigo.tipo.nombre,
         'of': p.of,
+        'xIdParada': p.posiciones_prod_db.first().orden_of if p.posiciones_prod_db.exists() else "",
         
     } for p in resultado]
     
@@ -772,11 +773,13 @@ def guardar_paradas_agrupadas(request):
         for duracion in duraciones_por_turno:      
             # ParadaProduccionDB.objects.create(pos=xIdPos, parada=parada)
             turno = Turnos.objects.get(id=duracion['turno_id'])
-            objs.append(ParadaProduccionDB(pos=xIdPos, parada=parada, turno=turno))
 
             xIdOF = of
             if xIdTipo == 'R':
                 xIdParada = xIdParada_R
+
+            xIdParadaGuardar = xIdParada_R if xIdTipo == 'R' else xIdParada
+            objs.append(ParadaProduccionDB(pos=xIdPos, parada=parada, turno=turno, orden_of=xIdParadaGuardar))
 
             rows_to_insert.append((
                 xIdOF, xIdTipo, xIdPos, xIdParada, xDescripcion,
