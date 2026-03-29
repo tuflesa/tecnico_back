@@ -376,6 +376,23 @@ def estado_maquina(request, id):
         'of': p.of,
         
     } for p in resultado]
+
+    # Montajes
+    resultado = Montaje.objects.filter(
+        of__zona__siglas=siglas.lower()
+    ).filter(
+        Q(inicio__gte=inicio_dt, fin__lte=fin_dt) |
+        Q(inicio__gte=inicio_dt, inicio__lte=fin_dt) |
+        Q(fin__gte=inicio_dt, fin__lte=fin_dt) |
+        Q(inicio__lte=fin_dt, fin__isnull=True) 
+    ).distinct().order_by('-inicio')
+    # Serializar resultados
+    montajes = [{
+        'xIdMontaje': r.xIdMontaje,
+        'of': r.of.numero,
+        'inicio': r.inicio.strftime("%Y-%m-%d %H:%M:%S") if r.inicio else None,
+        'fin': r.fin.strftime("%Y-%m-%d %H:%M:%S") if r.fin else None,
+    } for r in resultado]
     
     data = {
         "maquina": maquina_dict,
@@ -384,7 +401,8 @@ def estado_maquina(request, id):
         "estado_act": estado_act,
         "paradas": paradas,
         "tubos": tubos,
-        "OFs": OFs
+        "OFs": OFs,
+        "montajes": montajes
     }
     return JsonResponse(data)
 
