@@ -208,7 +208,6 @@ def leerFlejesEnAcumuladores(request):
     flejes_DB = request.data # Flejes que vienen de la base de datos
     # Para todos los acumuladores vemos si hay algún fleje que no esté ya en el accumulador
     for acc in Acumulador.objects.all():
-        print(acc.maquina_siglas)
         if (acc.of_activa):
             # Leemos ProduccionDB y actualizamos el FIFO de flejes
             of_actual = acc.of_activa
@@ -536,14 +535,28 @@ def leerFlejesEnAcumuladores(request):
 
             cursor.close()
             conn.close()
+
+            # Ver que no quedan flejes en la of actual
+            of_actual = OF.objects.filter(zona=acc.zona, fin__isnull=True).last()
+            flejes_of_actual_cero = False
+            if of_actual is not None:
+                flejes_maquina = [f for f in flejes_DB if f['maquina_siglas'] == acc.maquina_siglas] # Filtramos por máquina
+                if (acc.maquila_siglas):
+                    flejes_maquila = [f for f in flejes_DB if f['maquina_siglas'] == acc.maquila_siglas]
+                    flejes_maquina = flejes_maquina + flejes_maquila
+
+                flejes_of_actual = [f for f in flejes_maquina if f['of'] == of_actual.numero]
+                if len(flejes_of_actual) == 0:
+                    flejes_of_actual_cero = True
+            else:
+                flejes_of_actual_cero = True # Si no hay of actual creamos una of
             
             # Si no existe en la base de datos se da de alta y se da de baja la que tenga fecha fin nula
-            if xIdOF is not None:
+            # y no hay flejes de la of actual
+            print(f'cero flejes {flejes_of_actual_cero} xIdOF {xIdOF}')
+            if flejes_of_actual_cero and xIdOF is not None:
                 of = OF.objects.filter(numero=xIdOF).last()
                 if of is None:
-                    # fecha_str = timezone.localtime().strftime("%Y-%m-%d %H:%M:%S")
-                    # fecha_dt = datetime.strptime(fecha_str, "%Y-%m-%d %H:%M:%S")
-                    # hora_cambio_OF = timezone.make_aware(fecha_dt, timezone.utc)
                     ultima_parada = Parada.objects.filter(
                                             zona=acc.zona,
                                             codigo__siglas='UNKNOWN'
@@ -560,8 +573,6 @@ def leerFlejesEnAcumuladores(request):
                         inicio=hora_cambio_OF,
                         grupo=xIdGrupo
                     )
-
-
 
     return HttpResponse(status=201)
 
