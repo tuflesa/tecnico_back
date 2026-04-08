@@ -102,7 +102,7 @@ class FosoLineaSerializer(serializers.ModelSerializer):
             columnas = []
             for col in range(1, max_col + 1):
                 pos = posiciones.get((altura, col))
-                celda = {"columna": col, "posicion_id": pos.id if pos else None}
+                celda = {"columna": col, "posicion_id": pos.id if pos else None, "habilitada": pos.habilitada if pos else True}
                 if pos:
                     oc = pos.ocupacion_activa
                     if oc:

@@ -37,6 +37,15 @@ class Posicion(models.Model):
     linea = models.ForeignKey(Linea, on_delete=models.CASCADE, related_name="posiciones")
     altura = models.PositiveSmallIntegerField()   # 1–5
     columna = models.PositiveSmallIntegerField()   # 1–9 según altura
+    
+    habilitada = models.BooleanField(default=True)
+    motivo_anulacion = models.CharField(
+        max_length=200,
+        blank=True,
+        null=True,
+        help_text="Motivo por el que la posición no se puede usar"
+    )
+
 
     class Meta:
         verbose_name = "Posición"
@@ -45,6 +54,10 @@ class Posicion(models.Model):
         ordering = ["linea", "altura", "columna"]
 
     def clean(self):
+        """ if not self.habilitada:
+            raise ValidationError(
+                f"La posición {self} está anulada y no se puede usar."
+            ) """
         if self.altura not in COLUMNAS_POR_ALTURA:
             raise ValidationError(f"Altura {self.altura} no válida. Debe ser entre 1 y 5.")
         max_col = COLUMNAS_POR_ALTURA[self.altura]
@@ -148,6 +161,9 @@ class Ocupacion(models.Model):
         ordering = ["-fecha_inicio"]
 
     def clean(self):
+        if not self.posicion.habilitada:
+            raise ValidationError(
+                f"La posición {self.posicion} está anulada y no se puede ocupar.")
         # Solo una ocupación activa por posición
         if self.activo:
             qs = Ocupacion.objects.filter(posicion=self.posicion, activo=True)
