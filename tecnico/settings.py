@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     'qs',
     'articulos',
     'trazabilidad',
+    'foso',
 ]
 
 MIDDLEWARE = [
