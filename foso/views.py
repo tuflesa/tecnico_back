@@ -3,72 +3,107 @@ from rest_framework import viewsets, status, filters
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
-from .models import Linea, Posicion, Bobina, Ocupacion, Material, Proveedor
+from .models import Foso, Linea, Posicion, Bobina, Ocupacion, Material, Proveedor
 from .serializers import (
-    LineaSerializer, PosicionSerializer, BobinaSerializer,
-    OcupacionSerializer, FosoLineaSerializer, ColocarBobinaSerializer, MaterialSerializer, ProveedorSerializer
+    FosoSerializer, FosoLineaSerializer,
+    LineaSerializer, PosicionSerializer,
+    BobinaSerializer, OcupacionSerializer,
+    ColocarBobinaSerializer, MaterialSerializer, ProveedorSerializer
 )
 
-class BobinaViewSet(viewsets.ModelViewSet):
-    queryset = Bobina.objects.all()
-    serializer_class = BobinaSerializer
-    filter_backends = [filters.SearchFilter]
-    search_fields = ['codigo', 'colada', 'material__nombre', 'proveedor__nombre']
 
-class MaterialViewSet(viewsets.ModelViewSet):
-    queryset = Material.objects.all()
-    serializer_class = MaterialSerializer
+class FosoViewSet(viewsets.ModelViewSet):
+    queryset = Foso.objects.select_related("empresa").all()
+    serializer_class = FosoSerializer
 
-class ProveedorViewSet(viewsets.ModelViewSet):
-    queryset = Proveedor.objects.all()
-    serializer_class = ProveedorSerializer
-class LineaViewSet(viewsets.ModelViewSet):
-    queryset = Linea.objects.all()
-    serializer_class = LineaSerializer
+    def get_queryset(self):
+        qs = super().get_queryset()
+        empresa_id = self.request.query_params.get("empresa")
+        if empresa_id:
+            qs = qs.filter(empresa_id=empresa_id)
+        return qs
 
-    @action(detail=True, methods=["get"], url_path="foso")
-    def foso(self, request, pk=None):
-        """GET /api/lineas/{id}/foso/  →  grid completo de la línea."""
-        linea = self.get_object()
-        serializer = FosoLineaSerializer(linea)
-        return Response(serializer.data)
-
-    @action(detail=False, methods=["get"], url_path="foso-completo")
-    def foso_completo(self, request):
-        """GET /api/lineas/foso-completo/  →  todas las líneas con su grid."""
-        lineas = Linea.objects.filter(activa=True)
+    @action(detail=True, methods=["get"], url_path="grid")
+    def grid(self, request, pk=None):
+        """
+        GET /api/fosos/{id}/grid/
+        Devuelve todas las líneas del foso con su grid completo.
+        """
+        foso = self.get_object()
+        lineas = foso.lineas.filter(activa=True)
         serializer = FosoLineaSerializer(lineas, many=True)
         return Response(serializer.data)
 
 
+class LineaViewSet(viewsets.ModelViewSet):
+    queryset = Linea.objects.select_related("foso__empresa").all()
+    serializer_class = LineaSerializer
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        foso_id = self.request.query_params.get("foso")
+        if foso_id:
+            qs = qs.filter(foso_id=foso_id)
+        return qs
+
+    @action(detail=True, methods=["get"], url_path="grid")
+    def grid(self, request, pk=None):
+        """
+        GET /api/lineas/{id}/grid/
+        Grid completo de una línea concreta.
+        """
+        linea = self.get_object()
+        serializer = FosoLineaSerializer(linea)
+        return Response(serializer.data)
+
+
 class PosicionViewSet(viewsets.ModelViewSet):
-    queryset = Posicion.objects.select_related("linea").all()
+    queryset = Posicion.objects.select_related("linea__foso").all()
     serializer_class = PosicionSerializer
 
     def get_queryset(self):
         qs = super().get_queryset()
         linea_id = self.request.query_params.get("linea")
+        foso_id  = self.request.query_params.get("foso")
         if linea_id:
             qs = qs.filter(linea_id=linea_id)
+        if foso_id:
+            qs = qs.filter(linea__foso_id=foso_id)
         return qs
 
 
 class BobinaViewSet(viewsets.ModelViewSet):
-    queryset = Bobina.objects.all()
+    queryset = Bobina.objects.select_related("material", "proveedor").all()
     serializer_class = BobinaSerializer
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['codigo', 'colada', 'material__nombre', 'proveedor__nombre']
 
     @action(detail=True, methods=["get"], url_path="historial")
     def historial(self, request, pk=None):
-        """GET /api/bobinas/{id}/historial/  →  todas las posiciones por donde pasó."""
+        """
+        GET /api/bobinas/{id}/historial/
+        Todas las posiciones por donde pasó la bobina.
+        """
         bobina = self.get_object()
-        ocupaciones = bobina.ocupaciones.select_related("posicion__linea").order_by("-fecha_inicio")
+        ocupaciones = bobina.ocupaciones.select_related(
+            "posicion__linea__foso"
+        ).order_by("-fecha_inicio")
         serializer = OcupacionSerializer(ocupaciones, many=True)
         return Response(serializer.data)
 
 
 class OcupacionViewSet(viewsets.ModelViewSet):
-    queryset = Ocupacion.objects.select_related("posicion__linea", "bobina").all()
+    queryset = Ocupacion.objects.select_related(
+        "posicion__linea__foso", "bobina"
+    ).all()
     serializer_class = OcupacionSerializer
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        foso_id = self.request.query_params.get("foso")
+        if foso_id:
+            qs = qs.filter(posicion__linea__foso_id=foso_id)
+        return qs
 
     @action(detail=False, methods=["post"], url_path="colocar")
     def colocar(self, request):
@@ -111,3 +146,13 @@ class OcupacionViewSet(viewsets.ModelViewSet):
         ocupacion.fecha_fin = timezone.now()
         ocupacion.save()
         return Response(OcupacionSerializer(ocupacion).data)
+
+
+class MaterialViewSet(viewsets.ModelViewSet):
+    queryset = Material.objects.all()
+    serializer_class = MaterialSerializer
+
+
+class ProveedorViewSet(viewsets.ModelViewSet):
+    queryset = Proveedor.objects.all()
+    serializer_class = ProveedorSerializer

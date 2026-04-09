@@ -1,19 +1,34 @@
 from rest_framework import serializers
-from .models import Linea, Posicion, Bobina, Ocupacion, Material, Proveedor, COLUMNAS_POR_ALTURA
+from .models import Foso, Linea, Posicion, Bobina, Ocupacion, Material, Proveedor
+
 
 class MaterialSerializer(serializers.ModelSerializer):
     class Meta:
-        model  = Material
+        model = Material
         fields = "__all__"
+
 
 class ProveedorSerializer(serializers.ModelSerializer):
     class Meta:
-        model  = Proveedor
+        model = Proveedor
         fields = "__all__"
+
+
+class FosoSerializer(serializers.ModelSerializer):
+    empresa_nombre = serializers.CharField(source='empresa.nombre', read_only=True)
+
+    class Meta:
+        model = Foso
+        fields = ["id", "empresa", "empresa_nombre", "nombre", "descripcion", "activo", "columnas_por_altura"]
+
+
 class LineaSerializer(serializers.ModelSerializer):
+    foso_nombre = serializers.CharField(source='foso.nombre', read_only=True)
+    empresa_nombre = serializers.CharField(source='foso.empresa.nombre', read_only=True)
+
     class Meta:
         model = Linea
-        fields = "__all__"
+        fields = ["id", "foso", "foso_nombre", "empresa_nombre", "nombre", "descripcion", "activa"]
 
 
 class BobinaSerializer(serializers.ModelSerializer):
@@ -30,17 +45,19 @@ class BobinaSerializer(serializers.ModelSerializer):
         pos = obj.posicion_actual
         if pos:
             return {
-                "id": pos.id,
-                "linea": pos.linea.id,
+                "id":           pos.id,
+                "linea_id":     pos.linea.id,
                 "linea_nombre": pos.linea.nombre,
-                "altura": pos.altura,
-                "columna": pos.columna,
+                "foso_id":      pos.linea.foso.id,
+                "foso_nombre":  pos.linea.foso.nombre,
+                "altura":       pos.altura,
+                "columna":      pos.columna,
             }
         return None
 
 
 class OcupacionSerializer(serializers.ModelSerializer):
-    bobina_detalle = BobinaSerializer(source="bobina", read_only=True)
+    bobina_detalle   = BobinaSerializer(source="bobina", read_only=True)
     posicion_detalle = serializers.SerializerMethodField()
 
     class Meta:
@@ -49,39 +66,38 @@ class OcupacionSerializer(serializers.ModelSerializer):
 
     def get_posicion_detalle(self, obj):
         return {
-            'id':      obj.posicion.id,
-            'linea':   obj.posicion.linea.id,
-            'altura':  obj.posicion.altura,
-            'columna': obj.posicion.columna,
+            "id":      obj.posicion.id,
+            "linea_id": obj.posicion.linea.id,
+            "foso_id": obj.posicion.linea.foso.id,
+            "altura":  obj.posicion.altura,
+            "columna": obj.posicion.columna,
         }
 
 
 class PosicionSerializer(serializers.ModelSerializer):
-    """Posición con su ocupación activa (si la hay)."""
     ocupacion_activa = serializers.SerializerMethodField()
     max_columnas     = serializers.ReadOnlyField()
 
     class Meta:
         model = Posicion
-        fields = ["id", "linea", "altura", "columna", "max_columnas", "ocupacion_activa"]
+        fields = ["id", "linea", "altura", "columna", "habilitada", "max_columnas", "ocupacion_activa"]
 
     def get_ocupacion_activa(self, obj):
         oc = obj.ocupacion_activa
         if oc:
             return {
-                "ocupacion_id": oc.id,
-                "bobina_id":    oc.bobina.id,
+                "ocupacion_id":  oc.id,
+                "bobina_id":     oc.bobina.id,
                 "bobina_codigo": oc.bobina.codigo,
-                "fecha_inicio": oc.fecha_inicio,
+                "fecha_inicio":  oc.fecha_inicio,
             }
         return None
 
 
-# ─── Serializer especial: mapa completo del foso ───────────────────────────
 class FosoLineaSerializer(serializers.ModelSerializer):
     """
     Devuelve una línea con su grid completo.
-    Estructura: { linea, alturas: [ { altura, columnas: [ {col, posicion_id, bobina?} ] } ] }
+    La geometría se lee del foso al que pertenece la línea.
     """
     alturas = serializers.SerializerMethodField()
 
@@ -90,23 +106,28 @@ class FosoLineaSerializer(serializers.ModelSerializer):
         fields = ["id", "nombre", "descripcion", "activa", "alturas"]
 
     def get_alturas(self, linea):
+        columnas_por_altura = linea.foso.columnas_por_altura  # ← del foso, no constante global
+
         posiciones = {
             (p.altura, p.columna): p
-            for p in linea.posiciones.prefetch_related(
-                "ocupaciones__bobina"
-            ).all()
+            for p in linea.posiciones.prefetch_related("ocupaciones__bobina").all()
         }
 
         resultado = []
-        for altura, max_col in COLUMNAS_POR_ALTURA.items():
+        for altura_str, max_col in columnas_por_altura.items():
+            altura = int(altura_str)  # JSON keys son strings
             columnas = []
             for col in range(1, max_col + 1):
                 pos = posiciones.get((altura, col))
-                celda = {"columna": col, "posicion_id": pos.id if pos else None, "habilitada": pos.habilitada if pos else True}
+                celda = {
+                    "columna":     col,
+                    "posicion_id": pos.id if pos else None,
+                    "habilitada":  pos.habilitada if pos else True,
+                }
                 if pos:
                     oc = pos.ocupacion_activa
                     if oc:
-                        celda["bobina_id"]    = oc.bobina.id
+                        celda["bobina_id"]     = oc.bobina.id
                         celda["bobina_codigo"] = oc.bobina.codigo
                 columnas.append(celda)
             resultado.append({"altura": altura, "columnas": columnas})
@@ -114,7 +135,6 @@ class FosoLineaSerializer(serializers.ModelSerializer):
         return resultado
 
 
-# ─── Serializer para colocar/mover bobina ──────────────────────────────────
 class ColocarBobinaSerializer(serializers.Serializer):
     bobina_id   = serializers.IntegerField()
     posicion_id = serializers.IntegerField()
