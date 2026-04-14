@@ -6,9 +6,13 @@ class OFAdmin(admin.ModelAdmin):
     search_fields=("numero",)
     list_display =("numero", "inicio","fin",)
 
+class MontajeAdmin(admin.ModelAdmin):
+    list_filter=("of__zona__siglas",)
+    list_display =("of", "inicio","fin","of",)
+
 admin.site.register(Acumulador)
 admin.site.register(Flejes)
 admin.site.register(Tubos)
 admin.site.register(OF, OFAdmin)
 admin.site.register(Forma)
-admin.site.register(Montaje)
+admin.site.register(Montaje, MontajeAdmin)

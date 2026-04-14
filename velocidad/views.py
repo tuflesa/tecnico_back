@@ -154,6 +154,216 @@ class ParadaProduccionDBViewSet(viewsets.ModelViewSet):
     queryset = ParadaProduccionDB.objects.all()
     filterset_class = ParadaProduccionDBFilter
 
+def get_of(zona, fecha):
+    of = OF.objects.filter(
+        zona__id=zona
+        ).filter(
+            Q(inicio__lte=fecha),
+            Q(fin__gte=fecha) | Q(fin__isnull=True)
+        ).first()
+    
+    return of
+
+def borrar_paradaDB(parada_id):
+    print(f'estamos borrar_paradaDB con parada_id: {parada_id}')
+    paradas_produccion_DB = ParadaProduccionDB.objects.filter(parada=parada_id)
+    datos = Parada.objects.get(id=parada_id) 
+    total_eliminados = 0
+    tipo_siglas = (
+        Parada.objects
+        .filter(id=parada_id)
+        .values_list("codigo__tipo__siglas", flat=True)
+        .first()
+    )
+
+    rows_to_delete = [
+        (datos.of, tipo_siglas, p.pos)
+        for p in paradas_produccion_DB
+    ]
+
+    print(f'A eliminar {rows_to_delete}')
+
+    # Si es un cambio, borramos el montaje asociado si existe
+    if (datos.codigo.tipo.nombre=='Cambio'):
+        Montaje.objects.filter(of__numero=datos.of,inicio=datos.inicio()).delete()
+
+    conn_str = (
+        "DRIVER={ODBC Driver 18 for SQL Server};"
+        "SERVER=10.128.0.203;"
+        "DATABASE=Produccion_BD;"
+        "UID=reader;"
+        "PWD=sololectura;"
+        "TrustServerCertificate=yes;"
+    )
+
+    # RECOMENDACIÓN: Abrir la conexión justo antes de usarla
+    conn = pyodbc.connect(conn_str)
+    cursor = conn.cursor()
+
+    try: 
+        total_eliminados = 0
+        if len(rows_to_delete)>0:       
+            cursor.executemany("""
+                DELETE imp.tb_tubo_parada
+                WHERE 
+                    xIdOF   = ? AND
+                    xIdTipo = ? AND
+                    xIdPos  = ?
+            """, rows_to_delete)
+
+            # aquí devuelve el total de filas eliminadas
+            total_eliminados = cursor.rowcount
+            conn.commit()
+            paradas_produccion_DB.delete()
+        return Response({
+            "ok": True,
+            "mensaje": f"Se eliminaron {total_eliminados} registros"
+        })
+
+    except Exception as e:
+        conn.rollback()
+        return Response({"ok": False, "mensaje": str(e)}, status=500)
+
+    finally:
+        cursor.close()
+        conn.close()
+
+def guardar_paradas_produccionDB(paradas, xIdTipo, xIdParada_R, xDescripcion, observaciones, tipo_parada, xIdOF, IdParada, xIdPos):
+    rows_to_insert = []
+    objs = []
+    ids = [int(parada.id) for parada in paradas]
+    
+    for parada in paradas:
+        print(f'estamos dentro del for y quiero saber que tipo_parada: {tipo_parada.nombre}')
+        duraciones_por_turno = [ #Solo para guardar en ProdDB, 2 turnos = 2 paradas
+        {
+            'turno': item['turno__turno'],
+            'turno_id': item['turno__id'],
+            'minutos': int(item['duracion_total'].total_seconds() / 60) if item['duracion_total'] else 0,
+            'inicio': item['inicio_min'] if item['inicio_min'] else None,
+        }
+        for item in Periodo.objects
+            .filter(parada=parada)
+            .values('turno__turno', 'turno__id')
+            .annotate(
+                duracion_total=Sum(
+                    ExpressionWrapper(F('fin') - F('inicio'), output_field=DurationField())
+                ),
+                inicio_min=Min('inicio')
+            )
+        ]
+        print(f'duraciones por turno {duraciones_por_turno}')
+        for duracion in duraciones_por_turno:      
+            # ParadaProduccionDB.objects.create(pos=xIdPos, parada=parada)
+            turno = Turnos.objects.get(id=duracion['turno_id'])
+
+            # xIdOF = of
+            if xIdTipo == 'R':
+                xIdParada = xIdParada_R
+            else:
+                xIdParada = IdParada
+            print(f'xsIDpARADA: {xIdParada}')
+            xIdParadaGuardar = xIdParada_R if xIdTipo == 'R' else IdParada
+            objs.append(ParadaProduccionDB(pos=xIdPos, parada=parada, turno=turno, orden_of=xIdParadaGuardar))
+
+            rows_to_insert.append((
+                xIdOF, xIdTipo, xIdPos, xIdParada, xDescripcion,
+                duracion['inicio'], duracion['minutos'], observaciones,
+                duracion['turno'], False
+            ))
+
+            xIdPos += 1
+    
+    ParadaProduccionDB.objects.bulk_create(objs)
+    print(f'que vale tipo parada: {tipo_parada}')
+    if tipo_parada.nombre == 'Incidencia' or tipo_parada.nombre =='Avería' or tipo_parada.nombre=='Cambio':
+        print('entramos en el iffffffff !!!!!!!')
+        # Escribir en producción DB
+        conn_str = (
+            "DRIVER={ODBC Driver 18 for SQL Server};"
+            "SERVER=10.128.0.203;"
+            "DATABASE=Produccion_BD;"
+            "UID=reader;"
+            "PWD=sololectura;"
+            "TrustServerCertificate=yes;"
+        )
+        sql = """
+            INSERT INTO imp.tb_tubo_parada (
+                xIdOF, xIdTipo, xIdPos, xIdParada, xDescripcion,
+                xFecha, xTiempo, xObservaciones, xTurno, xIgnorar
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """
+        print('antes de conn !!!!!!!')
+        print
+        conn = pyodbc.connect(conn_str, autocommit=False)
+        cursor = conn.cursor()
+        print(f'rows {rows_to_insert}')
+        cursor.executemany(sql, rows_to_insert)
+        conn.commit()
+        cursor.close()
+        conn.close()
+        print('Despues !!!!!!!!!!!!!!!!!')
+        # Fin de escribir en producción DB  
+    
+    # Ajustar hora cambio de OF y Crear montaje 
+    if tipo_parada.nombre == 'Cambio':
+        primera_id = ids[0]
+        cambio = Parada.objects.filter(id=primera_id).first()
+        hora_inicio_cambio = cambio.inicio()
+        orden = OF.objects.filter(numero=xIdOF).first()
+        # Ajustar hora cambio de OF
+        if orden != None:
+            acc = Acumulador.objects.filter(maquina_siglas=orden.zona.siglas.upper()).last()
+            if cambio.codigo.siglas == 'CG' and acc.of_activa == None: # Cambio general sin trazabilidad
+                hora_inicio_of = orden.inicio
+                if hora_inicio_of != hora_inicio_cambio:
+                    orden_anterior = OF.objects.filter(fin=hora_inicio_of)
+                    if orden_anterior != None:
+                        orden_anterior.fin = hora_inicio_cambio
+                        orden_anterior.save()
+                    orden.inicio = hora_inicio_cambio
+                    orden.save()
+            
+            # Crear montaje
+            # Buscar paradas tipo cambio con fecha mayor a hora inico parada
+            siguiente_cambio = (
+                Parada.objects
+                .filter(
+                    codigo__tipo__nombre='Cambio',
+                    zona=orden.zona
+                )
+                .exclude(id=primera_id)
+                .annotate(inicio_min=Min('periodos__inicio'))
+                .filter(inicio_min__gt=hora_inicio_cambio)
+                .order_by('inicio_min')
+                .first()
+            )
+
+            
+            if siguiente_cambio == None: #Si no hay paradas tipo cambio con inicio mayor a la hora de inicio de la parada  
+                print('No hay cambios posteriores ...')
+                Montaje.objects.filter(fin__isnull=True,
+                                    of__zona=orden.zona, 
+                                    inicio__lt=hora_inicio_cambio).update(fin=hora_inicio_cambio)
+                montaje = Montaje.objects.create(xIdMontaje=xIdParada, of=orden, inicio= hora_inicio_cambio)
+                # Actualizar todos los tubos fabricados desde inicio montaje hasta ahora con el montaje
+                Tubos.objects.filter(fleje__orden=orden, 
+                                    fecha_entrada__gte =hora_inicio_cambio).update(montaje=montaje)
+            else: # Hay paradas tipo cambio posteriores a la hora de inico de la parada
+                print('Hay cambios posteriores ...')
+                hora_fin_montaje = siguiente_cambio.inicio()
+                print(f'Inicio siguiente cambio: {hora_fin_montaje}')
+                montaje = Montaje.objects.create(xIdMontaje=xIdParada, 
+                                                 of=orden, 
+                                                 inicio= hora_inicio_cambio,
+                                                 fin= hora_fin_montaje)
+                # Actualizar todos los tubos fabricados desde inicio montaje hasta ahora con el montaje
+                Tubos.objects.filter(fleje__orden=orden, 
+                                    fecha_entrada__gte =hora_inicio_cambio,
+                                    fecha_entrada__lte=hora_fin_montaje).update(montaje=montaje)
+    return duraciones_por_turno
+
 def estado_maquina(request, id):
     fecha_str = request.GET.get('fecha')
     fecha_fin_str = request.GET.get('fecha_fin')
@@ -768,131 +978,8 @@ def guardar_paradas_agrupadas(request):
         )
 
     paradas = Parada.objects.filter(id__in=ids)
-
-    rows_to_insert = []
-    objs = []
-    
-    for parada in paradas:
-        duraciones_por_turno = [ #Solo para guardar en ProdDB, 2 turnos = 2 paradas
-        {
-            'turno': item['turno__turno'],
-            'turno_id': item['turno__id'],
-            'minutos': int(item['duracion_total'].total_seconds() / 60) if item['duracion_total'] else 0,
-            'inicio': item['inicio_min'] if item['inicio_min'] else None,
-        }
-        for item in Periodo.objects
-            .filter(parada=parada)
-            .values('turno__turno', 'turno__id')
-            .annotate(
-                duracion_total=Sum(
-                    ExpressionWrapper(F('fin') - F('inicio'), output_field=DurationField())
-                ),
-                inicio_min=Min('inicio')
-            )
-        ]
-        
-        for duracion in duraciones_por_turno:      
-            # ParadaProduccionDB.objects.create(pos=xIdPos, parada=parada)
-            turno = Turnos.objects.get(id=duracion['turno_id'])
-
-            xIdOF = of
-            if xIdTipo == 'R':
-                xIdParada = xIdParada_R
-
-            xIdParadaGuardar = xIdParada_R if xIdTipo == 'R' else xIdParada
-            objs.append(ParadaProduccionDB(pos=xIdPos, parada=parada, turno=turno, orden_of=xIdParadaGuardar))
-
-            rows_to_insert.append((
-                xIdOF, xIdTipo, xIdPos, xIdParada, xDescripcion,
-                duracion['inicio'], duracion['minutos'], observaciones,
-                duracion['turno'], False
-            ))
-
-            xIdPos += 1
-    
-    ParadaProduccionDB.objects.bulk_create(objs)
-    if tipo_parada.nombre != 'TNP':
-        # Escribir en producción DB
-        conn_str = (
-            "DRIVER={ODBC Driver 18 for SQL Server};"
-            "SERVER=10.128.0.203;"
-            "DATABASE=Produccion_BD;"
-            "UID=reader;"
-            "PWD=sololectura;"
-            "TrustServerCertificate=yes;"
-        )
-        sql = """
-            INSERT INTO imp.tb_tubo_parada (
-                xIdOF, xIdTipo, xIdPos, xIdParada, xDescripcion,
-                xFecha, xTiempo, xObservaciones, xTurno, xIgnorar
-            )
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        """
-        
-        conn = pyodbc.connect(conn_str, autocommit=False)
-        cursor = conn.cursor()
-        cursor.executemany(sql, rows_to_insert)
-        conn.commit()
-        cursor.close()
-        conn.close()
-        # Fin de escribir en producción DB  
-     
-    # Ajustar hora cambio de OF y Crear montaje 
-    if tipo_parada.nombre == 'Cambio':
-        primera_id = ids[0]
-        cambio = Parada.objects.filter(id=primera_id).first()
-        hora_inicio_cambio = cambio.inicio()
-        orden = OF.objects.filter(numero=of).first()
-        # Ajustar hora cambio de OF
-        if orden != None:
-            acc = Acumulador.objects.filter(maquina_siglas=orden.zona.siglas.upper()).last()
-            if cambio.codigo.siglas == 'CG' and acc.of_activa == None: # Cambio general sin trazabilidad
-                hora_inicio_of = orden.inicio
-                if hora_inicio_of != hora_inicio_cambio:
-                    orden_anterior = OF.objects.filter(fin=hora_inicio_of)
-                    if orden_anterior != None:
-                        orden_anterior.fin = hora_inicio_cambio
-                        orden_anterior.save()
-                    orden.inicio = hora_inicio_cambio
-                    orden.save()
-            
-            # Crear montaje
-            # Buscar paradas tipo cambio con fecha mayor a hora inico parada
-            siguiente_cambio = (
-                Parada.objects
-                .filter(
-                    codigo__tipo__nombre='Cambio',
-                    zona=orden.zona
-                )
-                .exclude(id=primera_id)
-                .annotate(inicio_min=Min('periodos__inicio'))
-                .filter(inicio_min__gt=hora_inicio_cambio)
-                .order_by('inicio_min')
-                .first()
-            )
-
-            
-            if siguiente_cambio == None: #Si no hay paradas tipo cambio con inicio mayor a la hora de inicio de la parada  
-                print('No hay cambios posteriores ...')
-                Montaje.objects.filter(fin__isnull=True,
-                                    of__zona=orden.zona, 
-                                    inicio__lt=hora_inicio_cambio).update(fin=hora_inicio_cambio)
-                montaje = Montaje.objects.create(xIdMontaje=xIdParada, of=orden, inicio= hora_inicio_cambio)
-                # Actualizar todos los tubos fabricados desde inicio montaje hasta ahora con el montaje
-                Tubos.objects.filter(fleje__orden=orden, 
-                                    fecha_entrada__gte =hora_inicio_cambio).update(montaje=montaje)
-            else: # Hay paradas tipo cambio posteriores a la hora de inico de la parada
-                print('Hay cambios posteriores ...')
-                hora_fin_montaje = siguiente_cambio.inicio()
-                print(f'Inicio siguiente cambio: {hora_fin_montaje}')
-                montaje = Montaje.objects.create(xIdMontaje=xIdParada, 
-                                                 of=orden, 
-                                                 inicio= hora_inicio_cambio,
-                                                 fin= hora_fin_montaje)
-                # Actualizar todos los tubos fabricados desde inicio montaje hasta ahora con el montaje
-                Tubos.objects.filter(fleje__orden=orden, 
-                                    fecha_entrada__gte =hora_inicio_cambio,
-                                    fecha_entrada__lte=hora_fin_montaje).update(montaje=montaje)
+    print(f'XDescripcion {xDescripcion} !!!!!!!!!!!!!!!!!!!!!')
+    duraciones_por_turno = guardar_paradas_produccionDB(paradas, xIdTipo, xIdParada_R, xDescripcion, observaciones, tipo_parada, of, xIdParada, xIdPos)
 
     return Response(duraciones_por_turno)
     #return Response({"mensaje": "Paradas procesadas y limpieza realizada"}, status=200)
@@ -1039,7 +1126,6 @@ def buscar_montajes_of(request):
         fecha_inicio = parse_datetime(fecha_inicio_str)
         fecha_fin    = parse_datetime(fecha_fin_str)
         
-        # Hacer aware si son naive
         if timezone.is_naive(fecha_inicio):
             fecha_inicio = timezone.make_aware(fecha_inicio)
         if timezone.is_naive(fecha_fin):
@@ -1051,10 +1137,8 @@ def buscar_montajes_of(request):
             Q(fin__gte=fecha_inicio) | Q(fin__isnull=True)
         )
 
-    of_obj = of_qs.order_by('-inicio').first()  # la más reciente que solape
+    of_obj = of_qs.order_by('-inicio').first()
     xIdOF  = of_obj.numero if of_obj else None
-
-    # --- Resto de la lógica contra SQL Server (xIdPos y montajes) ---
 
     conn_str = (
         "DRIVER={ODBC Driver 18 for SQL Server};"
@@ -1183,11 +1267,14 @@ def buscar_descripcion_paradaProdDB(request):
 @api_view(["PUT"])
 def actualizar_parada(request):
     parada_id = request.data.get('parada')
+    parada_nombre = request.data.get('parada_nombre')
     codigoSel = request.data.get('codigoSel')
     nuevaDescripcion = CodigoParada.objects.get(id=codigoSel)
     codigo = request.data.get('codigo')
     nuevaObs = request.data.get('nuevaObs')
     tipo_nueva_parada = request.data.get('tipoSiglas')
+    nueva_parada_nombre = request.data.get('nueva_parada_nombre')
+    xIdParada_R = request.data.get('xIdParada_R')
     
     paradas_produccion_DB = ParadaProduccionDB.objects.filter(parada=parada_id)
     CodigoProdDB = CodigoParada.objects.get(id=codigo)
@@ -1203,132 +1290,104 @@ def actualizar_parada(request):
         .values_list("codigo__tipo__siglas", flat=True)
         .first()
     )
-
-    conn_str = (
-        "DRIVER={ODBC Driver 18 for SQL Server};"
-        "SERVER=10.128.0.203;"
-        "DATABASE=Produccion_BD;"
-        "UID=reader;"
-        "PWD=sololectura;"
-        "TrustServerCertificate=yes;"
-    )
-
-    # Abrir la conexión justo antes de usarla
-    conn = pyodbc.connect(conn_str)
-    cursor = conn.cursor()
-
-    try:
-        descripcion_DB = get_descripcion_prodDB(
-            CodigoProdDB.codigoProdDB,
-            tipo_nueva_parada,
-            cursor
+    print(f'que parada cogemos: {nueva_parada_nombre}')
+    print(f'parada antigua: {parada_nombre}')
+    
+    if nueva_parada_nombre == 'Incidencia' or nueva_parada_nombre =='Avería' or nueva_parada_nombre=='Cambio':
+        conn_str = (
+            "DRIVER={ODBC Driver 18 for SQL Server};"
+            "SERVER=10.128.0.203;"
+            "DATABASE=Produccion_BD;"
+            "UID=reader;"
+            "PWD=sololectura;"
+            "TrustServerCertificate=yes;"
         )
 
-        # Construimos la lista de parámetros fuera del bucle
-        rows_to_update = [
-            (
-                tipo_nueva_parada,  # xIdTipo
-                texto_seguro,       # xObservaciones
-                descripcion_DB,     # xDescripcion
-                datos.of,           # xIdOF
-                tipo_siglas,        # xIdTipo
-                p.pos               # xIdPos
-            )
-            for p in paradas_produccion_DB
-        ]
-        if rows_to_update:  # ← solo si hay filas
-            # Una sola llamada a la BD
-            cursor.executemany("""
-                UPDATE imp.tb_tubo_parada
-                SET 
-                    xIdTipo        = ?,
-                    xObservaciones = ?,
-                    xDescripcion   = ?
-                WHERE 
-                    xIdOF   = ? AND
-                    xIdTipo = ? AND
-                    xIdPos  = ?
-            """, rows_to_update)
+        # Abrir la conexión justo antes de usarla
+        conn = pyodbc.connect(conn_str)
+        cursor = conn.cursor()
 
-            conn.commit()
-        return Response({"ok": True, "mensaje": "Parada actualizada"})
-
-    except Exception as e:
         try:
-            conn.rollback()
-        except:
-            pass 
-        return Response({"ok": False, "mensaje": str(e)}, status=500)
+            descripcion_DB = get_descripcion_prodDB(
+                CodigoProdDB.codigoProdDB,
+                tipo_nueva_parada,
+                cursor
+            )
 
-    finally:
-        cursor.close()
-        conn.close()
+            # Construimos la lista de parámetros fuera del bucle
+            rows_to_update = [
+                (
+                    tipo_nueva_parada,  # xIdTipo
+                    texto_seguro,       # xObservaciones
+                    descripcion_DB,     # xDescripcion
+                    datos.of,           # xIdOF
+                    tipo_siglas,        # xIdTipo
+                    p.pos               # xIdPos
+                )
+                for p in paradas_produccion_DB
+            ]
+            if rows_to_update:  # ← solo si hay filas
+
+                # Una sola llamada a la BD
+                cursor.executemany("""
+                    UPDATE imp.tb_tubo_parada
+                    SET 
+                        xIdTipo        = ?,
+                        xObservaciones = ?,
+                        xDescripcion   = ?
+                    WHERE 
+                        xIdOF   = ? AND
+                        xIdTipo = ? AND
+                        xIdPos  = ?
+                """, rows_to_update)
+                conn.commit()
+                cursor.close()
+                conn.close()
+            else:
+                zona = datos.zona
+                fecha = datos.inicio()
+                print(f'zona id: {zona.id} Inicio: {fecha}')
+                of = get_of(zona.id, fecha)
+                xIdOF = of.numero
+                xIdTipo = tipo_nueva_parada
+                xIdPos = get_posicion_prodDB(xIdOF, xIdTipo, cursor)
+                xIdParada = CodigoProdDB.codigoProdDB
+                xDescripcion = nuevaDescripcion.nombre
+                # xFecha = fecha
+                # xTiempo = datos.duracion()
+                xObservaciones = texto_seguro
+                # XTurno = 
+                # xIgnorar = False
+                paradas = [datos]
+                #tipo_parada = TipoParada.objects.filter(siglas=xIdTipo).first()
+                tipo_parada = TipoParada.objects.get(siglas=xIdTipo)
+
+                cursor.close()
+                conn.close()
+                guardar_paradas_produccionDB(paradas, xIdTipo, xIdParada_R, xDescripcion, xObservaciones, tipo_parada, xIdOF, xIdParada, xIdPos)
+
+            return Response({"ok": True, "mensaje": "Parada actualizada"})
+
+        except Exception as e:
+            try:
+                conn.rollback()
+            except:
+                pass 
+            return Response({"ok": False, "mensaje": str(e)}, status=500)
+            
+    elif parada_nombre == 'Incidencia' or parada_nombre =='Avería' or parada_nombre=='Cambio':
+        print(f'VAMOS A BORRAR ESTA PARADA!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! {parada_id}')
+        return borrar_paradaDB(parada_id)
+    else:
+        return Response({"ok": True, "mensaje": "Parada actualizada 2"})
+
 
 @api_view(["DELETE"])
 def eliminar_paradaDB(request, parada_id):
+    print(f'estamos en eliminar {parada_id}')
     parada_id = int(parada_id)
-    #parada_id = request.data.get('parada')    
-    paradas_produccion_DB = ParadaProduccionDB.objects.filter(parada=parada_id)
-    datos = Parada.objects.get(id=parada_id) 
-    total_eliminados = 0
-    tipo_siglas = (
-        Parada.objects
-        .filter(id=parada_id)
-        .values_list("codigo__tipo__siglas", flat=True)
-        .first()
-    )
-
-    rows_to_delete = [
-        (datos.of, tipo_siglas, p.pos)
-        for p in paradas_produccion_DB
-    ]
-
-    print(f'A eliminar {rows_to_delete}')
-
-    # Si es un cambio, borramos el montaje asociado si existe
-    if (datos.codigo.tipo.nombre=='Cambio'):
-        Montaje.objects.filter(of__numero=datos.of,inicio=datos.inicio()).delete()
-
-    conn_str = (
-        "DRIVER={ODBC Driver 18 for SQL Server};"
-        "SERVER=10.128.0.203;"
-        "DATABASE=Produccion_BD;"
-        "UID=reader;"
-        "PWD=sololectura;"
-        "TrustServerCertificate=yes;"
-    )
-
-    # RECOMENDACIÓN: Abrir la conexión justo antes de usarla
-    conn = pyodbc.connect(conn_str)
-    cursor = conn.cursor()
-
-    try: 
-        total_eliminados = 0
-        if len(rows_to_delete)>0:       
-            cursor.executemany("""
-                DELETE imp.tb_tubo_parada
-                WHERE 
-                    xIdOF   = ? AND
-                    xIdTipo = ? AND
-                    xIdPos  = ?
-            """, rows_to_delete)
-
-            # aquí devuelve el total de filas eliminadas
-            total_eliminados = cursor.rowcount
-            conn.commit()
-            paradas_produccion_DB.delete()
-        return Response({
-            "ok": True,
-            "mensaje": f"Se eliminaron {total_eliminados} registros"
-        })
-
-    except Exception as e:
-        conn.rollback()
-        return Response({"ok": False, "mensaje": str(e)}, status=500)
-
-    finally:
-        cursor.close()
-        conn.close()
+    #parada_id = request.data.get('parada') 
+    return borrar_paradaDB(parada_id)   
 
 @api_view(["POST"])
 def crear_parada_ProdBD(request):
