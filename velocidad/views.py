@@ -12,6 +12,7 @@ from django.db.models import Q, F
 from django.db.models import Min, Max, Sum, ExpressionWrapper, DurationField
 from datetime import datetime, date, time
 from django.utils import timezone
+from django.utils.dateparse import parse_datetime
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from .calendario import generar_horario_anual
@@ -164,8 +165,10 @@ def estado_maquina(request, id):
         hora_inicio = datetime.strptime(hora_inicio_str, '%H:%M').time()
         fecha_fin = datetime.strptime(fecha_fin_str, '%Y-%m-%d').date()
         hora_fin = datetime.strptime(hora_fin_str, '%H:%M').time()
-        fecha_inico_dt = datetime.combine(fecha, hora_inicio)
-        fecha_fin_dt = datetime.combine(fecha_fin, hora_fin)
+        # fecha_inico_dt = datetime.combine(fecha, hora_inicio)
+        # fecha_fin_dt = datetime.combine(fecha_fin, hora_fin)
+        fecha_inico_dt = timezone.make_aware(datetime.combine(fecha, hora_inicio))
+        fecha_fin_dt = timezone.make_aware(datetime.combine(fecha_fin, hora_fin)) 
     except (ValueError, TypeError):
         return JsonResponse({'error': 'Formato de hora inválido'}, status=400)
 
@@ -808,31 +811,31 @@ def guardar_paradas_agrupadas(request):
             xIdPos += 1
     
     ParadaProduccionDB.objects.bulk_create(objs)
-
-    # Escribir en producción DB
-    conn_str = (
-        "DRIVER={ODBC Driver 18 for SQL Server};"
-        "SERVER=10.128.0.203;"
-        "DATABASE=Produccion_BD;"
-        "UID=reader;"
-        "PWD=sololectura;"
-        "TrustServerCertificate=yes;"
-    )
-    sql = """
-        INSERT INTO imp.tb_tubo_parada (
-            xIdOF, xIdTipo, xIdPos, xIdParada, xDescripcion,
-            xFecha, xTiempo, xObservaciones, xTurno, xIgnorar
+    if tipo_parada.nombre != 'TNP':
+        # Escribir en producción DB
+        conn_str = (
+            "DRIVER={ODBC Driver 18 for SQL Server};"
+            "SERVER=10.128.0.203;"
+            "DATABASE=Produccion_BD;"
+            "UID=reader;"
+            "PWD=sololectura;"
+            "TrustServerCertificate=yes;"
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    """
-    
-    conn = pyodbc.connect(conn_str, autocommit=False)
-    cursor = conn.cursor()
-    cursor.executemany(sql, rows_to_insert)
-    conn.commit()
-    cursor.close()
-    conn.close()
-    # Fin de escribir en producción DB  
+        sql = """
+            INSERT INTO imp.tb_tubo_parada (
+                xIdOF, xIdTipo, xIdPos, xIdParada, xDescripcion,
+                xFecha, xTiempo, xObservaciones, xTurno, xIgnorar
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """
+        
+        conn = pyodbc.connect(conn_str, autocommit=False)
+        cursor = conn.cursor()
+        cursor.executemany(sql, rows_to_insert)
+        conn.commit()
+        cursor.close()
+        conn.close()
+        # Fin de escribir en producción DB  
      
     # Ajustar hora cambio de OF y Crear montaje 
     if tipo_parada.nombre == 'Cambio':
@@ -1018,14 +1021,40 @@ def crear_turnos(request):
 
 @api_view(["GET"])
 def buscar_montajes_of(request):
-    id = request.GET.get("zona_id")
+    # id = request.GET.get("zona_id")
     xIdTipo = request.GET.get("tipo_parada_siglas") 
-    xIdOF = request.GET.get("OF_activa")
+    # xIdOF = request.GET.get("OF_activa")
+    zona_id = request.GET.get("zona_id")
+    fecha_inicio_str = request.GET.get("fecha_inicio")  # "YYYY-MM-DDTHH:MM:SS"
+    fecha_fin_str    = request.GET.get("fecha_fin")
 
     # Leer OF activa de producción DB
-    zona = Zona.objects.get(id=id)
+    zona = Zona.objects.get(id=zona_id)
     maquina = zona.siglas
-    
+        # --- Buscar OF en la tabla Django ---
+    # Una OF "solapa" con el intervalo si: of.inicio <= fecha_fin AND (of.fin >= fecha_inicio OR of.fin is null)
+    of_qs = OF.objects.filter(zona=zona)
+
+    if fecha_inicio_str and fecha_fin_str:
+        fecha_inicio = parse_datetime(fecha_inicio_str)
+        fecha_fin    = parse_datetime(fecha_fin_str)
+        
+        # Hacer aware si son naive
+        if timezone.is_naive(fecha_inicio):
+            fecha_inicio = timezone.make_aware(fecha_inicio)
+        if timezone.is_naive(fecha_fin):
+            fecha_fin = timezone.make_aware(fecha_fin)
+        
+        of_qs = of_qs.filter(
+            inicio__lte=fecha_fin
+        ).filter(
+            Q(fin__gte=fecha_inicio) | Q(fin__isnull=True)
+        )
+
+    of_obj = of_qs.order_by('-inicio').first()  # la más reciente que solape
+    xIdOF  = of_obj.numero if of_obj else None
+
+    # --- Resto de la lógica contra SQL Server (xIdPos y montajes) ---
 
     conn_str = (
         "DRIVER={ODBC Driver 18 for SQL Server};"
@@ -1039,18 +1068,6 @@ def buscar_montajes_of(request):
     try:
         conn = pyodbc.connect(conn_str)
         cursor = conn.cursor()
-
-        # --- 1) Obtener OF activa ---
-        consulta_of = """
-            SELECT xIdOF
-            FROM imp.tb_tubo_orden
-            WHERE xActivada <> 0
-              AND xIdMaquina = ?
-        """
-        cursor.execute(consulta_of, (maquina,))
-        fila = cursor.fetchone()
-        xIdOF = fila.xIdOF if fila else None
-        print(f'OF activa: {xIdOF}')
 
         # --- 2) Obtener el máximo xIdPos ---
         consulta_pos = """
@@ -1074,8 +1091,8 @@ def buscar_montajes_of(request):
                     AND xIdArticulo IS NOT NULL;
             """
             cursor.execute(consulta_mmontajes, (xIdOF,))
-            fila = cursor.fetchall()
-            codigos = [f.Combinacion for f in fila]
+            filas = cursor.fetchall()
+            codigos = [f.Combinacion for f in filas]
             montajes = []
             
             for codigo in codigos:
@@ -1091,17 +1108,14 @@ def buscar_montajes_of(request):
 
         else:
             montajes = None
-        print('Montajes ...')
-        print(montajes)
 
         cursor.close()
         conn.close()
 
     except Exception as e:
         print("Error al ejecutar la consulta:", e)
-
-    print(f'of {xIdOF} pos {xIdPos}')
-
+        xIdPos = 1
+        montajes = None
     
     return Response({
         "montajes": montajes,
@@ -1222,21 +1236,21 @@ def actualizar_parada(request):
             )
             for p in paradas_produccion_DB
         ]
+        if rows_to_update:  # ← solo si hay filas
+            # Una sola llamada a la BD
+            cursor.executemany("""
+                UPDATE imp.tb_tubo_parada
+                SET 
+                    xIdTipo        = ?,
+                    xObservaciones = ?,
+                    xDescripcion   = ?
+                WHERE 
+                    xIdOF   = ? AND
+                    xIdTipo = ? AND
+                    xIdPos  = ?
+            """, rows_to_update)
 
-        # Una sola llamada a la BD
-        cursor.executemany("""
-            UPDATE imp.tb_tubo_parada
-            SET 
-                xIdTipo        = ?,
-                xObservaciones = ?,
-                xDescripcion   = ?
-            WHERE 
-                xIdOF   = ? AND
-                xIdTipo = ? AND
-                xIdPos  = ?
-        """, rows_to_update)
-
-        conn.commit()
+            conn.commit()
         return Response({"ok": True, "mensaje": "Parada actualizada"})
 
     except Exception as e:
