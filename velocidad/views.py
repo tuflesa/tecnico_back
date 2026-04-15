@@ -165,7 +165,6 @@ def get_of(zona, fecha):
     return of
 
 def borrar_paradaDB(parada_id):
-    print(f'estamos borrar_paradaDB con parada_id: {parada_id}')
     paradas_produccion_DB = ParadaProduccionDB.objects.filter(parada=parada_id)
     datos = Parada.objects.get(id=parada_id) 
     total_eliminados = 0
@@ -180,8 +179,6 @@ def borrar_paradaDB(parada_id):
         (datos.of, tipo_siglas, p.pos)
         for p in paradas_produccion_DB
     ]
-
-    print(f'A eliminar {rows_to_delete}')
 
     # Si es un cambio, borramos el montaje asociado si existe
     if (datos.codigo.tipo.nombre=='Cambio'):
@@ -234,7 +231,6 @@ def guardar_paradas_produccionDB(paradas, xIdTipo, xIdParada_R, xDescripcion, ob
     ids = [int(parada.id) for parada in paradas]
     
     for parada in paradas:
-        print(f'estamos dentro del for y quiero saber que tipo_parada: {tipo_parada.nombre}')
         duraciones_por_turno = [ #Solo para guardar en ProdDB, 2 turnos = 2 paradas
         {
             'turno': item['turno__turno'],
@@ -252,7 +248,6 @@ def guardar_paradas_produccionDB(paradas, xIdTipo, xIdParada_R, xDescripcion, ob
                 inicio_min=Min('inicio')
             )
         ]
-        print(f'duraciones por turno {duraciones_por_turno}')
         for duracion in duraciones_por_turno:      
             # ParadaProduccionDB.objects.create(pos=xIdPos, parada=parada)
             turno = Turnos.objects.get(id=duracion['turno_id'])
@@ -262,7 +257,6 @@ def guardar_paradas_produccionDB(paradas, xIdTipo, xIdParada_R, xDescripcion, ob
                 xIdParada = xIdParada_R
             else:
                 xIdParada = IdParada
-            print(f'xsIDpARADA: {xIdParada}')
             xIdParadaGuardar = xIdParada_R if xIdTipo == 'R' else IdParada
             objs.append(ParadaProduccionDB(pos=xIdPos, parada=parada, turno=turno, orden_of=xIdParadaGuardar))
 
@@ -275,9 +269,7 @@ def guardar_paradas_produccionDB(paradas, xIdTipo, xIdParada_R, xDescripcion, ob
             xIdPos += 1
     
     ParadaProduccionDB.objects.bulk_create(objs)
-    print(f'que vale tipo parada: {tipo_parada}')
     if tipo_parada.nombre == 'Incidencia' or tipo_parada.nombre =='Avería' or tipo_parada.nombre=='Cambio':
-        print('entramos en el iffffffff !!!!!!!')
         # Escribir en producción DB
         conn_str = (
             "DRIVER={ODBC Driver 18 for SQL Server};"
@@ -294,16 +286,13 @@ def guardar_paradas_produccionDB(paradas, xIdTipo, xIdParada_R, xDescripcion, ob
             )
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """
-        print('antes de conn !!!!!!!')
-        print
+
         conn = pyodbc.connect(conn_str, autocommit=False)
         cursor = conn.cursor()
-        print(f'rows {rows_to_insert}')
         cursor.executemany(sql, rows_to_insert)
         conn.commit()
         cursor.close()
         conn.close()
-        print('Despues !!!!!!!!!!!!!!!!!')
         # Fin de escribir en producción DB  
     
     # Ajustar hora cambio de OF y Crear montaje 
@@ -342,7 +331,6 @@ def guardar_paradas_produccionDB(paradas, xIdTipo, xIdParada_R, xDescripcion, ob
 
             
             if siguiente_cambio == None: #Si no hay paradas tipo cambio con inicio mayor a la hora de inicio de la parada  
-                print('No hay cambios posteriores ...')
                 Montaje.objects.filter(fin__isnull=True,
                                     of__zona=orden.zona, 
                                     inicio__lt=hora_inicio_cambio).update(fin=hora_inicio_cambio)
@@ -351,9 +339,7 @@ def guardar_paradas_produccionDB(paradas, xIdTipo, xIdParada_R, xDescripcion, ob
                 Tubos.objects.filter(fleje__orden=orden, 
                                     fecha_entrada__gte =hora_inicio_cambio).update(montaje=montaje)
             else: # Hay paradas tipo cambio posteriores a la hora de inico de la parada
-                print('Hay cambios posteriores ...')
                 hora_fin_montaje = siguiente_cambio.inicio()
-                print(f'Inicio siguiente cambio: {hora_fin_montaje}')
                 montaje = Montaje.objects.create(xIdMontaje=xIdParada, 
                                                  of=orden, 
                                                  inicio= hora_inicio_cambio,
@@ -635,10 +621,8 @@ def nuevo_periodo(request):
     zona = Zona.objects.get(id=zona_id)
     if turno_id == 0:
         turno = None
-        print(f'zona {zona.siglas} - turno Nulo')
     else:
         turno = Turnos.objects.get(id=turno_id) 
-        print(f'zona {zona.siglas} - turno {turno.turno}')
     
 
     ultimo_periodo = Periodo.objects.filter(parada__zona= zona_id, fin__isnull=True).last()
@@ -978,7 +962,6 @@ def guardar_paradas_agrupadas(request):
         )
 
     paradas = Parada.objects.filter(id__in=ids)
-    print(f'XDescripcion {xDescripcion} !!!!!!!!!!!!!!!!!!!!!')
     duraciones_por_turno = guardar_paradas_produccionDB(paradas, xIdTipo, xIdParada_R, xDescripcion, observaciones, tipo_parada, of, xIdParada, xIdPos)
 
     return Response(duraciones_por_turno)
@@ -1029,23 +1012,18 @@ def crear_turnos(request):
     semana_fin = fin_date.isocalendar().week + 1
 
     def next_turno(turno_id, nombre_turno, n_turnos):
-        print('Calculo next turno ...')
-        print(f'numero de turnos {n_turnos} {type(n_turnos)}')
         if n_turnos == 1:
             return turno_id, nombre_turno
         elif n_turnos == 2:
-            print('dos turnos ...')
             if nombre_turno == 'A':
                 turno = Turnos.objects.filter(zona=zona, activo=True, turno='B').last()
             else:
                 turno = Turnos.objects.filter(zona=zona, activo=True, turno='A').last()
-            print(f'turno id {turno.id} nombre {turno.turno}')
             if turno:
                 return turno.id, turno.turno
             else: 
                 return None, None
         elif n_turnos == 3:
-            print('tres turnos ...')
             if nombre_turno == 'A':
                 turno = Turnos.objects.filter(zona=zona, activo=True, turno='B').last()
             elif nombre_turno == 'B':
@@ -1057,7 +1035,6 @@ def crear_turnos(request):
             else: 
                 return None, None
         else:
-            print('Error en numero de turnos')
             return None, None
 
     turno_mañana = turno_inicio
@@ -1066,7 +1043,6 @@ def crear_turnos(request):
     secuencia = [turno_mañana, turno_tarde, turno_noche]
     
     secuencia = secuencia[:numero_turnos]
-    print(secuencia)      
 
     for week in range(semana_inicio, semana_fin):
         laborables = HorarioDia.objects.filter(
@@ -1075,8 +1051,6 @@ def crear_turnos(request):
             es_festivo=False,
         )
         if len(laborables) != 0: # Hay días laborables
-            print(f'Semana {week} no es festiva')
-            print(f'Turno de mañana {secuencia[0]}')
             HorarioDia.objects.filter(
                 zona=zona,
                 fecha__week=week,
@@ -1093,7 +1067,6 @@ def crear_turnos(request):
             # secuencia = secuencia[-1:] + secuencia[:-1]
             secuencia = secuencia[1:] + secuencia[:1]
         else:
-            print(f'Semana {week} es festiva')
             HorarioDia.objects.filter(
                 zona=zona,
                 fecha__week=week,
@@ -1163,7 +1136,6 @@ def buscar_montajes_of(request):
         cursor.execute(consulta_pos, (xIdOF, xIdTipo))
         fila = cursor.fetchone()
         xIdPos = (fila.MaxPos + 1) if fila and fila.MaxPos is not None else 1
-        print(f'Posicion: {xIdPos}')
         # --- 3) Si es cambio, obtener el listado de los posibles cambios según OF ---
         if xIdTipo == 'R':
             consulta_mmontajes = """
@@ -1183,7 +1155,6 @@ def buscar_montajes_of(request):
                 codigo_forma = codigo[0]
                 forma = Forma.objects.filter(codigo_forma=codigo_forma).first()
                 xDescripcion = forma.abreviatura + ' ' + codigo[1:]
-                print(xDescripcion)
                 dato = {
                     'xIdParada': codigo,
                     'xDescripcion': xDescripcion
@@ -1197,7 +1168,6 @@ def buscar_montajes_of(request):
         conn.close()
 
     except Exception as e:
-        print("Error al ejecutar la consulta:", e)
         xIdPos = 1
         montajes = None
     
@@ -1257,7 +1227,6 @@ def buscar_descripcion_paradaProdDB(request):
             cursor
         )
     except Exception as e:
-        print(f"Error al conectar o consultar la base de datos: {e}")
         return Response({"error": "Error de base de datos"}, status=500)
     finally:
         if 'cursor' in locals(): cursor.close()
@@ -1290,8 +1259,6 @@ def actualizar_parada(request):
         .values_list("codigo__tipo__siglas", flat=True)
         .first()
     )
-    print(f'que parada cogemos: {nueva_parada_nombre}')
-    print(f'parada antigua: {parada_nombre}')
     
     if nueva_parada_nombre == 'Incidencia' or nueva_parada_nombre =='Avería' or nueva_parada_nombre=='Cambio':
         conn_str = (
@@ -1346,7 +1313,6 @@ def actualizar_parada(request):
             else:
                 zona = datos.zona
                 fecha = datos.inicio()
-                print(f'zona id: {zona.id} Inicio: {fecha}')
                 of = get_of(zona.id, fecha)
                 xIdOF = of.numero
                 xIdTipo = tipo_nueva_parada
@@ -1376,7 +1342,6 @@ def actualizar_parada(request):
             return Response({"ok": False, "mensaje": str(e)}, status=500)
             
     elif parada_nombre == 'Incidencia' or parada_nombre =='Avería' or parada_nombre=='Cambio':
-        print(f'VAMOS A BORRAR ESTA PARADA!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! {parada_id}')
         return borrar_paradaDB(parada_id)
     else:
         return Response({"ok": True, "mensaje": "Parada actualizada 2"})
@@ -1384,7 +1349,6 @@ def actualizar_parada(request):
 
 @api_view(["DELETE"])
 def eliminar_paradaDB(request, parada_id):
-    print(f'estamos en eliminar {parada_id}')
     parada_id = int(parada_id)
     #parada_id = request.data.get('parada') 
     return borrar_paradaDB(parada_id)   
