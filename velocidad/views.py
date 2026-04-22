@@ -297,11 +297,11 @@ def guardar_paradas_produccionDB(paradas, xIdTipo, xIdParada_R, xDescripcion, ob
     
     # Ajustar hora cambio de OF y Crear montaje 
     if tipo_parada.nombre == 'Cambio':
-        print(f'{orden.zona.siglas.upper()} Nueva parada tipo cambio!!!!!!!!!!!!!!!!!!!!!')
         primera_id = ids[0]
         cambio = Parada.objects.filter(id=primera_id).first()
         hora_inicio_cambio = cambio.inicio()
         orden = OF.objects.filter(numero=xIdOF).first()
+        print(f'{orden.zona.siglas.upper()} Nueva parada tipo cambio!!!!!!!!!!!!!!!!!!!!!')
         # Ajustar hora cambio de OF
         if orden != None:
             print(f'{orden.zona.siglas.upper()} Existe la orden {xIdOF}')
