@@ -297,14 +297,17 @@ def guardar_paradas_produccionDB(paradas, xIdTipo, xIdParada_R, xDescripcion, ob
     
     # Ajustar hora cambio de OF y Crear montaje 
     if tipo_parada.nombre == 'Cambio':
+        print(f'{orden.zona.siglas.upper()} Nueva parada tipo cambio!!!!!!!!!!!!!!!!!!!!!')
         primera_id = ids[0]
         cambio = Parada.objects.filter(id=primera_id).first()
         hora_inicio_cambio = cambio.inicio()
         orden = OF.objects.filter(numero=xIdOF).first()
         # Ajustar hora cambio de OF
         if orden != None:
+            print(f'{orden.zona.siglas.upper()} Existe la orden {xIdOF}')
             acc = Acumulador.objects.filter(maquina_siglas=orden.zona.siglas.upper()).last()
             if cambio.codigo.siglas == 'CG' and acc.of_activa == None: # Cambio general sin trazabilidad
+                print(f'{orden.zona.siglas.upper()} Cambio general sin trazabilidad')
                 hora_inicio_of = orden.inicio
                 if hora_inicio_of != hora_inicio_cambio:
                     orden_anterior = OF.objects.filter(fin=hora_inicio_of)
@@ -313,9 +316,11 @@ def guardar_paradas_produccionDB(paradas, xIdTipo, xIdParada_R, xDescripcion, ob
                         orden_anterior.save()
                     orden.inicio = hora_inicio_cambio
                     orden.save()
-            
+            else:
+                print(f'{orden.zona.siglas.upper()} Cambio parcial sin trazabilidad')
             # Crear montaje
             # Buscar paradas tipo cambio con fecha mayor a hora inico parada
+            print(f'{orden.zona.siglas.upper()} Crear montaje')
             siguiente_cambio = (
                 Parada.objects
                 .filter(
@@ -338,6 +343,7 @@ def guardar_paradas_produccionDB(paradas, xIdTipo, xIdParada_R, xDescripcion, ob
                 # Actualizar todos los tubos fabricados desde inicio montaje hasta ahora con el montaje
                 Tubos.objects.filter(fleje__orden=orden, 
                                     fecha_entrada__gte =hora_inicio_cambio).update(montaje=montaje)
+                print(f' {orden.zona.siglas.upper()} Montaje creado I ...')
             else: # Hay paradas tipo cambio posteriores a la hora de inico de la parada
                 hora_fin_montaje = siguiente_cambio.inicio()
                 montaje = Montaje.objects.create(xIdMontaje=xIdParada, 
@@ -348,6 +354,10 @@ def guardar_paradas_produccionDB(paradas, xIdTipo, xIdParada_R, xDescripcion, ob
                 Tubos.objects.filter(fleje__orden=orden, 
                                     fecha_entrada__gte =hora_inicio_cambio,
                                     fecha_entrada__lte=hora_fin_montaje).update(montaje=montaje)
+                print(f' {orden.zona.siglas.upper()} Montaje creado II ...')
+        else:
+            print(f' {orden.zona.siglas.upper()} No existe OF {xIdOF}')
+            
     return duraciones_por_turno
 
 def estado_maquina(request, id):

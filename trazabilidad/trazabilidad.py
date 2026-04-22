@@ -555,7 +555,7 @@ def leerFlejesEnAcumuladores(request):
             # y no hay flejes de la of actual
             print(f'cero flejes {flejes_of_actual_cero} xIdOF {xIdOF}')
             if flejes_of_actual_cero and xIdOF is not None:
-                of = OF.objects.filter(numero=xIdOF).last()
+                of = OF.objects.filter(numero=xIdOF, fin__isnull=True).last() # Añado fin__isnull por si dejan una orden a medias y vuelven despues
                 if of is None:
                     ultima_parada = Parada.objects.filter(
                                             zona=acc.zona,
