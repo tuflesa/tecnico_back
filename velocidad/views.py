@@ -310,14 +310,14 @@ def guardar_paradas_produccionDB(paradas, xIdTipo, xIdParada_R, xDescripcion, ob
                 print(f'{orden.zona.siglas.upper()} Cambio general sin trazabilidad')
                 hora_inicio_of = orden.inicio
                 if hora_inicio_of != hora_inicio_cambio:
-                    orden_anterior = OF.objects.filter(fin=hora_inicio_of)
+                    orden_anterior = OF.objects.filter(fin=hora_inicio_of).first()
                     if orden_anterior != None:
                         orden_anterior.fin = hora_inicio_cambio
                         orden_anterior.save()
                     orden.inicio = hora_inicio_cambio
                     orden.save()
             else:
-                print(f'{orden.zona.siglas.upper()} Cambio parcial sin trazabilidad')
+                print(f'{orden.zona.siglas.upper()} Cambio parcial con trazabilidad')
             # Crear montaje
             # Buscar paradas tipo cambio con fecha mayor a hora inico parada
             print(f'{orden.zona.siglas.upper()} Crear montaje')
@@ -357,7 +357,7 @@ def guardar_paradas_produccionDB(paradas, xIdTipo, xIdParada_R, xDescripcion, ob
                 print(f' {orden.zona.siglas.upper()} Montaje creado II ...')
         else:
             print(f' {orden.zona.siglas.upper()} No existe OF {xIdOF}')
-            
+
     return duraciones_por_turno
 
 def estado_maquina(request, id):
