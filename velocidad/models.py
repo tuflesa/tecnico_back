@@ -124,7 +124,9 @@ class Parada(models.Model):
                 diferencia = final - p.inicio
                 T = abs(diferencia.total_seconds())/60.0 # Minutos
                 t += T
-                rendimiento += (p.velocidad/p.vmax)*T
+                if p.vmax > 0:
+                    rendimiento += (p.velocidad/p.vmax)*T
+                else: rendimiento = 0
             rendimiento = rendimiento / t
         return rendimiento
 
