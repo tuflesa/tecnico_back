@@ -3,7 +3,7 @@ from django.contrib import admin
 from mantenimiento.models import Especialidad, EstadoLineasTareas, LineaParteTrabajo, Notificacion, ParteTrabajo, Tarea, TipoPeriodo, TipoTarea, TrabajadoresLineaParte, Reclamo, GastosParte
 
 class ParteTrabajoAdmin(admin.ModelAdmin):
-    list_filter=("estado",)
+    list_filter=("estado", "zona__siglas")
     search_fields=("num_parte",)
     list_display=("id","nombre", "num_parte",)
 

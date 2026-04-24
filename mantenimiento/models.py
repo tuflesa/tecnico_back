@@ -135,6 +135,7 @@ class ParteTrabajo(models.Model):
     tarea = models.ManyToManyField(Tarea, blank=True, related_name='partes')
     estado = models.ForeignKey(EstadoLineasTareas, on_delete=models.SET_NULL, blank=True, null=True)
     num_parte = models.CharField(max_length=16, null=True, blank=True, default=None)
+    fecha_estimada_fin = models.DateField(blank=True, null=True)
 
     def save(self, *args, **kwargs):
         # Generar nuevo número si el campo num_parte es None (null)
