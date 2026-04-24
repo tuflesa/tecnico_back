@@ -110,6 +110,23 @@ class Parada(models.Model):
             diferencia = final - p.inicio
             t += abs(diferencia.total_seconds())/60 # Minutos
         return t
+    
+    def rendimiento(self):
+        rendimiento = 0
+        t = 0
+        if (self.codigo.tipo.nombre == 'Automatico'):
+            for p in self.periodos.all():
+                if p.fin:
+                    final = p.fin
+                else:
+                    ahora = datetime.now()
+                    final = timezone.make_aware(ahora, timezone.utc)
+                diferencia = final - p.inicio
+                T = abs(diferencia.total_seconds())/60.0 # Minutos
+                t += T
+                rendimiento += (p.velocidad/p.vmax)*T
+            rendimiento = rendimiento / t
+        return rendimiento
 
 class Periodo(models.Model):
     parada = models.ForeignKey(Parada, on_delete=models.CASCADE, related_name='periodos')

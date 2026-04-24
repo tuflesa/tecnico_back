@@ -576,6 +576,7 @@ def estado_maquina(request, id):
         'inicio': p.inicio().strftime("%Y-%m-%d %H:%M:%S") if p.inicio else None,
         'fin': p.fin().strftime("%Y-%m-%d %H:%M:%S") if p.fin else None,
         'duracion': p.duracion(),
+        'rendimiento': p.rendimiento(),
         'color': p.codigo.tipo.color,
         'observaciones': p.observaciones,
         'zona_id': p.zona.id,
