@@ -638,6 +638,16 @@ def nuevo_periodo(request):
 
     ultimo_periodo = Periodo.objects.filter(parada__zona= zona_id, fin__isnull=True).last()
 
+    # Agragamos la OF activa en todas las paradas
+    of_activa = OF.objects.filter(
+        zona=zona,
+        inicio__lte=fecha_dt
+    ).filter(
+        Q(fin__isnull=True) | Q(fin__gte=fecha_dt)
+    ).order_by('-inicio').first()
+
+    of_numero = of_activa.numero if of_activa else ""
+
     if ultimo_periodo != None:
         # Cerramos el periodo anteior
         ultimo_periodo.fin = fecha_dt
@@ -1255,10 +1265,16 @@ def actualizar_parada(request):
     tipo_nueva_parada = request.data.get('tipoSiglas')
     nueva_parada_nombre = request.data.get('nueva_parada_nombre')
     xIdParada_R = request.data.get('xIdParada_R')
+    xDescripcion_R = request.data.get('xDescripcion')
+
     
     paradas_produccion_DB = ParadaProduccionDB.objects.filter(parada=parada_id)
     CodigoProdDB = CodigoParada.objects.get(id=codigo)
     datos = Parada.objects.get(id=parada_id) 
+    if nueva_parada_nombre=='Cambio':
+        xIdParada = xIdParada_R
+    else:
+        xIdParada =  CodigoProdDB.codigoProdDB        
 
     # Aseguramos que nuevaObs no sea None antes de concatenar
     obs_str = nuevaObs if nuevaObs else ""
@@ -1270,7 +1286,6 @@ def actualizar_parada(request):
         .values_list("codigo__tipo__siglas", flat=True)
         .first()
     )
-    
     if nueva_parada_nombre == 'Incidencia' or nueva_parada_nombre =='Avería' or nueva_parada_nombre=='Cambio':
         conn_str = (
             "DRIVER={ODBC Driver 18 for SQL Server};"
@@ -1286,18 +1301,21 @@ def actualizar_parada(request):
         cursor = conn.cursor()
 
         try:
-            descripcion_DB = get_descripcion_prodDB(
-                CodigoProdDB.codigoProdDB,
-                tipo_nueva_parada,
-                cursor
-            )
-
+            if nueva_parada_nombre == 'Cambio':
+                descripcion_DB = xDescripcion_R
+            else:
+                descripcion_DB = get_descripcion_prodDB(
+                    CodigoProdDB.codigoProdDB,
+                    tipo_nueva_parada,
+                    cursor
+                )
             # Construimos la lista de parámetros fuera del bucle
             rows_to_update = [
                 (
                     tipo_nueva_parada,  # xIdTipo
                     texto_seguro,       # xObservaciones
                     descripcion_DB,     # xDescripcion
+                    xIdParada,
                     datos.of,           # xIdOF
                     tipo_siglas,        # xIdTipo
                     p.pos               # xIdPos
@@ -1310,9 +1328,10 @@ def actualizar_parada(request):
                 cursor.executemany("""
                     UPDATE imp.tb_tubo_parada
                     SET 
-                        xIdTipo        = ?,
+                        xIdTipo = ?,
                         xObservaciones = ?,
-                        xDescripcion   = ?
+                        xDescripcion   = ?,
+                        xIdParada = ?
                     WHERE 
                         xIdOF   = ? AND
                         xIdTipo = ? AND
@@ -1346,10 +1365,11 @@ def actualizar_parada(request):
             return Response({"ok": True, "mensaje": "Parada actualizada"})
 
         except Exception as e:
+            import traceback
             try:
                 conn.rollback()
             except:
-                pass 
+                pass
             return Response({"ok": False, "mensaje": str(e)}, status=500)
             
     elif parada_nombre == 'Incidencia' or parada_nombre =='Avería' or parada_nombre=='Cambio':
@@ -1376,7 +1396,7 @@ def crear_parada_ProdBD(request):
     #xDescripcion  = (la buscamos bajo)
     xFecha = periodo['inicio']
     xTiempo = int(request.data.get("xTiempo")) 
-    tiempo = request.data.get("xTiempo") #con decimales
+    tiempo = float(request.data.get("xTiempo")) #con decimales
     xObservaciones = request.data.get("xObservaciones")
     xTurno_id = request.data.get("xTurno_id")
     Turno = Turnos.objects.get(id=xTurno_id)
@@ -1385,7 +1405,7 @@ def crear_parada_ProdBD(request):
 
     #DATOS PARA RECTIFICAR EL TIEMPO DE LA PARADA QUE YA TENEMOS
     parada_id = request.data.get("parada_id")
-    parada_tiempo = request.data.get("parada_duracion")
+    parada_tiempo = float(request.data.get("parada_duracion"))
     Tipo_anterior = request.data.get("Tipo_anterior")
     posiciones = ParadaProduccionDB.objects.filter(parada=parada_id, turno=Turno)
     posicion_anterior = posiciones.first().pos if posiciones.exists() else None
@@ -1424,7 +1444,6 @@ def crear_parada_ProdBD(request):
             Tipo_anterior,
             posicion_anterior
         )
-        #print(f'periodo = {periodo["inicio"]}, fecha_val = {xFecha}, xIdPos = {xIdPos}, xTiempo = {xTiempo}, descripcion_DB = {xDescripcion}, xIdOf = {xIdOF}, xIdTipo = {xIdTipo}, xTurno = {xTurno},  xIdParada = {xIdParada}, xObservaciones = {xObservaciones}')
         
         sql = """
             INSERT INTO imp.tb_tubo_parada (

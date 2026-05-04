@@ -57,7 +57,7 @@ class EstadoLineasTareasSerializer(serializers.ModelSerializer):
 class ParteTrabajoSerializer(serializers.ModelSerializer):
     class Meta:
         model = ParteTrabajo
-        fields = ['id', 'nombre', 'tipo', 'creado_por', 'observaciones', 'finalizado', 'fecha_creacion', 'fecha_finalizacion', 'equipo', 'tipo_nombre', 'fecha_prevista_inicio', 'zona', 'seccion', 'empresa', 'tarea', 'estado', 'num_parte']
+        fields = '__all__'
 
 class ParteTrabajoDetalleSerializer(serializers.ModelSerializer):
     equipo = EquipoSerializer(many=False, read_only=True)
@@ -91,7 +91,7 @@ class LineaParteTrabajoSerializer(serializers.ModelSerializer):
     tarea = TareaSerializer(many=False, read_only=True)
     class Meta:
         model = LineaParteTrabajo
-        fields = ['id', 'parte', 'tarea', 'fecha_inicio', 'fecha_fin', 'estado', 'fecha_plan', 'observaciones_trab']
+        fields = '__all__'
 
 class LineaParteTrabajoMovSerializer(serializers.ModelSerializer):
     class Meta:

@@ -98,6 +98,7 @@ class PartesFilter(filters.FilterSet):
             'tarea__id': ['exact'],
             'fecha_finalizacion': ['exact'],
             'fecha_finalizacion': ['lte', 'gte'],
+            'fecha_estimada_fin': ['lte', 'gte'],
         }
 
 class EstadoLineasTareasFilter(filters.FilterSet):
