@@ -22,6 +22,8 @@ class ZonaPerfilVelocidad(models.Model):
     lectura_hf = models.BooleanField(default=False)
     lectura_presion_soldadura = models.BooleanField(default=False)
     lectura_vmax_sierra = models.BooleanField(default=False)
+    tiempo_cambio_general = models.IntegerField(default=120)
+    tiempo_cambio_parcial = models.IntegerField(default=60)
 
     def __str__(self) -> str:
         return self.zona.nombre
@@ -114,7 +116,7 @@ class Parada(models.Model):
     def rendimiento(self):
         rendimiento = 0
         t = 0
-        if (self.codigo.tipo.nombre == 'Automatico'):
+        if (self.codigo.siglas == 'RUN'): # Automatic - RUN
             for p in self.periodos.all():
                 if p.fin:
                     final = p.fin
@@ -128,6 +130,19 @@ class Parada(models.Model):
                     rendimiento += (p.velocidad/p.vmax)*T
                 else: rendimiento = 0
             rendimiento = rendimiento / t
+        elif (self.codigo.siglas == 'CG'): # Cambio - General
+            zpv = ZonaPerfilVelocidad.objects.get(zona=self.zona)
+            rendimiento = zpv.tiempo_cambio_general / self.duracion()
+            if self.rendimiento > 1:
+                rendimiento = 1
+            print(f'Cambio general: tiempo de cambio {self.duracion()} rendimiento {self.rendimiento}')
+        elif (self.codigo.siglas == 'CP'): # Cambio - Parcial
+            zpv = ZonaPerfilVelocidad.objects.get(zona=self.zona)
+            rendimiento = zpv.tiempo_cambio_parcial / self.duracion()
+            if self.rendimiento > 1:
+                rendimiento = 1
+            print(f'Cambio parcial: tiempo de cambio {self.duracion()} rendimiento {self.rendimiento}')
+            
         return rendimiento
 
 class Periodo(models.Model):
