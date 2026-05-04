@@ -135,13 +135,13 @@ class Parada(models.Model):
             rendimiento = zpv.tiempo_cambio_general / self.duracion()
             if rendimiento > 1:
                 rendimiento = 1
-            print(f'Cambio general: tiempo de cambio {self.duracion()} rendimiento {self.rendimiento}')
+            print(f'Cambio general: tiempo de cambio {self.duracion()} rendimiento {rendimiento}')
         elif (self.codigo.siglas == 'CP'): # Cambio - Parcial
             zpv = ZonaPerfilVelocidad.objects.get(zona=self.zona)
             rendimiento = zpv.tiempo_cambio_parcial / self.duracion()
             if rendimiento > 1:
                 rendimiento = 1
-            print(f'Cambio parcial: tiempo de cambio {self.duracion()} rendimiento {self.rendimiento}')
+            print(f'Cambio parcial: tiempo de cambio {self.duracion()} rendimiento {rendimiento}')
 
         return rendimiento
 
