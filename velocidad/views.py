@@ -1396,7 +1396,7 @@ def crear_parada_ProdBD(request):
     #xDescripcion  = (la buscamos bajo)
     xFecha = periodo['inicio']
     xTiempo = int(request.data.get("xTiempo")) 
-    tiempo = request.data.get("xTiempo") #con decimales
+    tiempo = float(request.data.get("xTiempo")) #con decimales
     xObservaciones = request.data.get("xObservaciones")
     xTurno_id = request.data.get("xTurno_id")
     Turno = Turnos.objects.get(id=xTurno_id)
@@ -1405,7 +1405,7 @@ def crear_parada_ProdBD(request):
 
     #DATOS PARA RECTIFICAR EL TIEMPO DE LA PARADA QUE YA TENEMOS
     parada_id = request.data.get("parada_id")
-    parada_tiempo = request.data.get("parada_duracion")
+    parada_tiempo = float(request.data.get("parada_duracion"))
     Tipo_anterior = request.data.get("Tipo_anterior")
     posiciones = ParadaProduccionDB.objects.filter(parada=parada_id, turno=Turno)
     posicion_anterior = posiciones.first().pos if posiciones.exists() else None
