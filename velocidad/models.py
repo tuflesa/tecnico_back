@@ -4,6 +4,7 @@ from datetime import datetime
 from django.db.models import Min, Max
 from django.utils import timezone
 from django.contrib.auth.models import User
+from django.db.models import Sum, F, ExpressionWrapper, DurationField
 
 class ZonaPerfilVelocidad(models.Model):
     zona = models.OneToOneField(Zona, on_delete=models.CASCADE)
@@ -22,6 +23,8 @@ class ZonaPerfilVelocidad(models.Model):
     lectura_hf = models.BooleanField(default=False)
     lectura_presion_soldadura = models.BooleanField(default=False)
     lectura_vmax_sierra = models.BooleanField(default=False)
+    tiempo_cambio_general = models.IntegerField(default=120)
+    tiempo_cambio_parcial = models.IntegerField(default=60)
 
     def __str__(self) -> str:
         return self.zona.nombre
@@ -111,10 +114,42 @@ class Parada(models.Model):
             t += abs(diferencia.total_seconds())/60 # Minutos
         return t
     
+    def turnos(self):
+        return (
+            self.periodos
+                .values_list('turno__turno', flat=True)
+                .distinct()
+        )
+
+    def duracion_por_turno(self):
+        duracion_por_turno = []
+        for turno in self.turnos():
+            t=0
+            start = None
+            end = None
+            for p in self.periodos.filter(turno__turno=turno):
+                if p.fin:
+                    final = p.fin
+                else:
+                    ahora = datetime.now()
+                    final = timezone.make_aware(ahora, timezone.utc)
+                diferencia = final - p.inicio
+                t += abs(diferencia.total_seconds())/60 # Minutos
+
+                if (not start or start > p.inicio):
+                    start = p.inicio
+
+                if (not end or end < final):
+                    end = final
+
+            duracion_por_turno.append({'turno': turno, 'duracion': t, 'inicio': start, 'fin': end})    
+        
+        return duracion_por_turno
+    
     def rendimiento(self):
         rendimiento = 0
         t = 0
-        if (self.codigo.tipo.nombre == 'Automatico'):
+        if (self.codigo.siglas == 'RUN'): # Automatic - RUN
             for p in self.periodos.all():
                 if p.fin:
                     final = p.fin
@@ -128,7 +163,63 @@ class Parada(models.Model):
                     rendimiento += (p.velocidad/p.vmax)*T
                 else: rendimiento = 0
             rendimiento = rendimiento / t
+        elif (self.codigo.siglas == 'CG'): # Cambio - General
+            zpv = ZonaPerfilVelocidad.objects.get(zona=self.zona)
+            rendimiento = zpv.tiempo_cambio_general / self.duracion()
+            if rendimiento > 1:
+                rendimiento = 1
+            # print(f'Cambio general: tiempo de cambio {self.duracion()} rendimiento {rendimiento}')
+        elif (self.codigo.siglas == 'CP'): # Cambio - Parcial
+            zpv = ZonaPerfilVelocidad.objects.get(zona=self.zona)
+            rendimiento = zpv.tiempo_cambio_parcial / self.duracion()
+            if rendimiento > 1:
+                rendimiento = 1
+            # print(f'Cambio parcial: tiempo de cambio {self.duracion()} rendimiento {rendimiento}')
+
         return rendimiento
+    
+    def rendimiento_por_turno(self):
+        rendimiento_por_turno = []
+        for dpt in self.duracion_por_turno():
+            rendimiento = 0
+            t = 0
+            if (self.codigo.siglas == 'RUN'): # Automatic - RUN
+                for p in self.periodos.filter(turno__turno=dpt['turno']):
+                    if p.fin:
+                        final = p.fin
+                    else:
+                        ahora = datetime.now()
+                        final = timezone.make_aware(ahora, timezone.utc)
+                    diferencia = final - p.inicio
+                    T = abs(diferencia.total_seconds())/60.0 # Minutos
+                    t += T
+                    if p.vmax > 0:
+                        rendimiento += (p.velocidad/p.vmax)*T
+                    else: rendimiento = 0
+                rendimiento = rendimiento / t
+
+            elif (self.codigo.siglas == 'CG'): # Cambio - General
+                zpv = ZonaPerfilVelocidad.objects.get(zona=self.zona)
+                rendimiento = zpv.tiempo_cambio_general / self.duracion()
+                if rendimiento > 1:
+                    rendimiento = 1
+
+            elif (self.codigo.siglas == 'CP'): # Cambio - Parcial
+                zpv = ZonaPerfilVelocidad.objects.get(zona=self.zona)
+                rendimiento = zpv.tiempo_cambio_parcial / self.duracion()
+                if rendimiento > 1:
+                    rendimiento = 1
+            
+            rendimiento_por_turno.append(
+                    {
+                        'turno': dpt['turno'],
+                        'rendimiento': rendimiento,
+                        'duracion': dpt['duracion']
+                    }
+                )
+
+        return rendimiento_por_turno
+
 
 class Periodo(models.Model):
     parada = models.ForeignKey(Parada, on_delete=models.CASCADE, related_name='periodos')
