@@ -195,7 +195,7 @@ class Parada(models.Model):
                     t += T
                     if p.vmax > 0:
                         rendimiento += (p.velocidad/p.vmax)*T
-                    else: rendimiento = 1
+                    else: rendimiento += T
                 rendimiento = rendimiento / t
 
             elif (self.codigo.siglas == 'CG'): # Cambio - General
