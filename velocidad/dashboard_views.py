@@ -1,17 +1,17 @@
 from django.db.models import Q
 from django.utils import timezone
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from datetime import datetime, date
 from collections import defaultdict
 
-from velocidad.models import Parada, Periodo
+from velocidad.models import Parada, ZonaPerfilVelocidad
 from trazabilidad.models import Flejes
 from estructura.models import Zona
-from rest_framework.permissions import AllowAny
-from velocidad.models import ZonaPerfilVelocidad
-
+from trazabilidad.models import Flejes, Acumulador
+from velocidad.models import HorarioDia
+import datetime as dt
 
 # ─── helpers ─────────────────────────────────────────────────────────────────
 
@@ -26,12 +26,18 @@ def _segundos(inicio, fin):
 def _siglas_zona(zona_id):
     return Zona.objects.get(id=zona_id).siglas.upper()
 
-
 def _clave_agrupacion(fecha, agrupar):
     if isinstance(fecha, str):
         fecha = date.fromisoformat(fecha)
-    return fecha.strftime('%Y-%m') if agrupar == 'mes' else fecha.strftime('%Y-%m-%d')
 
+    if agrupar == 'mes':
+        return fecha.strftime('%Y-%m')
+
+    elif agrupar == 'rango':
+        # 👇 todos los datos van a la misma clave
+        return 'rango'
+
+    return fecha.strftime('%Y-%m-%d')
 
 # ─── cálculo OEE ─────────────────────────────────────────────────────────────
 
@@ -81,22 +87,15 @@ def _calcular_disponibilidad_rendimiento(periodos_planos, t_total_seg):
 
 
 def _calcular_calidad(flejes):
-    """
-    Replica exacta de calculaCalidad() del JS de tu compañero.
-    Requiere que los flejes tengan prefetch de tubos.
-    """
     calidad    = 0.0
     peso_total = 0.0
-
     for f in flejes:
         metros_medido = f.metros_medido or 0
         peso          = f.peso or 0
-        metros_tubo   = f.metros_tubo()   # ya tiene prefetch, no hay N+1
-
+        metros_tubo   = f.metros_tubo()
         if metros_medido > 0:
             calidad += metros_tubo * peso / metros_medido
         peso_total += peso
-
     if peso_total > 0:
         return round(calidad * 100 / peso_total, 2)
     return 100.0
@@ -111,24 +110,19 @@ def _indicadores_completos(periodos_planos, t_total_seg, calidad):
     oee = _oee(dr['disponibilidad'], dr['rendimiento'], calidad)
     return {**dr, 'calidad': calidad, 'oee': oee}
 
-
 # ─── vista ───────────────────────────────────────────────────────────────────
 
 @api_view(['GET'])
-# @permission_classes([IsAuthenticated])
 @permission_classes([AllowAny])
 def oee_dashboard(request):
     zona_id     = request.GET.get('zona_id')
     fecha_desde = request.GET.get('fecha_desde')
     fecha_hasta = request.GET.get('fecha_hasta')
-    agrupar     = request.GET.get('agrupar', 'dia')   # 'dia' | 'mes'
+    agrupar     = request.GET.get('agrupar', 'dia')
     turnos_cfg  = request.GET.getlist('turnos') or ['A', 'B']
 
     if not all([zona_id, fecha_desde, fecha_hasta]):
-        return Response(
-            {'error': 'zona_id, fecha_desde y fecha_hasta son obligatorios'},
-            status=400
-        )
+        return Response({'error': 'zona_id, fecha_desde y fecha_hasta son obligatorios'}, status=400)
 
     try:
         f_desde = datetime.strptime(fecha_desde, '%Y-%m-%d').date()
@@ -139,10 +133,10 @@ def oee_dashboard(request):
     dt_desde = timezone.make_aware(datetime.combine(f_desde, datetime.min.time()))
     dt_hasta = timezone.make_aware(datetime.combine(f_hasta, datetime.max.time()))
 
-    siglas = _siglas_zona(zona_id)
+    siglas       = _siglas_zona(zona_id)
+    perfil       = ZonaPerfilVelocidad.objects.get(zona_id=zona_id)
 
-    # ── 1. Paradas + periodos ────────────────────────────────────────────────
-    # Solo las que tienen al menos un periodo dentro del rango
+    # ── 1. Paradas + periodos ─────────────────────────────────────────────────
     paradas_qs = (
         Parada.objects
         .filter(zona_id=zona_id)
@@ -154,82 +148,176 @@ def oee_dashboard(request):
         .distinct()
     )
 
-    # ── 2. Flejes + tubos (prefetch para evitar N+1 en metros_tubo()) ────────
-    flejes_qs = (
-        Flejes.objects
-        .filter(maquina_siglas__iexact=siglas)
-        .filter(
-            Q(fecha_entrada__gte=f_desde, fecha_entrada__lte=f_hasta) |
-            Q(fecha_salida__gte=f_desde,  fecha_salida__lte=f_hasta)  |
-            Q(fecha_entrada__lte=f_hasta, fecha_salida__isnull=True)   # en proceso
-        )
-        .prefetch_related('tubos')   # ← clave para que metros_tubo() no haga N+1
-    )
+    # ── 2. Flejes + tubos ─────────────────────────────────────────────────────────
+    acc = Acumulador.objects.filter(maquina_siglas__iexact=siglas).last()
 
-    # ── 3. Distribuir periodos por clave (día o mes) y turno ─────────────────
-    # grupos[clave]['TOTAL'] = [periodos planos]
-    # grupos[clave]['A']     = [periodos planos del turno A]
+    if acc and acc.maquila_siglas:
+        siglas_maquila = acc.maquila_siglas.upper()
+        flejes_qs = (
+            Flejes.objects
+            .filter(
+                Q(maquina_siglas__iexact=siglas) |
+                Q(maquina_siglas__iexact=siglas_maquila)
+            )
+            .filter(
+                Q(fecha_entrada__gte=f_desde, fecha_entrada__lte=f_hasta) |
+                Q(fecha_salida__gte=f_desde,  fecha_salida__lte=f_hasta)  |
+                Q(fecha_entrada__lte=f_hasta, fecha_salida__isnull=True)
+            )
+            .prefetch_related('tubos')
+        )
+    else:
+        flejes_qs = (
+            Flejes.objects
+            .filter(maquina_siglas__iexact=siglas)
+            .filter(
+                Q(fecha_entrada__gte=f_desde, fecha_entrada__lte=f_hasta) |
+                Q(fecha_salida__gte=f_desde,  fecha_salida__lte=f_hasta)  |
+                Q(fecha_entrada__lte=f_hasta, fecha_salida__isnull=True)
+            )
+            .prefetch_related('tubos')
+        )
+
+    # ── 3. Distribuir periodos por clave y turno ──────────────────────────────
     grupos = defaultdict(lambda: defaultdict(list))
 
     for parada in paradas_qs:
         tipo = parada.codigo.tipo.nombre
+
         if tipo == 'TNP':
             continue
 
-        perfil = ZonaPerfilVelocidad.objects.get(zona_id=zona_id)
-        v_max_perfil = perfil.v_max
+        # Proteger rendimiento
+        try:
+            rend_parada = parada.rendimiento() or 0
+        except Exception:
+            rend_parada = 0
 
-        # Replica exacta de Parada.rendimiento() con v_max del perfil
-        if tipo == 'Automatico':
-            t_p = 0.0
-            r_p = 0.0
-            for p in parada.periodos.all():
-                fin_p = p.fin if p.fin else timezone.now()
-                T = abs((fin_p - p.inicio).total_seconds()) / 60.0
-                t_p += T
-                if v_max_perfil > 0 and p.vmax > 0:  # ← igual que el modelo: solo si vmax > 0
-                    r_p += (p.velocidad / v_max_perfil) * T
-            rend_parada = (r_p / t_p) if t_p > 0 else 0.0
-        else:
-            rend_parada = 0.0  # Cambio siempre devuelve 0, igual que el modelo
         for periodo in parada.periodos.all():
             if not periodo.inicio:
                 continue
 
             fin_real = periodo.fin if periodo.fin else timezone.now()
+            p_ini    = _clamp(periodo.inicio, dt_desde, dt_hasta)
+            p_fin    = _clamp(fin_real,       dt_desde, dt_hasta)
 
-            p_ini = _clamp(periodo.inicio, dt_desde, dt_hasta)
-            p_fin = _clamp(fin_real, dt_desde, dt_hasta)
-            seg   = _segundos(p_ini, p_fin)
-            if seg <= 0:
+            if p_fin <= p_ini:
                 continue
 
             turno_letra = periodo.turno.turno if periodo.turno else 'X'
-            clave       = _clave_agrupacion(p_ini.date(), agrupar)
 
-            periodo_plano = {
-                'tipo_parada': tipo,
-                'seg':         seg,
-                'rendimiento':  rend_parada,
-            }
+            # 🔥 CLAVE: dividir el periodo por días
+            actual = p_ini
 
-            grupos[clave]['TOTAL'].append(periodo_plano)
-            grupos[clave][turno_letra].append(periodo_plano)
+            while actual < p_fin:
 
-    # ── 4. Distribuir flejes por clave ───────────────────────────────────────
+                siguiente = min(
+                    p_fin,
+                    timezone.make_aware(datetime.combine(
+                        actual.date() + dt.timedelta(days=1),
+                        datetime.min.time()
+                    ))
+                )
+
+                seg = _segundos(actual, siguiente)
+
+                if seg > 0:
+                    clave = _clave_agrupacion(actual.date(), agrupar)
+
+                    periodo_plano = {
+                        'tipo_parada': tipo,
+                        'seg':         seg,
+                        'rendimiento': rend_parada,
+                    }
+
+                    grupos[clave]['TOTAL'].append(periodo_plano)
+                    grupos[clave][turno_letra].append(periodo_plano)
+
+                actual = siguiente
+
+    # ── 4. Flejes por clave ───────────────────────────────────────────────────
     flejes_por_clave = defaultdict(list)
     for f in flejes_qs:
-        if f.fecha_entrada:
-            clave = _clave_agrupacion(f.fecha_entrada, agrupar)
-            flejes_por_clave[clave].append(f)
+        if not f.fecha_entrada:
+            continue
 
-    # ── 5. Construir respuesta ───────────────────────────────────────────────
+        clave = _clave_agrupacion(f.fecha_entrada, agrupar)
+        flejes_por_clave[clave].append(f)
+
+    def _flejes_del_turno(flejes_lista, inicio_turno, fin_turno):
+        """Replica filtrarFlejesPorIntervalo del JS"""
+        resultado = []
+        for f in flejes_lista:
+            if not f.fecha_entrada or not f.hora_entrada:
+                continue
+            entrada = timezone.make_aware(datetime.combine(f.fecha_entrada, f.hora_entrada))
+
+            salida = None
+            if f.fecha_salida and f.hora_salida:
+                salida = timezone.make_aware(datetime.combine(f.fecha_salida, f.hora_salida))
+
+            entrada_dentro = inicio_turno <= entrada <= fin_turno
+            salida_dentro  = salida and (inicio_turno <= salida <= fin_turno)
+
+            if entrada_dentro or salida_dentro:
+                resultado.append(f)
+        return resultado
+    
+    # ── 5. Construir respuesta ────────────────────────────────────────────────
+
+    # Calcular intervalo de cada turno desde los periodos
     resultado = []
 
     for clave in sorted(grupos.keys()):
+        # Obtener la fecha de esta clave
+        #fecha_clave = date.fromisoformat(clave) if agrupar == 'dia' else f_desde
+        
+        if agrupar == 'dia':
+            fecha_clave = date.fromisoformat(clave)
+
+        elif agrupar == 'mes':
+            # coger primer día del mes
+            fecha_clave = date.fromisoformat(clave + '-01')
+
+        else:  # rango
+            # usar la fecha inicial del rango
+            fecha_clave = f_desde
+
+
+        # Calcular turno_intervalos para este día concreto
+        turno_intervalos = {}
+        try:
+            horario = HorarioDia.objects.get(zona_id=zona_id, fecha=fecha_clave)
+            inicio_dia = timezone.make_aware(datetime.combine(fecha_clave, horario.inicio))
+            fin_dia    = timezone.make_aware(datetime.combine(fecha_clave, horario.fin))
+            cambio1    = timezone.make_aware(datetime.combine(fecha_clave, horario.cambio_turno_1))
+
+            if horario.turno_mañana:
+                turno_intervalos[horario.turno_mañana.turno] = {
+                    'inicio': inicio_dia,
+                    'fin':    cambio1
+                }
+            if horario.turno_tarde:
+                fin_b = fin_dia
+                if horario.cambio_turno_2:
+                    fin_b = timezone.make_aware(datetime.combine(fecha_clave, horario.cambio_turno_2))
+                turno_intervalos[horario.turno_tarde.turno] = {
+                    'inicio': cambio1,
+                    'fin':    fin_b
+                }
+            if horario.turno_noche and horario.cambio_turno_2:
+                cambio2 = timezone.make_aware(datetime.combine(fecha_clave, horario.cambio_turno_2))
+                turno_intervalos[horario.turno_noche.turno] = {
+                    'inicio': cambio2,
+                    'fin':    fin_dia
+                }
+        except HorarioDia.DoesNotExist:
+            pass
+
         periodos_total = grupos[clave]['TOTAL']
         t_total_seg    = sum(p['seg'] for p in periodos_total)
-        calidad        = _calcular_calidad(flejes_por_clave.get(clave, []))
+        todos_flejes   = flejes_por_clave.get(clave, [])
+        calidad        = _calcular_calidad(todos_flejes)
 
         total = _indicadores_completos(periodos_total, t_total_seg, calidad)
 
@@ -242,53 +330,24 @@ def oee_dashboard(request):
                 turnos_resultado[t] = None
                 continue
 
+            if t in turno_intervalos:
+                flejes_turno  = _flejes_del_turno(
+                    todos_flejes,
+                    turno_intervalos[t]['inicio'],
+                    turno_intervalos[t]['fin']
+                )
+                calidad_turno = _calcular_calidad(flejes_turno) if flejes_turno else calidad
+            else:
+                calidad_turno = calidad
+
             turnos_resultado[t] = _indicadores_completos(
-                periodos_turno, t_turno_seg, calidad
+                periodos_turno, t_turno_seg, calidad_turno
             )
 
         resultado.append({
-            'periodo':  clave,
-            'total':    total,
-            'turnos':   turnos_resultado,
+            'periodo': clave,
+            'total':   total,
+            'turnos':  turnos_resultado,
         })
 
-    debug = []
-    for parada in paradas_qs:
-        if parada.codigo.tipo.nombre == 'Automatico':
-            periodos_p = list(parada.periodos.all())
-            t_p = 0.0
-            r_p = 0.0
-            for p in periodos_p:
-                if p.fin and p.inicio:
-                    T = abs((p.fin - p.inicio).total_seconds()) / 60.0
-                    t_p += T
-                    r_p += ((p.velocidad or 0) / 80) * T
-            rend = (r_p / t_p) if t_p > 0 else 0
-            debug.append({
-                'parada_id': parada.id,
-                'codigo': parada.codigo.nombre,  # ← nombre del código de parada
-                'tipo': parada.codigo.tipo.nombre,
-                'inicio': str(periodos_p[0].inicio) if periodos_p else None,
-                'n_periodos': len(periodos_p),
-                't_min': round(t_p, 1),
-                'rend': round(rend * 100, 1)
-            })
-        
-    # DEBUG: muestra los primeros 5 periodos planos del TOTAL del primer día
-    primera_clave = sorted(grupos.keys())[0]
-    periodos_total = grupos[primera_clave]['TOTAL']
-
-    t_auto = sum(p['seg'] for p in periodos_total if p['tipo_parada'] == 'Automatico')
-    t_cambio = sum(p['seg'] for p in periodos_total if p['tipo_parada'] == 'Cambio')
-    t_resto = sum(p['seg'] for p in periodos_total if p['tipo_parada'] not in ('Automatico', 'Cambio'))
-
-    return Response({
-        'resultado': resultado,
-        'resumen_tiempos': {
-            't_automatico_min': round(t_auto/60, 1),
-            't_cambio_min': round(t_cambio/60, 1),
-            't_resto_min': round(t_resto/60, 1),
-            't_total_min': round((t_auto+t_cambio+t_resto)/60, 1),
-        }
-    })
-    #return Response(resultado)
+    return Response(resultado)
