@@ -11,33 +11,8 @@ from trazabilidad.models import Flejes
 from estructura.models import Zona
 from trazabilidad.models import Flejes, Acumulador
 from velocidad.models import HorarioDia
+from .dashboard_utils import _clamp, _segundos, _siglas_zona, _clave_agrupacion
 import datetime as dt
-
-# ─── helpers ─────────────────────────────────────────────────────────────────
-
-def _clamp(value, lo, hi):
-    return max(lo, min(hi, value))
-
-
-def _segundos(inicio, fin):
-    return max(0.0, (fin - inicio).total_seconds())
-
-
-def _siglas_zona(zona_id):
-    return Zona.objects.get(id=zona_id).siglas.upper()
-
-def _clave_agrupacion(fecha, agrupar):
-    if isinstance(fecha, str):
-        fecha = date.fromisoformat(fecha)
-
-    if agrupar == 'mes':
-        return fecha.strftime('%Y-%m')
-
-    elif agrupar == 'rango':
-        # 👇 todos los datos van a la misma clave
-        return 'rango'
-
-    return fecha.strftime('%Y-%m-%d')
 
 # ─── cálculo OEE ─────────────────────────────────────────────────────────────
 
@@ -67,7 +42,7 @@ def _calcular_disponibilidad_rendimiento(periodos_planos, t_total_seg):
     # Automatico: media ponderada directa
     r_run = (rend_run / t_run) if t_run > 0 else 0.0
 
-    # Cambio: si no hay rendimiento acumulado, asume 100% (igual que el JS)
+    # Cambio: si no hay rendimiento acumulado, asume 100% (igual que el frontend)
     if t_cambio > 0:
         r_cambio = (rend_cambio / t_cambio) if rend_cambio > 0 else 1.0
     else:
@@ -186,8 +161,6 @@ def oee_dashboard(request):
 
         if tipo == 'TNP':
             continue
-
-        # Proteger rendimiento
         try:
             rend_parada = parada.rendimiento() or 0
         except Exception:
@@ -206,7 +179,7 @@ def oee_dashboard(request):
 
             turno_letra = periodo.turno.turno if periodo.turno else 'X'
 
-            # 🔥 CLAVE: dividir el periodo por días
+            # CLAVE: dividir el periodo por días
             actual = p_ini
 
             while actual < p_fin:
@@ -269,9 +242,7 @@ def oee_dashboard(request):
     resultado = []
 
     for clave in sorted(grupos.keys()):
-        # Obtener la fecha de esta clave
-        #fecha_clave = date.fromisoformat(clave) if agrupar == 'dia' else f_desde
-        
+        # Obtener la fecha de esta clave        
         if agrupar == 'dia':
             fecha_clave = date.fromisoformat(clave)
 
@@ -282,7 +253,6 @@ def oee_dashboard(request):
         else:  # rango
             # usar la fecha inicial del rango
             fecha_clave = f_desde
-
 
         # Calcular turno_intervalos para este día concreto
         turno_intervalos = {}
