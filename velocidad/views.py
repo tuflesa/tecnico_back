@@ -1123,14 +1123,10 @@ def buscar_montajes_of(request):
         fecha_inicio = parse_datetime(fecha_inicio_str)
         fecha_fin    = parse_datetime(fecha_fin_str)
         
-        if timezone.is_naive(fecha_inicio):
-            fecha_inicio = timezone.make_aware(fecha_inicio)
-        if timezone.is_naive(fecha_fin):
-            fecha_fin = timezone.make_aware(fecha_fin)
-
-        print('Fechas ...')
-        print(f'Inicio {fecha_inicio}')
-        print(f'Fecha fin {fecha_fin}')
+        # if timezone.is_naive(fecha_inicio):
+        #     fecha_inicio = timezone.make_aware(fecha_inicio)
+        # if timezone.is_naive(fecha_fin):
+        #     fecha_fin = timezone.make_aware(fecha_fin)
         
         of_qs = of_qs.filter(
             inicio__lte=fecha_fin
