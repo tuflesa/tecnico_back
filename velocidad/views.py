@@ -1135,6 +1135,7 @@ def buscar_montajes_of(request):
         )
 
     of_obj = of_qs.order_by('-inicio').last()
+    print(f'OF {of_obj}')
     xIdOF  = of_obj.numero if of_obj else None
 
     conn_str = (
