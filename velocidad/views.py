@@ -1133,7 +1133,7 @@ def buscar_montajes_of(request):
         ).filter(
             Q(fin__gte=fecha_inicio) | Q(fin__isnull=True)
         )
-
+    print(f'OFs {of_qs}')
     of_obj = of_qs.order_by('-inicio').last()
     print(f'OF {of_obj}')
     xIdOF  = of_obj.numero if of_obj else None
