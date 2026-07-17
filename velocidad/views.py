@@ -1127,6 +1127,10 @@ def buscar_montajes_of(request):
             fecha_inicio = timezone.make_aware(fecha_inicio)
         if timezone.is_naive(fecha_fin):
             fecha_fin = timezone.make_aware(fecha_fin)
+
+        print('Fechas ...')
+        print(f'Inicio {fecha_inicio}')
+        print(f'Fecha fin {fecha_fin}')
         
         of_qs = of_qs.filter(
             inicio__lte=fecha_fin
@@ -1134,7 +1138,7 @@ def buscar_montajes_of(request):
             Q(fin__gte=fecha_inicio) | Q(fin__isnull=True)
         )
     print(f'OFs {of_qs}')
-    of_obj = of_qs.order_by('-inicio').last()
+    of_obj = of_qs.order_by('-inicio').first()
     print(f'OF {of_obj}')
     xIdOF  = of_obj.numero if of_obj else None
 
