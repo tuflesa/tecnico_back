@@ -11,7 +11,7 @@ class MaterialAdmin(admin.ModelAdmin):
 
 class OperacionAdmin(admin.ModelAdmin):
     search_fields=("seccion__maquina__siglas",)
-    list_display=("id","nombre", "seccion",)
+    list_display=("id","nombre", "seccion", "orden",)
     list_filter=("seccion__nombre","seccion__maquina__siglas",)
 
 class ParametrosAdmin(admin.ModelAdmin):
@@ -26,7 +26,7 @@ class PlanosAdmin(admin.ModelAdmin):
 
 class RodillosAdmin(admin.ModelAdmin):
     search_fields=("nombre",)
-    list_display=("id","nombre", "grupo", "tipo")
+    list_display=("id","nombre", "operacion", "grupo", "tipo")
     list_filter=("grupo", "tipo",)
 
 class TipoPlanoAdmin(admin.ModelAdmin):
@@ -35,7 +35,7 @@ class TipoPlanoAdmin(admin.ModelAdmin):
 
 class EjeAdmin(admin.ModelAdmin):
     search_fields=("diametro",)
-    list_filter=("tipo", "numero_ejes")
+    list_filter=("tipo", "numero_ejes", "operacion__seccion__maquina")
 
 class Tipo_SeccionAdmin(admin.ModelAdmin):
     search_fields=("nombre",)
