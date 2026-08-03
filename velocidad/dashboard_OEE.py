@@ -6,11 +6,8 @@ from rest_framework.response import Response
 from datetime import datetime, date
 from collections import defaultdict
 
-from velocidad.models import Parada, ZonaPerfilVelocidad
-from trazabilidad.models import Flejes
-from estructura.models import Zona
+from .models import Parada, ZonaPerfilVelocidad, HorarioDia
 from trazabilidad.models import Flejes, Acumulador
-from velocidad.models import HorarioDia
 from .dashboard_utils import _clamp, _segundos, _siglas_zona, _clave_agrupacion
 import datetime as dt
 
@@ -40,7 +37,10 @@ def _calcular_disponibilidad_rendimiento(periodos_planos, t_total_seg):
     disponibilidad = (t_prod / t_total_seg) if t_total_seg > 0 else 0.0
 
     # Automatico: media ponderada directa
-    r_run = (rend_run / t_run) if t_run > 0 else 0.0
+    if rend_run == 0:
+        r_run = 1.0
+    else:
+        r_run = (rend_run / t_run) if t_run > 0 else 1.0
 
     # Cambio: si no hay rendimiento acumulado, asume 100% (igual que el frontend)
     if t_cambio > 0:
@@ -85,6 +85,78 @@ def _indicadores_completos(periodos_planos, t_total_seg, calidad):
     oee = _oee(dr['disponibilidad'], dr['rendimiento'], calidad)
     return {**dr, 'calidad': calidad, 'oee': oee}
 
+
+# ─── horarios / turnos ───────────────────────────────────────────────────────
+
+def _cargar_horarios(zona_id, fecha_min, fecha_max):
+    desde = fecha_min - dt.timedelta(days=1)
+    hasta = fecha_max + dt.timedelta(days=1)
+    return {
+        h.fecha: h
+        for h in HorarioDia.objects.filter(zona_id=zona_id, fecha__range=(desde, hasta))
+    }
+
+
+def _construir_intervalos_turno(horarios):
+    intervalos = defaultdict(list)
+
+    for fecha, horario in horarios.items():
+        inicio_dia = timezone.make_aware(datetime.combine(fecha, horario.inicio))
+        fin_dia    = timezone.make_aware(datetime.combine(fecha, horario.fin))
+        cambio1    = timezone.make_aware(datetime.combine(fecha, horario.cambio_turno_1))
+
+        if horario.turno_mañana:
+            intervalos[horario.turno_mañana.turno].append((inicio_dia, cambio1))
+
+        if horario.turno_tarde:
+            fin_tarde = fin_dia
+            if horario.cambio_turno_2:
+                fin_tarde = timezone.make_aware(datetime.combine(fecha, horario.cambio_turno_2))
+            intervalos[horario.turno_tarde.turno].append((cambio1, fin_tarde))
+
+        if horario.turno_noche and horario.cambio_turno_2:
+            inicio_noche = timezone.make_aware(datetime.combine(fecha, horario.cambio_turno_2))
+
+            # Fin real del turno de noche: el 'inicio' del HorarioDia del día siguiente, para poder cruzar medianoche correctamente.
+            siguiente = horarios.get(fecha + dt.timedelta(days=1))
+            if siguiente:
+                fin_noche = timezone.make_aware(datetime.combine(siguiente.fecha, siguiente.inicio))
+            else:
+                # Sin dato del día siguiente: nos quedamos con el 'fin' de hoy (comportamiento anterior, mejor que fallar).
+                fin_noche = fin_dia
+
+            intervalos[horario.turno_noche.turno].append((inicio_noche, fin_noche))
+
+    return intervalos
+
+
+def _en_intervalo_turno(timestamp, letra_turno, intervalos_turno):
+    for inicio, fin in intervalos_turno.get(letra_turno, []):
+        if inicio <= timestamp <= fin:
+            return True
+    return False
+
+
+def _flejes_del_turno(flejes_lista, letra_turno, intervalos_turno):
+    resultado = []
+    for f in flejes_lista:
+        if not f.fecha_entrada or not f.hora_entrada:
+            continue
+
+        entrada = timezone.make_aware(datetime.combine(f.fecha_entrada, f.hora_entrada))
+        entrada_dentro = _en_intervalo_turno(entrada, letra_turno, intervalos_turno)
+
+        salida_dentro = False
+        if f.fecha_salida and f.hora_salida:
+            salida = timezone.make_aware(datetime.combine(f.fecha_salida, f.hora_salida))
+            salida_dentro = _en_intervalo_turno(salida, letra_turno, intervalos_turno)
+
+        if entrada_dentro or salida_dentro:
+            resultado.append(f)
+
+    return resultado
+
+
 # ─── vista ───────────────────────────────────────────────────────────────────
 
 @api_view(['GET'])
@@ -110,6 +182,8 @@ def oee_dashboard(request):
 
     siglas       = _siglas_zona(zona_id)
     perfil       = ZonaPerfilVelocidad.objects.get(zona_id=zona_id)
+
+    horarios = _cargar_horarios(zona_id, f_desde, f_hasta)
 
     # ── 1. Paradas + periodos ─────────────────────────────────────────────────
     paradas_qs = (
@@ -166,6 +240,14 @@ def oee_dashboard(request):
         except Exception:
             rend_parada = 0
 
+        try:
+            rend_por_turno = {
+                rpt['turno']: (rpt['rendimiento'] or 0)
+                for rpt in parada.rendimiento_por_turno()
+            }
+        except Exception:
+            rend_por_turno = {}
+
         for periodo in parada.periodos.all():
             if not periodo.inicio:
                 continue
@@ -178,8 +260,13 @@ def oee_dashboard(request):
                 continue
 
             turno_letra = periodo.turno.turno if periodo.turno else 'X'
+            rend_turno = rend_por_turno.get(turno_letra, rend_parada)
 
-            # CLAVE: dividir el periodo por días
+            # CLAVE: dividir el periodo por días, y dentro de cada día,
+            # recortar al horario laboral real de ESE día (no al día
+            # completo 00:00-23:59). Así una parada o un tramo "Automático"
+            # fuera de horario (de madrugada, en festivo, etc.) no infla el
+            # t_total y no diluye disponibilidad/rendimiento.
             actual = p_ini
 
             while actual < p_fin:
@@ -217,72 +304,13 @@ def oee_dashboard(request):
         clave = _clave_agrupacion(f.fecha_entrada, agrupar)
         flejes_por_clave[clave].append(f)
 
-    def _flejes_del_turno(flejes_lista, inicio_turno, fin_turno):
-        """Replica filtrarFlejesPorIntervalo del JS"""
-        resultado = []
-        for f in flejes_lista:
-            if not f.fecha_entrada or not f.hora_entrada:
-                continue
-            entrada = timezone.make_aware(datetime.combine(f.fecha_entrada, f.hora_entrada))
+    # Intervalos reales de cada turno (letra → lista de (inicio, fin)), a partir del mismo diccionario de horarios ya cargado.
+    intervalos_turno = _construir_intervalos_turno(horarios)
 
-            salida = None
-            if f.fecha_salida and f.hora_salida:
-                salida = timezone.make_aware(datetime.combine(f.fecha_salida, f.hora_salida))
-
-            entrada_dentro = inicio_turno <= entrada <= fin_turno
-            salida_dentro  = salida and (inicio_turno <= salida <= fin_turno)
-
-            if entrada_dentro or salida_dentro:
-                resultado.append(f)
-        return resultado
-    
     # ── 5. Construir respuesta ────────────────────────────────────────────────
-
-    # Calcular intervalo de cada turno desde los periodos
     resultado = []
 
     for clave in sorted(grupos.keys()):
-        # Obtener la fecha de esta clave        
-        if agrupar == 'dia':
-            fecha_clave = date.fromisoformat(clave)
-
-        elif agrupar == 'mes':
-            # coger primer día del mes
-            fecha_clave = date.fromisoformat(clave + '-01')
-
-        else:  # rango
-            # usar la fecha inicial del rango
-            fecha_clave = f_desde
-
-        # Calcular turno_intervalos para este día concreto
-        turno_intervalos = {}
-        try:
-            horario = HorarioDia.objects.get(zona_id=zona_id, fecha=fecha_clave)
-            inicio_dia = timezone.make_aware(datetime.combine(fecha_clave, horario.inicio))
-            fin_dia    = timezone.make_aware(datetime.combine(fecha_clave, horario.fin))
-            cambio1    = timezone.make_aware(datetime.combine(fecha_clave, horario.cambio_turno_1))
-
-            if horario.turno_mañana:
-                turno_intervalos[horario.turno_mañana.turno] = {
-                    'inicio': inicio_dia,
-                    'fin':    cambio1
-                }
-            if horario.turno_tarde:
-                fin_b = fin_dia
-                if horario.cambio_turno_2:
-                    fin_b = timezone.make_aware(datetime.combine(fecha_clave, horario.cambio_turno_2))
-                turno_intervalos[horario.turno_tarde.turno] = {
-                    'inicio': cambio1,
-                    'fin':    fin_b
-                }
-            if horario.turno_noche and horario.cambio_turno_2:
-                cambio2 = timezone.make_aware(datetime.combine(fecha_clave, horario.cambio_turno_2))
-                turno_intervalos[horario.turno_noche.turno] = {
-                    'inicio': cambio2,
-                    'fin':    fin_dia
-                }
-        except HorarioDia.DoesNotExist:
-            pass
 
         periodos_total = grupos[clave]['TOTAL']
         t_total_seg    = sum(p['seg'] for p in periodos_total)
@@ -300,15 +328,10 @@ def oee_dashboard(request):
                 turnos_resultado[t] = None
                 continue
 
-            if t in turno_intervalos:
-                flejes_turno  = _flejes_del_turno(
-                    todos_flejes,
-                    turno_intervalos[t]['inicio'],
-                    turno_intervalos[t]['fin']
-                )
-                calidad_turno = _calcular_calidad(flejes_turno) if flejes_turno else calidad
-            else:
-                calidad_turno = calidad
+            # Clasificar flejes de esta clave según el turno, usando la línea
+            # Válido para agrupar='dia', 'mes' y 'rango' por igual.
+            flejes_turno = _flejes_del_turno(todos_flejes, t, intervalos_turno)
+            calidad_turno = _calcular_calidad(flejes_turno) if flejes_turno else calidad
 
             turnos_resultado[t] = _indicadores_completos(
                 periodos_turno, t_turno_seg, calidad_turno
