@@ -159,7 +159,7 @@ class Rodillo(models.Model):
     diametro = models.FloatField(blank=True, null=True)
     forma = models.ForeignKey(Forma, on_delete=models.CASCADE, null=True, blank=True)
     descripcion_perfil = models.CharField(max_length=50, null=True, blank=True)
-    dimension_perfil = models.CharField(max_length=5, null=True, blank=True)
+    dimension_perfil = models.CharField(max_length=7, null=True, blank=True)
     espesor_1 = models.DecimalField(max_digits=5, decimal_places=2, default=0)
     espesor_2 = models.DecimalField(max_digits=5, decimal_places=2, default=0)
     espesor = models.BooleanField(default=False)
@@ -317,3 +317,10 @@ class LineaRectificacion(models.Model):
     archivo = models.FileField(upload_to='programa', blank=True, null=True, storage=OverwriteStorage())
     observaciones = models.CharField(max_length=600, null=True, blank=True)
     proveedor = models.ForeignKey(Proveedor, null=True, blank=True, on_delete=models.CASCADE)
+
+class DestrezasRodillos(models.Model): # Escritura, lectura, edicion....
+    nombre = models.CharField(max_length=50)
+    descripcion = models.CharField(max_length=200, blank=True, null=True)
+
+    def __str__(self):
+        return self.nombre
