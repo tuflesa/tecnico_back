@@ -11,7 +11,7 @@ class ZonasFilter(filters.FilterSet):
     class Meta:
         model = Zona
         fields = {
-            'empresa': ['exact'],
+            'empresa__id': ['exact'],
             'nombre': ['icontains'],
             'siglas': ['icontains'],
             'es_maquina_tubo': ['exact']

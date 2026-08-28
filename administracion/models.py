@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 from estructura.models import Empresa, Zona, Seccion
 from mantenimiento.models import Especialidad
 from velocidad.models import DestrezasVelocidad
+from rodillos.models import DestrezasRodillos
 from foso.models import DestrezasFoso
 
 class Aplicacion(models.Model):
@@ -35,6 +36,7 @@ class Perfil(models.Model):
     puesto = models.ForeignKey(Puesto, on_delete=models.CASCADE)
     nivel_acceso = models.ForeignKey(NivelAcceso, on_delete=models.CASCADE)
     destrezas = models.ManyToManyField(Especialidad, blank=True, related_name='operarios')
+    destrezas_rodillos = models.ManyToManyField(DestrezasRodillos, blank=True, related_name='operarios_rodillos')
     destrezas_velocidad = models.ManyToManyField(DestrezasVelocidad, blank=True, related_name='operarios_velocidad')
     destrezas_foso      = models.ManyToManyField(DestrezasFoso, blank=True, related_name='operarios_foso')
 
