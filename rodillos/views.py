@@ -1,6 +1,6 @@
 from rest_framework import status, viewsets
-from rodillos.models import Rodillo, Tipo_rodillo, Seccion, Operacion, Eje, Plano, Revision, Material, Grupo, Tipo_Plano, Nombres_Parametros, Tipo_Seccion, Parametros_Estandar, Bancada, Conjunto, Elemento, Celda, Forma, Montaje, Icono, Instancia, Rectificacion, LineaRectificacion, Posicion, Icono_celda, Anotaciones, DestrezasRodillos
-from rodillos.serializers import RodilloSerializer, PlanoNuevoSerializer, RevisionSerializer, SeccionSerializer, OperacionSerializer, TipoRodilloSerializer, MaterialSerializer, GrupoSerializer, TipoPlanoSerializer, RodilloListSerializer, PlanoParametrosSerializer, Nombres_ParametrosSerializer, TipoSeccionSerializer, PlanoSerializer, RevisionConjuntosSerializer, Parametros_estandarSerializer, Plano_existenteSerializer, EjeSerializer, BancadaSerializer, ConjuntoSerializer, ElementoSerializer, Elemento_SelectSerializer, Bancada_GruposSerializer, Bancada_SelectSerializer, CeldaSerializer, Celda_SelectSerializer, Grupo_onlySerializer, FormaSerializer, Celda_DuplicarSerializer, Bancada_CTSerializer, MontajeSerializer, MontajeListadoSerializer, MontajeToolingSerializer, RodillosSerializer, Conjunto_OperacionSerializer, RevisionPlanosSerializer, IconoSerializer, EjeOperacionSerializer, InstanciaSerializer, InstanciaListadoSerializer, RectificacionSerializer, RectificacionListaSerializer, LineaRectificacionSerializer, ListadoLineaRectificacionSerializer, PosicionSerializer, MontajeQSSerializer, Icono_celdaSerializer, BancadaQSSerializer, CeldaQSSerializer, AnotacionesSerializer, LineaRectificacion_toolingSerializer, Celda_programadoresSerializer, DestrezasRodillosSerializer
+from rodillos.models import Rodillo, Tipo_rodillo, Seccion, Operacion, Eje, Plano, Revision, Material, Grupo, Tipo_Plano, Nombres_Parametros, Tipo_Seccion, Parametros_Estandar, Bancada, Conjunto, Elemento, Celda, Forma, Montaje, Icono, Instancia, Rectificacion, LineaRectificacion, Posicion, Icono_celda, Anotaciones, DestrezasRodillos, Doc_rectificado
+from rodillos.serializers import RodilloSerializer, PlanoNuevoSerializer, RevisionSerializer, SeccionSerializer, OperacionSerializer, TipoRodilloSerializer, MaterialSerializer, GrupoSerializer, TipoPlanoSerializer, RodilloListSerializer, PlanoParametrosSerializer, Nombres_ParametrosSerializer, TipoSeccionSerializer, PlanoSerializer, RevisionConjuntosSerializer, Parametros_estandarSerializer, Plano_existenteSerializer, EjeSerializer, BancadaSerializer, ConjuntoSerializer, ElementoSerializer, Elemento_SelectSerializer, Bancada_GruposSerializer, Bancada_SelectSerializer, CeldaSerializer, Celda_SelectSerializer, Grupo_onlySerializer, FormaSerializer, Celda_DuplicarSerializer, Bancada_CTSerializer, MontajeSerializer, MontajeListadoSerializer, MontajeToolingSerializer, RodillosSerializer, Conjunto_OperacionSerializer, RevisionPlanosSerializer, IconoSerializer, EjeOperacionSerializer, InstanciaSerializer, InstanciaListadoSerializer, RectificacionSerializer, RectificacionListaSerializer, LineaRectificacionSerializer, ListadoLineaRectificacionSerializer, PosicionSerializer, MontajeQSSerializer, Icono_celdaSerializer, BancadaQSSerializer, CeldaQSSerializer, AnotacionesSerializer, LineaRectificacion_toolingSerializer, Celda_programadoresSerializer, DestrezasRodillosSerializer, DocRectificadoSerializer
 from django_filters import rest_framework as filters
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
@@ -805,3 +805,22 @@ class DestrezasRodillosViewSet(viewsets.ModelViewSet):
     serializer_class = DestrezasRodillosSerializer
     queryset = DestrezasRodillos.objects.all()
     filterset_class = DestrezasRodillosFilter
+
+class DocRectificadoView(viewsets.ModelViewSet):
+    queryset = Doc_rectificado.objects.all()
+    serializer_class = DocRectificadoSerializer
+    filterset_fields = ['rectificado', 'linea_rectificacion', 'linea_rectificacion__instancia']
+
+    @action(detail=True, methods=['post'])
+    def asignar_linea(self, request, pk=None):
+        doc = self.get_object()
+        linea_id = request.data.get('linea_rectificacion')
+        accion = request.data.get('accion', 'add')
+
+        if accion == 'add':
+            doc.linea_rectificacion.add(linea_id)
+        else:
+            doc.linea_rectificacion.remove(linea_id)
+
+        return Response(DocRectificadoSerializer(doc).data)
+

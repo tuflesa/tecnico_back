@@ -324,3 +324,13 @@ class DestrezasRodillos(models.Model): # Escritura, lectura, edicion....
 
     def __str__(self):
         return self.nombre
+    
+class Doc_rectificado(models.Model):
+    linea_rectificacion = models.ManyToManyField(LineaRectificacion, related_name='documentos', blank=True)
+    rectificado = models.ForeignKey(Rectificacion, on_delete=models.CASCADE, related_name='documentos')
+    fecha = models.DateField(default=timezone.now)
+    usuario = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='documentos_rectificado')
+    archivo = models.FileField(upload_to='documentos_rectificado', blank=True, null=True)
+
+    def __str__(self):
+        return f"{self.rectificado.numero} - {self.fecha}"
