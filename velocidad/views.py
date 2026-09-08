@@ -1127,9 +1127,6 @@ def buscar_montajes_of(request):
         fecha_fin_utc = fecha_fin.replace(tzinfo=pytz.UTC)
         fecha_inicio_utc = fecha_inicio.replace(tzinfo=pytz.UTC)
         
-        print(f'Fecha fin {fecha_fin}')
-        print(f'Fecha fin utc {fecha_fin_utc}')
-        
         of_qs = of_qs.filter(
             inicio__lte=fecha_fin_utc
         ).filter(
