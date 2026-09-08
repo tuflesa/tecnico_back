@@ -18,6 +18,7 @@ from rest_framework.response import Response
 from .calendario import generar_horario_anual
 from types import SimpleNamespace
 import pyodbc
+import pytz
 
 class DestrezasVelocidadFilter(filters.FilterSet):
     class Meta:
@@ -1121,14 +1122,18 @@ def buscar_montajes_of(request):
 
     if fecha_inicio_str and fecha_fin_str:
         fecha_inicio = parse_datetime(fecha_inicio_str)
-        fecha_inicio = timezone.make_aware(fecha_inicio, timezone.get_default_timezone())
         fecha_fin    = parse_datetime(fecha_fin_str)
-        fecha_fin = timezone.make_aware(fecha_fin, timezone.get_default_timezone())
+
+        fecha_fin_utc = fecha_fin.replace(tzinfo=pytz.UTC)
+        fecha_inicio_utc = fecha_inicio.replace(tzinfo=pytz.UTC)
+        
+        print(f'Fecha fin {fecha_fin}')
+        print(f'Fecha fin utc {fecha_fin_utc}')
         
         of_qs = of_qs.filter(
-            inicio__lte=fecha_fin
+            inicio__lte=fecha_fin_utc
         ).filter(
-            Q(fin__gte=fecha_inicio) | Q(fin__isnull=True)
+            Q(fin__gte=fecha_inicio_utc) | Q(fin__isnull=True)
         )
         
     of_obj = of_qs.order_by('-inicio').first()
