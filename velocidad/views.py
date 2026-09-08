@@ -1121,21 +1121,17 @@ def buscar_montajes_of(request):
 
     if fecha_inicio_str and fecha_fin_str:
         fecha_inicio = parse_datetime(fecha_inicio_str)
+        fecha_inicio = timezone.make_aware(fecha_inicio, timezone.get_default_timezone())
         fecha_fin    = parse_datetime(fecha_fin_str)
-        
-        # if timezone.is_naive(fecha_inicio):
-        #     fecha_inicio = timezone.make_aware(fecha_inicio)
-        # if timezone.is_naive(fecha_fin):
-        #     fecha_fin = timezone.make_aware(fecha_fin)
+        fecha_fin = timezone.make_aware(fecha_fin, timezone.get_default_timezone())
         
         of_qs = of_qs.filter(
             inicio__lte=fecha_fin
         ).filter(
             Q(fin__gte=fecha_inicio) | Q(fin__isnull=True)
         )
-    print(f'OFs {of_qs}')
+        
     of_obj = of_qs.order_by('-inicio').first()
-    print(f'OF {of_obj}')
     xIdOF  = of_obj.numero if of_obj else None
 
     conn_str = (
