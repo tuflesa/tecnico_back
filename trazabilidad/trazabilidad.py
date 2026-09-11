@@ -12,6 +12,7 @@ from .models import Acumulador, Flejes, Tubos, OF, Montaje
 from velocidad.models import Parada
 from django.db.models import Q
 from datetime import date
+import pytz
 
 # Constantes
 DEBUG = False
@@ -272,7 +273,7 @@ def leerFlejesEnAcumuladores(request):
                         primer_fleje_of_actual = Flejes.objects.filter(of=of_actual).order_by('pos').first()
                         fecha = primer_fleje_of_actual.fecha_entrada
                         hora = primer_fleje_of_actual.hora_entrada
-                        hora_cambio_OF = datetime.combine(fecha, hora)
+                        hora_cambio_OF = datetime.combine(fecha, hora).replace(tzinfo=pytz.UTC)
                         OF.objects.filter(zona=acc.zona, fin__isnull=True).update(fin=hora_cambio_OF)
                         print(f'Crear cambio de OF sin sensor {of_registro} hora inicio OF {hora_cambio_OF}')
 
