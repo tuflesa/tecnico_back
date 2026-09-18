@@ -99,6 +99,7 @@ class Pedido(models.Model):
     descripcion = models.CharField(max_length=300, null=False, blank=False)
     intervencion = models.BooleanField(default=False, null=True, blank=True)
     revisado = models.BooleanField(default=False, null=True, blank=True)
+    fecha_prevista_modificada = models.BooleanField(default=False)
 
     def save(self, *args, **kwargs):
         # Generar nuevo número si el campo numero es None (null)
