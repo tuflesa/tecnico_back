@@ -6,12 +6,11 @@ from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from django.db.models import Q, Value, CharField
 from django.db.models.functions import Concat
-from rest_framework.decorators import action
+from rest_framework.decorators import action, api_view
 from django.db.models import Max
 from ftplib import FTP
 from django.db.models import Count
 import django_filters
-from rest_framework.decorators import api_view
 
 class DestrezasRodillosFilter(filters.FilterSet):
     class Meta:
@@ -824,3 +823,21 @@ class DocRectificadoView(viewsets.ModelViewSet):
             doc.linea_rectificacion.remove(linea_id)
 
         return Response(DocRectificadoSerializer(doc).data)
+
+#prueba de conexión a la BD de QS-mtt2 Gramage
+
+""" conn_str_2 = (
+    "DRIVER={ODBC Driver 18 for SQL Server};"
+    "SERVER=10.128.1.40;"
+    "DATABASE=GestionRodillos2;"
+    "UID=tecnico;"
+    "PWD=tecnico;"
+    "TrustServerCertificate=yes;"
+)
+
+conn = pyodbc.connect(conn_str_2, timeout=5)
+cursor = conn.cursor()
+cursor.execute("SELECT codMontaje FROM dbo.Montajes WHERE IdMontaje = ?", 7)
+row = cursor.fetchone()
+print(row)
+conn.close() """
