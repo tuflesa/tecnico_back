@@ -1,4 +1,5 @@
 from rest_framework import routers
+from django.urls import path
 from .views import RodilloViewSet, PlanoNuevoViewSet, RevisionViewSet, SeccionViewSet, OperacionViewSet, TipoRodilloViewSet, MaterialViewSet, GrupoViewSet, TipoPlanoViewSet, Rodillo_listViewSet, Rodillo_editarViewSet, PlanoParametrosViewSet, Nombres_ParametrosViewSet, TipoSeccionViewSet, PlanoViewSet, RevisionConjuntosViewSet, Parametros_estandarViewSet, Plano_existenteViewSet, EjeViewSet, BancadaViewSet, ConjuntoViewSet, ElementoViewSet, Elemento_SelectViewSet, BancadaGruposViewSet, CeldaViewSet, Celda_SelectViewSet, Rodillo_existenteViewSet, Grupo_onlyViewSet, Operacion_CTViewSet, FormaViewSet, Celda_DuplicarViewSet, BancadaCTViewSet, Grupo_NuevoViewSet, BancadaMontajeViewSet, grupo_montajeViewSet, BancadaMontajeCTViewSet, MontajeViewSet, MontajeListadoViewSet, MontajeToolingViewSet, RodillosViewSet, Conjunto_OperacionViewSet, RevisionPlanosViewSet, EjeOperacionViewSet, InstanciaViewSet, InstanciaListadoViewSet, RectificacionViewSet, RectificacionListaViewSet, LineaRectificacionViewSet, ListadoLineaRectificacionViewSet, EliminarViewSet, RevisionPlanosRecienteViewSet, PosicionViewSet, MontajeQSViewSet, Icono_celdaViewSet, CeldaQSViewSet, AnotacionesViewSet, DestrezasRodillosViewSet, DocRectificadoView
 from .views import *
 
@@ -65,5 +66,9 @@ router.register('revision_plano', RevisionViewSet)
 router.register('tipo_seccion', TipoSeccionViewSet)
 router.register('posicion', PosicionViewSet)
 
-urlpatterns = router.urls
+urlpatterns = [
+    path('actualizaIdQSmtt2/', actualizaIdQSmtt2),
+]
+
+urlpatterns = router.urls + urlpatterns
 

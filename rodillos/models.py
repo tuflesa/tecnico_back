@@ -168,6 +168,7 @@ class Rodillo(models.Model):
     archivo = models.FileField(upload_to='programa', blank=True, null=True)
     rectificado_por_parejas = models.BooleanField(default=True) #este campo lo utilizamos para saber que trabajan con una sola instancia por pareja, se rectifican a la par
     es_generico = models.BooleanField(default=False) #para el null en los montajes
+    idQSmtt2 = models.IntegerField(null=True, blank=True) # Enlaza con la base de datos del QS de la mtt2
 
     def __str__(self) -> str:
         return self.nombre
@@ -181,7 +182,10 @@ class Rodillo(models.Model):
             if self.grupo:
                 codigo = operacion + '-' + str(round(self.grupo.tubo_madre)).zfill(3) + '-' + self.tipo.siglas[0]
             else:
-                codigo = operacion + '-' + self.dimension_perfil.zfill(3) + '-' + self.tipo.siglas[0]
+                if self.forma.nombre == 'Redondo':
+                    codigo = operacion + '-' + self.descripcion_perfil + '-' + self.tipo.siglas[0]
+                else:
+                    codigo = operacion + '-' + self.dimension_perfil + '-' + self.tipo.siglas[0]
 
         return codigo
 

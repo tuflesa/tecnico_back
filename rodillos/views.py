@@ -11,6 +11,7 @@ from django.db.models import Max
 from ftplib import FTP
 from django.db.models import Count
 import django_filters
+import pyodbc
 
 class DestrezasRodillosFilter(filters.FilterSet):
     class Meta:
@@ -824,7 +825,52 @@ class DocRectificadoView(viewsets.ModelViewSet):
 
         return Response(DocRectificadoSerializer(doc).data)
 
-#prueba de conexión a la BD de QS-mtt2 Gramage
+
+# Lee el id de la base de datos del QS de la mtt2 y actualiza el rodillo que tenga
+# el mismo codRodillo
+@api_view(["GET"])
+def actualizaIdQSmtt2(request):
+    rodillos = Rodillo.objects.filter(operacion__seccion__maquina__siglas='mtt2') #, idQSmtt2__isnull=True)
+    print(f'Numero de rodillos a actualizar {len(rodillos)}')
+    conn_str = (
+        "DRIVER={ODBC Driver 18 for SQL Server};"
+        "SERVER=10.128.1.40;"
+        "DATABASE=GestionRodillos2;"
+        "UID=tecnico;"
+        "PWD=tecnico;"
+        "TrustServerCertificate=yes;"
+    )
+
+    try:
+        with pyodbc.connect(conn_str) as conn:
+            cursor = conn.cursor()
+
+            for rodillo in rodillos:
+                codigo = rodillo.codigo_QS_MTT2()
+                try:
+                    cursor.execute(
+                        "SELECT idRodillo FROM dbo.Rodillos WHERE codRodillo = ?",
+                        codigo
+                    )
+                    row = cursor.fetchone()
+
+                    if row:
+                        idRodillo = row[0]  
+                        rodillo.idQSmtt2 = idRodillo
+                        rodillo.save()
+                    else:
+                        print(f"No se encontró el rodillo en la base de datos {codigo}")
+
+                except Exception as e:
+                    print(f"Error ejecutando SELECT para {codigo}: {e}")
+                    return Response({"error": "Error de base de datos"}, status=500)
+
+    except Exception as e:
+        print(f"Error conectando a SQL Server: {e}")
+        return Response({"error": "Error de conexión"}, status=500)
+
+    return Response({"status": "OK"}, status=200)
+
 
 """ conn_str_2 = (
     "DRIVER={ODBC Driver 18 for SQL Server};"
