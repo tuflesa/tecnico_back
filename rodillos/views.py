@@ -11,6 +11,7 @@ from django.db.models import Max
 from ftplib import FTP
 from django.db.models import Count
 import django_filters
+from rest_framework.decorators import api_view
 
 class DestrezasRodillosFilter(filters.FilterSet):
     class Meta:
@@ -823,4 +824,3 @@ class DocRectificadoView(viewsets.ModelViewSet):
             doc.linea_rectificacion.remove(linea_id)
 
         return Response(DocRectificadoSerializer(doc).data)
-

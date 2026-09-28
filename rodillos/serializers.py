@@ -124,9 +124,12 @@ class RodilloListSerializer(serializers.ModelSerializer):
     operacion = OperacionSerializer(many=False, read_only=False)
     tipo = TipoRodilloSerializer(many=False)
     grupo = GrupoSerializer(many=False)
+    codigo_QS_MTT2 = serializers.SerializerMethodField()
     class Meta:
         model = Rodillo
         fields = '__all__'
+    def get_codigo_QS_MTT2(self, obj):
+        return obj.codigo_QS_MTT2()
 
 class RodillosSerializer(serializers.ModelSerializer):
     grupo = GrupoSerializer(many=False)

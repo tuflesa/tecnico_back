@@ -172,6 +172,19 @@ class Rodillo(models.Model):
     def __str__(self) -> str:
         return self.nombre
 
+    def codigo_QS_MTT2(self):
+        codigo = None
+        if self.operacion.seccion.maquina.siglas == 'mtt2':
+            operacion = self.operacion.nombre
+            if len(operacion) == 3:
+                operacion = operacion[0:2] + '-' + operacion[-1]
+            if self.grupo:
+                codigo = operacion + '-' + str(round(self.grupo.tubo_madre)).zfill(3) + '-' + self.tipo.siglas[0]
+            else:
+                codigo = operacion + '-' + self.dimension_perfil.zfill(3) + '-' + self.tipo.siglas[0]
+
+        return codigo
+
 # Parámetros estándar: Parametros de un rodillo según plano sin rectificar. Al crear una revisión de un plano, se deben actualizar.
 class Parametros_Estandar(models.Model):
     nombre = models.CharField(max_length=50)

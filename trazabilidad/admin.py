@@ -10,8 +10,11 @@ class MontajeAdmin(admin.ModelAdmin):
     list_filter=("of__zona__siglas",)
     list_display =("of", "inicio","fin","of",)
 
+class FlejeAdmin(admin.ModelAdmin):
+    list_filter=("maquina_siglas",)
+
 admin.site.register(Acumulador)
-admin.site.register(Flejes)
+admin.site.register(Flejes, FlejeAdmin)
 admin.site.register(Tubos)
 admin.site.register(OF, OFAdmin)
 admin.site.register(Forma)
