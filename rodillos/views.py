@@ -831,7 +831,7 @@ class DocRectificadoView(viewsets.ModelViewSet):
 @api_view(["GET"])
 def actualizaIdQSmtt2(request):
     rodillos = Rodillo.objects.filter(operacion__seccion__maquina__siglas='mtt2') #, idQSmtt2__isnull=True)
-    print(f'Numero de rodillos a actualizar {len(rodillos)}')
+
     conn_str = (
         "DRIVER={ODBC Driver 18 for SQL Server};"
         "SERVER=10.128.1.40;"
@@ -844,7 +844,7 @@ def actualizaIdQSmtt2(request):
     try:
         with pyodbc.connect(conn_str) as conn:
             cursor = conn.cursor()
-
+            no_encontrados = 0
             for rodillo in rodillos:
                 codigo = rodillo.codigo_QS_MTT2()
                 try:
@@ -860,6 +860,7 @@ def actualizaIdQSmtt2(request):
                         rodillo.save()
                     else:
                         print(f"No se encontró el rodillo en la base de datos {codigo}")
+                        no_encontrados += 1
 
                 except Exception as e:
                     print(f"Error ejecutando SELECT para {codigo}: {e}")
@@ -868,6 +869,8 @@ def actualizaIdQSmtt2(request):
     except Exception as e:
         print(f"Error conectando a SQL Server: {e}")
         return Response({"error": "Error de conexión"}, status=500)
+
+    print(f'No encontrados {no_encontrados} de {len(rodillos)}')
 
     return Response({"status": "OK"}, status=200)
 

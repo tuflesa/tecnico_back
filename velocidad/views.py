@@ -425,7 +425,8 @@ def estado_maquina(request, id):
         'velocidad':  float(r.velocidad),
         'potencia': float(r.potencia),
         'frecuencia': float(r.frecuencia),
-        'presion': float(r.presion)
+        'presion': float(r.presion),
+        'vmax': float(r.vmax)
     } for r in registros]
 
     # Ordenes de fabricación
@@ -550,7 +551,8 @@ def estado_maquina(request, id):
         'fleje_pos': fleje_act.pos,
         'fleje_descripcion': fleje_act.descripcion,
         'n_tubos': tubo_act.n_tubos,
-        'tubo_descripcion': tubo_act.descripcion
+        'tubo_descripcion': tubo_act.descripcion,
+        'vmax': estado_act.vmax
     }
 
     # Paradas

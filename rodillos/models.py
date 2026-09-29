@@ -177,15 +177,24 @@ class Rodillo(models.Model):
         codigo = None
         if self.operacion.seccion.maquina.siglas == 'mtt2':
             operacion = self.operacion.nombre
+
             if len(operacion) == 3:
                 operacion = operacion[0:2] + '-' + operacion[-1]
-            if self.grupo:
-                codigo = operacion + '-' + str(round(self.grupo.tubo_madre)).zfill(3) + '-' + self.tipo.siglas[0]
-            else:
+
+            if self.grupo: #Formacion y soldadura
+                descripcion = str(round(self.grupo.tubo_madre)).zfill(3)
+            else: # calibradores
                 if self.forma.nombre == 'Redondo':
-                    codigo = operacion + '-' + self.descripcion_perfil + '-' + self.tipo.siglas[0]
+                    descripcion = self.descripcion_perfil
                 else:
-                    codigo = operacion + '-' + self.dimension_perfil + '-' + self.tipo.siglas[0]
+                    descripcion = self.dimension_perfil
+
+            if 'FF' in self.nombre:
+                descripcion = descripcion + 'FF'
+            codigo = operacion + '-' + descripcion + '-' + self.tipo.siglas[0]
+
+            if descripcion == '0':
+                print(f'{self.nombre} dimension 0')
 
         return codigo
 
