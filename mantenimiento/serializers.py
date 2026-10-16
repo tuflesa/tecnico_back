@@ -28,17 +28,17 @@ class TareaSerializer(serializers.ModelSerializer):
     tipo_periodo = TipoPeriodoSerializer()
     class Meta:
         model = Tarea
-        fields = ['id', 'nombre', 'especialidad', 'prioridad', 'observaciones', 'especialidad_nombre', 'periodo', 'tipo_periodo', 'observaciones_trab']
+        fields = '__all__'
 
 class TareaEditarSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tarea
-        fields = ['id', 'nombre', 'especialidad', 'prioridad', 'observaciones', 'especialidad_nombre', 'periodo', 'tipo_periodo']
+        fields = '__all__'
 
 class TareaNuevaSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tarea
-        fields = ['id', 'nombre', 'especialidad', 'prioridad', 'observaciones', 'especialidad_nombre', 'tipo_periodo', 'periodo', 'observaciones_trab']
+        fields = '__all__'
 
 class EspecialidadSerializer(serializers.ModelSerializer):
     class Meta:

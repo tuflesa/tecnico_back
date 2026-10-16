@@ -93,6 +93,7 @@ class Tarea(models.Model):
     observaciones_trab = models.TextField(blank=True, null=True) #no guarda información??
     tipo_periodo = models.ForeignKey(TipoPeriodo, on_delete=models.CASCADE, null=True, blank=True)
     periodo = models.IntegerField(default=0)
+    mostrar_6_meses = models.BooleanField(default=False)
 
     """ def equipo_nombre(self):
         return self.equipo.nombre """

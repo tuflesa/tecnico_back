@@ -1,9 +1,10 @@
 # from asyncio.windows_events import NULL
+import datetime
 from rest_framework import viewsets
 from mantenimiento.models import Notificacion, ParteTrabajo, Tarea, Especialidad, TipoPeriodo, TipoTarea, LineaParteTrabajo, EstadoLineasTareas, TrabajadoresLineaParte, Reclamo, GastosParte
 from mantenimiento.serializers import LineasDeUnTrabajadorSerializer, PartesFiltradosSerializer, ParteTrabajoEditarSerializer, NotificacionSerializer, NotificacionNuevaSerializer, TareaSerializer, EspecialidadSerializer, TipoTareaSerializer, TipoPeriodoSerializer, TareaNuevaSerializer, ParteTrabajoSerializer, ParteTrabajoDetalleSerializer, LineaParteTrabajoSerializer, LineaParteTrabajoNuevaSerializer, LineaParteTrabajoMovSerializer, ListadoLineasPartesSerializer, EstadoLineasTareasSerializer, TrabajadoresLineaParteSerializer, ListadoLineasActivasSerializer, TrabajadoresEnLineaSerializer,  ReclamoDetalleSerializer, ReclamoSerializer, LineaParteTrabajoTrabajadorSerializer, LineasGastosSerilizer, LineasGastosUserSerilizer
 from django_filters import rest_framework as filters
-from django.db.models import Count, F, Value
+from django.db.models import Q
 from rest_framework.pagination import PageNumberPagination
 
 class NotificacionFilter(filters.FilterSet):
@@ -35,6 +36,7 @@ class TareaFilter(filters.FilterSet):
 
 class LineasFilter(filters.FilterSet):
     estado = filters.BaseInFilter(field_name="estado")
+    fecha_plan__lte = filters.DateFilter(method='filtrar_fecha_plan_lte')
     class Meta:
         model = LineaParteTrabajo
         fields = {
@@ -62,6 +64,13 @@ class LineasFilter(filters.FilterSet):
             'fecha_fin': ['exact'],
             'tarea__tipo_periodo__cantidad_dias' : ['exact'],
         }
+    def filtrar_fecha_plan_lte(self, queryset, name, value):
+        # Las tareas marcadas se muestran hasta 6 meses antes de su fecha plan
+        limite_6m = datetime.date.today() + datetime.timedelta(days=183)
+        return queryset.filter(
+            Q(tarea__mostrar_6_meses=False, fecha_plan__lte=value) |
+            Q(tarea__mostrar_6_meses=True, fecha_plan__lte=max(value, limite_6m))
+        )
 
 class EspecialidadFilter(filters.FilterSet):
     class Meta:
