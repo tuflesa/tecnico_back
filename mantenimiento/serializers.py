@@ -26,6 +26,7 @@ class TipoPeriodoSerializer(serializers.ModelSerializer):
         fields = ['id', 'nombre', 'cantidad_dias']
 class TareaSerializer(serializers.ModelSerializer):
     tipo_periodo = TipoPeriodoSerializer()
+    especialidad_nombre = serializers.ReadOnlyField(source='especialidad.nombre')
     class Meta:
         model = Tarea
         fields = '__all__'
