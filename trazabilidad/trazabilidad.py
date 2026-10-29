@@ -3,7 +3,7 @@ import snap7
 from snap7.util import get_fstring, get_int, get_real, get_date, get_time, set_string, set_int, set_real, set_date, set_dint
 from snap7.util import get_bool
 from datetime import datetime
-from django.utils.timezone import now
+# from django.utils.timezone import now
 from django.utils import timezone
 from rest_framework.decorators import api_view
 from django.http import HttpResponse
@@ -380,7 +380,12 @@ def leerFlejesEnAcumuladores(request):
                 tubo_actual = leerTubosPLC(from_PLC, 628)
                 
                 last_t = Tubos.objects.filter(fleje__acumulador__id=acc.id).order_by('id').last()
-                ahora = now()
+
+                ahora_local = timezone.localtime(timezone.now())
+                print(f'hora local time: {ahora_local}')
+                ahora = ahora_local.replace(tzinfo=None)
+                print(f'hora local registro: {ahora}')
+
                 if last_t == None:
                     print('No hay tubos ...')
                     fl = Flejes.objects.filter(of=ultimo_tubo['of'], pos=ultimo_tubo['pos'], idProduccion=ultimo_tubo['idProduccion']).last()

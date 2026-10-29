@@ -91,6 +91,25 @@ class Tubos(models.Model):
     fecha_entrada = models.DateTimeField(blank=True, null=True)
     fecha_salida = models.DateTimeField(blank=True, null=True)
     montaje = models.ForeignKey(Montaje, on_delete=models.SET_NULL, null=True, blank=True, related_name='tubos')
+    IdArticulo = models.CharField(max_length=17, editable=False, null=True, blank=True)
+
+    def xIdArticulo(self):
+        if (self.montaje):
+            forma = self.montaje.xIdMontaje[0]
+            material = self.fleje.IdArticulo[1]
+            calidad = self.fleje.IdArticulo[2]
+            dim1 = self.montaje.xIdMontaje[1:4]
+            dim2 = self.montaje.xIdMontaje[4:7]
+            espesor =  self.fleje.IdArticulo[9:]
+            largo = f"{self.largo:.0f}".zfill(5)
+            return forma + material + calidad + dim1 + dim2 + espesor + largo
+        else:
+            return None
+
+    def save(self, *args, **kwargs):
+        self.IdArticulo = self.xIdArticulo() or ''
+        super().save(*args, **kwargs)
+
 
     def descripcion(self):
         if (self.dim2):
