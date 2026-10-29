@@ -383,7 +383,7 @@ def leerFlejesEnAcumuladores(request):
 
                 ahora_local = timezone.localtime(timezone.now())
                 print(f'hora local time: {ahora_local}')
-                ahora = ahora_local.replace(tzinfo=None)
+                ahora = ahora_local.replace(tzinfo=timezone.utc)
                 print(f'hora local registro: {ahora}')
 
                 if last_t == None:
