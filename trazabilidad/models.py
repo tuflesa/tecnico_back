@@ -101,8 +101,8 @@ class Tubos(models.Model):
             dim1 = self.montaje.xIdMontaje[1:4]
             dim2 = self.montaje.xIdMontaje[4:7]
             espesor =  self.fleje.IdArticulo[9:]
-            largo = f"{self.largo:.0f}".zfill(5)
-            return forma + material + calidad + dim1 + dim2 + espesor + largo
+            # largo = f"{self.largo:.0f}".zfill(5)
+            return forma + material + calidad + dim1 + dim2 + espesor# + largo
         else:
             return None
 
