@@ -34,7 +34,7 @@ class Norma(models.Model): # EN10.219, EN10305,
 
 # Articulo
 class Articulo(models.Model): # Ejemplo Red. 100x3.0 S275 Negro EN10.219
-    nombre = models.CharField(max_length=50)
+    nombre = models.CharField(max_length=90)
     forma = models.ForeignKey(Formas, on_delete=models.CASCADE)
     dim1 = models.CharField(max_length=5) # 0 si es redondo
     dim2 = models.CharField(max_length=5)
