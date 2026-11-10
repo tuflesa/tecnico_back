@@ -5,6 +5,7 @@ from rodillos.models import Montaje
 class Formas(models.Model): # Redondo, Cuadrado, Rectangular
     nombre = models.CharField(max_length=20)
     siglas = models.CharField(max_length=5, null=False, blank=False)
+    codigo_produccion = models.CharField(max_length=1, blank=True, null=True)
 
     def __str__(self) -> str:
         return self.nombre    
@@ -12,12 +13,13 @@ class Formas(models.Model): # Redondo, Cuadrado, Rectangular
 # Calidad
 class Calidad(models.Model): # S235, S355, etc
     nombre = models.CharField(max_length=20)
+    codigo_produccion = models.CharField(max_length=2, blank=True, null=True)
 
     def __str__(self) -> str:
         return self.nombre 
     
 # Acabado superficial
-class Acabado(models.Model): # Negro, Decapado, Galvanizado
+class Acabado(models.Model): # Negro S1, Decapado S2, Frio S3 ...
     nombre = models.CharField(max_length=20)
 
     def __str__(self) -> str:
@@ -43,6 +45,7 @@ class Articulo(models.Model): # Ejemplo Red. 100x3.0 S275 Negro EN10.219
     desarrollo = models.IntegerField()
     Dst = models.FloatField(null=True, blank=True) #Diametro en soldadura teórico
     montajes = models.ManyToManyField(Montaje, related_name='articulos')
+    IdArticulo = models.CharField(max_length=17, editable=False, null=True, blank=True)
 
     def __str__(self) -> str:
         return self.nombre
