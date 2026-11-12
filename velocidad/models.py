@@ -25,6 +25,7 @@ class ZonaPerfilVelocidad(models.Model):
     lectura_vmax_sierra = models.BooleanField(default=False)
     tiempo_cambio_general = models.IntegerField(default=120)
     tiempo_cambio_parcial = models.IntegerField(default=60)
+    incremento_minimo_velocidad = models.FloatField(null=True, blank=True, default=0)
 
     def __str__(self) -> str:
         return self.zona.nombre
