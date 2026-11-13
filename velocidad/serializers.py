@@ -8,7 +8,7 @@ class ZonaPerfilVelocidadSerilizer(serializers.ModelSerializer):
     zona = ZonaSerializer(many=False)
     class Meta:
         model = ZonaPerfilVelocidad
-        fields = ['id', 'zona', 'ip', 'rack', 'slot', 'db', 'dw', 'nwords', 'color', 'v_max', 'hf_pmax', 'hf_fmax', 'hf_fmin', 'fuerza_max', 'lectura_hf', 'lectura_presion_soldadura', 'lectura_vmax_sierra']
+        fields = ['id', 'zona', 'ip', 'rack', 'slot', 'db', 'dw', 'nwords', 'color', 'v_max', 'hf_pmax', 'hf_fmax', 'hf_fmin', 'fuerza_max', 'lectura_hf', 'lectura_presion_soldadura', 'lectura_vmax_sierra', 'incremento_minimo_velocidad']
 
 class RegistroSerializer(serializers.ModelSerializer):
     class Meta:
