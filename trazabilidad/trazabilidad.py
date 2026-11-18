@@ -682,6 +682,7 @@ def leerEstadoPLC(request):
     acumulador = Acumulador.objects.get(id=acu_id)
 
     if (acumulador.ip):
+        print(acumulador)
         IP = acumulador.ip
         RACK = acumulador.rack
         SLOT = acumulador.slot
