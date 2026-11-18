@@ -683,7 +683,10 @@ def leerEstadoPLC(request):
     acu_id = request.GET.get('acu_id')
     acumulador = Acumulador.objects.get(id=acu_id)
 
+    print(f'Acumulador {acu_id}: {acumulador.nombre}')
+
     if (acumulador.ip):
+        print(f'Acumulador {acu_id}: Tiene ip')
         IP = acumulador.ip
         RACK = acumulador.rack
         SLOT = acumulador.slot
@@ -705,6 +708,7 @@ def leerEstadoPLC(request):
             
         }
     else:
+        print(f'Acumulador {acu_id}: No tiene ip')
         plc_status = {}
 
     return Response(plc_status)
