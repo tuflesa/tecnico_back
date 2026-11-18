@@ -17,10 +17,12 @@ import pytz
 # Constantes
 DEBUG = False
 ULTIMO_FLEJE = 0
-FLEJE_SIZE = 98
+FLEJE_SIZE = 102 #98
 TUBO_SIZE = 38
-FIFO_POS = 196
-FLEJE_ACTUAL = 98
+FIFO_POS = 204 #196
+FLEJE_ACTUAL = 102 #98
+TRAZABILIDAD_SIZE = 844 #820
+CAMBIO_OF_POS = 844
 FLEJE_NULO = {
     'pos': 0,
     'idProduccion': '',
@@ -28,6 +30,7 @@ FLEJE_NULO = {
     'peso': 0,
     'of': '',
     'metros_teoricos': 0,
+    'metros_salida': 0,
     'IdArticulo': 'F00000001001'
 }
 TUBO_NULO = {
@@ -232,7 +235,7 @@ def leerFlejesEnAcumuladores(request):
                 DB = acc.db
                 plc = snap7.client.Client()
                 plc.connect(IP, RACK, SLOT)
-                data = plc.read_area(snap7.type.Areas.DB, DB, 820, 1)
+                data = plc.read_area(snap7.type.Areas.DB, DB, CAMBIO_OF_POS, 1)
                 cambio_OF = get_bool(data, 0, 0)
                 plc.disconnect()
 
@@ -372,7 +375,7 @@ def leerFlejesEnAcumuladores(request):
                 plc = snap7.client.Client()
                 plc.connect(IP, RACK, SLOT)
 
-                from_PLC = plc.db_read(DB,0,820)
+                from_PLC = plc.db_read(DB,0,TRAZABILIDAD_SIZE)
                 ultimo_flejePLC = leerFlejePLC(from_PLC,ULTIMO_FLEJE)
                 fleje_ActualPLC = leerFlejePLC(from_PLC,FLEJE_ACTUAL)
                 # Leer ultimo tubo del PLC

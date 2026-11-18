@@ -51,7 +51,8 @@ class Flejes(models.Model):
     maquina_siglas = models.CharField(max_length=4)
     descripcion = models.CharField(max_length=50)
     acumulador = models.ForeignKey(Acumulador, on_delete=models.CASCADE, related_name='flejes')
-    metros_medido = models.FloatField(default=0)
+    metros_medido = models.FloatField(default=0) # Metros medidos a la entrada de máquina
+    metros_salida = models.FloatField(default=0) # Metros medidos a la salida de la sierra volante
     fecha_entrada = models.DateField(blank=True, null=True)
     hora_entrada = models.TimeField(blank=True, null=True)
     fecha_salida = models.DateField(blank=True, null=True)
@@ -73,7 +74,7 @@ class Flejes(models.Model):
         metros = (self.peso *1000) / (self.espesor() * self.ancho() * 7.85)
         return metros
     
-    def metros_tubo(self):
+    def metros_tubo(self): # Metros de tubos buenos
         metros = 0
         for tubo in self.tubos.all():
             metros += tubo.n_tubos * tubo.largo/1000

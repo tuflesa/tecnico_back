@@ -17,7 +17,7 @@ class FlejesSerializer(serializers.ModelSerializer):
     tubos = TubosSerializer(many=True)
     class Meta:
         model = Flejes
-        fields = ['pos', 'idProduccion', 'IdArticulo', 'peso', 'of', 'maquina_siglas', 'descripcion', 'acumulador', 'ancho', 'espesor', 'metros_teorico', 'metros_medido', 'metros_tubo', 'tubos']
+        fields = ['pos', 'idProduccion', 'IdArticulo', 'peso', 'of', 'maquina_siglas', 'descripcion', 'acumulador', 'ancho', 'espesor', 'metros_teorico', 'metros_medido', 'metros_tubo', 'tubos', 'metros_salida']
 
 class FlejesSimpleSerializer(serializers.ModelSerializer):
     class Meta:
