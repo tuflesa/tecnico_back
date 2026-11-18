@@ -479,7 +479,7 @@ def leerFlejesEnAcumuladores(request):
                     else:
                         print('Fleje actual PLC no valido')
 
-                nFlejesPLC, FIFO_PLC = leerFIFO_FlejePLC(from_PLC, 196)
+                nFlejesPLC, FIFO_PLC = leerFIFO_FlejePLC(from_PLC, FIFO_POS) # 196)
                 if not orden_flejes_OK: # Sobre escribe lo guardado en el PLC para corregir el orden
                     print('Corregir orden en PLC, nFlejes=0')
                     nFlejesPLC = 0
