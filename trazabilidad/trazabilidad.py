@@ -694,7 +694,7 @@ def leerEstadoPLC(request):
 
         from_PLC = plc.db_read(DB,0,589)
         ultimo_fleje = leerFlejePLC(from_PLC,0)
-        fleje_actual = leerFlejePLC(from_PLC,98)
+        fleje_actual = leerFlejePLC(from_PLC,FLEJE_ACTUAL)
         nFlejesPLC, FIFO_PLC = leerFIFO_FlejePLC(from_PLC, FIFO_POS)
         plc_status = {
             'ultimo_fleje': ultimo_fleje,
