@@ -18,6 +18,7 @@ import pytz
 DEBUG = False
 ULTIMO_FLEJE = 0
 FLEJE_SIZE = 102 #98
+FIN_FLEJES = 614#589
 TUBO_SIZE = 38
 FIFO_POS = 204 #196
 FLEJE_ACTUAL = 102 #98
@@ -690,8 +691,8 @@ def leerEstadoPLC(request):
 
         plc = snap7.client.Client()
         plc.connect(IP, RACK, SLOT)
-
-        from_PLC = plc.db_read(DB,0,589)
+        print(acumulador)
+        from_PLC = plc.db_read(DB,0,FIN_FLEJES) #589)
         ultimo_fleje = leerFlejePLC(from_PLC,0)
         fleje_actual = leerFlejePLC(from_PLC,FLEJE_ACTUAL)
         nFlejesPLC, FIFO_PLC = leerFIFO_FlejePLC(from_PLC, FIFO_POS)
