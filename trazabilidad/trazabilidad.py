@@ -68,7 +68,7 @@ def leerTubosPLC(data, pos):
     return tubo
 
 def leerFlejePLC(data, pos):
-    print(f'Peso: {get_int(data, pos+76)}')
+    print(f'Metros salida: {get_real(data, pos+98)}')
     fleje = {
         'of': get_fstring(data, pos+2, 8, False),
         'pos': get_int(data, pos+10),
@@ -77,6 +77,7 @@ def leerFlejePLC(data, pos):
         'peso': get_int(data, pos+76),
         'metros_teoricos': get_real(data, pos+78),
         'metros_medidos': get_real(data, pos+82),
+        'metros_salida': get_real(data, pos+98),
         'fecha_entrada': get_date(data, pos+86),
         'hora_entrada': parse_hora_plc(get_time(data, pos+88)),
         'fecha_salida': get_date(data, pos+92),
@@ -683,10 +684,7 @@ def leerEstadoPLC(request):
     acu_id = request.GET.get('acu_id')
     acumulador = Acumulador.objects.get(id=acu_id)
 
-    print(f'Acumulador {acu_id}: {acumulador.nombre}')
-
     if (acumulador.ip):
-        print(f'Acumulador {acu_id}: Tiene ip')
         IP = acumulador.ip
         RACK = acumulador.rack
         SLOT = acumulador.slot
@@ -698,7 +696,6 @@ def leerEstadoPLC(request):
         from_PLC = plc.db_read(DB,0,589)
         ultimo_fleje = leerFlejePLC(from_PLC,0)
         fleje_actual = leerFlejePLC(from_PLC,FLEJE_ACTUAL)
-        print(f'Acumulador: {acumulador.nombre}')
         nFlejesPLC, FIFO_PLC = leerFIFO_FlejePLC(from_PLC, FIFO_POS)
         plc_status = {
             'ultimo_fleje': ultimo_fleje,
@@ -708,7 +705,6 @@ def leerEstadoPLC(request):
             
         }
     else:
-        print(f'Acumulador {acu_id}: No tiene ip')
         plc_status = {}
 
     return Response(plc_status)
