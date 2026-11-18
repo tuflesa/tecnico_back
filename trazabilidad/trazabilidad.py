@@ -68,7 +68,6 @@ def leerTubosPLC(data, pos):
     return tubo
 
 def leerFlejePLC(data, pos):
-    print(f'Metros salida: {get_real(data, pos+98)}')
     fleje = {
         'of': get_fstring(data, pos+2, 8, False),
         'pos': get_int(data, pos+10),
@@ -89,7 +88,6 @@ def leerFIFO_FlejePLC(data, pos):
     FIFO = []
     nFlejes = get_int(data, pos)
     for i in range(4):
-        print(f'Iteracion {i}')
         FIFO.append(leerFlejePLC(data, pos+2+i*FLEJE_SIZE))
 
     return nFlejes, FIFO
