@@ -87,6 +87,7 @@ def leerFIFO_FlejePLC(data, pos):
     FIFO = []
     nFlejes = get_int(data, pos)
     for i in range(4):
+        print(f'Iteracion {i}')
         FIFO.append(leerFlejePLC(data, pos+2+i*FLEJE_SIZE))
 
     return nFlejes, FIFO
