@@ -24,6 +24,8 @@ FIFO_POS = 204 #196
 FLEJE_ACTUAL = 102 #98
 TRAZABILIDAD_SIZE = 844 #820
 CAMBIO_OF_POS = 844
+ULTIMO_TUBO = 614
+TUBO_ACTUAL = 652
 FLEJE_NULO = {
     'pos': 0,
     'idProduccion': '',
@@ -381,8 +383,8 @@ def leerFlejesEnAcumuladores(request):
                 ultimo_flejePLC = leerFlejePLC(from_PLC,ULTIMO_FLEJE)
                 fleje_ActualPLC = leerFlejePLC(from_PLC,FLEJE_ACTUAL)
                 # Leer ultimo tubo del PLC
-                ultimo_tubo = leerTubosPLC(from_PLC, 590)
-                tubo_actual = leerTubosPLC(from_PLC, 628)
+                ultimo_tubo = leerTubosPLC(from_PLC, ULTIMO_TUBO) #590)
+                tubo_actual = leerTubosPLC(from_PLC, TUBO_ACTUAL) #628)
                 
                 last_t = Tubos.objects.filter(fleje__acumulador__id=acc.id).order_by('id').last()
 
