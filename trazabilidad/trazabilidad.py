@@ -461,6 +461,7 @@ def leerFlejesEnAcumuladores(request):
                     f.hora_entrada = ultimo_flejePLC['hora_entrada']
                     f.fecha_salida = ultimo_flejePLC['fecha_salida']
                     f.hora_salida = ultimo_flejePLC['hora_salida']
+                    f.metros_salida = ultimo_fleje['metros_salida']
                     f.finalizada = True
                     f.save()
                     acc.of_activa = fleje_ActualPLC['of']
@@ -478,6 +479,7 @@ def leerFlejesEnAcumuladores(request):
                         print('pos ', fleje_ActualPLC['pos'])
                         f = Flejes.objects.get(of=fleje_ActualPLC['of'], pos=fleje_ActualPLC['pos'])
                         f.metros_medido = fleje_ActualPLC['metros_medidos']
+                        f.metros_salida = fleje_ActualPLC['metros_salida']
                         f.save()
                         flejeActualPLC_valido = True
                     else:
