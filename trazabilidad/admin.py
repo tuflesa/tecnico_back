@@ -13,9 +13,13 @@ class MontajeAdmin(admin.ModelAdmin):
 class FlejeAdmin(admin.ModelAdmin):
     list_filter=("maquina_siglas",)
 
+class TubosAdmin(admin.ModelAdmin):
+    readonly_fields = ('IdArticulo',)
+    list_filter=("fleje__maquina_siglas",)
+
 admin.site.register(Acumulador)
 admin.site.register(Flejes, FlejeAdmin)
-admin.site.register(Tubos)
+admin.site.register(Tubos, TubosAdmin)
 admin.site.register(OF, OFAdmin)
 admin.site.register(Forma)
 admin.site.register(Montaje, MontajeAdmin)
