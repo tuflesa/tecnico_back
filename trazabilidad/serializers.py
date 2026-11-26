@@ -9,9 +9,12 @@ class AcumuladorSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class TubosSerializer(serializers.ModelSerializer):
+    descripcion = serializers.SerializerMethodField()
     class Meta:
         model = Tubos
         fields = '__all__'
+    def get_descripcion(self, obj):
+        return obj.descripcion()
 
 class FlejesSerializer(serializers.ModelSerializer):
     tubos = TubosSerializer(many=True)
