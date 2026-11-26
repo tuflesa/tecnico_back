@@ -12,7 +12,11 @@ class TubosSerializer(serializers.ModelSerializer):
     descripcion = serializers.SerializerMethodField()
     class Meta:
         model = Tubos
-        fields = '__all__'
+        fields = [
+            'id', 'n_tubos', 'largo', 'fleje', 'dim1', 'dim2',
+            'fecha_entrada', 'fecha_salida', 'montaje',
+            'IdArticulo', 'descripcion'
+        ]
     def get_descripcion(self, obj):
         return obj.descripcion()
 
