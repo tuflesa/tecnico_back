@@ -60,3 +60,10 @@ class Llamada(models.Model):
     fecha = models.DateField(default=date.today)
     hora = models.TimeField(auto_now_add=True)
     puerta = models.IntegerField()
+
+class DestrezasCargas(models.Model): # Báscula, Oficina, Almacén
+    nombre = models.CharField(max_length=50)
+    descripcion = models.CharField(max_length=200, blank=True, null=True)
+
+    def __str__(self):
+        return self.nombre
