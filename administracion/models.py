@@ -5,6 +5,7 @@ from mantenimiento.models import Especialidad
 from velocidad.models import DestrezasVelocidad
 from rodillos.models import DestrezasRodillos
 from foso.models import DestrezasFoso
+from cargas.models import DestrezasCargas
 
 class Aplicacion(models.Model):
     nombre = models.CharField(max_length=50)
@@ -38,7 +39,8 @@ class Perfil(models.Model):
     destrezas = models.ManyToManyField(Especialidad, blank=True, related_name='operarios')
     destrezas_rodillos = models.ManyToManyField(DestrezasRodillos, blank=True, related_name='operarios_rodillos')
     destrezas_velocidad = models.ManyToManyField(DestrezasVelocidad, blank=True, related_name='operarios_velocidad')
-    destrezas_foso      = models.ManyToManyField(DestrezasFoso, blank=True, related_name='operarios_foso')
+    destrezas_foso = models.ManyToManyField(DestrezasFoso, blank=True, related_name='operarios_foso')
+    destrezas_cargas = models.ManyToManyField(DestrezasCargas, blank=True, related_name='operarios_cargas')
 
     def __str__(self):
         return self.usuario.get_full_name() 
